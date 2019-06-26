@@ -1,13 +1,13 @@
 # You can use this file to create a conda environment for this pipeline:
 #   conda env create -f environment.yml
+# use this to find packages: https://anaconda.org/
 name: nf-core-rnadeseq-1.0dev
 channels:
   - conda-forge
   - bioconda
   - defaults
-  - r
 dependencies:
-  - backports_1.1.4
+  - r-backports=1.1.4
   - hexbin_1.27.2
   - svglite_1.2.1
   - pheatmap_1.0.12
