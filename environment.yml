@@ -24,4 +24,4 @@ dependencies:
   - conda-forge::r-knitr=1.22
   - conda-forge::r-tidyverse=1.2.1
   - conda-forge::r-dt 0.6
-  - r::r-yaml=2.2.0 # chose R channel because conda-forge has only 0.1.7 
+  - r::r-yaml=2.2.0 # chose R channel because conda-forge has only 0.1.7
