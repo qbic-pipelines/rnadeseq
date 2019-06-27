@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 # Analysis pipeline from raw read count table to differential expression lists using DESeq2
 # Author: Stefan Czemmel
 # Contributors: Gisela Gabernet

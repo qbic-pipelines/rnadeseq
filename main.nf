@@ -98,28 +98,26 @@ ch_multiqc_config = Channel.fromPath(params.multiqc_config)
 ch_output_docs = Channel.fromPath("$baseDir/docs/output.md")
 
 /*
- * Create a channel for input read files
+ * Create a channel for input  files
  */
-if(params.readPaths){
-    if(params.singleEnd){
-        Channel
-            .from(params.readPaths)
-            .map { row -> [ row[0], [file(row[1][0])]] }
-            .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { read_files_fastqc; read_files_trimming }
-    } else {
-        Channel
-            .from(params.readPaths)
-            .map { row -> [ row[0], [file(row[1][0]), file(row[1][1])]] }
-            .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { read_files_fastqc; read_files_trimming }
-    }
-} else {
-    Channel
-        .fromFilePairs( params.reads, size: params.singleEnd ? 1 : 2 )
-        .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --singleEnd on the command line." }
-        .into { read_files_fastqc; read_files_trimming }
-}
+Channel.fromPath("${params.rawcounts}")
+           .ifEmpty{exit 1, "Please provide raw counts file!"}
+           .set {ch_counts_file}
+Channel.fromPath("${params.metadata}")
+           .ifEmpty{exit 1, "Please provide metadata file!"}
+           .set { ch_metadata_file }
+Channel.fromPath("${params.metadata}")
+           .ifEmpty{exit 1, "Please provide metadata file!"}
+           .set { ch_metadata_file }
+Channel.fromPath("${params.design}")
+            .ifEmpty{exit 1, "Please provide design file!"}
+            .set { ch_design_file }
+Channel.fromPath("${params.contrasts}")
+            .ifEmpty{ exit 1, "Please provide contrasts file!" }
+            .set { ch_contrasts_file }
+Channel.fromPath("${params.genelist}")
+            .ifEmpty{ exit 1, "Please provide gene list!"}
+            .set { ch_requested_genes_file }
 
 
 // Header log info
@@ -202,22 +200,26 @@ process get_software_versions {
 
 
 /*
- * STEP 1 - FastQC
+ * STEP 1 - DESeq2
  */
-process fastqc {
+process DESeq2 {
     tag "$name"
-    publishDir "${params.outdir}/fastqc", mode: 'copy',
+    publishDir "${params.outdir}/DESeq2", mode: 'copy',
         saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
 
     input:
-    set val(name), file(reads) from read_files_fastqc
+    set file(gene_counts) from ch_counts_file
+    set file(metadata) from ch_metadata_file
+    set file(design) from ch_design_file
+    set file(contrasts) from ch_contrasts_file
+    set file(requested_genes) from ch_requested_genes_file
 
     output:
     file "*_fastqc.{zip,html}" into fastqc_results
 
     script:
     """
-    fastqc -q $reads
+    DESeq.v2.7.R $gene_counts $metadata $design $contrasts $requested_genes
     """
 }
 
