@@ -14,4 +14,4 @@ dependencies:
   - conda-forge::r-gplots=3.0.1.1
   - bioconda::bioconductor-vsn=3.50.0
   - r::r-plyr=1.8.4
-  - r::r-ggplot2=3.1.1
+  - conda-forge::r-ggplot2=3.1.1
