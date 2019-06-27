@@ -169,28 +169,28 @@ ${summary.collect { k,v -> "            <dt>$k</dt><dd><samp>${v ?: '<span style
 }
 
 
-/*
- * Parse software version numbers
- */
-process get_software_versions {
-    publishDir "${params.outdir}/pipeline_info", mode: 'copy',
-    saveAs: {filename ->
-        if (filename.indexOf(".csv") > 0) filename
-        else null
-    }
+// /*
+//  * Parse software version numbers
+//  */
+// process get_software_versions {
+//     publishDir "${params.outdir}/pipeline_info", mode: 'copy',
+//     saveAs: {filename ->
+//         if (filename.indexOf(".csv") > 0) filename
+//         else null
+//     }
 
-    output:
-    file 'software_versions_mqc.yaml' into software_versions_yaml
-    file "software_versions.csv"
+//     output:
+//     file 'software_versions_mqc.yaml' into software_versions_yaml
+//     file "software_versions.csv"
 
-    script:
-    // TODO nf-core: Get all tools to print their version number here
-    """
-    echo $workflow.manifest.version > v_pipeline.txt
-    echo $workflow.nextflow.version > v_nextflow.txt
-    scrape_software_versions.py &> software_versions_mqc.yaml
-    """
-}
+//     script:
+//     // TODO nf-core: Get all tools to print their version number here
+//     """
+//     echo $workflow.manifest.version > v_pipeline.txt
+//     echo $workflow.nextflow.version > v_nextflow.txt
+//     scrape_software_versions.py &> software_versions_mqc.yaml
+//     """
+// }
 
 
 
