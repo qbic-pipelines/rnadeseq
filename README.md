@@ -1,19 +1,19 @@
-# nf-core/rnadeseq
+# qbicsoftware/rnadeseq
 
 **Downstream differential gene expression analysis with DESeq package**.
 
-[![Build Status](https://travis-ci.com/nf-core/rnadeseq.svg?branch=master)](https://travis-ci.com/nf-core/rnadeseq)
+[![Build Status](https://travis-ci.com/qbicsoftware/rnadeseq.svg?branch=master)](https://travis-ci.com/qbicsoftware/rnadeseq)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.32.0-brightgreen.svg)](https://www.nextflow.io/)
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
-[![Docker](https://img.shields.io/docker/automated/nfcore/rnadeseq.svg)](https://hub.docker.com/r/nfcore/rnadeseq)
+[![Docker](https://img.shields.io/docker/automated/nfcore/rnadeseq.svg)](https://hub.docker.com/r/qbicsoftware/rnadeseq)
 
 ## Introduction
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
 
 
 ## Documentation
-The nf-core/rnadeseq pipeline comes with documentation about the pipeline, found in the `docs/` directory:
+The qbicsoftware/rnadeseq pipeline comes with documentation about the pipeline, found in the `docs/` directory:
 
 1. [Installation](https://nf-co.re/usage/installation)
 2. Pipeline configuration
@@ -27,4 +27,4 @@ The nf-core/rnadeseq pipeline comes with documentation about the pipeline, found
 <!-- TODO nf-core: Add a brief overview of what the pipeline does and how it works -->
 
 ## Credits
-nf-core/rnadeseq was originally written by QBiC.
+qbicsoftware/rnadeseq was originally written by QBiC.
