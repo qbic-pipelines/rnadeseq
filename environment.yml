@@ -18,4 +18,9 @@ dependencies:
   - conda-forge::r-ggplot2=3.1.1
   - conda-forge::r-rcolorbrewer=1.1.2 #1.1_2 in Anaconda
   - bioconda::bioconductor-genefilter=1.64.0
-  - bioconda::bioconductor-deseq2=1.22.1  #up to 1.22.1 in Anaconda
+  - bioconda::bioconductor-deseq2=1.22.1 #ResolvePackageNotFound error with version 1.22.2 (as in Rstudio)
+  - bioconda::bioconductor-vsn=3.50.0
+# additional packages for the RNAseq report
+  - conda-forge::r-knitr=1.22
+  - conda-forge::r-tidyverse=1.2.1
+  - conda-forge::r-dt 0.6
