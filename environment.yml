@@ -8,6 +8,7 @@ channels:
   - defaults
   - r
 dependencies:
+  - r-base=3.5.1
   - r::r-hexbin=1.27.2
   - conda-forge::r-svglite=1.2.1
   - conda-forge::r-pheatmap=1.0.12
@@ -15,3 +16,6 @@ dependencies:
   - bioconda::bioconductor-vsn=3.50.0
   - r::r-plyr=1.8.4
   - conda-forge::r-ggplot2=3.1.1
+  - conda-forge::r-rcolorbrewer=1.1.2 #1.1_2 in Anaconda
+  - bioconda::bioconductor-genefilter=1.64.0
+  - bioconda::bioconductor-deseq2=1.22.1  #up to 1.22.1 in Anaconda
