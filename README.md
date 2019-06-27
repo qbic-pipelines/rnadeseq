@@ -1,6 +1,6 @@
 # nf-core/rnadeseq
 
-**Downstream differential gene expression analysis with DESeq packaggkage**.
+**Downstream differential gene expression analysis with DESeq package**.
 
 [![Build Status](https://travis-ci.com/nf-core/rnadeseq.svg?branch=master)](https://travis-ci.com/nf-core/rnadeseq)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.32.0-brightgreen.svg)](https://www.nextflow.io/)
