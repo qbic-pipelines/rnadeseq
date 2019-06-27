@@ -106,9 +106,6 @@ Channel.fromPath("${params.rawcounts}")
 Channel.fromPath("${params.metadata}")
            .ifEmpty{exit 1, "Please provide metadata file!"}
            .set { ch_metadata_file }
-Channel.fromPath("${params.metadata}")
-           .ifEmpty{exit 1, "Please provide metadata file!"}
-           .set { ch_metadata_file }
 Channel.fromPath("${params.design}")
             .ifEmpty{exit 1, "Please provide design file!"}
             .set { ch_design_file }
