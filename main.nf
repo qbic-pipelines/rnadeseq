@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
 /*
 ========================================================================================
-                         nf-core/rnadeseq
+                         qbicsoftware/rnadeseq
 ========================================================================================
- nf-core/rnadeseq Analysis Pipeline.
+ qbicsoftware/rnadeseq Analysis Pipeline.
  #### Homepage / Documentation
- https://github.com/nf-core/rnadeseq
+ https://github.com/qbicsoftware/rnadeseq
 ----------------------------------------------------------------------------------------
 */
 
@@ -18,7 +18,7 @@ def helpMessage() {
 
     The typical command for running the pipeline is as follows:
 
-    nextflow run nf-core/rnadeseq --reads '*_R{1,2}.fastq.gz' -profile docker
+    nextflow run qbicsoftware/rnadeseq --reads '*_R{1,2}.fastq.gz' -profile docker
 
     Mandatory arguments:
       --reads                       Path to input data (must be surrounded with quotes)
@@ -139,10 +139,10 @@ checkHostname()
 def create_workflow_summary(summary) {
     def yaml_file = workDir.resolve('workflow_summary_mqc.yaml')
     yaml_file.text  = """
-    id: 'nf-core-rnadeseq-summary'
+    id: 'qbicsoftware-rnadeseq-summary'
     description: " - this information is collected when the pipeline is started."
-    section_name: 'nf-core/rnadeseq Workflow Summary'
-    section_href: 'https://github.com/nf-core/rnadeseq'
+    section_name: 'qbicsoftware/rnadeseq Workflow Summary'
+    section_href: 'https://github.com/qbicsoftware/rnadeseq'
     plot_type: 'html'
     data: |
         <dl class=\"dl-horizontal\">
@@ -157,25 +157,24 @@ ${summary.collect { k,v -> "            <dt>$k</dt><dd><samp>${v ?: '<span style
 // /*
 //  * Parse software version numbers
 //  */
-// process get_software_versions {
-//     publishDir "${params.outdir}/pipeline_info", mode: 'copy',
-//     saveAs: {filename ->
-//         if (filename.indexOf(".csv") > 0) filename
-//         else null
-//     }
+process get_software_versions {
+    publishDir "${params.outdir}/pipeline_info", mode: 'copy',
+    saveAs: {filename ->
+        if (filename.indexOf(".csv") > 0) filename
+        else null
+    }
 
-//     output:
-//     file 'software_versions_mqc.yaml' into software_versions_yaml
-//     file "software_versions.csv"
+    output:
+    file 'software_versions_mqc.yaml' into software_versions_yaml
+    file "software_versions.csv"
 
-//     script:
-//     // TODO nf-core: Get all tools to print their version number here
-//     """
-//     echo $workflow.manifest.version > v_pipeline.txt
-//     echo $workflow.nextflow.version > v_nextflow.txt
-//     scrape_software_versions.py &> software_versions_mqc.yaml
-//     """
-// }
+    script:
+    """
+    echo $workflow.manifest.version > v_pipeline.txt
+    echo $workflow.nextflow.version > v_nextflow.txt
+    scrape_software_versions.py &> software_versions_mqc.yaml
+    """
+}
 
 /*
  * STEP 1 - DESeq2
@@ -212,7 +211,7 @@ process DESeq2 {
 
 //     input:
 //     file multiqc_config from ch_multiqc_config
-//     // TODO nf-core: Add in log files from your new processes for MultiQC to find!
+//     // TODO qbicsoftware: Add in log files from your new processes for MultiQC to find!
 //     file ('fastqc/*') from fastqc_results.collect().ifEmpty([])
 //     file ('software_versions/*') from software_versions_yaml.collect()
 //     file workflow_summary from create_workflow_summary(summary)
@@ -225,7 +224,7 @@ process DESeq2 {
 //     script:
 //     rtitle = custom_runName ? "--title \"$custom_runName\"" : ''
 //     rfilename = custom_runName ? "--filename " + custom_runName.replaceAll('\\W','_').replaceAll('_+','_') + "_multiqc_report" : ''
-//     // TODO nf-core: Specify which MultiQC modules to use with -m for a faster run time
+//     // TODO qbicsoftware: Specify which MultiQC modules to use with -m for a faster run time
 //     """
 //     multiqc -f $rtitle $rfilename --config $multiqc_config .
 //     """
@@ -259,9 +258,9 @@ process DESeq2 {
 workflow.onComplete {
 
     // Set up the e-mail variables
-    def subject = "[nf-core/rnadeseq] Successful: $workflow.runName"
+    def subject = "[qbicsoftware/rnadeseq] Successful: $workflow.runName"
     if(!workflow.success){
-      subject = "[nf-core/rnadeseq] FAILED: $workflow.runName"
+      subject = "[qbicsoftware/rnadeseq] FAILED: $workflow.runName"
     }
     def email_fields = [:]
     email_fields['version'] = workflow.manifest.version
@@ -287,19 +286,19 @@ workflow.onComplete {
     email_fields['summary']['Nextflow Build'] = workflow.nextflow.build
     email_fields['summary']['Nextflow Compile Timestamp'] = workflow.nextflow.timestamp
 
-    // TODO nf-core: If not using MultiQC, strip out this code (including params.maxMultiqcEmailFileSize)
+    // TODO qbicsoftware: If not using MultiQC, strip out this code (including params.maxMultiqcEmailFileSize)
     // On success try attach the multiqc report
     def mqc_report = null
     try {
         if (workflow.success) {
             mqc_report = multiqc_report.getVal()
             if (mqc_report.getClass() == ArrayList){
-                log.warn "[nf-core/rnadeseq] Found multiple reports from process 'multiqc', will use only one"
+                log.warn "[qbicsoftware/rnadeseq] Found multiple reports from process 'multiqc', will use only one"
                 mqc_report = mqc_report[0]
             }
         }
     } catch (all) {
-        log.warn "[nf-core/rnadeseq] Could not attach MultiQC report to summary email"
+        log.warn "[qbicsoftware/rnadeseq] Could not attach MultiQC report to summary email"
     }
 
     // Render the TXT template
@@ -325,11 +324,11 @@ workflow.onComplete {
           if( params.plaintext_email ){ throw GroovyException('Send plaintext e-mail, not HTML') }
           // Try to send HTML e-mail using sendmail
           [ 'sendmail', '-t' ].execute() << sendmail_html
-          log.info "[nf-core/rnadeseq] Sent summary e-mail to $params.email (sendmail)"
+          log.info "[qbicsoftware/rnadeseq] Sent summary e-mail to $params.email (sendmail)"
         } catch (all) {
           // Catch failures and try with plaintext
           [ 'mail', '-s', subject, params.email ].execute() << email_txt
-          log.info "[nf-core/rnadeseq] Sent summary e-mail to $params.email (mail)"
+          log.info "[qbicsoftware/rnadeseq] Sent summary e-mail to $params.email (mail)"
         }
     }
 
@@ -355,10 +354,10 @@ workflow.onComplete {
     }
 
     if(workflow.success){
-        log.info "${c_purple}[nf-core/rnadeseq]${c_green} Pipeline completed successfully${c_reset}"
+        log.info "${c_purple}[qbicsoftware/rnadeseq]${c_green} Pipeline completed successfully${c_reset}"
     } else {
         checkHostname()
-        log.info "${c_purple}[nf-core/rnadeseq]${c_red} Pipeline completed with errors${c_reset}"
+        log.info "${c_purple}[qbicsoftware/rnadeseq]${c_red} Pipeline completed with errors${c_reset}"
     }
 
 }
@@ -382,7 +381,7 @@ def nfcoreHeader(){
     ${c_blue}  |\\ | |__  __ /  ` /  \\ |__) |__         ${c_yellow}}  {${c_reset}
     ${c_blue}  | \\| |       \\__, \\__/ |  \\ |___     ${c_green}\\`-._,-`-,${c_reset}
                                             ${c_green}`._,._,\'${c_reset}
-    ${c_purple}  nf-core/rnadeseq v${workflow.manifest.version}${c_reset}
+    ${c_purple}  qbicsoftware/rnadeseq v${workflow.manifest.version}${c_reset}
     ${c_dim}----------------------------------------------------${c_reset}
     """.stripIndent()
 }
