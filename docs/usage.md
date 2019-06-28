@@ -186,9 +186,9 @@ Do not load `igenomes.config` when running the pipeline. You may choose this opt
 Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the steps in the pipeline, if the job exits with an error code of `143` (exceeded requested resources) it will automatically resubmit with higher requests (2 x original, then 3 x original). If it still fails after three times then the pipeline is stopped.
 
 ### Custom resource requests
-Wherever process-specific requirements are set in the pipeline, the default value can be changed by creating a custom config file. See the files hosted at [`qbicsoftware/configs`](https://github.com/qbicsoftware/configs/tree/master/conf) for examples.
+Wherever process-specific requirements are set in the pipeline, the default value can be changed by creating a custom config file. See the files hosted at [`nf-core/configs`](https://github.com/nf-core/configs/tree/master/conf) for examples.
 
-If you are likely to be running `qbicsoftware` pipelines regularly it may be a good idea to request that your custom config file is uploaded to the `qbicsoftware/configs` git repository. Before you do this please can you test that the config file works with your pipeline of choice using the `-c` parameter (see definition below). You can then create a pull request to the `qbicsoftware/configs` repository with the addition of your config file, associated documentation file (see examples in [`qbicsoftware/configs/docs`](https://github.com/qbicsoftware/configs/tree/master/docs)), and amending [`nfcore_custom.config`](https://github.com/qbicsoftware/configs/blob/master/nfcore_custom.config) to include your custom profile.
+If you are likely to be running `qbicsoftware` pipelines regularly it may be a good idea to request that your custom config file is uploaded to the `nf-core/configs` git repository. Before you do this please can you test that the config file works with your pipeline of choice using the `-c` parameter (see definition below). You can then create a pull request to the `nf-core/configs` repository with the addition of your config file, associated documentation file (see examples in [`nf-core/configs/docs`](https://github.com/nf-core/configs/tree/master/docs)), and amending [`nfcore_custom.config`](https://github.com/nf-core/configs/blob/master/nfcore_custom.config) to include your custom profile.
 
 If you have any questions or issues please send us a message on [Slack](https://qbicsoftware-invite.herokuapp.com/).
 
@@ -233,7 +233,7 @@ Specify the path to a specific config file (this is a core NextFlow command).
 Note - you can use this to override pipeline defaults.
 
 ### `--custom_config_version`
-Provide git commit id for custom Institutional configs hosted at `qbicsoftware/configs`. This was implemented for reproducibility purposes. Default is set to `master`.
+Provide git commit id for custom Institutional configs hosted at `nf-core/configs`. This was implemented for reproducibility purposes. Default is set to `master`.
 
 ```bash
 ## Download and use config file with following git commid id
@@ -249,7 +249,7 @@ you should download the files from the repo and tell nextflow where to find them
 ```bash
 ## Download and unzip the config files
 cd /path/to/my/configs
-wget https://github.com/qbicsoftware/configs/archive/master.zip
+wget https://github.com/nf-core/configs/archive/master.zip
 unzip master.zip
 
 ## Run the pipeline
@@ -257,7 +257,7 @@ cd /path/to/my/data
 nextflow run /path/to/pipeline/ --custom_config_base /path/to/my/configs/configs-master/
 ```
 
-> Note that the qbicsoftware/tools helper package has a `download` command to download all required pipeline
+> Note that the nf-core/tools helper package has a `download` command to download all required pipeline
 > files + singularity containers + institutional configs in one go for you, to make this process easier.
 
 ### `--max_memory`
