@@ -172,6 +172,17 @@ process get_software_versions {
     """
     echo $workflow.manifest.version > v_pipeline.txt
     echo $workflow.nextflow.version > v_nextflow.txt
+    echo \$(R --version 2>&1) > v_R.txt
+    Rscript -e "library(RColorBrewer); write(x=as.character(packageVersion('edgeR')), file='v_rcolorbrewer.txt')"
+    Rscript -e "library(reshape2); write(x=as.character(packageVersion('edgeR')), file='v_reshape2.txt')"
+    Rscript -e "library(genefilter); write(x=as.character(packageVersion('edgeR')), file='v_genefilter.txt')"
+    Rscript -e "library(DESeq2); write(x=as.character(packageVersion('edgeR')), file='v_deseq2.txt')"
+    Rscript -e "library(ggplot2); write(x=as.character(packageVersion('edgeR')), file='v_ggplot2.txt')"
+    Rscript -e "library(plyr); write(x=as.character(packageVersion('edgeR')), file='v_plyr.txt')"
+    Rscript -e "library(vsn); write(x=as.character(packageVersion('edgeR')), file='v_vsn.txt')"
+    Rscript -e "library(gplots); write(x=as.character(packageVersion('edgeR')), file='v_gplots.txt')"
+    Rscript -e "library(pheatmap); write(x=as.character(packageVersion('edgeR')), file='v_pheatmap.txt')" 
+    
     scrape_software_versions.py &> software_versions_mqc.yaml
     """
 }
