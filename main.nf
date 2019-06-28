@@ -203,11 +203,11 @@ process DESeq2 {
         saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
 
     input:
-    set file(gene_counts) from ch_counts_file
-    set file(metadata) from ch_metadata_file
-    set file(design) from ch_design_file
-    set file(contrasts) from ch_contrasts_file
-    set file(requested_genes) from ch_requested_genes_file
+    file(gene_counts) from ch_counts_file
+    file(metadata) from ch_metadata_file
+    file(design) from ch_design_file
+    file(contrasts) from ch_contrasts_file
+    file(requested_genes) from ch_requested_genes_file
 
     output:
     file "*.zip"
