@@ -24,7 +24,7 @@ The qbicsoftware/rnadeseq pipeline comes with documentation about the pipeline, 
 4. [Output and how to interpret the results](docs/output.md)
 5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
 
-<!-- TODO nf-core: Add a brief overview of what the pipeline does and how it works -->
+<!-- TODO qbicsoftware: Add a brief overview of what the pipeline does and how it works -->
 
 ## Credits
 qbicsoftware/rnadeseq was originally written by QBiC.
