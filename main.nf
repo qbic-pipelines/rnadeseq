@@ -22,16 +22,15 @@ def helpMessage() {
     nextflow run nf-core/rnadeseq --reads '*_R{1,2}.fastq.gz' -profile docker
 
     Mandatory arguments:
-      --reads                       Path to input data (must be surrounded with quotes)
+      --rawcounts                   Raw count table (TSV). Columns are samples and rows are genes.
+      --metadata                    Metadata table (TSV). Rows are samples and columns contain sample grouping.
+      --design                      Linear design function to calculate the contrasts (TXT). Variable names should be columns in metadata file.
+      --contrasts                   Table indicating which contrasts to consider. 1 or 0 for every variable specified in the design.
       -profile                      Configuration profile to use. Can use multiple (comma separated)
                                     Available: conda, docker, singularity, awsbatch, test and more.
 
     Options:
-      --genome                      Name of iGenomes reference
-      --singleEnd                   Specifies that the input is single end reads
-
-    References                      If not specified in the configuration file or you wish to overwrite any of the references.
-      --fasta                       Path to Fasta reference
+      --genelist                    List of genes (one per line) of which to plot heatmaps for normalized counts across all samples.                
 
     Other options:
       --outdir                      The output directory where the results will be saved
@@ -114,7 +113,7 @@ Channel.fromPath("${params.contrasts}")
             .set { ch_contrasts_file }
 Channel.fromPath("${params.genelist}")
             .ifEmpty{ exit 1, "Please provide gene list!"}
-            .set { ch_requested_genes_file }
+            .set { ch_genes_file }
 
 
 // Header log info
@@ -123,9 +122,11 @@ def summary = [:]
 if(workflow.revision) summary['Pipeline Release'] = workflow.revision
 summary['Run Name']         = custom_runName ?: workflow.runName
 // TODO nf-core: Report custom parameters here
-summary['Reads']            = params.reads
-summary['Fasta Ref']        = params.fasta
-summary['Data Type']        = params.singleEnd ? 'Single-End' : 'Paired-End'
+summary['Raw count table']  = params.rawcounts
+summary['Metadata file']    = params.metadata
+summary['Design file']      = params.design
+summary['Contrast file']    = params.contrasts
+summary['Gene list']        = params.genelist
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if(workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
 summary['Output dir']       = params.outdir
@@ -199,15 +200,14 @@ ${summary.collect { k,v -> "            <dt>$k</dt><dd><samp>${v ?: '<span style
  */
 process DESeq2 {
     tag "$name"
-    publishDir "${params.outdir}/DESeq2", mode: 'copy',
-        saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
+    publishDir "${params.outdir}/DESeq2", mode: 'copy'
 
     input:
     file(gene_counts) from ch_counts_file
     file(metadata) from ch_metadata_file
     file(design) from ch_design_file
     file(contrasts) from ch_contrasts_file
-    file(requested_genes) from ch_requested_genes_file
+    file(requested_genes) from ch_genes_file
 
     output:
     file "*.zip"
