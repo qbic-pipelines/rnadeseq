@@ -1,4 +1,4 @@
-# nf-core/rnadeseq: Changelog
+# qbicsoftware/rnadeseq: Changelog
 
 ## v1.0dev - [date]
-Initial release of nf-core/rnadeseq, created with the [nf-core](http://nf-co.re/) template.
+Initial release of qbicsoftware/rnadeseq, created with the [qbicsoftware](http://nf-co.re/) template.

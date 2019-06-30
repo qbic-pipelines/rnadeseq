@@ -1,7 +1,7 @@
 # You can use this file to create a conda environment for this pipeline:
 #   conda env create -f environment.yml
 # use this to find packages: https://anaconda.org/
-name: nf-core-rnadeseq-1.0dev
+name: qbicsoftware-rnadeseq-1.0dev
 channels:
   - conda-forge
   - bioconda
@@ -20,6 +20,7 @@ dependencies:
   - bioconda::bioconductor-genefilter=1.64.0
   - bioconda::bioconductor-deseq2=1.22.1 #ResolvePackageNotFound error with version 1.22.2 (as in Rstudio)
   - bioconda::bioconductor-vsn=3.50.0
+  - bioconda::bioconductor-genomeinfodbdata=1.2.1
 # additional packages for the RNAseq report
   - conda-forge::r-knitr=1.22
   - conda-forge::r-tidyverse=1.2.1

@@ -1,6 +1,6 @@
-# nf-core/rnadeseq: Documentation
+# qbicsoftware/rnadeseq: Documentation
 
-The nf-core/rnadeseq documentation is split into the following files:
+The qbicsoftware/rnadeseq documentation is split into the following files:
 
 1. [Installation](https://nf-co.re/usage/installation)
 2. Pipeline configuration
