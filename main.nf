@@ -198,14 +198,14 @@ process DESeq2 {
     file(metadata) from ch_metadata_file
     file(design) from ch_design_file
     file(contrasts) from ch_contrasts_file
-    file(requested_genes) from ch_genes_file
+    file(gene_list) from ch_genes_file
 
     output:
     file "*.zip"
 
     script:
     """
-    DESeq.v2.7.R $gene_counts $metadata $design $contrasts $requested_genes
+    DESeq.v2.7.R $gene_counts $metadata $design $contrasts $gene_list
     zip -r DESeq2.zip DESeq2
     """
 }
