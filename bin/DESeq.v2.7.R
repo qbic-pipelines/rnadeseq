@@ -108,7 +108,7 @@ conditions <- grepl(colnames(m),pattern = "condition_")
 print(colnames(m))
 print(conditions)
 print(m[,conditions])
-m$x <- apply(m[ ,conditions],1,paste, collapse = "_")
+m$x <- apply(as.data.frame(m[ ,conditions]),1,paste, collapse = "_")
 
 
 ###4) run DESeq function
