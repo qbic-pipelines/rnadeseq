@@ -105,6 +105,9 @@ stopifnot(identical(names(count.table),row.names(m)))
 #to get all possible pairwise comparisons, make a combined factor
 
 conditions <- grepl(colnames(m),pattern = "condition_")
+print(colnames(m))
+print(conditions)
+print(m[,conditions])
 m$x <- apply(m[ ,conditions],1,paste, collapse = "_")
 
 
