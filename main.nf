@@ -190,7 +190,6 @@ process get_software_versions {
  * STEP 1 - DESeq2
  */
 process DESeq2 {
-    tag "$name"
     publishDir "${params.outdir}/DESeq2", mode: 'copy'
 
     input:
