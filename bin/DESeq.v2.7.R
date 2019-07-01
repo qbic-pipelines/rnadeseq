@@ -33,14 +33,8 @@ dir.create("DESeq2/results/tables")
 dir.create("DESeq2/results/final")
 ######################################
 
-#Sys.setlocale("LC_NUMERIC", "en_GB.UTF-8")
-
 # #1)check input data path
-# path_count_table = "input/merged_gene_counts.txt"
-# metadata_path <- "input/Sample_preparations.tsv"
-# path_design <- "input/design.txt"
-# path_contrasts <- "input/contrasts.tsv"
-# requested_genes_path <- "input/requested_genes.txt"
+
 # provide these files as arguments:
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)<3) {
@@ -54,14 +48,13 @@ requested_genes_path <- args[5]
 
 
 ##2) load count table
-### Modified from csv to tsv, NA strings NA
 
 count.table <- read.table(path_count_table,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
-## Need to remove gene names column
 count.table$Ensembl_ID <- row.names(count.table)
 drop <- c("Ensembl_ID","gene_name")
 gene_names <- count.table[,drop]
 count.table <- count.table[ , !(names(count.table) %in% drop)]
+
 ##Need to reduce gene names to QBiC codes
 names(count.table) <- gsub('([A-Z0-9]{10})\\Aligned\\.(.*)\\.(.*)','\\1', names(count.table))
 write.table(count.table , file = "DESeq2/raw_counts/raw_counts.txt", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
@@ -134,9 +127,7 @@ bg = data.frame(bg = character(nrow(cds)))
 
 ## Contrast calculation
 for (i in c(1:ncol(contrasts))) {
-  print(resultsNames(cds))
   d1 <-results(cds, contrast=contrasts[[i]])
-  print(resultsNames)
 
   contname <- names(contrasts[i])
   d1 <- as.data.frame(d1)
@@ -152,7 +143,6 @@ for (i in c(1:ncol(contrasts))) {
   bg = cbind(bg,d1)
 }
 
-
 #remove identical columns
 bg$bg <- NULL
 idx <- duplicated(t(bg))
@@ -161,8 +151,6 @@ bg$Ensembl_ID <- row.names(bg)
 bg <- bg[,c(dim(bg)[2],1:dim(bg)[2]-1)]
 names(bg)[1:2] = c("Ensembl_ID","baseMean")
 names(bg)
-
-
 
 #4.3) get DE genes from any contrast
 padj=names(bg)[grepl("padj",names(bg))]
@@ -187,7 +175,6 @@ bg1 = bg1[order(bg1[,"Ensembl_ID"]),]
 #4.4) extract ID for genes to plot, make 20 plots:
 kip <- subset(bg1, filter1 == "DE")
 kip = unique(kip$Ensembl_ID)
-
 
 if (length(kip) > 20) {
   set.seed(10)
@@ -236,7 +223,7 @@ for (i in c(1:length(kip2_Ensembl)))
 #write to file
 write.table(bg1, "DESeq2/results/final/final_list_DESeq2.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 
-###5) Data transformation
+##5) Data transformation
 #rlog
 rld <- rlog(cds)
 ##vst
@@ -246,8 +233,6 @@ vsd <- varianceStabilizingTransformation(cds)
 write.table(assay(rld), "DESeq2/results/tables/rlog_transformed.read.counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,  col.names = NA, qmethod = c("escape", "double"))
 write.table(assay(vsd), "DESeq2/results/tables/vst_transformed.read.counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,  col.names = NA, qmethod = c("escape", "double"))
 
-
-#################
 ##6) Diagnostic plots
 
 #Cooks distances: get important for example when checking knock-out and overexpression studies
@@ -272,25 +257,10 @@ meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw co
 meanSdPlot(assay(rld[notAllZero,]),ylab  = "sd rlog transformed count data")
 meanSdPlot(assay(vsd[notAllZero,]),ylab  = "sd vst transformed count data")
 dev.off()
-# 
-# level1 = levels(cds[["x"]])[1]
-# level1 = which(cds[["x"]] == level1)
-# level2 = levels(cds[["x"]])[2]
-# level2 = which(cds[["x"]] == level2)
-# 
-# #Scatter plot -- effect of trafo
-# pdf("DESeq2/results/plots/scatter_plot_effect_of_transformation.pdf")
-# par( mfrow = c(1,2)) 
-# plot( log2( 1+counts(cds, normalized=TRUE)[, level1[1]:level2[1]]), col="#00000020", pch=20, cex=0.3,main="log2 count data")
-# plot( assay(rld)[,level1[1]:level2[1]], col="#00000020", pch=20, cex=0.3,main="rlog transformed count data" )
-# dev.off()
-
 
 ###Sample distances
 sampleDists <- dist(t(assay(rld)))
 sampleDistMatrix <- as.matrix(sampleDists)
-#rownames(sampleDistMatrix) <- paste(colnames(rld),rld$x, sep="-")
-#colnames(sampleDistMatrix) <- paste(colnames(rld),rld$x, sep="-")
 colours = colorRampPalette(rev(brewer.pal(9, "Blues")))(255) 
 
 ### Visualization of distance using Heatmaps
@@ -300,14 +270,10 @@ pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_dist
 dev.off()
 
 png("DESeq2/results/plots/Heatmaps_of_distances.png", width=15, height=15, units="cm",res=300)
-#par(oma=c(3,3,3,3))
 pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=6)
 dev.off()
 
-
-
- #### Visualization of distance using PCA plots
-#pdf("DESeq2/results/plots/PCA_plot_of_distances.pdf")
+#### Visualization of distance using PCA plots
 pcaData <- plotPCA(rld,intgroup=c("x"),ntop = dim(rld)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
 pca <- ggplot(pcaData, aes(PC1, PC2, color=x)) +
@@ -317,35 +283,18 @@ pca <- ggplot(pcaData, aes(PC1, PC2, color=x)) +
   coord_fixed()
 ggsave(plot = pca, filename = "DESeq2/results/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca, filename = "DESeq2/results/plots/PCA_plot.png", device = "png", dpi = 150)
-#dev.off()
-
-#"own"approach
-#dat1 <- plotPCA(rld, intgroup=c("x"), returnData=TRUE,ntop = dim(rld)[1])
-#percentVar <- round(100 * attr(dat1, "percentVar"))
-
-#pdf("DESeq2/results/plots/PCA_plot_of_distances_new.pdf")
-#ggplot(dat1, aes(PC1, PC2, color=x)) + 
-#  geom_point(size=3) + 
-#  xlab(paste0("PC1: ",percentVar[1],"% variance")) + 
-#  ylab(paste0("PC2: ",percentVar[2],"% variance")) + 
-#  coord_fixed()
-#dev.off()
 
 ###Gene clustering
 topVarGenes <- head(order(rowVars(assay(rld)), decreasing=TRUE), 50)
 pdf("DESeq2/results/plots/heatmap_of_top50_genes_with_most_variance_across_samples.pdf")
 par(oma=c(3,3,3,3))
 heatmap.2(assay(rld)[topVarGenes, ],scale="row",trace="none",dendrogram="col",col=colorRampPalette( rev(brewer.pal(9, "RdBu")))(255),cexRow=0.5,cexCol=0.5)
-#take out labCol=paste(colnames(rld),rld$genetic_background, sep="--")
 dev.off()
 
 png("DESeq2/results/plots/heatmap_of_top50_genes_with_most_variance_across_samples.png", width=20, height=20, units="cm",res=300)
 par(oma=c(3,3,3,3))
 heatmap.2(assay(rld)[topVarGenes, ],scale="row",trace="none",dendrogram="col",col=colorRampPalette( rev(brewer.pal(9, "RdBu")))(255),cexRow=0.5,cexCol=0.5)
-#take out labCol=paste(colnames(rld),rld$genetic_background, sep="--")
 dev.off()
-
-
 
 #further diagnostics plots
 dir.create("DESeq2/results/plots/further_diagnostics")
@@ -374,7 +323,7 @@ for (i in resultsNames(cds)[-1]) {
   lines(metadata(res)$lo.fit, col="red")
   abline(v=metadata(res)$filterTheta)
   dev.off()
-  #Histogram of passed and rejected hypothesis for contrast ctnnb1 vs control liver
+  #Histogram of passed and rejected hypothesis
   use <- res$baseMean > metadata(res)$filterThreshold
   table(use)
   h1 <- hist(res$pvalue[!use], breaks=0:50/50, plot=FALSE)
@@ -389,8 +338,6 @@ for (i in resultsNames(cds)[-1]) {
   dev.off()
   rm(res,qs,bins,ratios,use,h1,h2,colori)
 }
-
-
 
 #end of script
 ####-------------save Sessioninfo
