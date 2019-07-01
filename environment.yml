@@ -7,6 +7,7 @@ channels:
   - bioconda
   - defaults
   - r
+  - anaconda
 dependencies:
   - r-base=3.5.1
   - r::r-hexbin=1.27.2
@@ -21,6 +22,7 @@ dependencies:
   - bioconda::bioconductor-deseq2=1.22.1 #ResolvePackageNotFound error with version 1.22.2 (as in Rstudio)
   - bioconda::bioconductor-vsn=3.50.0
   - bioconda::bioconductor-genomeinfodbdata=1.2.1
+  - anaconda::font-ttf-dejavu-sans-mono=2.37
 # additional packages for the RNAseq report
   - conda-forge::r-knitr=1.22
   - conda-forge::r-tidyverse=1.2.1
