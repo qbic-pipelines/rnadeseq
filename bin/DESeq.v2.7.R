@@ -105,16 +105,14 @@ stopifnot(identical(names(count.table),row.names(m)))
 #to get all possible pairwise comparisons, make a combined factor
 
 conditions <- grepl(colnames(m),pattern = "condition_")
-print(colnames(m))
-print(conditions)
-print(m[,conditions])
 m$x <- apply(as.data.frame(m[ ,conditions]),1,paste, collapse = "_")
+print(m)
 
 
 ###4) run DESeq function
 design <- read.csv(path_design, sep="\t", header = F)
 cds <- DESeqDataSetFromMatrix( countData =count.table, colData =m, design = eval(parse(text=as.character(design[[1]]))))
-cds <- DESeq(cds,  parallel = TRUE)
+cds <- DESeq(cds,  parallel = FALSE)
 
 
 ### 4.1) sizeFactors(cds) as indicator of library sequencing depth
