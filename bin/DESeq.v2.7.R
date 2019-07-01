@@ -134,6 +134,7 @@ bg = data.frame(bg = character(nrow(cds)))
 ## Contrast calculation
 for (i in c(1:ncol(contrasts))) {
   d1 <-results(cds, contrast=contrasts[[i]])
+  print(resultsNames)
   contname <- names(contrasts[i])
   d1 <- as.data.frame(d1)
   print(contname)
