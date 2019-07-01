@@ -128,7 +128,7 @@ write.table(log2counts, paste("DESeq2/results/tables/log2counts.tsv",sep=""), ap
 ###4.2) contrasts
 coefficients <- resultsNames(cds)
 contrasts <- read.table(path_contrasts, sep="\t", header = T)
-stopifnot(length(coefficients)==ncol(contrasts))
+#stopifnot(length(coefficients)==ncol(contrasts))
 
 bg = data.frame(bg = character(nrow(cds)))
 
@@ -136,6 +136,8 @@ bg = data.frame(bg = character(nrow(cds)))
 for (i in c(1:ncol(contrasts))) {
   d1 <-results(cds, contrast=contrasts[[i]])
   print(resultsNames)
+  stopifnot(length(coefficients)==ncol(contrasts))
+
   contname <- names(contrasts[i])
   d1 <- as.data.frame(d1)
   print(contname)
