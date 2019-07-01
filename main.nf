@@ -18,7 +18,7 @@ def helpMessage() {
 
     The typical command for running the pipeline is as follows:
 
-    nextflow run qbicsoftware/rnadeseq --reads '*_R{1,2}.fastq.gz' -profile docker
+    nextflow run qbicsoftware/rnadeseq --rawcounts 'counts.tsv' --metadata 'metadata.tsv' --design 'design.txt' --contrasts 'contrasts.tsv' -profile docker
 
     Mandatory arguments:
       --rawcounts                   Raw count table (TSV). Columns are samples and rows are genes.
