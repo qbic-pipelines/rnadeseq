@@ -95,14 +95,7 @@ Channel.fromPath("${params.model}")
             .set { ch_model_file }
 
 ch_genes_file = file(params.genelist)
-
-if (!params.defaultcontrasts) {
-  Channel.fromPath("${params.contrasts}")
-            .ifEmpty{ exit 1, "Please provide contrasts file or set the defaultcontrasts parameter!" }
-            .set { ch_contrasts_file }
-} else {
-  ch_contrasts_file = Channel.empty()
-}
+ch_contrasts_file = file(params.contrasts)
 
 
 
@@ -203,7 +196,7 @@ process DESeq2 {
     file(gene_counts) from ch_counts_file
     file(metadata) from ch_metadata_file
     file(model) from ch_model_file
-    file(contrasts) from ch_contrasts_file.collect()
+    file(contrasts) from ch_contrasts_file
     file(genelist) from ch_genes_file
 
     output:
@@ -211,17 +204,12 @@ process DESeq2 {
 
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
-    if (params.defaultcontrasts){
-      """
-      DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model
-      zip -r DESeq2.zip DESeq2
-      """
-    } else {
-      """
-      DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model --contrasts $contrasts
-      zip -r DESeq2.zip DESeq2
-      """
-    }
+    def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts"
+    """
+    DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model $contrastsopt $genelistopt
+    zip -r DESeq2.zip DESeq2
+    """
+
     
 }
 
