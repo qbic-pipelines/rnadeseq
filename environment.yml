@@ -22,8 +22,8 @@ dependencies:
   - bioconda::bioconductor-deseq2=1.22.1 #ResolvePackageNotFound error with version 1.22.2 (as in Rstudio)
   - bioconda::bioconductor-vsn=3.50.0
   - bioconda::bioconductor-genomeinfodbdata=1.2.1
-  - conda-forge::r-showtext=0.7
   - conda-forge::cairo=1.16.0
+  - conda-forge::r-svglite=1.2.2
 # additional packages for the RNAseq report
   - conda-forge::r-knitr=1.22
   - conda-forge::r-tidyverse=1.2.1
