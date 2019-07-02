@@ -266,7 +266,6 @@ if (!is.null(opt$genelist)){
   }
 }
 
-
 #write to file
 write.table(bg1, "DESeq2/results/final/final_list_DESeq2.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 

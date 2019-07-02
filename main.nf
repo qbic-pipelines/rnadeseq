@@ -93,9 +93,13 @@ Channel.fromPath("${params.metadata}")
 Channel.fromPath("${params.model}")
             .ifEmpty{exit 1, "Please provide linear model file!"}
             .set { ch_model_file }
-Channel.fromPath("${params.genelist}")
+if (!params.genelist){
+  ch_genes_file = Channel.empty()
+} else {
+  Channel.fromPath("${params.genelist}")
             .ifEmpty{ exit 1, "Please provide gene list!"}
             .set { ch_genes_file }
+}
 if (!params.defaultcontrasts) {
   Channel.fromPath("${params.contrasts}")
             .ifEmpty{ exit 1, "Please provide contrasts file or set the defaultcontrasts parameter!" }
@@ -211,7 +215,7 @@ process DESeq2 {
     script:
     if (params.defaultcontrasts){
       """
-      DESeq.v2.7.R $gene_counts $metadata $model
+      DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model --
       zip -r DESeq2.zip DESeq2
       """
     } else {
