@@ -239,7 +239,7 @@ for (i in kip1){
             ggtitle(paste("Gene ",i,sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
             theme(text = element_text(size=12),
                axis.text.x = element_text(angle=45, vjust=1,hjust=1))
-  ggsave(filename=paste("DESeq2/results/plots/plots_example_genes/",i,".png",sep=""), width=10, height=5, plot=plot)
+  ggsave(filename=paste("DESeq2/results/plots/plots_example_genes/",i,".svg",sep=""), width=10, height=5, plot=plot)
   print(i)
 }
 
@@ -263,7 +263,7 @@ if (!is.null(opt$genelist)){
       ggtitle(paste("Gene ",kip2_gene_name[i],sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
       theme(text = element_text(size=12),
             axis.text.x = element_text(angle=45, vjust=1,hjust=1))
-    ggsave(filename=paste("DESeq2/results/plots/plots_requested_genes/",kip2_gene_name[i],"_",kip2_Ensembl[i],".png",sep=""), width=10, height=5, plot=plot)
+    ggsave(filename=paste("DESeq2/results/plots/plots_requested_genes/",kip2_gene_name[i],"_",kip2_Ensembl[i],".svg",sep=""), plot=plot)
     print(kip2_gene_name[i])
   }
 }
@@ -317,7 +317,7 @@ par(oma=c(3,3,3,3))
 pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=6)
 dev.off()
 
-png("DESeq2/results/plots/Heatmaps_of_distances.png", width=15, height=15, units="cm",res=300)
+svg("DESeq2/results/plots/Heatmaps_of_distances.svg")
 pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=6)
 dev.off()
 
@@ -330,7 +330,7 @@ pca <- ggplot(pcaData, aes(PC1, PC2, color=x)) +
   ylab(paste0("PC2: ",percentVar[2], "% variance")) +
   coord_fixed()
 ggsave(plot = pca, filename = "DESeq2/results/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
-ggsave(plot = pca, filename = "DESeq2/results/plots/PCA_plot.png", device = "png", dpi = 150)
+ggsave(plot = pca, filename = "DESeq2/results/plots/PCA_plot.svg", device = "svg", dpi = 150)
 
 ###Gene clustering
 topVarGenes <- head(order(rowVars(assay(rld)), decreasing=TRUE), 50)
@@ -339,7 +339,7 @@ par(oma=c(3,3,3,3))
 heatmap.2(assay(rld)[topVarGenes, ],scale="row",trace="none",dendrogram="col",col=colorRampPalette( rev(brewer.pal(9, "RdBu")))(255),cexRow=0.5,cexCol=0.5)
 dev.off()
 
-png("DESeq2/results/plots/heatmap_of_top50_genes_with_most_variance_across_samples.png", width=20, height=20, units="cm",res=300)
+svg("DESeq2/results/plots/heatmap_of_top50_genes_with_most_variance_across_samples.svg", width=20, height=20, units="cm",res=300)
 par(oma=c(3,3,3,3))
 heatmap.2(assay(rld)[topVarGenes, ],scale="row",trace="none",dendrogram="col",col=colorRampPalette( rev(brewer.pal(9, "RdBu")))(255),cexRow=0.5,cexCol=0.5)
 dev.off()
