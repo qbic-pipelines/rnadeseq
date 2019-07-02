@@ -15,6 +15,7 @@ library("vsn")
 library("gplots")
 library("pheatmap")
 library("optparse")
+library("svglite")
 
 #clean up graphs
 graphics.off()

@@ -11,7 +11,7 @@ channels:
 dependencies:
   - r-base=3.5.1
   - r::r-hexbin=1.27.2
-  - conda-forge::r-svglite=1.2.1
+  - conda-forge::r-svglite=1.2.2
   - conda-forge::r-pheatmap=1.0.12
   - conda-forge::r-gplots=3.0.1.1
   - bioconda::bioconductor-vsn=3.50.0
