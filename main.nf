@@ -188,7 +188,7 @@ process get_software_versions {
     Rscript -e "library(gplots); write(x=as.character(packageVersion('gplots')), file='v_gplots.txt')"
     Rscript -e "library(pheatmap); write(x=as.character(packageVersion('pheatmap')), file='v_pheatmap.txt')" 
     Rscript -e "library(optparse); write(x=as.character(packageVersion('optparse')), file='v_optparse.txt')"
-    Rscript -e "library(svglite); write(x=as.character(packageVersion('svglite')), file="v_svglite.txt')"
+    Rscript -e "library(svglite); write(x=as.character(packageVersion('svglite')), file='v_svglite.txt')"
     scrape_software_versions.py &> software_versions_mqc.yaml
     """
 }
