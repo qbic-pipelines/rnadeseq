@@ -204,7 +204,7 @@ process DESeq2 {
 
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
-    def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts"
+    def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
     """
     DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model $contrastsopt $genelistopt
     zip -r DESeq2.zip DESeq2
