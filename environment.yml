@@ -24,7 +24,6 @@ dependencies:
   - bioconda::bioconductor-genomeinfodbdata=1.2.1
   - conda-forge::cairo=1.16.0
   - conda-forge::r-optparse=1.6.2
-  - conda-forge::r-svglite=1.2.2
 # additional packages for the RNAseq report
   - conda-forge::r-knitr=1.22
   - conda-forge::r-tidyverse=1.2.1
