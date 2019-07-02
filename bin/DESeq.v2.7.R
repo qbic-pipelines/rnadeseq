@@ -80,11 +80,13 @@ count.table <- read.table(path_count_table,  header = T,sep = "\t",na.strings =c
 count.table$Ensembl_ID <- row.names(count.table)
 drop <- c("Ensembl_ID","gene_name")
 gene_names <- count.table[,drop]
-count.table <- count.table[ , !(names(count.table) %in% drop)]
+
 
 ##Need to reduce gene names to QBiC codes
 names(count.table) <- gsub('([A-Z0-9]{10})\\Aligned\\.(.*)\\.(.*)','\\1', names(count.table))
 write.table(count.table , file = "DESeq2/raw_counts/raw_counts.txt", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
+
+count.table <- count.table[ , !(names(count.table) %in% drop)]
 
 ###2.1) remove lines with "__" from HTSeq, not needed for featureCounts (will not harm here)
 count.table <- count.table[!grepl("^__",row.names(count.table)),]
