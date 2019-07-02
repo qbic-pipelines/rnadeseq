@@ -16,11 +16,14 @@ library("gplots")
 library("pheatmap")
 library("optparse")
 library("svglite")
+library("extrafont")
 
 #clean up graphs
 graphics.off()
 
 theme_set(theme_classic())
+extrafont::font_import()
+extrafont::loadfonts()
 
 ######################################
 # create directories needed
