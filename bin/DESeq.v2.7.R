@@ -14,6 +14,7 @@ library("plyr")
 library("vsn")
 library("gplots")
 library("pheatmap")
+library("optparse")
 
 #clean up graphs
 graphics.off()
@@ -36,16 +37,41 @@ dir.create("DESeq2/results/final")
 # #1)check input data path
 
 # provide these files as arguments:
-args = commandArgs(trailingOnly=TRUE)
-if (length(args)<3) {
-  stop("Three arguments must be supplied (merged gene counts, sample preparations sheet and design - OPTIONALS: list of contrasts and requested genes).\n", call.=FALSE)
-}
-path_count_table = args[1]
-metadata_path <- args[2]
-path_design <- args[3]
-path_contrasts <- args[4]
-requested_genes_path <- args[5]
+option_list = list(
+  make_option(c("-c", "--counts"), type="character", default=NULL, help="raw count table path", metavar="character"),
+  make_option(c("-m", "--metadata"), type="character", default=NULL, help="metadata table path", metavar="character"),
+  make_option(c("-d", "--design"), type="character", default=NULL, help="design linear model path", metavar="character"),
+  make_option(c("-k", "--contrasts"), type="character", default=NULL, help="contrast matrix file", metavar="character"),
+  make_option(c("-l", "--genelist"), type="character", default=NULL, help="gene list file", metavar="character")
+)
 
+opt_parser = OptionParser(option_list=option_list)
+opt = parse_args(opt_parser)
+
+if (is.null(opt$counts)){
+  print_help(opt_parser)
+  stop("Counts table needs to be provided!")
+} else {
+  path_count_table = opt$counts
+}
+if (is.null(opt$metadata)){
+  print_help(opt_parser)
+  stop("Metadata table needs to be provided!")
+} else {
+  metadata_path = opt$metadata
+}
+if (is.null(opt$design)){
+  print_help(opt_parser)
+  stop("Linear model design file needs to be provided!")
+} else {
+  path_design = opt$design
+}
+if(!is.null(opt$contrasts)){
+  path_contrasts = opt$contrasts
+}
+if(!is.null(opt$genelist)){
+  requested_genes_path = opt$genelist
+}
 
 ##2) load count table
 
@@ -120,28 +146,46 @@ write.table(log2counts, paste("DESeq2/results/tables/log2counts.tsv",sep=""), ap
 
 ###4.2) contrasts
 coefficients <- resultsNames(cds)
-contrasts <- read.table(path_contrasts, sep="\t", header = T)
-stopifnot(length(coefficients)==nrow(contrasts))
+if (!is.null(opt$contrasts)){
+  contrasts <- read.table(path_contrasts, sep="\t", header = T)
+  stopifnot(length(coefficients)==nrow(contrasts))
 
-bg = data.frame(bg = character(nrow(cds)))
+  bg = data.frame(bg = character(nrow(cds)))
 
-## Contrast calculation
-for (i in c(1:ncol(contrasts))) {
-  d1 <-results(cds, contrast=contrasts[[i]])
+  ## Contrast calculation
+  for (i in c(1:ncol(contrasts))) {
+    d1 <-results(cds, contrast=contrasts[[i]])
 
-  contname <- names(contrasts[i])
-  d1 <- as.data.frame(d1)
-  print(contname)
-  d1_name <- d1
-  d1_name$Ensembl_ID = row.names(d1)
-  d1_name <- merge(x=d1_name, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
-  d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
-  d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
-  d1DE <- subset(d1_name, padj < 0.05)
-  write.table(d1DE, file=paste("DESeq2/results/tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
-  names(d1) = paste(names(d1),contname,sep="_")
-  bg = cbind(bg,d1)
+    contname <- names(contrasts[i])
+    d1 <- as.data.frame(d1)
+    print(contname)
+    d1_name <- d1
+    d1_name$Ensembl_ID = row.names(d1)
+    d1_name <- merge(x=d1_name, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
+    d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
+    d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
+    d1DE <- subset(d1_name, padj < 0.05)
+    write.table(d1DE, file=paste("DESeq2/results/tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    names(d1) = paste(names(d1),contname,sep="_")
+    bg = cbind(bg,d1)
+  }
+} else {
+  for (contname in coefficients[2:length(coefficients)]) {
+    d1 <- results(cds, name=contname)
+    d1 <- as.data.frame(d1)
+    print(contname)
+    d1_name <- d1
+    d1_name$Ensembl_ID = row.names(d1)
+    d1_name <- merge(x=d1_name, y=gene_names, by.x ="Ensembl_ID", by.y="Ensembl_ID", all.x=T)
+    d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
+    d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
+    d1DE <- subset(d1_name, padj < 0.05)
+    write.table(d1DE, file=paste("DESeq2/results/tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    names(d1) = paste(names(d1),contname,sep="_")
+    bg = cbind(bg,d1)
+  }
 }
+
 
 #remove identical columns
 bg$bg <- NULL
