@@ -202,17 +202,24 @@ process DESeq2 {
     file(gene_counts) from ch_counts_file
     file(metadata) from ch_metadata_file
     file(model) from ch_model_file
-    file(contrasts) from ch_contrasts_file
-    file(gene_list) from ch_genes_file
+    file(contrasts) from ch_contrasts_file.collect()
+    file(genelist) from ch_genes_file
 
     output:
     file "*.zip"
 
     script:
-    """
-    DESeq.v2.7.R $gene_counts $metadata $model $contrasts $gene_list
-    zip -r DESeq2.zip DESeq2
-    """
+    if (params.defaultcontrasts){
+      """
+      DESeq.v2.7.R $gene_counts $metadata $model
+      zip -r DESeq2.zip DESeq2
+      """
+    } else {
+      """
+      DESeq.v2.7.R $gene_counts $metadata $model $contrasts $genelist
+      """
+    }
+    
 }
 
 
