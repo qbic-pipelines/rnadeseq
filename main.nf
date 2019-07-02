@@ -93,12 +93,17 @@ Channel.fromPath("${params.metadata}")
 Channel.fromPath("${params.model}")
             .ifEmpty{exit 1, "Please provide linear model file!"}
             .set { ch_model_file }
-Channel.fromPath("${params.contrasts}")
-            .ifEmpty{ exit 1, "Please provide contrasts file!" }
-            .set { ch_contrasts_file }
 Channel.fromPath("${params.genelist}")
             .ifEmpty{ exit 1, "Please provide gene list!"}
             .set { ch_genes_file }
+if (!params.defaultcontrasts) {
+  Channel.fromPath("${params.contrasts}")
+            .ifEmpty{ exit 1, "Please provide contrasts file or set the defaultcontrasts parameter!" }
+            .set { ch_contrasts_file }
+} else {
+  ch_contrasts_file = Channel.empty()
+}
+
 
 
 // Header log info
