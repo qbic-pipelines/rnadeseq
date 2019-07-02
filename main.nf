@@ -213,14 +213,25 @@ process DESeq2 {
     file "*.zip"
 
     script:
-    if (params.defaultcontrasts){
+    if (params.defaultcontrasts && !params.genelist){
       """
-      DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model --
+      DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model
+      zip -r DESeq2.zip DESeq2
+      """
+    } else if (params.defaultcontrasts){
+      """
+      DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model --contrasts $contrasts
+      zip -r DESeq2.zip DESeq2
+      """
+    } else if (!params.genelist){
+      """
+      DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model --genelist $genelist
       zip -r DESeq2.zip DESeq2
       """
     } else {
       """
-      DESeq.v2.7.R $gene_counts $metadata $model $contrasts $genelist
+      DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model --contrasts $contrasts --genelist $genelist
+      zip -r DESeq2.zip DESeq2
       """
     }
     
