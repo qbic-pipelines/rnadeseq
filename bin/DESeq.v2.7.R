@@ -241,28 +241,31 @@ for (i in kip1){
   print(i)
 }
 
-#4.5) make plots of interesting genes
-gene_ids <- read.table(requested_genes_path, col.names = "requested_gene_name")
-gene_ids$requested_gene_name <- sapply(gene_ids$requested_gene_name, toupper)
-bg1$gene_name <- sapply(bg1$gene_name, toupper)
+if (!is.null(opt$genelist)){
+  #4.5) make plots of interesting genes
+  gene_ids <- read.table(requested_genes_path, col.names = "requested_gene_name")
+  gene_ids$requested_gene_name <- sapply(gene_ids$requested_gene_name, toupper)
+  bg1$gene_name <- sapply(bg1$gene_name, toupper)
 
-kip2 <- subset(bg1, gene_name %in% gene_ids$requested_gene_name)
-kip2_Ensembl <- kip2$Ensembl_ID
-kip2_gene_name <- kip2$gene_name
-for (i in c(1:length(kip2_Ensembl)))
-{
-  d <- plotCounts(cds, gene=kip2_Ensembl[i], intgroup=c("x"), returnData=TRUE,normalized = T)
-  d$variable = row.names(d)
-  plot <- ggplot(data=d, aes(x=x, y=count, fill=x)) +
-    geom_boxplot(position=position_dodge()) +
-    geom_jitter(position=position_dodge(.8)) +
-    facet_grid(cols= vars(x)) +
-    ggtitle(paste("Gene ",kip2_gene_name[i],sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
-    theme(text = element_text(size=12),
-          axis.text.x = element_text(angle=45, vjust=1,hjust=1))
-  ggsave(filename=paste("DESeq2/results/plots/plots_requested_genes/",kip2_gene_name[i],"_",kip2_Ensembl[i],".png",sep=""), width=10, height=5, plot=plot)
-  print(kip2_gene_name[i])
+  kip2 <- subset(bg1, gene_name %in% gene_ids$requested_gene_name)
+  kip2_Ensembl <- kip2$Ensembl_ID
+  kip2_gene_name <- kip2$gene_name
+  for (i in c(1:length(kip2_Ensembl)))
+  {
+    d <- plotCounts(cds, gene=kip2_Ensembl[i], intgroup=c("x"), returnData=TRUE,normalized = T)
+    d$variable = row.names(d)
+    plot <- ggplot(data=d, aes(x=x, y=count, fill=x)) +
+      geom_boxplot(position=position_dodge()) +
+      geom_jitter(position=position_dodge(.8)) +
+      facet_grid(cols= vars(x)) +
+      ggtitle(paste("Gene ",kip2_gene_name[i],sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
+      theme(text = element_text(size=12),
+            axis.text.x = element_text(angle=45, vjust=1,hjust=1))
+    ggsave(filename=paste("DESeq2/results/plots/plots_requested_genes/",kip2_gene_name[i],"_",kip2_Ensembl[i],".png",sep=""), width=10, height=5, plot=plot)
+    print(kip2_gene_name[i])
+  }
 }
+
 
 #write to file
 write.table(bg1, "DESeq2/results/final/final_list_DESeq2.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
