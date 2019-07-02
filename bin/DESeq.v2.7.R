@@ -149,11 +149,10 @@ write.table(log2counts, paste("DESeq2/results/tables/log2counts.tsv",sep=""), ap
 
 ###4.2) contrasts
 coefficients <- resultsNames(cds)
+bg = data.frame(bg = character(nrow(cds)))
 if (!is.null(opt$contrasts)){
   contrasts <- read.table(path_contrasts, sep="\t", header = T)
   stopifnot(length(coefficients)==nrow(contrasts))
-
-  bg = data.frame(bg = character(nrow(cds)))
 
   ## Contrast calculation
   for (i in c(1:ncol(contrasts))) {
