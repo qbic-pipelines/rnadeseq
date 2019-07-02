@@ -342,7 +342,7 @@ par(oma=c(3,3,3,3))
 heatmap.2(assay(rld)[topVarGenes, ],scale="row",trace="none",dendrogram="col",col=colorRampPalette( rev(brewer.pal(9, "RdBu")))(255),cexRow=0.5,cexCol=0.5)
 dev.off()
 
-svg("DESeq2/results/plots/heatmap_of_top50_genes_with_most_variance_across_samples.svg", width=20, height=20, units="cm",res=300)
+svg("DESeq2/results/plots/heatmap_of_top50_genes_with_most_variance_across_samples.svg", width=20, height=20, dpi=300)
 par(oma=c(3,3,3,3))
 heatmap.2(assay(rld)[topVarGenes, ],scale="row",trace="none",dendrogram="col",col=colorRampPalette( rev(brewer.pal(9, "RdBu")))(255),cexRow=0.5,cexCol=0.5)
 dev.off()
