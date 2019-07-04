@@ -34,7 +34,8 @@ dir.create("DESeq2/metadata")
 dir.create("DESeq2/results/plots")
 dir.create("DESeq2/results/plots/plots_example_genes")
 dir.create("DESeq2/results/plots/plots_requested_genes")
-dir.create("DESeq2/results/tables")
+dir.create("DESeq2/results/count_tables")
+dir.create("DESeq2/results/DE_genes_tables")
 dir.create("DESeq2/results/final")
 ######################################
 
@@ -143,13 +144,10 @@ cds <- DESeq(cds,  parallel = FALSE)
 
 ### 4.1) sizeFactors(cds) as indicator of library sequencing depth
 sizeFactors(cds)
-write.table(sizeFactors(cds),paste("DESeq2/results/tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
+write.table(sizeFactors(cds),paste("DESeq2/results/count_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
 
 #write raw counts to file
-write.table(count.table, paste("DESeq2/results/tables/raw.read.counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = NA, qmethod = c("escape", "double"))
-#write log2 counts to file
-log2counts <- log2(assay(cds)+0.1)
-write.table(log2counts, paste("DESeq2/results/tables/log2counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = NA, qmethod = c("escape", "double"))
+write.table(count.table, paste("DESeq2/results/count_tables/raw.read.counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = NA, qmethod = c("escape", "double"))
 
 ###4.2) contrasts
 coefficients <- resultsNames(cds)
@@ -171,7 +169,7 @@ if (!is.null(opt$contrasts)){
     d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
     d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
     d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
-    write.table(d1DE, file=paste("DESeq2/results/tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    write.table(d1DE, file=paste("DESeq2/results/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
   }
@@ -186,7 +184,7 @@ if (!is.null(opt$contrasts)){
     d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
     d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
     d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
-    write.table(d1DE, file=paste("DESeq2/results/tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    write.table(d1DE, file=paste("DESeq2/results/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
   }
@@ -285,8 +283,8 @@ rld <- rlog(cds)
 vsd <- varianceStabilizingTransformation(cds)
 
 #write normalized values to a file
-write.table(assay(rld), "DESeq2/results/tables/rlog_transformed.read.counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,  col.names = NA, qmethod = c("escape", "double"))
-write.table(assay(vsd), "DESeq2/results/tables/vst_transformed.read.counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,  col.names = NA, qmethod = c("escape", "double"))
+write.table(assay(rld), "DESeq2/results/count_tables/rlog_transformed.read.counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,  col.names = NA, qmethod = c("escape", "double"))
+write.table(assay(vsd), "DESeq2/results/count_tables/vst_transformed.read.counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,  col.names = NA, qmethod = c("escape", "double"))
 
 ##6) Diagnostic plots
 
