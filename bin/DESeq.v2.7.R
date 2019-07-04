@@ -240,7 +240,6 @@ for (i in kip1){
   plot <- ggplot(data=d, aes(x=x, y=count, fill=x)) +
             geom_boxplot(position=position_dodge()) +
             geom_jitter(position=position_dodge(.8)) +
-            facet_grid(cols= vars(x)) +
             ggtitle(paste("Gene ",i,sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
             theme(text = element_text(size=12),
                axis.text.x = element_text(angle=45, vjust=1,hjust=1))
@@ -264,7 +263,6 @@ if (!is.null(opt$genelist)){
     plot <- ggplot(data=d, aes(x=x, y=count, fill=x)) +
       geom_boxplot(position=position_dodge()) +
       geom_jitter(position=position_dodge(.8)) +
-      facet_grid(cols= vars(x)) +
       ggtitle(paste("Gene ",kip2_gene_name[i],sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
       theme(text = element_text(size=12),
             axis.text.x = element_text(angle=45, vjust=1,hjust=1))
