@@ -30,6 +30,7 @@ def helpMessage() {
                                     Available: conda, docker, singularity, awsbatch, test and more.
 
     Options:
+      --logFCthreshold              Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed.
       --genelist                    List of genes (one per line) of which to plot heatmaps for normalized counts across all samples.                
 
     Other options:
@@ -201,7 +202,7 @@ process DESeq2 {
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
     """
-    DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model $contrastsopt $genelistopt
+    DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model --logFCthreshold $params.logFCthreshold $contrastsopt $genelistopt
     zip -r DESeq2.zip DESeq2
     """
 

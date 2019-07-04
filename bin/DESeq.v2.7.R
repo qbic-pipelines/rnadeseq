@@ -34,7 +34,8 @@ dir.create("DESeq2/metadata")
 dir.create("DESeq2/results/plots")
 dir.create("DESeq2/results/plots/plots_example_genes")
 dir.create("DESeq2/results/plots/plots_requested_genes")
-dir.create("DESeq2/results/tables")
+dir.create("DESeq2/results/count_tables")
+dir.create("DESeq2/results/DE_genes_tables")
 dir.create("DESeq2/results/final")
 ######################################
 
@@ -46,7 +47,8 @@ option_list = list(
   make_option(c("-m", "--metadata"), type="character", default=NULL, help="metadata table path", metavar="character"),
   make_option(c("-d", "--design"), type="character", default=NULL, help="design linear model path", metavar="character"),
   make_option(c("-k", "--contrasts"), type="character", default=NULL, help="contrast matrix file", metavar="character"),
-  make_option(c("-l", "--genelist"), type="character", default=NULL, help="gene list file", metavar="character")
+  make_option(c("-l", "--genelist"), type="character", default=NULL, help="gene list file", metavar="character"),
+  make_option(c("-t", "--logFCthreshold"), type="integer", default=0, help="Log 2 Fold Change threshold for DE genes", metavar="character")
 )
 
 opt_parser = OptionParser(option_list=option_list)
@@ -142,13 +144,10 @@ cds <- DESeq(cds,  parallel = FALSE)
 
 ### 4.1) sizeFactors(cds) as indicator of library sequencing depth
 sizeFactors(cds)
-write.table(sizeFactors(cds),paste("DESeq2/results/tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
+write.table(sizeFactors(cds),paste("DESeq2/results/count_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
 
 #write raw counts to file
-write.table(count.table, paste("DESeq2/results/tables/raw.read.counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = NA, qmethod = c("escape", "double"))
-#write log2 counts to file
-log2counts <- log2(assay(cds)+0.1)
-write.table(log2counts, paste("DESeq2/results/tables/log2counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = NA, qmethod = c("escape", "double"))
+write.table(count.table, paste("DESeq2/results/count_tables/raw.read.counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = NA, qmethod = c("escape", "double"))
 
 ###4.2) contrasts
 coefficients <- resultsNames(cds)
@@ -169,8 +168,8 @@ if (!is.null(opt$contrasts)){
     d1_name <- merge(x=d1_name, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
     d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
     d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
-    d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > 1 | log2FoldChange < -1))
-    write.table(d1DE, file=paste("DESeq2/results/tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
+    write.table(d1DE, file=paste("DESeq2/results/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
   }
@@ -184,8 +183,8 @@ if (!is.null(opt$contrasts)){
     d1_name <- merge(x=d1_name, y=gene_names, by.x ="Ensembl_ID", by.y="Ensembl_ID", all.x=T)
     d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
     d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
-    d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > 1 | log2FoldChange < -1))
-    write.table(d1DE, file=paste("DESeq2/results/tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
+    write.table(d1DE, file=paste("DESeq2/results/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
   }
@@ -203,18 +202,21 @@ names(bg)
 
 #4.3) get DE genes from any contrast
 padj=names(bg)[grepl("padj",names(bg))]
-
+logFC = names(bg)[grepl("log2FoldChange", names(bg))]
+logFC = bg[,logFC]
 padj = bg[,padj]
 padj[is.na(padj)] <- 1
-padj = ifelse(padj < 0.05, 1, 0)
-padj = as.data.frame(padj)
+padj_bin = data.matrix(ifelse(padj < 0.05, 1, 0))
+logFC_bin = data.matrix(ifelse(abs(logFC) > opt$logFCthreshold, 1, 0))
+DE_bin = padj_bin * logFC_bin
+DE_bin = as.data.frame(DE_bin)
 cols <- names(padj)
-padj$filter <- apply(padj[ ,cols],1,paste, collapse = "-")
-padj$Ensembl_ID = row.names(padj)
-padj = padj[,c("Ensembl_ID","filter")]
+DE_bin$filter <- apply(DE_bin[ ,cols],1,paste, collapse = "-")
+DE_bin$Ensembl_ID = row.names(padj)
+DE_bin = DE_bin[,c("Ensembl_ID","filter")]
 
 #make final data frame
-bg1 = merge(bg,padj,by.x="Ensembl_ID",by.y="Ensembl_ID")
+bg1 = merge(bg,DE_bin,by.x="Ensembl_ID",by.y="Ensembl_ID")
 stopifnot(identical(dim(bg1)[1],dim(assay(cds))[1]))
 bg1$filter1 = ifelse(grepl("1",bg1$filter),"DE","not_DE")
 bg1 = merge(x=bg1, y=gene_names, by.x="Ensembl_ID", by.y="Ensembl_ID", all.x = T)
@@ -238,7 +240,6 @@ for (i in kip1){
   plot <- ggplot(data=d, aes(x=x, y=count, fill=x)) +
             geom_boxplot(position=position_dodge()) +
             geom_jitter(position=position_dodge(.8)) +
-            facet_grid(cols= vars(x)) +
             ggtitle(paste("Gene ",i,sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
             theme(text = element_text(size=12),
                axis.text.x = element_text(angle=45, vjust=1,hjust=1))
@@ -262,7 +263,6 @@ if (!is.null(opt$genelist)){
     plot <- ggplot(data=d, aes(x=x, y=count, fill=x)) +
       geom_boxplot(position=position_dodge()) +
       geom_jitter(position=position_dodge(.8)) +
-      facet_grid(cols= vars(x)) +
       ggtitle(paste("Gene ",kip2_gene_name[i],sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
       theme(text = element_text(size=12),
             axis.text.x = element_text(angle=45, vjust=1,hjust=1))
@@ -281,8 +281,8 @@ rld <- rlog(cds)
 vsd <- varianceStabilizingTransformation(cds)
 
 #write normalized values to a file
-write.table(assay(rld), "DESeq2/results/tables/rlog_transformed.read.counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,  col.names = NA, qmethod = c("escape", "double"))
-write.table(assay(vsd), "DESeq2/results/tables/vst_transformed.read.counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,  col.names = NA, qmethod = c("escape", "double"))
+write.table(assay(rld), "DESeq2/results/count_tables/rlog_transformed.read.counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,  col.names = NA, qmethod = c("escape", "double"))
+write.table(assay(vsd), "DESeq2/results/count_tables/vst_transformed.read.counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,  col.names = NA, qmethod = c("escape", "double"))
 
 ##6) Diagnostic plots
 
@@ -334,18 +334,6 @@ pca <- ggplot(pcaData, aes(PC1, PC2, color=x)) +
   coord_fixed()
 ggsave(plot = pca, filename = "DESeq2/results/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca, filename = "DESeq2/results/plots/PCA_plot.svg", device = "svg", dpi = 150)
-
-###Gene clustering
-topVarGenes <- head(order(rowVars(assay(rld)), decreasing=TRUE), 50)
-pdf("DESeq2/results/plots/heatmap_of_top50_genes_with_most_variance_across_samples.pdf")
-par(oma=c(3,3,3,3))
-heatmap.2(assay(rld)[topVarGenes, ],scale="row",trace="none",dendrogram="col",col=colorRampPalette( rev(brewer.pal(9, "RdBu")))(255),cexRow=0.5,cexCol=0.5)
-dev.off()
-
-svg("DESeq2/results/plots/heatmap_of_top50_genes_with_most_variance_across_samples.svg", width=20, height=20)
-par(oma=c(3,3,3,3))
-heatmap.2(assay(rld)[topVarGenes, ],scale="row",trace="none",dendrogram="col",col=colorRampPalette( rev(brewer.pal(9, "RdBu")))(255),cexRow=0.5,cexCol=0.5)
-dev.off()
 
 #further diagnostics plots
 dir.create("DESeq2/results/plots/further_diagnostics")
