@@ -46,7 +46,8 @@ option_list = list(
   make_option(c("-m", "--metadata"), type="character", default=NULL, help="metadata table path", metavar="character"),
   make_option(c("-d", "--design"), type="character", default=NULL, help="design linear model path", metavar="character"),
   make_option(c("-k", "--contrasts"), type="character", default=NULL, help="contrast matrix file", metavar="character"),
-  make_option(c("-l", "--genelist"), type="character", default=NULL, help="gene list file", metavar="character")
+  make_option(c("-l", "--genelist"), type="character", default=NULL, help="gene list file", metavar="character"),
+  make_option(c("-t", "--logFCthreshold"), type="integer", default=0, help="Log 2 Fold Change threshold for DE genes", metavar="character")
 )
 
 opt_parser = OptionParser(option_list=option_list)
@@ -169,7 +170,7 @@ if (!is.null(opt$contrasts)){
     d1_name <- merge(x=d1_name, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
     d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
     d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
-    d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > 1 | log2FoldChange < -1))
+    d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
     write.table(d1DE, file=paste("DESeq2/results/tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
@@ -184,7 +185,7 @@ if (!is.null(opt$contrasts)){
     d1_name <- merge(x=d1_name, y=gene_names, by.x ="Ensembl_ID", by.y="Ensembl_ID", all.x=T)
     d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
     d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
-    d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > 1 | log2FoldChange < -1))
+    d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
     write.table(d1DE, file=paste("DESeq2/results/tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
@@ -203,18 +204,21 @@ names(bg)
 
 #4.3) get DE genes from any contrast
 padj=names(bg)[grepl("padj",names(bg))]
-
+logFC = names(bg)[grepl("log2FoldChange", names(bg))]
+logFC = bg[,logFC]
 padj = bg[,padj]
 padj[is.na(padj)] <- 1
-padj = ifelse(padj < 0.05, 1, 0)
-padj = as.data.frame(padj)
+padj_bin = data.matrix(ifelse(padj < 0.05, 1, 0))
+logFC_bin = data.matrix(ifelse(abs(logFC) > opt$logFCthreshold, 1, 0))
+DE_bin = padj_bin * logFC_bin
+DE_bin = as.data.frame(DE_bin)
 cols <- names(padj)
-padj$filter <- apply(padj[ ,cols],1,paste, collapse = "-")
-padj$Ensembl_ID = row.names(padj)
-padj = padj[,c("Ensembl_ID","filter")]
+DE_bin$filter <- apply(DE_bin[ ,cols],1,paste, collapse = "-")
+DE_bin$Ensembl_ID = row.names(padj)
+DE_bin = DE_bin[,c("Ensembl_ID","filter")]
 
 #make final data frame
-bg1 = merge(bg,padj,by.x="Ensembl_ID",by.y="Ensembl_ID")
+bg1 = merge(bg,DE_bin,by.x="Ensembl_ID",by.y="Ensembl_ID")
 stopifnot(identical(dim(bg1)[1],dim(assay(cds))[1]))
 bg1$filter1 = ifelse(grepl("1",bg1$filter),"DE","not_DE")
 bg1 = merge(x=bg1, y=gene_names, by.x="Ensembl_ID", by.y="Ensembl_ID", all.x = T)
