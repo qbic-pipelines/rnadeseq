@@ -80,6 +80,7 @@ ch_output_docs = Channel.fromPath("$baseDir/docs/output.md")
 /*
  * Create a channel for input  files
  */
+ // DESeq2
 Channel.fromPath("${params.rawcounts}")
            .ifEmpty{exit 1, "Please provide raw counts file!"}
            .set {ch_counts_file}
@@ -89,6 +90,20 @@ Channel.fromPath("${params.metadata}")
 Channel.fromPath("${params.model}")
             .ifEmpty{exit 1, "Please provide linear model file!"}
             .set { ch_model_file }
+// RNAseq Report
+Channel.fromPath("${params.summary}")
+            .ifEmpty{exit 1, "Please provide summary file!"}
+            .set { ch_summary_file }
+Channel.fromPath("${params.softwareversions}")
+            .ifEmpty{exit 1, "Please provide sofware versions file!"}
+            .set { ch_softwareversions_file }
+Channel.fromPath("${params.config}")
+            .ifEmpty{exit 1, "Please provide config file!"}
+            .set { ch_config_file }
+Channel.fromPath("${fastqc.model}")
+            .ifEmpty{exit 1, "Please provide fastqc.zip file!"}
+            .set { ch_fastqc_file }
+
 
 ch_genes_file = file(params.genelist)
 ch_contrasts_file = file(params.contrasts)
@@ -209,6 +224,31 @@ process DESeq2 {
     
 }
 
+/*
+ * STEP 2 - RNAseq Report
+ */
+process Report {
+    //publishDir "${params.outdir}/Report", mode: 'copy'
+
+    input:
+    file(gene_counts) from ch_counts_file
+    file(metadata) from ch_metadata_file
+    file(model) from ch_model_file
+    file(contrasts) from ch_contrasts_file
+    file(genelist) from ch_genes_file
+
+    output:
+    file "*.zip"
+
+    script:
+    def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
+    def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
+    """
+    Rscript -e "rmarkdown::render('RNAseq_report.Rmd',output_file='RNAseq_report.html',
+    params = list(path_summary=\"summary.tsv\", path_versions= \"software_versions.csv\", path_design= \"design.txt\",
+    path_config= \"config.yml\", path_contrasts= \"contrasts.tsv\", path_fastqc=\"fastqc.zip\"))"
+    """"  
+}
 
 
 // /*
