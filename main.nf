@@ -245,9 +245,10 @@ process Report {
     def contrastsopt = contrasts.name != 'DEFAULT' ? ", path_contrasts = $contrasts" : ''
     def fastqcopt = fastqc.name != 'NO_FILE' ? ", path_fastqc = $fastqc" : ''
     """
-    Rscript -e "rmarkdown::render('RNAseq_report.Rmd',output_file='RNAseq_report.html',
-    params = list(path_summary = $summary, path_versions = $softwareversions, path_design = $model,
-    path_config = $config $contrastsopt $fastqcopt))"
+
+    Rscript -e \"rmarkdown::render('RNAseq_report.Rmd',output_file='RNAseq_report.html',
+    params = list(path_summary = '$summary', path_versions = '$softwareversions', path_design = '$model',
+    path_config = '$config' '$contrastsopt' '$fastqcopt'))\"
     """  
 }
 
