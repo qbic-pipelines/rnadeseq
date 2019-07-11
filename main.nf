@@ -92,9 +92,9 @@ Channel.fromPath("${params.model}")
             .into { ch_model_for_deseq2_file; ch_model_for_report_file}
 Channel.fromPath("${params.contrasts}")
             .into { ch_contrasts_for_deseq2_file; ch_contrasts_for_report_file }
-Channel.fromPath("${params.summary}")
+Channel.fromPath("${params.qc_summary}")
             .ifEmpty{exit 1, "Please provide summary file!"}
-            .set { ch_summary_file }
+            .set { ch_qc_summary_file }
 Channel.fromPath("${params.softwareversions}")
             .ifEmpty{exit 1, "Please provide sofware versions file!"}
             .set { ch_softwareversions_file }
@@ -116,7 +116,7 @@ summary['Metadata'] = params.metadata
 summary['Model'] = params.model
 summary['Contrasts'] = params.contrasts
 summary['Gene list'] = params.genelist
-summary['Metadata summary file'] = params.summary
+summary['Quality summary file'] = params.qc_summary
 summary['nf-core/rnaseq software versions'] = params.softwareversions
 summary['Config file defining optional sessions'] = params.config
 summary['Fastqc reports from nf-core/rnaseq'] = params.fastqc
@@ -231,7 +231,7 @@ process Report {
     //publishDir "${params.outdir}/Report", mode: 'copy'
 
     input:
-    file(summary) from ch_summary_file
+    file(qc_summary) from ch_qc_summary_file
     file(softwareversions) from ch_softwareversions_file
     file(model) from ch_model_for_report_file
     file(config) from ch_config_file
@@ -247,7 +247,7 @@ process Report {
     """
 
     Rscript -e \"rmarkdown::render('RNAseq_report.Rmd',output_file='RNAseq_report.html',
-    params = list(path_summary = '$summary', path_versions = '$softwareversions', path_design = '$model',
+    params = list(path_summary = '$qc_summary', path_versions = '$softwareversions', path_design = '$model',
     path_config = '$config' '$contrastsopt' '$fastqcopt'))\"
     """  
 }
