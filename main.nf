@@ -205,11 +205,18 @@ process DESeq2 {
     DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model --logFCthreshold $params.logFCthreshold $contrastsopt $genelistopt
     zip -r DESeq2.zip DESeq2
     """
-
     
 }
 
+/*
+ * STEP 2 - Pathway analysis
+ */
+process Pathway_analysis{
+    publishDir "${params.outdir}/DESeq2", mode: 'copy'
 
+    input:
+    file()
+}
 
 // /*
 //  * STEP 2 - MultiQC

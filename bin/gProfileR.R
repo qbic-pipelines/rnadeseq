@@ -4,16 +4,52 @@ library(reshape2)
 library(pheatmap)
 library(pathview)
 library(AnnotationDbi)
+library(optparse)
 
 # Need to load library for your species
 library(org.Mm.eg.db)
 library(org.Hs.eg.db)
+organism_list = ["Hsapiens", "Mmusculus"]
+# Reading parameters
+
+option_list = list(
+  make_option(c("-d", "--dirContrasts"), type="character", default=".", help="directory with DE gene list for each contrast", metavar="character"),
+  make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
+  make_option(c("-d", "--design"), type="character", default=NULL, help="path to linear model design", metavar="character"),
+  make_option(c("-n", "--normCounts", type="character", default=NULL, help="path to normalized counts", metavar="character"))
+  make_option(c("-o", "--organism", type="character", default=NULL, help="Organism name. Example format: Hsapiens", metavar="character"))
+)
+
+opt_parser = OptionParser(option_list=option_list)
+opt = parse_args(opt_parser)
+
+if (is.null(opt$metadata)){
+  print_help(opt_parser)
+  stop("Metadata table needs to be provided!")
+} else {
+  metadata_path = opt$metadata
+}
+if (is.null(opt$design)){
+  print_help(opt_parser)
+  stop("Linear model design file needs to be provided!")
+} else {
+  path_design = opt$design
+}
+if(is.null(opt$normCounts)){
+  print_help(opt_parser)
+  stop("Normalized counts file needs to be provided")
+} else {
+  path_norm_counts = opt$contrasts
+}
+if(is.null(opt$organism)){
+  print_help(opt_parser)
+  stop("Organism name needs to be provided")
+} else if (opt$organism %in% ["Hsapiens"])
+
+contrast_files <- list.files(path=opt$dirContrasts)
 
 outdir <- "gProfileR"
-path_contrasts <- "DESeq2/results_time_comparison/DE_genes_contrasts/"
-path_norm_counts <- "DESeq2/results_time_comparison/count_tables/rlog_transformed.read.counts.tsv"
-metadata_path <- "DESeq2/metadata/QSFAN_sample_preparations.tsv"
-contrast_files <- list.files(path=path_contrasts)
+
 norm_counts <- read.table(file = path_norm_counts, header = T, row.names = 1, sep = "\t", quote = "")
 metadata <- read.table(file=metadata_path, sep = "\t", header = T, quote="")
 
