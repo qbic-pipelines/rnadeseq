@@ -15,12 +15,12 @@ output:
 #   self_contained: no
 bibliography: ./references.bibtex
 params:
-  path_summary: 
-  path_versions: 
-  path_design: 
-  path_config: 
-  path_contrasts: 
-  path_fastqc: 
+  path_summary: ''
+  path_versions: ''
+  path_design: ''
+  path_config: ''
+  path_contrasts: ''
+  path_fastqc: ''
 ---
 
 
