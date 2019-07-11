@@ -247,8 +247,8 @@ process Report {
     """
 
     Rscript -e \"rmarkdown::render('RNAseq_report.Rmd',output_file='RNAseq_report.html',
-    params = list(path_summary = '$qc_summary', path_versions = '$softwareversions', path_design = '$model',
-    path_config = '$config' '$contrastsopt' '$fastqcopt'))\"
+    params = list(path_summary = \"$qc_summary\", path_versions = \"$softwareversions\", path_design = \"$model\",
+    path_config = \"$config\" \"$contrastsopt\" \"$fastqcopt\"))\"
     """  
 }
 
