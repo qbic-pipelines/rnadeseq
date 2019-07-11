@@ -26,6 +26,11 @@ params:
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
 print(params$path_summary)
+print(params$path_fastqc)
+```
+
+```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
+print(params$path_summary)
 df <- read.csv(file=params$path_summary, sep="\t", header = TRUE)
 # Import the .tsv file downloadable from https://portal.qbic.uni-tuebingen.de/portal/web/qbic/user-database -> Projects
 # df <- read.csv(file="./summary.tsv", sep="\t", header = TRUE)
