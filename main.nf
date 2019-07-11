@@ -236,6 +236,7 @@ process Report {
     file(model) from ch_model_for_report_file
     file(config) from ch_config_file
     file(contrasts) from ch_contrasts_for_report_file
+    file(fastqc) from ch_fastqc_file
 
     output:
     file "*.zip"
