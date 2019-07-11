@@ -91,7 +91,7 @@ Channel.fromPath("${params.model}")
             .ifEmpty{exit 1, "Please provide linear model file!"}
             .into { ch_model_for_deseq2_file; ch_model_for_report_file}
 Channel.fromPath("${params.contrasts}")
-            .into { ch_contrasts_for_deseq2_file, ch_contrasts_for_report_file }
+            .into { ch_contrasts_for_deseq2_file; ch_contrasts_for_report_file }
 Channel.fromPath("${params.summary}")
             .ifEmpty{exit 1, "Please provide summary file!"}
             .set { ch_summary_file }
