@@ -89,8 +89,9 @@ Channel.fromPath("${params.metadata}")
            .set { ch_metadata_file }
 Channel.fromPath("${params.model}")
             .ifEmpty{exit 1, "Please provide linear model file!"}
-            .set { ch_model_file }
-// RNAseq Report
+            .into { ch_model_for_deseq2_file; ch_model_for_report_file}
+Channel.fromPath("${params.contrasts}")
+            .into { ch_contrasts_for_deseq2_file, ch_contrasts_for_report_file }
 Channel.fromPath("${params.summary}")
             .ifEmpty{exit 1, "Please provide summary file!"}
             .set { ch_summary_file }
@@ -100,15 +101,10 @@ Channel.fromPath("${params.softwareversions}")
 Channel.fromPath("${params.config}")
             .ifEmpty{exit 1, "Please provide config file!"}
             .set { ch_config_file }
-Channel.fromPath("${fastqc.model}")
-            .ifEmpty{exit 1, "Please provide fastqc.zip file!"}
-            .set { ch_fastqc_file }
-
 
 ch_genes_file = file(params.genelist)
-ch_contrasts_file = file(params.contrasts)
-
-
+// TODO: this is needed as input also by step RNAseq Report
+ch_fastqc_file = file(params.fastqc)
 
 // Header log info
 log.info nfcoreHeader()
@@ -120,6 +116,10 @@ summary['Metadata'] = params.metadata
 summary['Model'] = params.model
 summary['Contrasts'] = params.contrasts
 summary['Gene list'] = params.genelist
+summary['Metadata summary file'] = params.summary
+summary['nf-core/rnaseq software versions'] = params.softwareversions
+summary['Config file defining optional sessions'] = params.config
+summary['Fastqc reports from nf-core/rnaseq'] = params.fastqc
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if(workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
 summary['Output dir']       = params.outdir
@@ -206,8 +206,8 @@ process DESeq2 {
     input:
     file(gene_counts) from ch_counts_file
     file(metadata) from ch_metadata_file
-    file(model) from ch_model_file
-    file(contrasts) from ch_contrasts_file
+    file(model) from ch_model_for_deseq2_file
+    file(contrasts) from ch_contrasts_for_deseq2_file
     file(genelist) from ch_genes_file
 
     output:
@@ -231,23 +231,23 @@ process Report {
     //publishDir "${params.outdir}/Report", mode: 'copy'
 
     input:
-    file(gene_counts) from ch_counts_file
-    file(metadata) from ch_metadata_file
-    file(model) from ch_model_file
-    file(contrasts) from ch_contrasts_file
-    file(genelist) from ch_genes_file
+    file(summary) from ch_summary_file
+    file(softwareversions) from ch_softwareversions_file
+    file(model) from ch_model_for_report_file
+    file(config) from ch_config_file
+    file(contrasts) from ch_contrasts_for_report_file
 
     output:
     file "*.zip"
 
     script:
-    def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
-    def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
+    def contrastsopt = contrasts.name != 'DEFAULT' ? ", path_contrasts = $contrasts" : ''
+    def fastqcopt = fastqc.name != 'NO_FILE' ? ", path_fastqc = $fastqc" : ''
     """
     Rscript -e "rmarkdown::render('RNAseq_report.Rmd',output_file='RNAseq_report.html',
-    params = list(path_summary=\"summary.tsv\", path_versions= \"software_versions.csv\", path_design= \"design.txt\",
-    path_config= \"config.yml\", path_contrasts= \"contrasts.tsv\", path_fastqc=\"fastqc.zip\"))"
-    """"  
+    params = list(path_summary = $summary, path_versions = $softwareversions, path_design = $model,
+    path_config = $config $contrastsopt $fastqcopt))"
+    """  
 }
 
 
