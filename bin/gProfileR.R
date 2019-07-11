@@ -7,7 +7,7 @@ library(AnnotationDbi)
 
 # Need to load library for your species
 library(org.Mm.eg.db)
-
+library(org.Hs.eg.db)
 
 outdir <- "gProfileR"
 path_contrasts <- "DESeq2/results_time_comparison/DE_genes_contrasts/"
@@ -21,10 +21,11 @@ metadata <- read.table(file=metadata_path, sep = "\t", header = T, quote="")
 #Search params
 organism <- "mmusculus"
 short_organism_name <- "mmu"
-datasources <- c("KEGG","REAC", "WP")
+datasources <- c("KEGG","REAC")
 min_set_size <- 1
 max_set_size <- 500
 min_isect_size <- 1
+library <- org.Mm.eg.db
 
 
 
@@ -113,7 +114,7 @@ for (file in contrast_files){
             gene.data = DE_genes
             gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
             
-            entrez_ids = mapIds(org.Mm.eg.db, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype="ENSEMBL", multiVals="first")
+            entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype="ENSEMBL", multiVals="first")
             
             gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
             row.names(gene.data.subset) <- entrez_ids[!is.na(entrez_ids)]
