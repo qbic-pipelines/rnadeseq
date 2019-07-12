@@ -249,14 +249,6 @@ process Report {
     --versions $softwareversions --model $model --config $config --contrast $contrastsopt --fastqc $fastqcopt
     """
 }
-rmarkdown::render(opt$report, output_file = opt$output, 
-                  params = list(path_summary = opt$qc_summary,
-                                path_versions = opt$versions,
-                                path_design = opt$model,
-                                path_config = opt$config,
-                                path_contrast = opt$contrast,
-                                path_fastqc = opt$fastqc))
-
 
 // /*
 //  * STEP 2 - MultiQC
