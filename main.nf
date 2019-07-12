@@ -246,7 +246,7 @@ process Report {
     def fastqcopt = fastqc.name != 'NO_FILE' ? "--fastqc = $fastqc" : ''
     """
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --summary $qc_summary \
-    --versions $softwareversions --model $model --config $config $contrastsopt $fastqcopt
+    --versions $softwareversions --model $model --config $config $contrastsopt 
     """
 }
 
