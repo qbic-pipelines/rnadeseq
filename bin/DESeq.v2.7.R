@@ -1,9 +1,9 @@
 #!/usr/bin/env Rscript
 
-# Analysis pipeline from raw read count table to differential expression lists using DESeq2
+# Differential expression analysis from raw read count table using DESeq2
 # Author: Stefan Czemmel
 # Contributors: Gisela Gabernet
-# MIT License
+# QBiC 2019; MIT License
 
 library("RColorBrewer")
 library("reshape2")

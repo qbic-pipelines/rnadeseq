@@ -1,4 +1,10 @@
-#library("gProfileR")
+#!/usr/bin/env Rscript
+
+# Pathway analysis from differentially expressed gene lists using DESeq2
+# Author: Gisela Gabernet
+# QBiC 2019; MIT License
+
+library("gProfileR")
 library("ggplot2")
 library("reshape2")
 library("pheatmap")
