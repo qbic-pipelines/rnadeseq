@@ -19,7 +19,7 @@ opt = parse_args(opt_parser)
 
 
 rmarkdown::render(opt$report, output_file = opt$output, 
-                  params = list(path_qc_summary = opt$qc_summary,
+                  params = list(path_qc_summary = /"opt$qc_summary/",
                                 path_versions = opt$versions,
                                 path_design = opt$model,
                                 path_config = opt$config,

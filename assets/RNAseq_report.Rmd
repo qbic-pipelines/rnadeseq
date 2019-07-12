@@ -25,19 +25,19 @@ params:
 
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
-#df <- read.csv(file=params$path_qc_summary, sep="\t", header = TRUE)
+df <- read.csv(file=params$path_qc_summary, sep="\t", header = TRUE)
 # Import the .tsv file downloadable from https://portal.qbic.uni-tuebingen.de/portal/web/qbic/user-database -> Projects
 # df <- read.csv(file="./summary.tsv", sep="\t", header = TRUE)
-#projectcode = as.character(df$Sub.Project)
-#title = as.character(df$Short.Title)
-#PI = as.character(df$Principal.Investigator)
-#PI_address = as.character(df$PI.Address)
-#PI_email = as.character(df$PI.E.Mail)
-#PI_institute = as.character(df$PI.Institute)
-#PI_organization = as.character(df$PI.Organization)
-#PM = as.character(df$Project.Manager)
-#PM_email = as.character(df$Manager.E.Mail)
-#description = as.character(df$Description)
+projectcode = as.character(df$Sub.Project)
+title = as.character(df$Short.Title)
+PI = as.character(df$Principal.Investigator)
+PI_address = as.character(df$PI.Address)
+PI_email = as.character(df$PI.E.Mail)
+PI_institute = as.character(df$PI.Institute)
+PI_organization = as.character(df$PI.Organization)
+PM = as.character(df$Project.Manager)
+PM_email = as.character(df$Manager.E.Mail)
+description = as.character(df$Description)
 ```
 
 <!-- load config.yaml + design.txt -->
