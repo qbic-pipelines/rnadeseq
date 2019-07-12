@@ -1,10 +1,10 @@
-library(gProfileR)
-library(ggplot2)
-library(reshape2)
-library(pheatmap)
-library(pathview)
-library(AnnotationDbi)
-library(optparse)
+library("gProfileR")
+library("ggplot2")
+library("reshape2")
+library("pheatmap")
+library("pathview")
+library("AnnotationDbi")
+library("optparse")
 
 # Need to load library for your species
 library(org.Mm.eg.db)
