@@ -11,16 +11,14 @@ option_list = list(
   make_option(c("-m", "--model"), type="character", default=NULL, help="linear model file", metavar="character"),
   make_option(c("-c", "--config"), type="character", default=NULL, help="report config file", metavar="character"),
   make_option(c("-k", "--contrast"), type="character", default=NULL, help="contrasts file", metavar="character"),
-  make_option(c("-f", "--fastqc"), type="character", default=NULL, help="fastqc zipped folder", metavar="character")
+  make_option(c("-f", "--fastqc"), type="character", default=NULL, help="fastqc zipped folder", metavar="character"),
+  make_option(c("-mqc", "--multiqc_stats"), type="character", default=NULL, help="multiqc general statistics", metavar="character")
 )
 
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 
-print(getwd())
 wd=getwd()
-#qc_summary_ = paste(wd , "/", opt$qc_summary, sep ="")
-#print(qc_summary_)
 
 rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, output_dir = wd,
                   params = list(path_qc_summary = opt$qc_summary,
@@ -29,4 +27,5 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_config = opt$config,
                                 path_contrast = opt$contrast,
                                 path_fastqc = opt$fastqc,
-                                path_wd = wd))
+                                path_wd = wd,
+                                path_multiqc_stats = opt$multiqc_stats))
