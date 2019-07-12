@@ -243,7 +243,7 @@ process Report {
 
     script:
     def contrastsopt = contrasts.name != 'DEFAULT' ? ", path_contrasts = $contrasts" : ''
-    def fastqcopt = fastqc.name != 'NO_FILE' ? ", path_fastqc = $fastqc" : '''
+    def fastqcopt = fastqc.name != 'NO_FILE' ? ", path_fastqc = $fastqc" : ''
     """
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --summary $qc_summary \
     --versions $softwareversions --model $model --config $config --contrast $contrastsopt --fastqc $fastqcopt
