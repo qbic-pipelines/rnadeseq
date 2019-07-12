@@ -15,9 +15,9 @@ organism_list = ["Hsapiens", "Mmusculus"]
 option_list = list(
   make_option(c("-d", "--dirContrasts"), type="character", default=".", help="directory with DE gene list for each contrast", metavar="character"),
   make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
-  make_option(c("-d", "--design"), type="character", default=NULL, help="path to linear model design", metavar="character"),
+  make_option(c("-m", "--model"), type="character", default=NULL, help="path to linear model file", metavar="character"),
   make_option(c("-n", "--normCounts", type="character", default=NULL, help="path to normalized counts", metavar="character"))
-  make_option(c("-o", "--organism", type="character", default=NULL, help="Organism name. Example format: Hsapiens", metavar="character"))
+  make_option(c("-s", "--species", type="character", default=NULL, help="Species name. Example format: Hsapiens", metavar="character"))
 )
 
 opt_parser = OptionParser(option_list=option_list)
@@ -29,22 +29,35 @@ if (is.null(opt$metadata)){
 } else {
   metadata_path = opt$metadata
 }
-if (is.null(opt$design)){
+
+if (is.null(opt$model)){
   print_help(opt_parser)
-  stop("Linear model design file needs to be provided!")
+  stop("Linear model file needs to be provided!")
 } else {
-  path_design = opt$design
+  path_design = opt$model
 }
+
 if(is.null(opt$normCounts)){
   print_help(opt_parser)
   stop("Normalized counts file needs to be provided")
 } else {
   path_norm_counts = opt$contrasts
 }
-if(is.null(opt$organism)){
+
+if(is.null(opt$species)){
   print_help(opt_parser)
-  stop("Organism name needs to be provided")
-} else if (opt$organism %in% ["Hsapiens"])
+  stop("Species needs to be provided")
+} else if (opt$species == "Hsapiens") {
+  organism <- "hsapiens"
+  short_organism_name <- "hsa"
+  library <- org.Hs.eg.db
+} else if (opt$species == "Mmusculus") {
+  organism <- "mmusculus"
+  short_organism_name <- "mmu"
+  library <- org.Mm.eg.db
+} else {
+  stop("Species name is unknown, check for typos or contact responsible person to add your species.")
+}
 
 contrast_files <- list.files(path=opt$dirContrasts)
 
@@ -55,15 +68,11 @@ metadata <- read.table(file=metadata_path, sep = "\t", header = T, quote="")
 
 
 #Search params
-organism <- "mmusculus"
-short_organism_name <- "mmu"
+
 datasources <- c("KEGG","REAC")
 min_set_size <- 1
 max_set_size <- 500
 min_isect_size <- 1
-library <- org.Mm.eg.db
-
-
 
 # Create output directory
 dir.create(outdir)
