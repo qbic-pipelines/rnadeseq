@@ -13,9 +13,9 @@ library("AnnotationDbi")
 library("optparse")
 
 # Need to load library for your species
-library(org.Mm.eg.db)
-library(org.Hs.eg.db)
-organism_list = ["Hsapiens", "Mmusculus"]
+library(org.Mm.eg.db) #Mmusculus
+library(org.Hs.eg.db) #Hsapiens
+
 # Reading parameters
 
 option_list = list(
