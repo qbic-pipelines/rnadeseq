@@ -18,12 +18,10 @@ opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 
 
-rmarkdown::render(opt$report, output_file = opt$output, 
+rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = ".", 
                   params = list(path_qc_summary = opt$qc_summary,
                                 path_versions = opt$versions,
                                 path_design = opt$model,
                                 path_config = opt$config,
                                 path_contrast = opt$contrast,
                                 path_fastqc = opt$fastqc))
-
-print (paste(opt$qc_summary), " is the qc summary file")
