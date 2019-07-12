@@ -164,7 +164,7 @@ Quality control of the data was performed using *FASTQC*. Details on the quality
 
 ```{r echo=FALSE, results='asis'}
 library(DT)
-df_DE <- read.table(params$path_multiqc_stats), header=TRUE, sep="\t")
+df_DE <- read.table(params$path_multiqc_stats, header=TRUE, sep="\t")
 is.num <- sapply(df_DE, is.numeric)
 df_DE[is.num] <- lapply(df_DE[is.num], round, 2)
 columns <- c("Sample", "featureCounts_mqc.generalstats.featurecounts.percent_assigned",
