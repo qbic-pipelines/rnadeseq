@@ -19,7 +19,7 @@ opt = parse_args(opt_parser)
 qc_summary_ = paste('\"', opt$qc_summary, '\"', sep='')
 
 print(paste("QC_ summary name is: ", qc_summary_, sep =""))
-
+print(getwd())
 
 rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = '.', 
                   params = list(path_qc_summary = qc_summary_,
