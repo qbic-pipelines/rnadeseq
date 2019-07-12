@@ -19,11 +19,11 @@ opt = parse_args(opt_parser)
 
 print(getwd())
 wd=getwd()
-qc_summary_ = paste(wd , "/", opt$qc_summary, sep ="")
-print(qc_summary_)
+#qc_summary_ = paste(wd , "/", opt$qc_summary, sep ="")
+#print(qc_summary_)
 
-rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = '.', #output_dir = '.',
-                  params = list(path_qc_summary = qc_summary_,
+rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, output_dir = wd,
+                  params = list(path_qc_summary = opt$qc_summary,
                                 path_versions = opt$versions,
                                 path_design = opt$model,
                                 path_config = opt$config,
