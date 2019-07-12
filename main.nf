@@ -218,8 +218,9 @@ process DESeq2 {
 /*
  * STEP 2 - Pathway analysis
  */
+
 process Pathway_analysis {
-    publishDir "${params.outdir}/DESeq2", mode: 'copy'
+    publishDir "${params.outdir}/pathway_analysis", mode: 'copy'
 
     input:
     file(deseq_output) from ch_deseq_output_for_pathway
@@ -235,9 +236,8 @@ process Pathway_analysis {
     gProfileR.R --dirContrasts 'DESeq2/results/DE_genes_tables' --metadata $metadata \
     --model $model --normCounts 'DESeq2/results/count_tables/rlog_transformed.read.counts.tsv' \
     --species $params.species
+    zip -r gProfileR/
     """
-
-
 }
 
 // /*

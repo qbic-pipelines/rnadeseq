@@ -15,7 +15,7 @@ organism_list = ["Hsapiens", "Mmusculus"]
 option_list = list(
   make_option(c("-d", "--dirContrasts"), type="character", default=".", help="directory with DE gene list for each contrast", metavar="character"),
   make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
-  make_option(c("-d", "--model"), type="character", default=NULL, help="path to linear model file", metavar="character"),
+  make_option(c("-m", "--model"), type="character", default=NULL, help="path to linear model file", metavar="character"),
   make_option(c("-n", "--normCounts", type="character", default=NULL, help="path to normalized counts", metavar="character"))
   make_option(c("-s", "--species", type="character", default=NULL, help="Species name. Example format: Hsapiens", metavar="character"))
 )
@@ -29,18 +29,21 @@ if (is.null(opt$metadata)){
 } else {
   metadata_path = opt$metadata
 }
+
 if (is.null(opt$model)){
   print_help(opt_parser)
   stop("Linear model file needs to be provided!")
 } else {
   path_design = opt$model
 }
+
 if(is.null(opt$normCounts)){
   print_help(opt_parser)
   stop("Normalized counts file needs to be provided")
 } else {
   path_norm_counts = opt$contrasts
 }
+
 if(is.null(opt$species)){
   print_help(opt_parser)
   stop("Species needs to be provided")
