@@ -164,7 +164,7 @@ Quality control of the data was performed using *FASTQC*. Details on the quality
 
 ```{r echo=FALSE, results='asis'}
 library(DT)
-df_DE <- read.table(params$path_multiqc_stats, header=TRUE, sep="\t")
+df_DE <- read.table(files = params$path_multiqc_stats, header=TRUE, sep="\t")
 is.num <- sapply(df_DE, is.numeric)
 df_DE[is.num] <- lapply(df_DE[is.num], round, 2)
 columns <- c("Sample", "featureCounts_mqc.generalstats.featurecounts.percent_assigned",
@@ -172,7 +172,7 @@ columns <- c("Sample", "featureCounts_mqc.generalstats.featurecounts.percent_ass
              "FastQC_mqc.generalstats.fastqc.total_sequences")
 df_DE_selected = df_DE %>% select(one_of(columns))
 n_rows = nrow(df_DE_selected)
-metadata <- df_DE <- read.table("./DESeq2/metadata/Sample_preparations.tsv", header=TRUE, sep="\t")
+metadata <- df_DE <- read.table((paste0(wd, "/DESeq2/metadata/Sample_preparations.tsv"), header=TRUE, sep="\t")
 metadata = metadata[,c("QBiC.Code","Secondary.Name")]
 metadata$Sample = metadata$QBiC.Code
 metadata$QBiC.Code = NULL
