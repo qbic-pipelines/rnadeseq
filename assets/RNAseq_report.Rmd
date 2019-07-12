@@ -14,11 +14,18 @@ output:
     pdf_document: true
 #   self_contained: no
 bibliography: ./references.bibtex
+params:
+  path_qc_summary: ""
+  path_versions: ""
+  path_design: ""
+  path_config: ""
+  path_contrasts: ""
+  path_fastqc: ""
 ---
 
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
-df <- read.csv(file=path_qc_summary, sep="\t", header = TRUE)
+df <- read.csv(file=params$path_qc_summary, sep="\t", header = TRUE)
 # Import the .tsv file downloadable from https://portal.qbic.uni-tuebingen.de/portal/web/qbic/user-database -> Projects
 # df <- read.csv(file="./summary.tsv", sep="\t", header = TRUE)
 projectcode = as.character(df$Sub.Project)
