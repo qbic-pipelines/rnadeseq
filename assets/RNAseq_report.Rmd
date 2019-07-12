@@ -147,7 +147,7 @@ datatable(df_QA, caption = "Sample metadata", extensions = c('Buttons', 'FixedCo
 ```
 
 ***
-```{r}
+```{r echo=FALSE, results='asis'}
 # Import the .csv file output by the rna-seq Nextflow pipeline
 df <- read.csv(file = params$path_versions, sep="\t", header = FALSE)
 ```
