@@ -47,7 +47,7 @@ if(is.null(opt$normCounts)){
   print_help(opt_parser)
   stop("Normalized counts file needs to be provided")
 } else {
-  path_norm_counts = opt$contrasts
+  path_norm_counts = opt$normCounts
 }
 
 # Need to provide short and long names and libraries for your species
