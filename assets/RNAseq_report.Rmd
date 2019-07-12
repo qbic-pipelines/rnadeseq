@@ -14,6 +14,13 @@ output:
     pdf_document: true
 #   self_contained: no
 bibliography: ./references.bibtex
+params:
+  path_qc_summary: ""
+  path_versions: ""
+  path_design: ""
+  path_config: ""
+  path_contrasts: ""
+  path_fastqc: ""
 ---
 
 
