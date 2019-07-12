@@ -16,7 +16,7 @@ option_list = list(
 
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
-qc_summary = paste('\"', opt$qc_summary, '\"', sep="")
+qc_summary = paste('"', opt$qc_summary, '"', sep='')
 
 
 rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = '.', 
