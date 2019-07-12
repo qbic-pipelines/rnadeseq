@@ -177,7 +177,7 @@ for (file in contrast_files){
                     pathway.id = pathway_kegg,
                     species    = short_organism_name,
                     out.suffix=paste(fname,sep="_"))
-            mv_command <- paste0("mv *.png *.xml ",outdir, "/",fname, "/", pathway_heatmaps_dir, "/")
+            mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", pathway_heatmaps_dir, "/")
             system(mv_command)
           }
         }
