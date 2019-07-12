@@ -19,7 +19,7 @@ params:
   path_versions: ""
   path_design: ""
   path_config: ""
-  path_contrasts: ""
+  path_contrast: ""
   path_fastqc: ""
 ---
 
