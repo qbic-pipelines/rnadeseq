@@ -50,6 +50,7 @@ if(is.null(opt$normCounts)){
   path_norm_counts = opt$contrasts
 }
 
+# Need to provide short and long names and libraries for your species
 if(is.null(opt$species)){
   print_help(opt_parser)
   stop("Species needs to be provided")
