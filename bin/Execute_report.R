@@ -16,15 +16,14 @@ option_list = list(
 
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
-#qc_summary_ = paste('\"', opt$qc_summary, '\"', sep='')
 
 print(getwd())
 wd=getwd()
-#qc_summary_ = paste(wd , "/", qc_summary, sep ="")
-#print(qc_summary_)
+qc_summary_ = paste(wd , "/", qc_summary, sep ="")
+print(qc_summary_)
 
-rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = '.', output_dir = '.',
-                  params = list(path_qc_summary = opt$qc_summary,
+rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = '.', #output_dir = '.',
+                  params = list(path_qc_summary = qc_summary_,
                                 path_versions = opt$versions,
                                 path_design = opt$model,
                                 path_config = opt$config,
