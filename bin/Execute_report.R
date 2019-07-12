@@ -18,7 +18,7 @@ opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 qc_summary_ = paste('\\\"', opt$qc_summary, '\\\"', sep='')
 
-print(qc_summary_, "QC_ summary name is: ", sep ="")
+print(paste(qc_summary_, "QC_ summary name is: ", sep =""))
 
 
 rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = '.', 
