@@ -43,11 +43,11 @@ dir.create("DESeq2/results/final")
 
 # provide these files as arguments:
 option_list = list(
-  make_option(c("-c", "--counts"), type="character", default=NULL, help="raw count table path", metavar="character"),
-  make_option(c("-m", "--metadata"), type="character", default=NULL, help="metadata table path", metavar="character"),
-  make_option(c("-d", "--design"), type="character", default=NULL, help="design linear model path", metavar="character"),
-  make_option(c("-k", "--contrasts"), type="character", default=NULL, help="contrast matrix file", metavar="character"),
-  make_option(c("-l", "--genelist"), type="character", default=NULL, help="gene list file", metavar="character"),
+  make_option(c("-c", "--counts"), type="character", default=NULL, help="path to raw count table", metavar="character"),
+  make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
+  make_option(c("-d", "--design"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
+  make_option(c("-k", "--contrasts"), type="character", default=NULL, help="path to contrast matrix file", metavar="character"),
+  make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
   make_option(c("-t", "--logFCthreshold"), type="integer", default=0, help="Log 2 Fold Change threshold for DE genes", metavar="character")
 )
 
