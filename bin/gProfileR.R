@@ -67,6 +67,7 @@ if(is.null(opt$species)){
 }
 
 contrast_files <- list.files(path=opt$dirContrasts)
+path_contrasts <- opt$dirContrasts
 
 outdir <- "gProfileR"
 
