@@ -101,6 +101,9 @@ Channel.fromPath("${params.softwareversions}")
 Channel.fromPath("${params.config}")
             .ifEmpty{exit 1, "Please provide config file!"}
             .set { ch_config_file }
+Channel.fromPath("${params.multiqc_stats}")
+            .ifEmpty{exit 1, "Please provide multiqc genetal statistics file!"}
+            .set { ch_multiqc_stats_file }
 
 ch_genes_file = file(params.genelist)
 // TODO: this is needed as input also by step RNAseq Report
@@ -120,6 +123,7 @@ summary['Quality summary file'] = params.qc_summary
 summary['nf-core/rnaseq software versions'] = params.softwareversions
 summary['Config file defining optional sessions'] = params.config
 summary['Fastqc reports from nf-core/rnaseq'] = params.fastqc
+summary['Multiqc general statistics'] = params.multiqc_stats
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if(workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
 summary['Output dir']       = params.outdir
@@ -238,6 +242,7 @@ process Report {
     file(contrasts) from ch_contrasts_for_report_file
     file(fastqc) from ch_fastqc_file
     file(deseq2) from ch_deseq2_for_report
+    file(multiqc_stats) from ch_multiqc_stats_file
 
     output:
     file "*.zip"
@@ -246,7 +251,7 @@ process Report {
     """
     unzip $deseq2
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --summary $qc_summary \
-    --versions $softwareversions --model $model --config $config --contrast $contrasts --fastqc $fastqc
+    --versions $softwareversions --model $model --config $config --contrast $contrasts --fastqc $fastqc --multiqc_stats $multiqc_stats
     """
 }
 
