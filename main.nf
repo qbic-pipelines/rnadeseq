@@ -95,7 +95,7 @@ Channel.fromPath("${params.contrasts}")
 Channel.fromPath("${params.qc_summary}")
             .ifEmpty{exit 1, "Please provide summary file!"}
             .set { ch_qc_summary_file }
-Channel.fromPath("${params.softwareversions}")
+Channel.fromPath("${params.versions}")
             .ifEmpty{exit 1, "Please provide sofware versions file!"}
             .set { ch_softwareversions_file }
 Channel.fromPath("${params.config}")
@@ -120,7 +120,7 @@ summary['Model'] = params.model
 summary['Contrasts'] = params.contrasts
 summary['Gene list'] = params.genelist
 summary['Quality summary file'] = params.qc_summary
-summary['nf-core/rnaseq software versions'] = params.softwareversions
+summary['nf-core/rnaseq software versions'] = params.versions
 summary['Config file defining optional sessions'] = params.config
 summary['Fastqc reports from nf-core/rnaseq'] = params.fastqc
 summary['Multiqc general statistics'] = params.multiqc_stats
