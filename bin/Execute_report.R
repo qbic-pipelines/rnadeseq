@@ -20,7 +20,7 @@ opt = parse_args(opt_parser)
 
 
 rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = '.', 
-                  params = list(path_qc_summary = paste('"', opt$qc_summary, '"', sep=''),
+                  params = list(path_qc_summary = paste('\"', opt$qc_summary, '\"', sep=''),
                                 path_versions = opt$versions,
                                 path_design = opt$model,
                                 path_config = opt$config,
