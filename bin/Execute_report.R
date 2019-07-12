@@ -28,4 +28,5 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_design = opt$model,
                                 path_config = opt$config,
                                 path_contrast = opt$contrast,
-                                path_fastqc = opt$fastqc))
+                                path_fastqc = opt$fastqc,
+                                path_wd = wd))

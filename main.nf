@@ -211,7 +211,7 @@ process DESeq2 {
     file(genelist) from ch_genes_file
 
     output:
-    file "*.zip"
+    file "*.zip" into ch_deseq2_for_report
 
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
@@ -237,12 +237,14 @@ process Report {
     file(config) from ch_config_file
     file(contrasts) from ch_contrasts_for_report_file
     file(fastqc) from ch_fastqc_file
+    file(deseq2) from ch_deseq2_for_report
 
     output:
     file "*.zip"
 
     script:
     """
+    unzip $deseq2
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --summary $qc_summary \
     --versions $softwareversions --model $model --config $config --contrast $contrasts --fastqc $fastqc
     """

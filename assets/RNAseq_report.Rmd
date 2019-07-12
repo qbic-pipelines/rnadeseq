@@ -21,6 +21,7 @@ params:
   path_config: ""
   path_contrast: ""
   path_fastqc: ""
+  path_wd: ""
 ---
 
 
@@ -101,7 +102,7 @@ Auf der Morgenstelle 10, 72076 Tuebingen
 ```{r setup, echo=FALSE}
 library(DT)
 # condition: if there is a RIN column in Sample_preparations.tsv, prints a statement and the table with the RIN column; if there is no RIN column, or the column has one or more NAs, print only the metadata sheet.
-QAfile = "./DESeq2/metadata/Sample_preparations.tsv"
+QAfile = paste0(wd, "/DESeq2/metadata/Sample_preparations.tsv")
 no_RIN = FALSE
 RIN=FALSE
 if(file.exists(QAfile)){
