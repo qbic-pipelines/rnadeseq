@@ -20,7 +20,7 @@ qc_summary_ = paste('\\\"', opt$qc_summary, '\\\"', sep='')
 
 
 rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = '.', 
-                  params = list(path_qc_summary = qc_summary_
+                  params = list(path_qc_summary = qc_summary_,
                                 path_versions = opt$versions,
                                 path_design = opt$model,
                                 path_config = opt$config,
