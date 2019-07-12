@@ -236,7 +236,7 @@ process Pathway_analysis {
     gProfileR.R --dirContrasts 'DESeq2/results/DE_genes_tables/' --metadata $metadata \
     --model $model --normCounts 'DESeq2/results/count_tables/rlog_transformed.read.counts.tsv' \
     --species $params.species
-    zip -r gProfileR/
+    zip -r gProfileR
     """
 }
 
