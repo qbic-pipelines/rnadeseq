@@ -272,7 +272,7 @@ The raw count table can be found [here](./DESeq2/raw_counts/raw_counts.txt). The
 A PCA plot of the normalized expression values was created to visualize the overall effect of experimental variations and any batch effects among samples.
 
 ```{r, echo=F, out.width="2000px", dpi=1200, fig.cap="", fig.align='center'}
-knitr::include_graphics("./DESeq2/results/plots/PCA_plot.svg")
+knitr::include_graphics(paste0(wd,"/DESeq2/results/plots/PCA_plot.svg"))
 ```
 
 ### Sample distance heatmap
