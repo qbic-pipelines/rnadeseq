@@ -85,6 +85,7 @@ min_isect_size <- 1
 # Create output directory
 dir.create(outdir)
 pathway_heatmaps_dir <- "pathway_heatmaps"
+kegg_pathways_dir <- "KEGG_pathways"
 
 # Set theme for graphs
 theme_set(theme_classic())
@@ -95,7 +96,7 @@ for (file in contrast_files){
   
   dir.create(paste(outdir, fname, sep="/"))
   dir.create(paste(outdir, fname, pathway_heatmaps_dir, sep="/"))
-  dir.create(paste(outdir, fname, KEGG_pathways, sep="/"))
+  dir.create(paste(outdir, fname, kegg_pathways_dir, sep="/"))
   
   DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
   q = as.character(DE_genes$Ensembl_ID)
@@ -178,7 +179,7 @@ for (file in contrast_files){
                     pathway.id = pathway_kegg,
                     species    = short_organism_name,
                     out.suffix=paste(fname,sep="_"))
-            mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", KEGG_pathways, "/")
+            mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
             system(mv_command)
           }
         }
