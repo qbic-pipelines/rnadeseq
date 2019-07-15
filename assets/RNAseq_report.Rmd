@@ -23,6 +23,7 @@ params:
   path_fastqc: ""
   path_wd: ""
   path_multiqc_stats: ""
+  path_multiqc_zip: ""
 ---
 
 
@@ -157,7 +158,9 @@ df <- read.csv(file = params$path_versions, sep="\t", header = FALSE)
 ```{r include=FALSE}
 # loading this library produces an output, exlude with include=FALSE
 library(tidyverse)
+unzip(params$path_multiqc_zip,exdir=params$wd)
 ```
+
 ## Bioinformatics Analysis Quality Control Summary
 Quality control of the data was performed using *FASTQC*. Details on the quality control parameters are available in the `MultiQC` report of all samples available [here](./MultiQC/multiqc_report.html). `FASTQC` reports for individual samples are additionally available [here](`r params$path_fastqc`).
 \

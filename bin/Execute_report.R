@@ -12,7 +12,8 @@ option_list = list(
   make_option(c("-c", "--config"), type="character", default=NULL, help="report config file", metavar="character"),
   make_option(c("-k", "--contrast"), type="character", default=NULL, help="contrasts file", metavar="character"),
   make_option(c("-f", "--fastqc"), type="character", default=NULL, help="fastqc zipped folder", metavar="character"),
-  make_option(c("-mqc", "--multiqc_stats"), type="character", default=NULL, help="multiqc general statistics", metavar="character")
+  make_option(c("-stats", "--multiqc_stats"), type="character", default=NULL, help="multiqc general statistics", metavar="character"),
+  make_option(c("-mqc", "--multiqc_zip"), type="character", default=NULL, help="multiqc plots and report", metavar="character")
 )
 
 opt_parser = OptionParser(option_list=option_list)
@@ -28,4 +29,5 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_contrast = opt$contrast,
                                 path_fastqc = opt$fastqc,
                                 path_wd = wd,
-                                path_multiqc_stats = opt$multiqc_stats))
+                                path_multiqc_stats = opt$multiqc_stats,
+                                path_multiqc_zip = opt$multiqc_zip))
