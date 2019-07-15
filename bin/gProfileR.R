@@ -150,10 +150,9 @@ for (file in contrast_files){
       if (nrow(df) <= 100 & nrow(df) > 0) {
         conditions <- grepl("Condition", colnames(metadata))
         metadata_cond <- as.data.frame(metadata[,conditions])
-        row.names(metadata_cond) <- apply(metadata$QBiC.Code, metadata$Secondary.Name,1,paste, collapse = "_")
+        metadata_name <- as.data.frame(metadata$QBiC.Code, metadata$Secondary.Name)
+        row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
-        metadata_cond$QBIC_code <- NULL
-        
         for (i in c(1:nrow(df))){
           pathway <- df[i,]
           gene_list <- unlist(strsplit(pathway$intersection, ","))
