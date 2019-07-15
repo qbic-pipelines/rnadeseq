@@ -151,6 +151,7 @@ for (file in contrast_files){
         conditions <- grepl("Condition", colnames(metadata))
         metadata_cond <- as.data.frame(metadata[,conditions])
         metadata_name <- as.data.frame(metadata$QBiC.Code, metadata$Secondary.Name)
+        print(metadata_name)
         row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
         for (i in c(1:nrow(df))){
