@@ -224,7 +224,7 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assi
 ### Number of reads {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/qc/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1.svg"))
 ```
 </center>
 \
