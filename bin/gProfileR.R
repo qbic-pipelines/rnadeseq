@@ -128,12 +128,11 @@ for (file in contrast_files){
     for (df in res){
       db_source <- df$domain[1]
       print(db_source)
-      
       df$short_name <- sapply(df$term.name, substr, start=1, stop=50)
+
       # Plotting results for df
       df_subset <- data.frame(Pathway_name = df$short_name, Query = df$overlap.size, Pathway = df$term.size, Fraction = (df$overlap.size / df$term.size), Pval = df$p.value)
-      #df_plot <- melt(data = df_subset, value.name = "N_genes", id.vars = "Pathway_name")
-      #df_plot$variable <- as.factor(df_plot$variable, levels=c("Query", "Pathway"))
+
       p <- ggplot(df_subset, aes(x=reorder(Pathway_name, Fraction), y=Fraction)) +
         geom_bar(aes(fill=Pval), stat="identity", width = 0.7) +
         geom_text(aes(label=paste0(df_subset$Query, "/", df_subset$Pathway)), vjust=0.4, hjust=-0.5, size=3) +
@@ -144,26 +143,25 @@ for (file in contrast_files){
         xlab("") + ylab("Gene fraction (Query / Pathway)")
       ggsave(p, filename = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
       ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
-      
+
+
       # Plotting heatmaps and pathways for all pathways
       print("Plotting heatmaps...")
       if (nrow(df) <= 100 & nrow(df) > 0) {
         conditions <- grepl("Condition", colnames(metadata))
         metadata_cond <- as.data.frame(metadata[,conditions])
         metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
-        print(metadata_name)
         row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
         for (i in c(1:nrow(df))){
           pathway <- df[i,]
           gene_list <- unlist(strsplit(pathway$intersection, ","))
           mat <- norm_counts[gene_list, ]
-          print("here1")
           print(mat)
           png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$domain, "_", pathway$term.id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
           pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$domain,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = F )
           dev.off()
-          print("here2")
+
           # Plotting pathway view only for kegg pathways
           if (pathway$domain == "keg"){
             pathway_kegg <- sapply(pathway$term.id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
