@@ -150,7 +150,7 @@ for (file in contrast_files){
       if (nrow(df) <= 100 & nrow(df) > 0) {
         conditions <- grepl("Condition", colnames(metadata))
         metadata_cond <- as.data.frame(metadata[,conditions])
-        metadata_name <- as.data.frame(metadata$QBiC.Code, metadata$Secondary.Name)
+        metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
         print(metadata_name)
         row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
