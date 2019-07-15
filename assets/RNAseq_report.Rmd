@@ -28,7 +28,7 @@ params:
 
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
-df <- read.csv(file=paste0(wd, params$path_qc_summary), sep="\t", header = TRUE)
+df <- read.csv(file=params$path_qc_summary, sep="\t", header = TRUE)
 # Import the .tsv file downloadable from https://portal.qbic.uni-tuebingen.de/portal/web/qbic/user-database -> Projects
 projectcode = as.character(df$Sub.Project)
 title = as.character(df$Short.Title)
