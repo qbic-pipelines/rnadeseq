@@ -95,6 +95,7 @@ for (file in contrast_files){
   
   dir.create(paste(outdir, fname, sep="/"))
   dir.create(paste(outdir, fname, pathway_heatmaps_dir, sep="/"))
+  dir.create(paste(outdir, fname, KEGG_pathways, sep="/"))
   
   DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
   q = as.character(DE_genes$Ensembl_ID)
@@ -177,7 +178,7 @@ for (file in contrast_files){
                     pathway.id = pathway_kegg,
                     species    = short_organism_name,
                     out.suffix=paste(fname,sep="_"))
-            mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", pathway_heatmaps_dir, "/")
+            mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", KEGG_pathways, "/")
             system(mv_command)
           }
         }
