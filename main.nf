@@ -92,9 +92,9 @@ Channel.fromPath("${params.model}")
             .into { ch_model_for_deseq2_file; ch_model_for_report_file}
 Channel.fromPath("${params.contrasts}")
             .into { ch_contrasts_for_deseq2_file; ch_contrasts_for_report_file }
-Channel.fromPath("${params.summary}")
+Channel.fromPath("${params.proj_summary}")
             .ifEmpty{exit 1, "Please provide project summary file!"}
-            .set { ch_summary_file }
+            .set { ch_proj_summary_file }
 Channel.fromPath("${params.versions}")
             .ifEmpty{exit 1, "Please provide sofware versions file!"}
             .set { ch_softwareversions_file }
@@ -122,7 +122,7 @@ summary['Metadata'] = params.metadata
 summary['Model'] = params.model
 summary['Contrasts'] = params.contrasts
 summary['Gene list'] = params.genelist
-summary['Priject summary file'] = params.summary
+summary['Priject summary file'] = params.proj_summary
 summary['nf-core/rnaseq software versions'] = params.versions
 summary['Config file defining optional sessions'] = params.config
 summary['Fastqc reports from nf-core/rnaseq'] = params.fastqc
@@ -239,7 +239,7 @@ process Report {
     //publishDir "${params.outdir}/Report", mode: 'copy'
 
     input:
-    file(summary) from ch_summary_file
+    file(proj_summary) from ch_proj_summary_file
     file(softwareversions) from ch_softwareversions_file
     file(model) from ch_model_for_report_file
     file(config) from ch_config_file
@@ -255,7 +255,7 @@ process Report {
     script:
     """
     unzip $deseq2
-    Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --summary $summary \
+    Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
     --versions $softwareversions --model $model --config $config --contrast $contrasts --fastqc $fastqc --multiqc_stats $multiqc_stats \
     --multiqc_zip $multiqc_zip
     """
