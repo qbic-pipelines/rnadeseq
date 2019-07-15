@@ -1,23 +1,29 @@
-library(gProfileR)
-library(ggplot2)
-library(reshape2)
-library(pheatmap)
-library(pathview)
-library(AnnotationDbi)
-library(optparse)
+#!/usr/bin/env Rscript
+
+# Pathway analysis from differentially expressed gene lists using DESeq2
+# Author: Gisela Gabernet
+# QBiC 2019; MIT License
+
+library("gProfileR")
+library("ggplot2")
+library("reshape2")
+library("pheatmap")
+library("pathview")
+library("AnnotationDbi")
+library("optparse")
 
 # Need to load library for your species
-library(org.Mm.eg.db)
-library(org.Hs.eg.db)
-organism_list = ["Hsapiens", "Mmusculus"]
+library(org.Mm.eg.db) #Mmusculus
+library(org.Hs.eg.db) #Hsapiens
+
 # Reading parameters
 
 option_list = list(
-  make_option(c("-d", "--dirContrasts"), type="character", default=".", help="directory with DE gene list for each contrast", metavar="character"),
+  make_option(c("-c", "--dirContrasts"), type="character", default=".", help="directory with DE gene list for each contrast", metavar="character"),
   make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
-  make_option(c("-m", "--model"), type="character", default=NULL, help="path to linear model file", metavar="character"),
-  make_option(c("-n", "--normCounts", type="character", default=NULL, help="path to normalized counts", metavar="character"))
-  make_option(c("-s", "--species", type="character", default=NULL, help="Species name. Example format: Hsapiens", metavar="character"))
+  make_option(c("-d", "--model"), type="character", default=NULL, help="path to linear model file", metavar="character"),
+  make_option(c("-n", "--normCounts"), type="character", default=NULL, help="path to normalized counts", metavar="character"),
+  make_option(c("-s", "--species"), type="character", default=NULL, help="Species name. Example format: Hsapiens", metavar="character")
 )
 
 opt_parser = OptionParser(option_list=option_list)
@@ -41,9 +47,10 @@ if(is.null(opt$normCounts)){
   print_help(opt_parser)
   stop("Normalized counts file needs to be provided")
 } else {
-  path_norm_counts = opt$contrasts
+  path_norm_counts = opt$normCounts
 }
 
+# Need to provide short and long names and libraries for your species
 if(is.null(opt$species)){
   print_help(opt_parser)
   stop("Species needs to be provided")
@@ -60,6 +67,7 @@ if(is.null(opt$species)){
 }
 
 contrast_files <- list.files(path=opt$dirContrasts)
+path_contrasts <- opt$dirContrasts
 
 outdir <- "gProfileR"
 
@@ -77,6 +85,7 @@ min_isect_size <- 1
 # Create output directory
 dir.create(outdir)
 pathway_heatmaps_dir <- "pathway_heatmaps"
+kegg_pathways_dir <- "KEGG_pathways"
 
 # Set theme for graphs
 theme_set(theme_classic())
@@ -87,6 +96,7 @@ for (file in contrast_files){
   
   dir.create(paste(outdir, fname, sep="/"))
   dir.create(paste(outdir, fname, pathway_heatmaps_dir, sep="/"))
+  dir.create(paste(outdir, fname, kegg_pathways_dir, sep="/"))
   
   DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
   q = as.character(DE_genes$Ensembl_ID)
@@ -118,12 +128,11 @@ for (file in contrast_files){
     for (df in res){
       db_source <- df$domain[1]
       print(db_source)
-      
       df$short_name <- sapply(df$term.name, substr, start=1, stop=50)
+
       # Plotting results for df
       df_subset <- data.frame(Pathway_name = df$short_name, Query = df$overlap.size, Pathway = df$term.size, Fraction = (df$overlap.size / df$term.size), Pval = df$p.value)
-      #df_plot <- melt(data = df_subset, value.name = "N_genes", id.vars = "Pathway_name")
-      #df_plot$variable <- as.factor(df_plot$variable, levels=c("Query", "Pathway"))
+
       p <- ggplot(df_subset, aes(x=reorder(Pathway_name, Fraction), y=Fraction)) +
         geom_bar(aes(fill=Pval), stat="identity", width = 0.7) +
         geom_text(aes(label=paste0(df_subset$Query, "/", df_subset$Pathway)), vjust=0.4, hjust=-0.5, size=3) +
@@ -134,24 +143,24 @@ for (file in contrast_files){
         xlab("") + ylab("Gene fraction (Query / Pathway)")
       ggsave(p, filename = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
       ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
-      
+
+
       # Plotting heatmaps and pathways for all pathways
       print("Plotting heatmaps...")
       if (nrow(df) <= 100 & nrow(df) > 0) {
         conditions <- grepl("Condition", colnames(metadata))
-        metadata_cond <- cbind(QBIC_code = metadata$QBiC.Code, as.data.frame(metadata[,conditions]))
-        row.names(metadata_cond) <- apply(metadata_cond,1,paste, collapse = "_")
-        metadata_cond$QBIC_code <- NULL
-        
+        metadata_cond <- as.data.frame(metadata[,conditions])
+        metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
+        row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
+
         for (i in c(1:nrow(df))){
           pathway <- df[i,]
           gene_list <- unlist(strsplit(pathway$intersection, ","))
           mat <- norm_counts[gene_list, ]
-          
           png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$domain, "_", pathway$term.id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
           pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$domain,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = F )
           dev.off()
-        
+
           # Plotting pathway view only for kegg pathways
           if (pathway$domain == "keg"){
             pathway_kegg <- sapply(pathway$term.id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
@@ -169,6 +178,8 @@ for (file in contrast_files){
                     pathway.id = pathway_kegg,
                     species    = short_organism_name,
                     out.suffix=paste(fname,sep="_"))
+            mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
+            system(mv_command)
           }
         }
       }
