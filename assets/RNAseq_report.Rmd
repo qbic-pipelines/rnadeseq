@@ -158,9 +158,10 @@ df <- read.csv(file = params$path_versions, sep="\t", header = FALSE)
 ```{r include=FALSE}
 # loading this library produces an output, exlude with include=FALSE
 library(tidyverse)
-zip = params$path_multiqc_zip
-workdir = params$path_wd
-system("unzip zip -d workdir")
+# system("unzip params$path_multiqc_zip -d params$path_wd")
+uzp = params$path_multiqc_zip
+exdir = params$path_wd
+unzip(uzp, exdir = exdir)
 ```
 
 ## Bioinformatics Analysis Quality Control Summary
