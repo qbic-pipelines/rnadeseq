@@ -232,7 +232,7 @@ process DESeq2 {
  * STEP 2 - RNAseq Report
  */
 process Report {
-    //publishDir "${params.outdir}", mode: 'copy'
+    publishDir "${params.outdir}", mode: 'copy'
 
     input:
     file(proj_summary) from ch_proj_summary_file
