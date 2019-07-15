@@ -299,7 +299,7 @@ library(DT)
 # condition: if there is a RIN column in QualityAssessment.csv, prints a statement and the table; if there is no RIN column, or no ./QualityAssessment.csv file, print "RIN values are not available for this project."
 contr=FALSE
 if(file.exists(params$path_contrast)){
-  df_contr <- read.table(params$path_contrasts, header=TRUE, sep="\t")
+  df_contr <- read.table(params$path_contrast, header=TRUE, sep="\t")
   names = grep('vs', colnames(df_contr), value=TRUE)
   if (length(names) != 0){
     contr <- TRUE
