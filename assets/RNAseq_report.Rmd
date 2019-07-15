@@ -279,7 +279,7 @@ knitr::include_graphics(paste0(wd,"/DESeq2/results/plots/PCA_plot.svg"))
 A sample distance heatmap was generated from the distances of the normalized expression values for all samples. The closer the distance is to 0, the overall samples gene expression are more similar to each other.
 
 ```{r, echo=F, out.width="2000px", dpi=1200, fig.cap="", fig.align='center'}
-knitr::include_graphics("./DESeq2/results/plots/Heatmaps_of_distances.svg")
+knitr::include_graphics(paste0(wd,"/DESeq2/results/plots/Heatmaps_of_distances.svg"))
 ```
 
 # Differential Expression analysis
@@ -292,7 +292,7 @@ The list of the first 20 differentially expressed genes is shown below; The full
 ```{r}
 library(DT)
 library(tidyverse)
-df_DE <- read.table("./DESeq2/results/final/final_list_DESeq2.tsv", header=TRUE, sep="\t")
+df_DE <- read.table(paste0(wd,"/DESeq2/results/final/final_list_DESeq2.tsv"), header=TRUE, sep="\t")
 # list all the columns containing "padj"
 padj = names(df_DE)[grepl("padj",names(df_DE))]
 # take the last column in this list, order the dataframe according to ascending padj values in it; subset to the first 20 rows
