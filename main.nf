@@ -101,12 +101,9 @@ Channel.fromPath("${params.versions}")
 Channel.fromPath("${params.config}")
             .ifEmpty{exit 1, "Please provide config file!"}
             .set { ch_config_file }
-Channel.fromPath("${params.multiqc_stats}")
-            .ifEmpty{exit 1, "Please provide multiqc genetal statistics file!"}
-            .set { ch_multiqc_stats_file }
-Channel.fromPath("${params.multiqc_zip}")
-            .ifEmpty{exit 1, "Please provide multiqc zip (report and plots) file!"}
-            .set { ch_multiqc_zip_file }            
+Channel.fromPath("${params.multiqc}")
+            .ifEmpty{exit 1, "Please provide multiqc.zip folder!"}
+            .set { ch_multiqc_file }            
 
 ch_genes_file = file(params.genelist)
 // TODO: this is needed as input also by step RNAseq Report
@@ -126,8 +123,7 @@ summary['Project summary file'] = params.proj_summary
 summary['nf-core/rnaseq software versions'] = params.versions
 summary['Config file defining optional sessions'] = params.config
 summary['Fastqc reports from nf-core/rnaseq'] = params.fastqc
-summary['Multiqc general statistics'] = params.multiqc_stats
-summary['Multiqc plots an report'] = params.multiqc_zip
+summary['Multiqc plots, data and report'] = params.multiqc
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if(workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
 summary['Output dir']       = params.outdir
@@ -236,7 +232,7 @@ process DESeq2 {
  * STEP 2 - RNAseq Report
  */
 process Report {
-    //publishDir "${params.outdir}/Report", mode: 'copy'
+    //publishDir "${params.outdir}", mode: 'copy'
 
     input:
     file(proj_summary) from ch_proj_summary_file
@@ -246,8 +242,7 @@ process Report {
     file(contrasts) from ch_contrasts_for_report_file
     file(fastqc) from ch_fastqc_file
     file(deseq2) from ch_deseq2_for_report
-    file(multiqc_stats) from ch_multiqc_stats_file
-    file(multiqc_zip) from ch_multiqc_zip_file
+    file(multiqc) from ch_multiqc_file
 
     output:
     file "*.zip"
@@ -255,9 +250,13 @@ process Report {
     script:
     """
     unzip $deseq2
+    unzip $multiqc
+    mkdir QC
+    mv multiqc_plots/ multiqc_data/ multiqc_report.html $fastqc QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
-    --versions $softwareversions --model $model --config $config --contrast $contrasts --fastqc $fastqc --multiqc_stats $multiqc_stats \
-    --multiqc_zip $multiqc_zip
+    --versions $softwareversions --model $model --config $config --contrast $contrasts
+    mv qc_summary.tsv QC/
+    zip -r report.zip RNAseq_report.html DESeq2/ QC/
     """
 }
 

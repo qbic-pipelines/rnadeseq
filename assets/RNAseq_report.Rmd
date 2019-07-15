@@ -20,10 +20,7 @@ params:
   path_design: ""
   path_config: ""
   path_contrast: ""
-  path_fastqc: ""
   path_wd: ""
-  path_multiqc_stats: ""
-  path_multiqc_zip: ""
 ---
 
 
@@ -153,19 +150,15 @@ datatable(df_QA, caption = "Sample metadata", extensions = c('Buttons', 'FixedCo
 ```{r include=FALSE}
 # loading this library produces an output, exlude with include=FALSE
 library(tidyverse)
-# unzipping multiqc.zip file
-uzp = params$path_multiqc_zip
-exdir = params$path_wd
-unzip(uzp, exdir = exdir)
 ```
 
 ## Bioinformatics Analysis Quality Control Summary
-Quality control of the data was performed using *FASTQC*. Details on the quality control parameters are available in the `MultiQC` report of all samples available [here](`r paste0(wd,"/multiqc_report.html")`). `FASTQC` reports for individual samples are additionally available [here](`r params$path_fastqc`).
+Quality control of the data was performed using *FASTQC*. Details on the quality control parameters are available in the `MultiQC` report of all samples available [here](`r paste0(wd,"/QC/multiqc_report.html")`). `FASTQC` reports for individual samples are additionally available [here](`r paste0(wd,"/QC/fastqc.zip")`).
 \
 
 ```{r echo=FALSE, results='asis'}
 library(DT)
-df_DE <- read.table(file = params$path_multiqc_stats, header=TRUE, sep="\t")
+df_DE <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"), header=TRUE, sep="\t")
 is.num <- sapply(df_DE, is.numeric)
 df_DE[is.num] <- lapply(df_DE[is.num], round, 2)
 columns <- c("Sample", "featureCounts_mqc.generalstats.featurecounts.percent_assigned",
@@ -204,12 +197,12 @@ The mapping rate of data originating from the sequencing machine depends on seve
 #### Percercentages {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1800, fig.cap="STAR: Alignment Scores", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg"))
 ```
 
 #### Number of reads {-}
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="STAR: Alignment Scores", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/multiqc_plots/svg/mqc_star_alignment_plot_1.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1.svg"))
 ```
 </center>
 \
@@ -224,14 +217,14 @@ The gene assignments of featureCounts are shown below. Interpretation of the dif
 ### Percercentages {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1_pc.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1_pc.svg"))
 ```
 </center>
 
 ### Number of reads {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1.svg"))
+knitr::include_graphics(paste0(wd, "/qc/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1.svg"))
 ```
 </center>
 \
@@ -242,14 +235,14 @@ The read distribution of mapped reads over different genome feature (like CDS ex
 ### Percercentages {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="RSeQC: Read Distribution", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1_pc.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1_pc.svg"))
 ```
 </center>
 
 ### Number of reads {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="RSeQC: Read Distribution", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1.svg"))
 ```
 </center>
 
