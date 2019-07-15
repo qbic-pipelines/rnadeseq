@@ -209,7 +209,7 @@ The mapping rate of data originating from the sequencing machine depends on seve
 #### Percercentages {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1800, fig.cap="STAR: Alignment Scores", fig.align='center'}
-knitr::include_graphics("./multiqc/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg")
+knitr::include_graphics("./multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg")
 ```
 
 #### Number of reads {-}
