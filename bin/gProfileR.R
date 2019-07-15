@@ -140,7 +140,7 @@ for (file in contrast_files){
         coord_flip() +
         scale_y_continuous(limits = c(0.00, 1.00)) +
         scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
-        ggtitle("Enriched pathways")
+        ggtitle("Enriched pathways") +
         xlab("") + ylab("Gene fraction (Query / Pathway)")
       ggsave(p, filename = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
       ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
