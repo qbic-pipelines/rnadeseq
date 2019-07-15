@@ -164,7 +164,7 @@ unzip(uzp, exdir = exdir)
 ```
 
 ## Bioinformatics Analysis Quality Control Summary
-Quality control of the data was performed using *FASTQC*. Details on the quality control parameters are available in the `MultiQC` report of all samples available [here](paste0(wd, "/multiqc_report.html)). `FASTQC` reports for individual samples are additionally available [here](`r params$path_fastqc`).
+Quality control of the data was performed using *FASTQC*. Details on the quality control parameters are available in the `MultiQC` report of all samples available [here](./multiqc_report.html)). `FASTQC` reports for individual samples are additionally available [here](`r params$path_fastqc`).
 \
 
 ```{r echo=FALSE, results='asis'}
