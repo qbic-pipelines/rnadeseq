@@ -314,7 +314,7 @@ if(file.exists(params$path_contrast)){
 
 ```{r contrasts_block, echo=FALSE, results='asis', eval=contr}
 cat("***
-Additional tables for all individual contrasts are provided [here](`r paste0(wd,"/DESeq2/results/DE_genes_tables")`):
+Additional tables for all individual contrasts are provided [here](./DESeq2/results/DE_genes_tables):
 \
 ")
 
