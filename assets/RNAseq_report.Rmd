@@ -314,7 +314,7 @@ if(file.exists(params$path_contrast)){
 
 ```{r contrasts_block, echo=FALSE, results='asis', eval=contr}
 cat("***
-Additional tables for all individual contrasts are provided [here](./DESeq2/results//home/silvia/Documents/rnaseq_downstream/r-analysis-templates/report/DESeq2/results/DE_genes_tables):
+Additional tables for all individual contrasts are provided [here](`r paste0(wd,"/DESeq2/results//home/silvia/Documents/rnaseq_downstream/r-analysis-templates/report/DESeq2/results/DE_genes_tables/")`:
 \
 ")
 
@@ -358,7 +358,7 @@ Analysis of the differential exon usage was performed using DEXSeq. Exons were c
 
 ```{r conditional_DEU_results2, echo=FALSE, results='asis', eval=config$DEU}
 cat("### Fitted Expression Values Visualization
-Plots of the fitted expression values of each exon were generated for a subset of 20 genes among those showing differential exon usage. The plots are available in [this folder](./input/DEXSeq/plots); in each graph both the experimental conditions are indicated, and the exon that showed significant differential usage is shown in purple.")
+Plots of the fitted expression values of each exon were generated for a subset of 20 genes among those showing differential exon usage. The plots are available in [this folder](`r paste0(wd,/DESeq2/results/plots/plots_example_genes)`); in each graph both the experimental conditions are indicated, and the exon that showed significant differential usage is shown in purple.")
 ```
 
 ```{r conditional_outlook, echo=FALSE, results='asis', eval=!is.null(config$outlook)}
