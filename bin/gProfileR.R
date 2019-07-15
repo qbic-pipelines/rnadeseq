@@ -140,7 +140,7 @@ for (file in contrast_files){
         coord_flip() +
         scale_y_continuous(limits = c(0.00, 1.00)) +
         scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
-        ggtitle("Enriched pathways") +
+        ggtitle("Enriched pathways")
         xlab("") + ylab("Gene fraction (Query / Pathway)")
       ggsave(p, filename = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
       ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
@@ -157,11 +157,11 @@ for (file in contrast_files){
           pathway <- df[i,]
           gene_list <- unlist(strsplit(pathway$intersection, ","))
           mat <- norm_counts[gene_list, ]
-          
+          print("here1")
           png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$domain, "_", pathway$term.id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
           pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$domain,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = F )
           dev.off()
-        
+          print("here2")
           # Plotting pathway view only for kegg pathways
           if (pathway$domain == "keg"){
             pathway_kegg <- sapply(pathway$term.id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
