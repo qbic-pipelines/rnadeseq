@@ -165,7 +165,7 @@ for (file in contrast_files){
           if (pathway$domain == "keg"){
             pathway_kegg <- sapply(pathway$term.id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
             
-            if (pathway_kegg %in% ["mmu05206"] ) {
+            if (pathway_kegg %in% c("mmu05206") ) {
               print(paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database.")
             } else {
               gene.data = DE_genes
