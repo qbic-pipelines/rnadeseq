@@ -100,9 +100,8 @@ count.table = count.table[rowSums(count.table)>0,]
 
 ###3) load metadata: sample preparations tsv file from qPortal
 
-system(paste("cp ",metadata_path," DESeq2/metadata/",sep=""))
 m <- read.table(metadata_path, sep="\t", header=TRUE,na.strings =c("","NaN"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names = 1)
-
+system(paste("mv ",metadata_path," DESeq2/metadata/metadata.tsv",sep=""))
 
 #make sure m is factor where needed
 names(m) = gsub("Condition..","condition_",names(m))
