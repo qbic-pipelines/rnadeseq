@@ -80,18 +80,33 @@ ch_output_docs = Channel.fromPath("$baseDir/docs/output.md")
 /*
  * Create a channel for input  files
  */
+ // DESeq2
 Channel.fromPath("${params.rawcounts}")
            .ifEmpty{exit 1, "Please provide raw counts file!"}
            .set {ch_counts_file}
 Channel.fromPath("${params.metadata}")
            .ifEmpty{exit 1, "Please provide metadata file!"}
-           .into { ch_metadata_file_for_deseq; ch_metadata_file_for_pathway }
+           .into { ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway }
 Channel.fromPath("${params.model}")
             .ifEmpty{exit 1, "Please provide linear model file!"}
-            .into { ch_model_file_for_deseq; ch_model_file_for_pathway }
+            .into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
+Channel.fromPath("${params.contrasts}")
+            .into { ch_contrasts_for_deseq2_file; ch_contrasts_for_report_file }
+Channel.fromPath("${params.proj_summary}")
+            .ifEmpty{exit 1, "Please provide project summary file!"}
+            .set { ch_proj_summary_file }
+Channel.fromPath("${params.versions}")
+            .ifEmpty{exit 1, "Please provide sofware versions file!"}
+            .set { ch_softwareversions_file }
+Channel.fromPath("${params.config}")
+            .ifEmpty{exit 1, "Please provide config file!"}
+            .set { ch_config_file }
+Channel.fromPath("${params.multiqc}")
+            .ifEmpty{exit 1, "Please provide multiqc.zip folder!"}
+            .set { ch_multiqc_file }            
 
 ch_genes_file = file(params.genelist)
-ch_contrasts_file = file(params.contrasts)
+ch_fastqc_file = file(params.fastqc)
 
 /*
  * Check mandatory parameters
@@ -99,6 +114,7 @@ ch_contrasts_file = file(params.contrasts)
 if (!params.species) {
   exit 1, "No species has been specified!"
 }
+
 
 // Header log info
 log.info nfcoreHeader()
@@ -110,6 +126,11 @@ summary['Metadata'] = params.metadata
 summary['Model'] = params.model
 summary['Contrasts'] = params.contrasts
 summary['Gene list'] = params.genelist
+summary['Project summary file'] = params.proj_summary
+summary['nf-core/rnaseq software versions'] = params.versions
+summary['Report config file'] = params.config
+summary['Fastqc reports'] = params.fastqc
+summary['Multiqc results'] = params.multiqc
 summary['Species'] = params.species
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if(workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
@@ -196,13 +217,13 @@ process DESeq2 {
 
     input:
     file(gene_counts) from ch_counts_file
-    file(metadata) from ch_metadata_file_for_deseq
-    file(model) from ch_model_file_for_deseq
-    file(contrasts) from ch_contrasts_file
+    file(metadata) from ch_metadata_file_for_deseq2
+    file(model) from ch_model_for_deseq2_file
+    file(contrasts) from ch_contrasts_for_deseq2_file
     file(genelist) from ch_genes_file
 
     output:
-    file "*.zip" into (ch_deseq_output_for_pathway)
+    file "*.zip" into ch_deseq2_for_report, ch_deseq2_for_pathway
 
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
@@ -211,7 +232,6 @@ process DESeq2 {
     DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model --logFCthreshold $params.logFCthreshold $contrastsopt $genelistopt
     zip -r DESeq2.zip DESeq2
     """
-    
 }
 
 /*
@@ -222,7 +242,7 @@ process Pathway_analysis {
     publishDir "${params.outdir}/pathway_analysis", mode: 'copy'
 
     input:
-    file(deseq_output) from ch_deseq_output_for_pathway
+    file(deseq_output) from ch_deseq2_for_pathway
     file(metadata) from ch_metadata_file_for_pathway
     file(model) from ch_model_file_for_pathway
 
@@ -238,6 +258,39 @@ process Pathway_analysis {
     zip -r gProfileR.zip gProfileR/
     """
 }
+
+/*
+ * STEP 3 - RNAseq Report
+ */
+process Report {
+    publishDir "${params.outdir}", mode: 'copy'
+
+    input:
+    file(proj_summary) from ch_proj_summary_file
+    file(softwareversions) from ch_softwareversions_file
+    file(model) from ch_model_for_report_file
+    file(config) from ch_config_file
+    file(contrasts) from ch_contrasts_for_report_file
+    file(fastqc) from ch_fastqc_file
+    file(deseq2) from ch_deseq2_for_report
+    file(multiqc) from ch_multiqc_file
+
+    output:
+    file "*.zip"
+
+    script:
+    """
+    unzip $deseq2
+    unzip $multiqc
+    mkdir QC
+    mv multiqc_plots/ multiqc_data/ multiqc_report.html $fastqc QC/
+    Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
+    --versions $softwareversions --model $model --config $config --contrast $contrasts
+    mv qc_summary.tsv QC/
+    zip -r report.zip RNAseq_report.html DESeq2/ QC/
+    """
+}
+
 
 // /*
 //  * STEP 2 - MultiQC

@@ -15,19 +15,18 @@ output:
 #   self_contained: no
 bibliography: ./references.bibtex
 params:
-  path_summary: ""
+  path_proj_summary: ""
   path_versions: ""
   path_design: ""
   path_config: ""
-  path_contrasts: ""
-  path_fastqc: ""
+  path_contrast: ""
+  path_wd: ""
 ---
 
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
-df <- read.csv(file=params$path_summary, sep="\t", header = TRUE)
+df <- read.csv(file = params$path_proj_summary, sep="\t", header = TRUE)
 # Import the .tsv file downloadable from https://portal.qbic.uni-tuebingen.de/portal/web/qbic/user-database -> Projects
-# df <- read.csv(file="./summary.tsv", sep="\t", header = TRUE)
 projectcode = as.character(df$Sub.Project)
 title = as.character(df$Short.Title)
 PI = as.character(df$Principal.Investigator)
@@ -101,7 +100,7 @@ Auf der Morgenstelle 10, 72076 Tuebingen
 ```{r setup, echo=FALSE}
 library(DT)
 # condition: if there is a RIN column in Sample_preparations.tsv, prints a statement and the table with the RIN column; if there is no RIN column, or the column has one or more NAs, print only the metadata sheet.
-QAfile = "./DESeq2/metadata/Sample_preparations.tsv"
+QAfile = paste0(wd, "/DESeq2/metadata/Sample_preparations.tsv")
 no_RIN = FALSE
 RIN=FALSE
 if(file.exists(QAfile)){
@@ -145,10 +144,6 @@ datatable(df_QA, caption = "Sample metadata", extensions = c('Buttons', 'FixedCo
 ```
 
 ***
-```{r}
-# Import the .csv file output by the rna-seq Nextflow pipeline
-df <- read.csv(file=params$path_versions, sep="\t", header = FALSE)
-```
 
 # Bioinformatics Analysis
 
@@ -156,21 +151,22 @@ df <- read.csv(file=params$path_versions, sep="\t", header = FALSE)
 # loading this library produces an output, exlude with include=FALSE
 library(tidyverse)
 ```
+
 ## Bioinformatics Analysis Quality Control Summary
-Quality control of the data was performed using *FASTQC*. Details on the quality control parameters are available in the `MultiQC` report of all samples available [here](./MultiQC/multiqc_report.html). `FASTQC` reports for individual samples are additionally available [here](`r params$path_fastqc`).
+Quality control of the data was performed using *FASTQC*. Details on the quality control parameters are available in the `MultiQC` report of all samples available [here](`r paste0(wd,"/QC/multiqc_report.html")`). `FASTQC` reports for individual samples are additionally available [here](`r paste0(wd,"/QC/fastqc.zip")`).
 \
 
 ```{r echo=FALSE, results='asis'}
 library(DT)
-df_DE <- read.table("./MultiQC/multiqc_data/multiqc_general_stats.txt", header=TRUE, sep="\t")
+df_DE <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"), header=TRUE, sep="\t")
 is.num <- sapply(df_DE, is.numeric)
 df_DE[is.num] <- lapply(df_DE[is.num], round, 2)
 columns <- c("Sample", "featureCounts_mqc.generalstats.featurecounts.percent_assigned",
-             "STAR_mqc.generalstats.star.uniquely_mapped_percent", "Cutadapt_mqc.generalstats.cutadapt.percent_trimmed",            "FastQC_mqc.generalstats.fastqc.percent_duplicates", "FastQC_mqc.generalstats.fastqc.percent_gc",
+             "STAR_mqc.generalstats.star.uniquely_mapped_percent", "Cutadapt_mqc.generalstats.cutadapt.percent_trimmed", "FastQC_mqc.generalstats.fastqc.percent_duplicates", "FastQC_mqc.generalstats.fastqc.percent_gc",
              "FastQC_mqc.generalstats.fastqc.total_sequences")
 df_DE_selected = df_DE %>% select(one_of(columns))
 n_rows = nrow(df_DE_selected)
-metadata <- df_DE <- read.table("./DESeq2/metadata/Sample_preparations.tsv", header=TRUE, sep="\t")
+metadata <- df_DE <- read.table((paste0(wd, "/DESeq2/metadata/Sample_preparations.tsv")), header=TRUE, sep="\t")
 metadata = metadata[,c("QBiC.Code","Secondary.Name")]
 metadata$Sample = metadata$QBiC.Code
 metadata$QBiC.Code = NULL
@@ -179,7 +175,7 @@ write.table(table_complete,"./qc_summary.tsv", append = FALSE, quote = FALSE, se
 if (nrow(table_complete) < 20){
 cat("The table below (extracted from the `MultiQC` report) shows a summary of the bioinformatics analysis quality control including the percentage of assigned reads (% Assigned), the percentage of aligned reads (% Aligned), trimmed reads (% Trimmed), and duplicate reads (% Dups). The mean GC content (%GC) for each of the sequences and total number of reads (Seqs) is additionally indicated.")
 datatable(table_complete, caption = "Quality control summary", colnames= c("Sample Name", "Secondary Name", "% Assigned", "% Aligned", "% Trimmed", "% Dups", "% GC", "Seqs"), extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print'), pageLength = 10))} else {
-cat("The table downloadable under [this link](./qc_summary.tsv) (extracted from the `MultiQC` report) shows a summary of the bioinformatics analysis quality control including the percentage of assigned reads (% Assigned), the percentage of aligned reads (% Aligned), trimmed reads (% Trimmed), and duplicate reads (% Dups). The mean GC content (%GC) for each of the sequences and total number of reads (Seqs) is additionally indicated.")
+cat("The table downloadable under [this link](./QC/qc_summary.tsv) (extracted from the `MultiQC` report) shows a summary of the bioinformatics analysis quality control including the percentage of assigned reads (% Assigned), the percentage of aligned reads (% Aligned), trimmed reads (% Trimmed), and duplicate reads (% Dups). The mean GC content (%GC) for each of the sequences and total number of reads (Seqs) is additionally indicated.")
 }
 ```
 
@@ -201,12 +197,12 @@ The mapping rate of data originating from the sequencing machine depends on seve
 #### Percercentages {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1800, fig.cap="STAR: Alignment Scores", fig.align='center'}
-knitr::include_graphics("./MultiQC/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg")
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg"))
 ```
 
 #### Number of reads {-}
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="STAR: Alignment Scores", fig.align='center'}
-knitr::include_graphics("./MultiQC/multiqc_plots/svg/mqc_star_alignment_plot_1.svg")
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1.svg"))
 ```
 </center>
 \
@@ -221,14 +217,14 @@ The gene assignments of featureCounts are shown below. Interpretation of the dif
 ### Percercentages {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
-knitr::include_graphics("./MultiQC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1_pc.svg")
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1_pc.svg"))
 ```
 </center>
 
 ### Number of reads {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
-knitr::include_graphics("./MultiQC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1.svg")
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1.svg"))
 ```
 </center>
 \
@@ -239,14 +235,14 @@ The read distribution of mapped reads over different genome feature (like CDS ex
 ### Percercentages {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="RSeQC: Read Distribution", fig.align='center'}
-knitr::include_graphics("./MultiQC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1_pc.svg")
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1_pc.svg"))
 ```
 </center>
 
 ### Number of reads {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="RSeQC: Read Distribution", fig.align='center'}
-knitr::include_graphics("./MultiQC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1.svg")
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1.svg"))
 ```
 </center>
 
@@ -264,14 +260,14 @@ The raw count table can be found [here](./DESeq2/raw_counts/raw_counts.txt). The
 A PCA plot of the normalized expression values was created to visualize the overall effect of experimental variations and any batch effects among samples.
 
 ```{r, echo=F, out.width="2000px", dpi=1200, fig.cap="", fig.align='center'}
-knitr::include_graphics("./DESeq2/results/plots/PCA_plot.svg")
+knitr::include_graphics(paste0(wd,"/DESeq2/results/plots/PCA_plot.svg"))
 ```
 
 ### Sample distance heatmap
 A sample distance heatmap was generated from the distances of the normalized expression values for all samples. The closer the distance is to 0, the overall samples gene expression are more similar to each other.
 
 ```{r, echo=F, out.width="2000px", dpi=1200, fig.cap="", fig.align='center'}
-knitr::include_graphics("./DESeq2/results/plots/Heatmaps_of_distances.svg")
+knitr::include_graphics(paste0(wd,"/DESeq2/results/plots/Heatmaps_of_distances.svg"))
 ```
 
 # Differential Expression analysis
@@ -284,7 +280,7 @@ The list of the first 20 differentially expressed genes is shown below; The full
 ```{r}
 library(DT)
 library(tidyverse)
-df_DE <- read.table("./DESeq2/results/final/final_list_DESeq2.tsv", header=TRUE, sep="\t")
+df_DE <- read.table(paste0(wd,"/DESeq2/results/final/final_list_DESeq2.tsv"), header=TRUE, sep="\t")
 # list all the columns containing "padj"
 padj = names(df_DE)[grepl("padj",names(df_DE))]
 # take the last column in this list, order the dataframe according to ascending padj values in it; subset to the first 20 rows
@@ -296,8 +292,8 @@ datatable(df, caption = "Outcome of Differential Expression analysis", extension
 library(DT)
 # condition: if there is a RIN column in QualityAssessment.csv, prints a statement and the table; if there is no RIN column, or no ./QualityAssessment.csv file, print "RIN values are not available for this project."
 contr=FALSE
-if(file.exists(params$path_contrasts)){
-  df_contr <- read.table(params$path_contrasts, header=TRUE, sep="\t")
+if(file.exists(params$path_contrast)){
+  df_contr <- read.table(params$path_contrast, header=TRUE, sep="\t")
   names = grep('vs', colnames(df_contr), value=TRUE)
   if (length(names) != 0){
     contr <- TRUE
@@ -307,7 +303,7 @@ if(file.exists(params$path_contrasts)){
 
 ```{r contrasts_block, echo=FALSE, results='asis', eval=contr}
 cat("***
-Additional tables for all individual contrasts are provided [here](./DESeq2/results//home/silvia/Documents/rnaseq_downstream/r-analysis-templates/report/DESeq2/results/DE_genes_tables):
+Additional tables for all individual contrasts are provided [here](./DESeq2/results/DE_genes_tables):
 \
 ")
 
@@ -351,7 +347,7 @@ Analysis of the differential exon usage was performed using DEXSeq. Exons were c
 
 ```{r conditional_DEU_results2, echo=FALSE, results='asis', eval=config$DEU}
 cat("### Fitted Expression Values Visualization
-Plots of the fitted expression values of each exon were generated for a subset of 20 genes among those showing differential exon usage. The plots are available in [this folder](./input/DEXSeq/plots); in each graph both the experimental conditions are indicated, and the exon that showed significant differential usage is shown in purple.")
+Plots of the fitted expression values of each exon were generated for a subset of 20 genes among those showing differential exon usage. The plots are available in [this folder](`r paste0(wd,/DESeq2/results/plots/plots_example_genes)`); in each graph both the experimental conditions are indicated, and the exon that showed significant differential usage is shown in purple.")
 ```
 
 ```{r conditional_outlook, echo=FALSE, results='asis', eval=!is.null(config$outlook)}
@@ -361,17 +357,22 @@ cat("***
 ```{r conditional_outlook_content, echo=FALSE, results='asis', eval=!is.null(config$outlook)}
 cat(config$outlook)
 ```
+
+```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
+# Import the .csv file output by the rna-seq Nextflow pipeline
+version <- read.csv(file = params$path_versions, sep="\t", header = FALSE)
+```
 ***
 # Computational methods
 <!--Different output in presence or absence of DEU analysis-->
-Nextflow-based RNA-Seq pipeline release 1.3 https://github.com/nf-core/rnaseq [^1] was used for the bioinfomatics analysis. Aggregation of the bioinformatics workflow analysis was conducted by `MultiQC `r as.character(df[df$V1=="MultiQC",2])`` [^2] [@ewels2016multiqc]. `FASTQC `r as.character(df[df$V1=="FASTQC",2])`` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files. Subsequently, adapter trimming was conducted with `Trim Galore `r as.character(df[df$V1=="Trim Galore!",2])`` [^4] [@krueger2012trim]. `STAR v`r substring(as.character(df[df$V1=="STAR",2]), 7, )`` [@Dobin2013] aligner was used to map the reads that passed the quality control to the human genome GRCh 38 (Ensembl release 92). The evaluation of the RNA-seq experiment was performed with `RSeQC `r as.character(df[df$V1=="RSeQC",2])`` [@wang2012rseqc] and read counting of the features (e.g. genes) with `featureCounts `r as.character(df[df$V1=="featureCounts",2])``[@liao2014featurecounts].
+Nextflow-based RNA-Seq pipeline release 1.3 https://github.com/nf-core/rnaseq [^1] was used for the bioinfomatics analysis. Aggregation of the bioinformatics workflow analysis was conducted by `MultiQC `r as.character(version[version$V1=="MultiQC",2])`` [^2] [@ewels2016multiqc]. `FASTQC `r as.character(version[version$V1=="FASTQC",2])`` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files. Subsequently, adapter trimming was conducted with `Trim Galore `r as.character(version[version$V1=="Trim Galore!",2])`` [^4] [@krueger2012trim]. `STAR v`r substring(as.character(version[version$V1=="STAR",2]), 7, )`` [@Dobin2013] aligner was used to map the reads that passed the quality control to the human genome GRCh 38 (Ensembl release 92). The evaluation of the RNA-seq experiment was performed with `RSeQC `r as.character(version[version$V1=="RSeQC",2])`` [@wang2012rseqc] and read counting of the features (e.g. genes) with `featureCounts `r as.character(version[version$V1=="featureCounts",2])``[@liao2014featurecounts].
 For differential expression analysis, the raw read count table resulting from `featureCounts` is processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
 <!-- If a DEU analysis has also been performed -->
 ```{r conditional_DEU, echo=FALSE, results='asis', eval=config$DEU}
 # version = packageVersion("DEXSeq")
 # cat(paste("For differential exon usage, the table count produced by `featureCounts` is processed with the R package `DEXSeq v`",version," [@anders2012detecting].", sep=''))
 ```
-Graphs were also produced in the `RStudio v1.1.456` with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")``. Reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown")`` while `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` were running behind the scenes. Sample similarity heatmap was created using `edgeR `r as.character(df[df$V1=="edgeR",2])`` R package.
+Graphs were also produced in the `RStudio v1.1.456` with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")``. Reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown")`` while `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` were running behind the scenes. Sample similarity heatmap was created using `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
 
 ***
 # Bibliography
