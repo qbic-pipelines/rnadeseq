@@ -86,7 +86,7 @@ Channel.fromPath("${params.rawcounts}")
            .set {ch_counts_file}
 Channel.fromPath("${params.metadata}")
            .ifEmpty{exit 1, "Please provide metadata file!"}
-           .into { ch_metadata_file_for_deseq; ch_metadata_file_for_pathway }
+           .into { ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway }
 Channel.fromPath("${params.model}")
             .ifEmpty{exit 1, "Please provide linear model file!"}
             .into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
@@ -217,7 +217,7 @@ process DESeq2 {
 
     input:
     file(gene_counts) from ch_counts_file
-    file(metadata) from ch_metadata_file
+    file(metadata) from ch_metadata_file_for_deseq2
     file(model) from ch_model_for_deseq2_file
     file(contrasts) from ch_contrasts_for_deseq2_file
     file(genelist) from ch_genes_file
