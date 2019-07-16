@@ -10,7 +10,8 @@ option_list = list(
   make_option(c("-v", "--versions"), type="character", default=NULL, help="versions file", metavar="character"),
   make_option(c("-m", "--model"), type="character", default=NULL, help="linear model file", metavar="character"),
   make_option(c("-c", "--config"), type="character", default=NULL, help="report config file", metavar="character"),
-  make_option(c("-k", "--contrast"), type="character", default=NULL, help="contrasts file", metavar="character")
+  make_option(c("-k", "--contrasts"), type="character", default=NULL, help="contrasts file", metavar="character"),
+  make_option(c("-f", "--fastqc"), type="character", default=NULL, help="fastqc reports folder", metavar="character")
 )
 
 opt_parser = OptionParser(option_list=option_list)
@@ -23,5 +24,6 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_versions = opt$versions,
                                 path_design = opt$model,
                                 path_config = opt$config,
-                                path_contrast = opt$contrast,
-                                path_wd = wd))
+                                path_wd = wd,
+                                path_contrasts = opt$contrasts,
+                                path_fastqc = opt$fastqc))
