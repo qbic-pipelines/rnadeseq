@@ -153,7 +153,13 @@ library(tidyverse)
 ```
 
 ## Bioinformatics Analysis Quality Control Summary
-Quality control of the data was performed using *FASTQC*. Details on the quality control parameters are available in the `MultiQC` report of all samples available [here](`r paste0(wd,"/QC/multiqc_report.html")`). `FASTQC` reports for individual samples are additionally available [here](`r paste0(wd,"/QC/fastqc.zip")`).
+Quality control of the data was performed using *FASTQC*. Details on the quality control parameters are available in the `MultiQC` report of all samples available [here](`r paste0(wd,"/QC/multiqc_report.html")`).
+
+```{r echo=FALSE, results='asis'}
+if(file.exists(paste0(wd,"/QC/fastqc.zip"))){
+  cat("`FASTQC` reports for individual samples are additionally available [here](`r paste0(wd,'/QC/fastqc.zip')`).")
+}
+```
 \
 
 ```{r echo=FALSE, results='asis'}
