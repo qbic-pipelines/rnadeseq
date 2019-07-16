@@ -166,7 +166,7 @@ for (file in contrast_files){
             pathway_kegg <- sapply(pathway$term.id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
             
             if (pathway_kegg %in% c("mmu05206") ) {
-              print(paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database.")
+              print(paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database."))
             } else {
               gene.data = DE_genes
             gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
