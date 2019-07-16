@@ -279,13 +279,15 @@ process Report {
     file "*.zip"
 
     script:
+    def fastqcopt = fastqc.name != 'NO_FILE' ? "$fastqc" : ''
+    def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
     """
     unzip $deseq2
     unzip $multiqc
     mkdir QC
     mv multiqc_plots/ multiqc_data/ multiqc_report.html $fastqc QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
-    --versions $softwareversions --model $model --config $config --contrast $contrasts
+    --versions $softwareversions --model $model --config $config --contrast $contrastsopt
     mv qc_summary.tsv QC/
     zip -r report.zip RNAseq_report.html DESeq2/ QC/
     """
