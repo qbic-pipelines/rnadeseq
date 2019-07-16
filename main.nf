@@ -223,7 +223,7 @@ process DESeq2 {
     file(genelist) from ch_genes_file
 
     output:
-    file "*.zip" into (ch_deseq2_for_report; ch_deseq2_for_pathway)
+    file "*.zip" into ch_deseq2_for_report, ch_deseq2_for_pathway
 
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
