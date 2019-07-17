@@ -86,7 +86,7 @@ gene_names <- count.table[,drop]
 
 
 ##Need to reduce gene names to QBiC codes
-#names(count.table) <- gsub('([A-Z0-9]{10})\\Aligned\\.(.*)\\.(.*)','\\1', names(count.table))
+names(count.table) <- gsub('([A-Z0-9]{10})\\Aligned\\.(.*)\\.(.*)','\\1', names(count.table))
 #write.table(count.table , file = "DESeq2/raw_counts/raw_counts.txt", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 
 count.table <- count.table[ , !(names(count.table) %in% drop)]
