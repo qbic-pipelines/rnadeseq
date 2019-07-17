@@ -136,6 +136,7 @@ print(m)
 
 ###4) run DESeq function
 design <- read.csv(path_design, sep="\t", header = F)
+write.table(design, file="DESeq2/metadata/linear_model.txt", sep="\t", quote=F, col.names = F, row.names = F)
 cds <- DESeqDataSetFromMatrix( countData =count.table, colData =m, design = eval(parse(text=as.character(design[[1]]))))
 cds <- DESeq(cds,  parallel = FALSE)
 
@@ -152,6 +153,7 @@ coefficients <- resultsNames(cds)
 bg = data.frame(bg = character(nrow(cds)))
 if (!is.null(opt$contrasts)){
   contrasts <- read.table(path_contrasts, sep="\t", header = T)
+  write.table(contrasts, file="DESeq2/metadata/contrasts.tsv", sep="\t", quote=F, col.names = T, row.names = F)
   stopifnot(length(coefficients)==nrow(contrasts))
 
   ## Contrast calculation
@@ -248,6 +250,7 @@ for (i in kip1){
 if (!is.null(opt$genelist)){
   #4.5) make plots of interesting genes
   gene_ids <- read.table(requested_genes_path, col.names = "requested_gene_name")
+  write.table(gene_ids, file="DESeq2/metadata/gene_list.txt", col.names=F, row.names=F, sep="\t")
   gene_ids$requested_gene_name <- sapply(gene_ids$requested_gene_name, toupper)
   bg1$gene_name <- sapply(bg1$gene_name, toupper)
 
