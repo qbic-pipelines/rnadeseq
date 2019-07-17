@@ -263,7 +263,7 @@ process Pathway_analysis {
  * STEP 3 - RNAseq Report
  */
 process Report {
-    publishDir "${params.outdir}", mode: 'copy'
+    publishDir "${params.outdir}/report", mode: 'copy'
 
     input:
     file(proj_summary) from ch_proj_summary_file

@@ -19,6 +19,8 @@ Differential expression analysis is perfomed with the [DESeq2](https://bioconduc
 
 **Output directory: `results/DESeq2`**
 
+This directory contains the zipped results. When unzipping them, the following subfolders can be found.
+
 * `metadata/`
   * `metadata.tsv`: metadata sheet used by the pipeline.
   * `contrasts.tsv`: contrasts used for DE analysis (if provided).
@@ -40,30 +42,34 @@ Differential expression analysis is perfomed with the [DESeq2](https://bioconduc
 
 ## Pathway analysis
 
-[FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your reads. It provides information about the quality score distribution across your reads, the per base sequence content (%T/A/G/C). You get information about adapter contamination and other overrepresented sequences.
+Pathway analysis with [gProfileR](https://biit.cs.ut.ee/gprofiler/gost) R package. 
 
-For further reading and documentation see the [FastQC help](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
+**Output directory: `results/pathway_analysis/`**
 
-> **NB:** The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality. To see how your reads look after trimming, look at the FastQC reports in the `trim_galore` directory.
+This directory contains the zipped pathway analysis results (`gProfileR.zip`). When unzipping them, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
 
-**Output directory: `results/fastqc`**
+* `*_keg_pathway_enrichment_plot.pdf/png`
+  * Barplots showing the proportion of differentially expressed genes in the pathway.
+* `KEGG_pathways/`
+  * Contains the KEGG pathways graphs with the log fold change of the differentially expressed genes.
+* `pathway_heatmaps`
+  * Contains heatmaps of the normalized gene counts for each of the differentially expressed pathways.
 
-* `sample_fastqc.html`
-  * FastQC report, containing quality metrics for your untrimmed raw fastq files
-* `zips/sample_fastqc.zip`
-  * zip file containing the FastQC report, tab-delimited data file and plot images
+## Report
 
+QBiC report for RNAseq analysis.
 
-## MultiQC
-[MultiQC](http://multiqc.info) is a visualisation tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in within the report data directory.
+**Output directory: `results/report/`**
 
-The pipeline has special steps which allow the software versions used to be reported in the MultiQC output for future traceability.
+In this directory the zipped report is contained. This file is ready for upload to the project in the QBiC portal. Once unzipped, this directory contains:
 
-**Output directory: `results/multiqc`**
-
-* `Project_multiqc_report.html`
-  * MultiQC report - a standalone HTML file that can be viewed in your web browser
-* `Project_multiqc_data/`
-  * Directory containing parsed statistics from the different tools used in the pipeline
-
-For more information about how to use MultiQC reports, see [http://multiqc.info](http://multiqc.info)
+* `Report.html`
+  * QBiC report describing the RNAseq results.
+* `DESeq2/`
+  * DESeq2 results to be attached to the report (see DESeq2 output description).
+* `QC/`
+  * Quality control results. Contains:
+  * `fastqc.zip`: zipped fastqc results for each sample.
+  * `multiqc_data`: data from the multiQC process of the RNAseq pipeline which is incorporated into the report.
+  * `multiqc_plots`: plots from the multiQC process of the RNAseq pipeline which are incorporated into the report.
+  * `qc_summary.tsv`: summary of the multiQC process in a table format.

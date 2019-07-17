@@ -252,7 +252,9 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distrib
 
 ## Raw and normalized count tables
 
-The raw count table can be found [here](./DESeq2/gene_counts_tables/raw_gene_counts.txt). The normalized count tables are available [here](./DESeq2/gene_counts_tables): rlog_transformed_gene_counts.tsv and vst_transformed_gene_counts.tsv.
+The raw count table and normalized count tables are available [here](./DESeq2/gene_counts_tables). 
+The differential expression analysis is performed using the raw gene count table. 
+For PCA analysis and heatmap plotting, the regularized logarithm (rlog) normalized gene counts were employed.
 
 ## Overview - First Exploration of the Data
 
@@ -274,8 +276,14 @@ knitr::include_graphics(paste0(wd,"/DESeq2/plots/Heatmaps_of_distances.svg"))
 
 ## List of differentially expressed genes
 
-Analysis of the differential gene expression was performed using `DESeq2`. Genes were considered differentially expressed genes (DEG) when the adjusted p-value was lower than 0.05 (padj < 0.05). The adjusted p-value is calculated in the `DESeq2` package with the Benjamini-Hochberg method and helps reduce the number of false postives (not real differentially expressed genes). The model design in DESeq2 was:`r cat(paste(readLines(params$path_design), collapse=" "))`.
-The list of the first 20 differentially expressed genes is shown below; The full table, where the differentially expressed genes are marked with DE in the filter1 column, can be found [here](./DESeq2/results/final/final_list_DESeq2.tsv).
+Analysis of the differential gene expression was performed using `DESeq2`. 
+Genes were considered differentially expressed (DE) when the adjusted p-value was lower than 0.05 (padj < 0.05). 
+The adjusted p-value is calculated in the `DESeq2` package with the Benjamini-Hochberg method and 
+helps reduce the number of false postives (not real differentially expressed genes). 
+The model design in DESeq2 was:`r cat(paste(readLines(params$path_design), collapse=" "))`.
+The list of the first 20 differentially expressed genes is shown below. 
+The differentially expressed genes are marked with "DE" in the filter column. 
+The full table, can be found [here](./DESeq2/results/final/final_list_DESeq2.tsv).
 
 ```{r}
 library(DT)
