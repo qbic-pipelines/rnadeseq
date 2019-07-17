@@ -19,9 +19,19 @@ Differential expression analysis is perfomed with the [DESeq2](https://bioconduc
 
 * `metadata/metadata.tsv`
   * Metadata sheet used by the pipeline.
-* `raw_counts/raw_counts.txt`
-  * Raw counts table used by the pipeline.
-
+* `gene_counts_tables/`
+  * `raw_gene_counts.txt`: Raw gene counts table from the nf-core/rnaseq pipeline and used for the differential gene expression analysis.
+  * `rlog_transformed_gene_counts.tsv`: Normalized gene counts with the "regularized logarithm" approach. This normalization is used prior to PCA analysis and heatmap plotting of the gene counts.
+  * `vst_transformed_gene_counts.tsv`: Normalized gene counts with the "variance stabilizing" transformation.
+  * `sizeFactor_libraries.tsv`: Size factors for each sample.
+* `DE_genes_tables/`: Folder containing one tab-separated table for each of the contrasts in the analysis. Each table contains a list of all differentially expressed genes in the contrast, specifying the mean gene expression across all samples (baseMean), and the log2 fold change value and p-adjusted values (padj) for this contrast.
+* `final_gene_table/final_gene_list_DESeq2.tsv`: Table containing a list of all genes considered in the analysis. Here a summary of the log2 Fold Change and p-adjusted values for all contrasts is displayed. Additionally, the column **filter** shows if this gene was differentially expressed (DE) in any of the contrasts, or not (not_DE). The column **contrast_vector** contains for each contrast considered in the analysis a 1 if the gene was differentially expressed for this contrast or a 0 if it was not.
+* `plots/`:
+    * `Heatmaps_of_distances.pdf/.svg`: Heatmap of the pairwise euclidean distances among samples, when the rlog normalized gene counts are considered.
+    * `PCA_plot.pdf`: PCA of the rlog normalized gene counts.
+    * `boxplots_example_genes/`: Boxplots of the normalized gene counts for each of the sample groups for example genes.
+    * `boxplots_requested_genes/`: Boxplots of the normalized gene counts for each of the sample groups for the list of requested genes.
+    * `further_diagnostics_plots/`: Plots for diagnostics of the differential gene analysis procedure.
 
 ## Pathway analysis
 [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your reads. It provides information about the quality score distribution across your reads, the per base sequence content (%T/A/G/C). You get information about adapter contamination and other overrepresented sequences.
