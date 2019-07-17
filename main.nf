@@ -210,7 +210,7 @@ process get_software_versions {
 }
 
 /*
- * STEP 1 - DESeq2
+ * STEP 1 - DE analysis
  */
 process DESeq2 {
     publishDir "${params.outdir}/DESeq2", mode: 'copy'
@@ -252,8 +252,8 @@ process Pathway_analysis {
     script:
     """
     unzip $deseq_output
-    gProfileR.R --dirContrasts 'DESeq2/results/DE_genes_tables/' --metadata $metadata \
-    --model $model --normCounts 'DESeq2/results/count_tables/rlog_transformed.read.counts.tsv' \
+    gProfileR.R --dirContrasts 'DESeq2/DE_genes_tables/' --metadata $metadata \
+    --model $model --normCounts 'DESeq2/gene_counts_tables/rlog_transformed_gene_counts.tsv' \
     --species $params.species
     zip -r gProfileR.zip gProfileR/
     """
@@ -290,35 +290,6 @@ process Report {
     zip -r report.zip RNAseq_report.html DESeq2/ QC/
     """
 }
-
-
-// /*
-//  * STEP 2 - MultiQC
-//  */
-// process multiqc {
-//     publishDir "${params.outdir}/MultiQC", mode: 'copy'
-
-//     input:
-//     file multiqc_config from ch_multiqc_config
-//     // TODO qbicsoftware: Add in log files from your new processes for MultiQC to find!
-//     file ('fastqc/*') from fastqc_results.collect().ifEmpty([])
-//     file ('software_versions/*') from software_versions_yaml.collect()
-//     file workflow_summary from create_workflow_summary(summary)
-
-//     output:
-//     file "*multiqc_report.html" into multiqc_report
-//     file "*_data"
-//     file "multiqc_plots"
-
-//     script:
-//     rtitle = custom_runName ? "--title \"$custom_runName\"" : ''
-//     rfilename = custom_runName ? "--filename " + custom_runName.replaceAll('\\W','_').replaceAll('_+','_') + "_multiqc_report" : ''
-//     // TODO qbicsoftware: Specify which MultiQC modules to use with -m for a faster run time
-//     """
-//     multiqc -f $rtitle $rfilename --config $multiqc_config .
-//     """
-// }
-
 
 
 // /*

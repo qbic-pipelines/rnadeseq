@@ -252,7 +252,7 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distrib
 
 ## Raw and normalized count tables
 
-The raw count table can be found [here](./DESeq2/raw_counts/raw_counts.txt). The normalized count tables are available [here](./DESeq2/results/count_tables): rlog_transformed.read.counts.tsv and vst_transformed.read.counts.tsv.
+The raw count table can be found [here](./DESeq2/gene_counts_tables/raw_gene_counts.txt). The normalized count tables are available [here](./DESeq2/gene_counts_tables): rlog_transformed_gene_counts.tsv and vst_transformed_gene_counts.tsv.
 
 ## Overview - First Exploration of the Data
 
@@ -260,14 +260,14 @@ The raw count table can be found [here](./DESeq2/raw_counts/raw_counts.txt). The
 A PCA plot of the normalized expression values was created to visualize the overall effect of experimental variations and any batch effects among samples.
 
 ```{r, echo=F, out.width="2000px", dpi=1200, fig.cap="", fig.align='center'}
-knitr::include_graphics(paste0(wd,"/DESeq2/results/plots/PCA_plot.svg"))
+knitr::include_graphics(paste0(wd,"/DESeq2/plots/PCA_plot.svg"))
 ```
 
 ### Sample distance heatmap
 A sample distance heatmap was generated from the distances of the normalized expression values for all samples. The closer the distance is to 0, the overall samples gene expression are more similar to each other.
 
 ```{r, echo=F, out.width="2000px", dpi=1200, fig.cap="", fig.align='center'}
-knitr::include_graphics(paste0(wd,"/DESeq2/results/plots/Heatmaps_of_distances.svg"))
+knitr::include_graphics(paste0(wd,"/DESeq2/plots/Heatmaps_of_distances.svg"))
 ```
 
 # Differential Expression analysis
@@ -280,7 +280,7 @@ The list of the first 20 differentially expressed genes is shown below; The full
 ```{r}
 library(DT)
 library(tidyverse)
-df_DE <- read.table(paste0(wd,"/DESeq2/results/final/final_list_DESeq2.tsv"), header=TRUE, sep="\t")
+df_DE <- read.table(paste0(wd,"/DESeq2/final_gene_table/final_gene_list_DESeq2.tsv"), header=TRUE, sep="\t")
 # list all the columns containing "padj"
 padj = names(df_DE)[grepl("padj",names(df_DE))]
 # take the last column in this list, order the dataframe according to ascending padj values in it; subset to the first 20 rows
@@ -303,7 +303,7 @@ if(file.exists(params$path_contrast)){
 
 ```{r contrasts_block, echo=FALSE, results='asis', eval=contr}
 cat("***
-Additional tables for all individual contrasts are provided [here](./DESeq2/results/DE_genes_tables):
+Additional tables for all individual contrasts are provided [here](./DESeq2/DE_genes_tables):
 \
 ")
 
@@ -314,7 +314,7 @@ for (i in 1:length(names)){
 
 ## Plot normalized counts of the genes
 
-Plots of the normalized counts were generated for the all the genes. Count normalization was performed by sequencing depth and adding a pseudocount of 1/2 to allow for log scale plotting. The plots are available at [plot_candidate_genes](./DESeq2/results/plots/plots_requested_genes).
+Plots of the normalized counts were generated for some example genes. Count normalization was performed by sequencing depth and adding a pseudocount of 1/2 to allow for log scale plotting. The plots are available at [boxplots_example_genes](./DESeq2/plots/boxplots_example_genes).
 
 <!-- In case GO analysis was also included -->
 ```{r conditional_GO, echo=FALSE, results='asis', eval=config$GO}
@@ -347,7 +347,7 @@ Analysis of the differential exon usage was performed using DEXSeq. Exons were c
 
 ```{r conditional_DEU_results2, echo=FALSE, results='asis', eval=config$DEU}
 cat("### Fitted Expression Values Visualization
-Plots of the fitted expression values of each exon were generated for a subset of 20 genes among those showing differential exon usage. The plots are available in [this folder](`r paste0(wd,/DESeq2/results/plots/plots_example_genes)`); in each graph both the experimental conditions are indicated, and the exon that showed significant differential usage is shown in purple.")
+Plots of the fitted expression values of each exon were generated for a subset of 20 genes among those showing differential exon usage. The plots are available in [this folder](`r paste0(wd,/DESeq2/plots/boxplots_example_genes)`); in each graph both the experimental conditions are indicated, and the exon that showed significant differential usage is shown in purple.")
 ```
 
 ```{r conditional_outlook, echo=FALSE, results='asis', eval=!is.null(config$outlook)}

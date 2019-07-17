@@ -8,10 +8,22 @@ This document describes the output produced by the pipeline. Most of the plots a
 The pipeline is built using [Nextflow](https://www.nextflow.io/)
 and processes data using the following steps:
 
-* [FastQC](#fastqc) - read quality control
-* [MultiQC](#multiqc) - aggregate report, describing results of the whole pipeline
+* [DE analysis](#DE analysis) - differential expression analysis with DESeq2
+* [Pathway analysis](#Pathway analysis) - pathway analysis with gProfileR
+* [Report](#Report) - QBiC Report describing results of the whole pipeline
 
-## FastQC
+## DE analysis
+Differential expression analysis is perfomed with the [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html) R package.
+
+**Output directory: `results/DESeq2`**
+
+* `metadata/metadata.tsv`
+  * Metadata sheet used by the pipeline.
+* `raw_counts/raw_counts.txt`
+  * Raw counts table used by the pipeline.
+
+
+## Pathway analysis
 [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your reads. It provides information about the quality score distribution across your reads, the per base sequence content (%T/A/G/C). You get information about adapter contamination and other overrepresented sequences.
 
 For further reading and documentation see the [FastQC help](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
