@@ -284,7 +284,7 @@ write.table(assay(vsd), "DESeq2/gene_counts_tables/vst_transformed_gene_counts.t
 ##6) Diagnostic plots
 
 #Cooks distances: get important for example when checking knock-out and overexpression studies
-pdf("DESeq2/plots/Cooks-distances.pdf")
+pdf("DESeq2/plots/further_diagnostics_plots/Cooks-distances.pdf")
 par(mar=c(10,3,3,3))
 par( mfrow = c(1,2))
 boxplot(log10(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log10-Cooks")
@@ -292,13 +292,13 @@ boxplot(log2(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log
 dev.off()
 
 #The function plotDispEsts visualizes DESeqs dispersion estimates: 
-pdf("DESeq2/plots/Dispersion_plot.pdf")
+pdf("DESeq2/plots/further_diagnostics_plots/Dispersion_plot.pdf")
 plotDispEsts(cds, ylim = c(1e-5, 1e8))
 dev.off()
 
 #Effects of transformations on the variance
 notAllZero <- (rowSums(counts(cds))>0) 
-pdf("DESeq2/plots/Effects_of_transformations_on_the_variance.pdf")
+pdf("DESeq2/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.pdf")
 par(oma=c(3,3,3,3))
 par(mfrow = c(1, 3))
 meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
