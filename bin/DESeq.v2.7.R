@@ -32,6 +32,7 @@ dir.create("DESeq2/metadata")
 dir.create("DESeq2/plots")
 dir.create("DESeq2/plots/boxplots_example_genes")
 dir.create("DESeq2/plots/boxplots_requested_genes")
+dir.create("DESeq2/plots/further_diagnostics_plots")
 dir.create("DESeq2/gene_counts_tables")
 dir.create("DESeq2/DE_genes_tables")
 dir.create("DESeq2/final_gene_table")
@@ -333,7 +334,7 @@ ggsave(plot = pca, filename = "DESeq2/plots/PCA_plot.pdf", device = "pdf", dpi =
 ggsave(plot = pca, filename = "DESeq2/plots/PCA_plot.svg", device = "svg", dpi = 150)
 
 #further diagnostics plots
-dir.create("DESeq2/plots/further_diagnostics_plots")
+
 res=0
 for (i in resultsNames(cds)[-1]) {
   res = results(cds,name = i)
