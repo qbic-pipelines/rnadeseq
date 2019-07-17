@@ -42,7 +42,7 @@ This directory contains the zipped results. When unzipping them, the following s
 
 ## Pathway analysis
 
-Pathway analysis with [gProfileR](https://biit.cs.ut.ee/gprofiler/gost) R package. 
+Pathway analysis with [gProfileR](https://biit.cs.ut.ee/gprofiler/gost) R package.
 
 **Output directory: `results/pathway_analysis/`**
 
