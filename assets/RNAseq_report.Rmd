@@ -322,6 +322,7 @@ for (i in 1:length(names)){
   cat(paste("* ", names[i], "\n"))
 }
 ```
+
 ## Plot normalized counts of the genes
 
 Plots of the normalized counts were generated for the all the genes. Count normalization was performed by sequencing depth and adding a pseudocount of 1/2 to allow for log scale plotting. The plots are available at [plot_candidate_genes](./DESeq2/results/plots/plots_requested_genes).
