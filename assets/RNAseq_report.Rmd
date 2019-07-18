@@ -293,7 +293,7 @@ df = head(df_DE %>% arrange(df_DE[[tail(padj, n=1)]]),20)
 datatable(df, caption = "Outcome of Differential Expression analysis", extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
 ```
 
-```{r setup2, echo=FALSE, message=FALSE, bootstrap.show.message=FALSE}
+```{r setup2, echo=FALSE, message=FALSE, bootstrap.show.message=FALSE, include=FALSE}
 library(DT)
 contr=FALSE
 df_contr <- try(read.table(params$path_contrasts, header=TRUE, sep="\t"))
