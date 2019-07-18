@@ -297,12 +297,9 @@ datatable(df, caption = "Outcome of Differential Expression analysis", extension
 ```{r setup2, echo=FALSE}
 library(DT)
 contr=FALSE
-possibleError <- tryCatch(
-      df_contr <- read.table(params$path_contrasts, header=TRUE, sep="\t"),
-  )
-if(!inherits(possibleError, "no lines available in input")){
-    df_contr <- read.table(params$path_contrasts, header=TRUE, sep="\t")
-    names = grep('vs', colnames(df_contr), value=TRUE)
+df <- try(read.table(params$path_contrasts, header=TRUE, sep="\t"))
+if (!inherits(df, 'no lines available in input')){
+  names = grep('vs', colnames(df_contr), value=TRUE)
     if (length(names) != 0){
      contr <- TRUE
   }
