@@ -157,7 +157,7 @@ Quality control of the data was performed using *FASTQC*. Details on the quality
 
 ```{r echo=FALSE, results='asis'}
 if(file.exists(paste0(wd,"/QC/fastqc.zip"))){
-  cat("`FASTQC` reports for individual samples are additionally available [here](`r paste0(wd,'/QC/fastqc.zip')`).")
+  cat("`FASTQC` reports for individual samples are additionally available [here](`r paste0(wd,"/QC/fastqc.zip")`).")
 }
 ```
 \
