@@ -298,7 +298,7 @@ datatable(df, caption = "Outcome of Differential Expression analysis", extension
 library(DT)
 # condition: if there is a RIN column in QualityAssessment.csv, prints a statement and the table; if there is no RIN column, or no ./QualityAssessment.csv file, print "RIN values are not available for this project."
 contr=FALSE
-if(file.exists(params$path_contrasts)){
+if(!is.null(params$path_contrasts)){
   df_contr <- read.table(params$path_contrasts, header=TRUE, sep="\t")
   names = grep('vs', colnames(df_contr), value=TRUE)
   if (length(names) != 0){

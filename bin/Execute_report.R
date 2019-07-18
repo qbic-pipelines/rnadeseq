@@ -17,6 +17,9 @@ opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 
 wd=getwd()
+if(!is.null(opt$contrasts)){
+  path_contrasts = opt$contrasts
+}
 
 rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, output_dir = wd,
                   params = list(path_proj_summary = opt$proj_summary,
@@ -24,4 +27,4 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_design = opt$model,
                                 path_config = opt$config,
                                 path_wd = wd,
-                                path_contrasts = opt$contrasts))
+                                path_contrasts = path_contrasts))
