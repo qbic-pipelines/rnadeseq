@@ -287,7 +287,7 @@ process Report {
     mkdir QC
     mv multiqc_plots/ multiqc_data/ multiqc_report.html $fastqc QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
-    --versions $softwareversions --model $model --config $config --contrasts $contrastsopt
+    --versions $softwareversions --model $model --config $config $contrastsopt
     mv qc_summary.tsv QC/
     zip -r report.zip RNAseq_report.html DESeq2/ QC/
     """
