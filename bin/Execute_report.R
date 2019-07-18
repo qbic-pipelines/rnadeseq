@@ -19,6 +19,8 @@ opt = parse_args(opt_parser)
 wd=getwd()
 if(!is.null(opt$contrasts)){
   path_contrasts = opt$contrasts
+} else {
+  path_contrasts = ''
 }
 
 rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, output_dir = wd,
