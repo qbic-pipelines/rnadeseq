@@ -154,14 +154,12 @@ library(tidyverse)
 
 ## Bioinformatics Analysis Quality Control Summary
 Quality control of the data was performed using *FASTQC*. Details on the quality control parameters are available in the `MultiQC` report of all samples available [here](`r paste0(wd,"/QC/multiqc_report.html")`).
-
 ```{r echo=FALSE, results='asis'}
 if(file.exists(paste0(wd,"/QC/fastqc.zip"))){
   cat("`FASTQC` reports for individual samples are additionally available [here](./QC/fastqc.zip).
   \")
 }
 ```
-
 ```{r echo=FALSE, results='asis'}
 library(DT)
 df_DE <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"), header=TRUE, sep="\t")
@@ -294,7 +292,7 @@ df = head(df_DE %>% arrange(df_DE[[tail(padj, n=1)]]),20)
 datatable(df, caption = "Outcome of Differential Expression analysis", extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
 ```
 
-```{r setup2, echo=FALSE, message=FALSE}
+```{r setup2, echo=FALSE, message=FALSE, bootstrap.show.message=FALSE}
 library(DT)
 contr=FALSE
 df_contr <- try(read.table(params$path_contrasts, header=TRUE, sep="\t"))
@@ -323,7 +321,6 @@ for (i in 1:length(names)){
   cat(paste("* ", names[i], "\n"))
 }
 ```
-
 ## Plot normalized counts of the genes
 
 Plots of the normalized counts were generated for the all the genes. Count normalization was performed by sequencing depth and adding a pseudocount of 1/2 to allow for log scale plotting. The plots are available at [plot_candidate_genes](./DESeq2/results/plots/plots_requested_genes).
