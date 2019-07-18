@@ -10,7 +10,7 @@ option_list = list(
   make_option(c("-v", "--versions"), type="character", default=NULL, help="versions file", metavar="character"),
   make_option(c("-m", "--model"), type="character", default=NULL, help="linear model file", metavar="character"),
   make_option(c("-c", "--config"), type="character", default=NULL, help="report config file", metavar="character"),
-  make_option(c("-k", "--contrasts"), type="character", default=NULL, help="contrasts file", metavar="character"),
+  make_option(c("-k", "--contrasts"), type="character", default=NULL, help="contrasts file", metavar="character")
 )
 
 opt_parser = OptionParser(option_list=option_list)
