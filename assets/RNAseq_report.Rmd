@@ -157,10 +157,10 @@ Quality control of the data was performed using *FASTQC*. Details on the quality
 
 ```{r echo=FALSE, results='asis'}
 if(file.exists(paste0(wd,"/QC/fastqc.zip"))){
-  cat("`FASTQC` reports for individual samples are additionally available [here](./QC/fastqc.zip).")
+  cat("`FASTQC` reports for individual samples are additionally available [here](./QC/fastqc.zip).
+  \")
 }
 ```
-\
 
 ```{r echo=FALSE, results='asis'}
 library(DT)
@@ -294,7 +294,7 @@ df = head(df_DE %>% arrange(df_DE[[tail(padj, n=1)]]),20)
 datatable(df, caption = "Outcome of Differential Expression analysis", extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
 ```
 
-```{r setup2, echo=FALSE}
+```{r setup2, echo=FALSE, message=FALSE}
 library(DT)
 contr=FALSE
 df_contr <- try(read.table(params$path_contrasts, header=TRUE, sep="\t"))
