@@ -178,36 +178,36 @@ ${summary.collect { k,v -> "            <dt>$k</dt><dd><samp>${v ?: '<span style
 /*
  * Parse software version numbers
  */
-process get_software_versions {
-    publishDir "${params.outdir}/pipeline_info", mode: 'copy',
-    saveAs: {filename ->
-        if (filename.indexOf(".csv") > 0) filename
-        else null
-    }
+// process get_software_versions {
+//     publishDir "${params.outdir}/pipeline_info", mode: 'copy',
+//     saveAs: {filename ->
+//         if (filename.indexOf(".csv") > 0) filename
+//         else null
+//     }
 
-    output:
-    file 'software_versions_mqc.yaml' into software_versions_yaml
-    file "software_versions.tsv"
+//     output:
+//     file 'software_versions_mqc.yaml' into software_versions_yaml
+//     file "software_versions.tsv"
 
-    script:
-    """
-    echo $workflow.manifest.version > v_pipeline.txt
-    echo $workflow.nextflow.version > v_nextflow.txt
-    echo \$(R --version 2>&1) > v_R.txt
-    Rscript -e "library(RColorBrewer); write(x=as.character(packageVersion('RColorBrewer')), file='v_rcolorbrewer.txt')"
-    Rscript -e "library(reshape2); write(x=as.character(packageVersion('reshape2')), file='v_reshape2.txt')"
-    Rscript -e "library(genefilter); write(x=as.character(packageVersion('genefilter')), file='v_genefilter.txt')"
-    #Rscript -e "library(DESeq2); write(x=as.character(packageVersion('DESeq2')), file='v_deseq2.txt')"
-    #Rscript -e "library(ggplot2); write(x=as.character(packageVersion('ggplot2')), file='v_ggplot2.txt')"
-    Rscript -e "library(plyr); write(x=as.character(packageVersion('plyr')), file='v_plyr.txt')"
-    Rscript -e "library(vsn); write(x=as.character(packageVersion('vsn')), file='v_vsn.txt')"
-    Rscript -e "library(gplots); write(x=as.character(packageVersion('gplots')), file='v_gplots.txt')"
-    Rscript -e "library(pheatmap); write(x=as.character(packageVersion('pheatmap')), file='v_pheatmap.txt')" 
-    Rscript -e "library(optparse); write(x=as.character(packageVersion('optparse')), file='v_optparse.txt')"
-    Rscript -e "library(svglite); write(x=as.character(packageVersion('svglite')), file='v_svglite.txt')"
-    scrape_software_versions.py &> software_versions_mqc.yaml
-    """
-}
+//     script:
+//     """
+//     echo $workflow.manifest.version > v_pipeline.txt
+//     echo $workflow.nextflow.version > v_nextflow.txt
+//     echo \$(R --version 2>&1) > v_R.txt
+//     Rscript -e "library(RColorBrewer); write(x=as.character(packageVersion('RColorBrewer')), file='v_rcolorbrewer.txt')"
+//     Rscript -e "library(reshape2); write(x=as.character(packageVersion('reshape2')), file='v_reshape2.txt')"
+//     Rscript -e "library(genefilter); write(x=as.character(packageVersion('genefilter')), file='v_genefilter.txt')"
+//     #Rscript -e "library(DESeq2); write(x=as.character(packageVersion('DESeq2')), file='v_deseq2.txt')"
+//     #Rscript -e "library(ggplot2); write(x=as.character(packageVersion('ggplot2')), file='v_ggplot2.txt')"
+//     Rscript -e "library(plyr); write(x=as.character(packageVersion('plyr')), file='v_plyr.txt')"
+//     Rscript -e "library(vsn); write(x=as.character(packageVersion('vsn')), file='v_vsn.txt')"
+//     Rscript -e "library(gplots); write(x=as.character(packageVersion('gplots')), file='v_gplots.txt')"
+//     Rscript -e "library(pheatmap); write(x=as.character(packageVersion('pheatmap')), file='v_pheatmap.txt')" 
+//     Rscript -e "library(optparse); write(x=as.character(packageVersion('optparse')), file='v_optparse.txt')"
+//     Rscript -e "library(svglite); write(x=as.character(packageVersion('svglite')), file='v_svglite.txt')"
+//     scrape_software_versions.py &> software_versions_mqc.yaml
+//     """
+// }
 
 /*
  * STEP 1 - DE analysis
