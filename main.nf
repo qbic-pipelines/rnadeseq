@@ -32,6 +32,7 @@ def helpMessage() {
     Options:
       --logFCthreshold              Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed.
       --genelist                    List of genes (one per line) of which to plot heatmaps for normalized counts across all samples.                
+      --fastqc                      zip file containing the fastqc reports
 
     Other options:
       --outdir                      The output directory where the results will be saved
