@@ -329,7 +329,7 @@ for (i in 1:length(names)){
 
 Plots of the normalized counts were generated for some example genes. Count normalization was performed by sequencing depth and adding a pseudocount of 1/2 to allow for log scale plotting. The plots are available at [boxplots_example_genes](./DESeq2/plots/boxplots_example_genes).
 
-```{r setup2, echo=FALSE, message=FALSE, bootstrap.show.message=FALSE, include=FALSE}
+```{r setup3, echo=FALSE, message=FALSE, bootstrap.show.message=FALSE, include=FALSE}
 library(DT)
 gene=FALSE
 df_gene <- try(read.table(params$path_genelist))
