@@ -280,6 +280,7 @@ process Report {
     file "*.zip"
 
     script:
+    def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def fastqcopt = fastqc.name != 'NO_FILE' ? "$fastqc" : ''
     def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
     """
@@ -288,7 +289,7 @@ process Report {
     mkdir QC
     mv multiqc_plots/ multiqc_data/ multiqc_report.html $fastqcopt QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
-    --versions $softwareversions --model $model --config $config $contrastsopt
+    --versions $softwareversions --model $model --config $config $contrastsopt $genelistopt
     mv qc_summary.tsv QC/
     zip -r report.zip RNAseq_report.html DESeq2/ QC/
     """
