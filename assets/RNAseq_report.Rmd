@@ -100,7 +100,7 @@ Auf der Morgenstelle 10, 72076 Tuebingen
 ```{r setup, echo=FALSE}
 library(DT)
 # condition: if there is a RIN column in Sample_preparations.tsv, prints a statement and the table with the RIN column; if there is no RIN column, or the column has one or more NAs, print only the metadata sheet.
-QAfile = paste0(wd, "/DESeq2/metadata/Sample_preparations.tsv")
+QAfile = paste0(wd, "/DESeq2/metadata/metadata.tsv")
 no_RIN = FALSE
 RIN=FALSE
 if(file.exists(QAfile)){
@@ -171,7 +171,7 @@ columns <- c("Sample", "featureCounts_mqc.generalstats.featurecounts.percent_ass
              "FastQC_mqc.generalstats.fastqc.total_sequences")
 df_DE_selected = df_DE %>% select(one_of(columns))
 n_rows = nrow(df_DE_selected)
-metadata <- df_DE <- read.table((paste0(wd, "/DESeq2/metadata/Sample_preparations.tsv")), header=TRUE, sep="\t")
+metadata <- df_DE <- read.table((paste0(wd, "/DESeq2/metadata/metadata.tsv")), header=TRUE, sep="\t")
 metadata = metadata[,c("QBiC.Code","Secondary.Name")]
 metadata$Sample = metadata$QBiC.Code
 metadata$QBiC.Code = NULL
@@ -257,7 +257,9 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distrib
 
 ## Raw and normalized count tables
 
-The raw count table can be found [here](./DESeq2/raw_counts/raw_counts.txt). The normalized count tables are available [here](./DESeq2/results/count_tables): rlog_transformed.read.counts.tsv and vst_transformed.read.counts.tsv.
+The raw count table and normalized count tables are available [here](./DESeq2/gene_counts_tables). 
+The differential expression analysis is performed using the raw gene count table. 
+For PCA analysis and heatmap plotting, the regularized logarithm (rlog) normalized gene counts were employed.
 
 ## Overview - First Exploration of the Data
 
@@ -265,27 +267,33 @@ The raw count table can be found [here](./DESeq2/raw_counts/raw_counts.txt). The
 A PCA plot of the normalized expression values was created to visualize the overall effect of experimental variations and any batch effects among samples.
 
 ```{r, echo=F, out.width="2000px", dpi=1200, fig.cap="", fig.align='center'}
-knitr::include_graphics(paste0(wd,"/DESeq2/results/plots/PCA_plot.svg"))
+knitr::include_graphics(paste0(wd,"/DESeq2/plots/PCA_plot.svg"))
 ```
 
 ### Sample distance heatmap
 A sample distance heatmap was generated from the distances of the normalized expression values for all samples. The closer the distance is to 0, the overall samples gene expression are more similar to each other.
 
 ```{r, echo=F, out.width="2000px", dpi=1200, fig.cap="", fig.align='center'}
-knitr::include_graphics(paste0(wd,"/DESeq2/results/plots/Heatmaps_of_distances.svg"))
+knitr::include_graphics(paste0(wd,"/DESeq2/plots/Heatmaps_of_distances.svg"))
 ```
 
 # Differential Expression analysis
 
 ## List of differentially expressed genes
 
-Analysis of the differential gene expression was performed using `DESeq2`. Genes were considered differentially expressed genes (DEG) when the adjusted p-value was lower than 0.05 (padj < 0.05). The adjusted p-value is calculated in the `DESeq2` package with the Benjamini-Hochberg method and helps reduce the number of false postives (not real differentially expressed genes). The model design in DESeq2 was:`r cat(paste(readLines(params$path_design), collapse=" "))`.
-The list of the first 20 differentially expressed genes is shown below; The full table, where the differentially expressed genes are marked with DE in the filter1 column, can be found [here](./DESeq2/results/final/final_list_DESeq2.tsv).
+Analysis of the differential gene expression was performed using `DESeq2`. 
+Genes were considered differentially expressed (DE) when the adjusted p-value was lower than 0.05 (padj < 0.05). 
+The adjusted p-value is calculated in the `DESeq2` package with the Benjamini-Hochberg method and 
+helps reduce the number of false postives (not real differentially expressed genes). 
+The model design in DESeq2 was:`r cat(paste(readLines(params$path_design), collapse=" "))`.
+The list of the first 20 differentially expressed genes is shown below. 
+The differentially expressed genes are marked with "DE" in the filter column. 
+The full table, can be found [here](./DESeq2/results/final/final_list_DESeq2.tsv).
 
 ```{r}
 library(DT)
 library(tidyverse)
-df_DE <- read.table(paste0(wd,"/DESeq2/results/final/final_list_DESeq2.tsv"), header=TRUE, sep="\t")
+df_DE <- read.table(paste0(wd,"/DESeq2/final_gene_table/final_gene_list_DESeq2.tsv"), header=TRUE, sep="\t")
 # list all the columns containing "padj"
 padj = names(df_DE)[grepl("padj",names(df_DE))]
 # take the last column in this list, order the dataframe according to ascending padj values in it; subset to the first 20 rows
@@ -314,7 +322,7 @@ if (!inherits(df_contr, 'no lines available in input')){
 
 ```{r contrasts_block, echo=FALSE, results='asis', eval=contr}
 cat("***
-Additional tables for all individual contrasts are provided [here](./DESeq2/results/DE_genes_tables):
+Additional tables for all individual contrasts are provided [here](./DESeq2/DE_genes_tables):
 \
 ")
 
@@ -325,7 +333,7 @@ for (i in 1:length(names)){
 
 ## Plot normalized counts of the genes
 
-Plots of the normalized counts were generated for the all the genes. Count normalization was performed by sequencing depth and adding a pseudocount of 1/2 to allow for log scale plotting. The plots are available at [plot_candidate_genes](./DESeq2/results/plots/plots_requested_genes).
+Plots of the normalized counts were generated for some example genes. Count normalization was performed by sequencing depth and adding a pseudocount of 1/2 to allow for log scale plotting. The plots are available at [boxplots_example_genes](./DESeq2/plots/boxplots_example_genes).
 
 <!-- In case GO analysis was also included -->
 ```{r conditional_GO, echo=FALSE, results='asis', eval=config$GO}
@@ -358,7 +366,7 @@ Analysis of the differential exon usage was performed using DEXSeq. Exons were c
 
 ```{r conditional_DEU_results2, echo=FALSE, results='asis', eval=config$DEU}
 cat("### Fitted Expression Values Visualization
-Plots of the fitted expression values of each exon were generated for a subset of 20 genes among those showing differential exon usage. The plots are available in [this folder](`r paste0(wd,/DESeq2/results/plots/plots_example_genes)`); in each graph both the experimental conditions are indicated, and the exon that showed significant differential usage is shown in purple.")
+Plots of the fitted expression values of each exon were generated for a subset of 20 genes among those showing differential exon usage. The plots are available in [this folder](`r paste0(wd,/DESeq2/plots/boxplots_example_genes)`); in each graph both the experimental conditions are indicated, and the exon that showed significant differential usage is shown in purple.")
 ```
 
 ```{r conditional_outlook, echo=FALSE, results='asis', eval=!is.null(config$outlook)}

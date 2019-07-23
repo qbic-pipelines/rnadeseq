@@ -164,8 +164,12 @@ for (file in contrast_files){
           # Plotting pathway view only for kegg pathways
           if (pathway$domain == "keg"){
             pathway_kegg <- sapply(pathway$term.id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
-
-            gene.data = DE_genes
+            
+            # KEGG pathway blacklist. This pathway graphs contain errors and pathview crashes if plotting them.
+            if (pathway_kegg %in% c("mmu05206", "mmu04215") ) {
+              print(paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database."))
+            } else {
+              gene.data = DE_genes
             gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
             
             entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype="ENSEMBL", multiVals="first")
@@ -180,6 +184,7 @@ for (file in contrast_files){
                     out.suffix=paste(fname,sep="_"))
             mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
             system(mv_command)
+            }
           }
         }
       }
