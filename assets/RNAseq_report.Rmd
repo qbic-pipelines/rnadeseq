@@ -19,7 +19,7 @@ params:
   path_versions: ""
   path_design: ""
   path_config: ""
-  path_contrast: ""
+  path_contrasts: ""
   path_wd: ""
 ---
 
@@ -153,8 +153,13 @@ library(tidyverse)
 ```
 
 ## Bioinformatics Analysis Quality Control Summary
-Quality control of the data was performed using *FASTQC*. Details on the quality control parameters are available in the `MultiQC` report of all samples available [here](`r paste0(wd,"/QC/multiqc_report.html")`). `FASTQC` reports for individual samples are additionally available [here](`r paste0(wd,"/QC/fastqc.zip")`).
-\
+Quality control of the data was performed using *FASTQC*. Details on the quality control parameters are available in the `MultiQC` report of all samples available [here](`r paste0(wd,"/QC/multiqc_report.html")`).
+
+```{r echo=FALSE, results='asis'}
+if(file.exists(paste0(wd,"/QC/fastqc.zip"))){
+  cat("`FASTQC` reports for individual samples are additionally available [here](./QC/fastqc.zip).")
+}
+```
 
 ```{r echo=FALSE, results='asis'}
 library(DT)
@@ -296,17 +301,23 @@ df = head(df_DE %>% arrange(df_DE[[tail(padj, n=1)]]),20)
 datatable(df, caption = "Outcome of Differential Expression analysis", extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
 ```
 
-```{r setup2, echo=FALSE}
+```{r setup2, echo=FALSE, message=FALSE, bootstrap.show.message=FALSE, include=FALSE}
 library(DT)
-# condition: if there is a RIN column in QualityAssessment.csv, prints a statement and the table; if there is no RIN column, or no ./QualityAssessment.csv file, print "RIN values are not available for this project."
 contr=FALSE
-if(file.exists(params$path_contrast)){
-  df_contr <- read.table(params$path_contrast, header=TRUE, sep="\t")
+df_contr <- try(read.table(params$path_contrasts, header=TRUE, sep="\t"))
+if (!inherits(df_contr, 'no lines available in input')){
   names = grep('vs', colnames(df_contr), value=TRUE)
-  if (length(names) != 0){
-    contr <- TRUE
+    if (length(names) != 0){
+     contr <- TRUE
   }
 }
+#if(!is.null(params$path_contrasts)){
+ # df_contr <- read.table(params$path_contrasts, header=TRUE, sep="\t")
+  #names = grep('vs', colnames(df_contr), value=TRUE)
+  #if (length(names) != 0){
+   # contr <- TRUE
+  #}
+#}
 ```
 
 ```{r contrasts_block, echo=FALSE, results='asis', eval=contr}

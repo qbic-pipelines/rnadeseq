@@ -32,6 +32,7 @@ def helpMessage() {
     Options:
       --logFCthreshold              Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed.
       --genelist                    List of genes (one per line) of which to plot heatmaps for normalized counts across all samples.                
+      --fastqc                      zip file containing the fastqc reports
 
     Other options:
       --outdir                      The output directory where the results will be saved
@@ -279,13 +280,15 @@ process Report {
     file "*.zip"
 
     script:
+    def fastqcopt = fastqc.name != 'NO_FILE' ? "$fastqc" : ''
+    def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
     """
     unzip $deseq2
     unzip $multiqc
     mkdir QC
-    mv multiqc_plots/ multiqc_data/ multiqc_report.html $fastqc QC/
+    mv multiqc_plots/ multiqc_data/ multiqc_report.html $fastqcopt QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
-    --versions $softwareversions --model $model --config $config --contrast $contrasts
+    --versions $softwareversions --model $model --config $config $contrastsopt
     mv qc_summary.tsv QC/
     zip -r report.zip RNAseq_report.html DESeq2/ QC/
     """
