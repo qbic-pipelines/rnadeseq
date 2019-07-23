@@ -21,6 +21,7 @@ params:
   path_config: ""
   path_contrasts: ""
   path_wd: ""
+  path_genelist: ""
 ---
 
 
@@ -311,13 +312,6 @@ if (!inherits(df_contr, 'no lines available in input')){
      contr <- TRUE
   }
 }
-#if(!is.null(params$path_contrasts)){
- # df_contr <- read.table(params$path_contrasts, header=TRUE, sep="\t")
-  #names = grep('vs', colnames(df_contr), value=TRUE)
-  #if (length(names) != 0){
-   # contr <- TRUE
-  #}
-#}
 ```
 
 ```{r contrasts_block, echo=FALSE, results='asis', eval=contr}
@@ -334,6 +328,23 @@ for (i in 1:length(names)){
 ## Plot normalized counts of the genes
 
 Plots of the normalized counts were generated for some example genes. Count normalization was performed by sequencing depth and adding a pseudocount of 1/2 to allow for log scale plotting. The plots are available at [boxplots_example_genes](./DESeq2/plots/boxplots_example_genes).
+
+```{r setup2, echo=FALSE, message=FALSE, bootstrap.show.message=FALSE, include=FALSE}
+library(DT)
+gene=FALSE
+df_gene <- try(read.table(params$path_genelist))
+if (!inherits(df_gene, 'no lines available in input')){
+  names = rownames(df_gene)
+  gene = TRUE
+}
+```
+
+```{r contrasts_block, echo=FALSE, results='asis', eval=gene}
+cat("***
+Plots for the [genes of interest](./DESeq2/metadata/gene_list.txt) can be found [here](./DESeq2/plots/boxplots_requested_genes/).
+\
+")
+```
 
 <!-- In case GO analysis was also included -->
 ```{r conditional_GO, echo=FALSE, results='asis', eval=config$GO}
