@@ -1,0 +1,9 @@
+GO: FALSE
+
+KEGG: FALSE
+
+DEU: FALSE
+
+DEXSeq_design: ∼ sample + exon + condition:exon
+
+outlook: Outlook.
