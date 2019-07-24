@@ -332,7 +332,7 @@ Plots of the normalized counts were generated for some example genes. Count norm
 library(DT)
 gene=FALSE
 df_gene <- try(read.table(params$path_genelist))
-if (!inherits(df_gene, 'no lines available in input')){
+if (!inherits(df_gene, 'try-error')){
   names = rownames(df_gene)
   gene = TRUE
 }
