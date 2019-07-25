@@ -104,9 +104,10 @@ Channel.fromPath("${params.config}")
             .set { ch_config_file }
 Channel.fromPath("${params.multiqc}")
             .ifEmpty{exit 1, "Please provide multiqc.zip folder!"}
-            .set { ch_multiqc_file }            
+            .set { ch_multiqc_file }
+Channel.fromPath("${params.genelist}")
+            .into { ch_genes_for_deseq2_file; ch_genes_for_report_file }          
 
-ch_genes_file = file(params.genelist)
 ch_fastqc_file = file(params.fastqc)
 
 /*
@@ -221,7 +222,7 @@ process DESeq2 {
     file(metadata) from ch_metadata_file_for_deseq2
     file(model) from ch_model_for_deseq2_file
     file(contrasts) from ch_contrasts_for_deseq2_file
-    file(genelist) from ch_genes_file
+    file(genelist) from ch_genes_for_deseq2_file
 
     output:
     file "*.zip" into ch_deseq2_for_report, ch_deseq2_for_pathway
@@ -275,11 +276,13 @@ process Report {
     file(fastqc) from ch_fastqc_file
     file(deseq2) from ch_deseq2_for_report
     file(multiqc) from ch_multiqc_file
+    file(genelist) from ch_genes_for_report_file
 
     output:
     file "*.zip"
 
     script:
+    def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def fastqcopt = fastqc.name != 'NO_FILE' ? "$fastqc" : ''
     def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
     """
@@ -288,7 +291,7 @@ process Report {
     mkdir QC
     mv multiqc_plots/ multiqc_data/ multiqc_report.html $fastqcopt QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
-    --versions $softwareversions --model $model --config $config $contrastsopt
+    --versions $softwareversions --model $model --config $config $contrastsopt $genelistopt
     mv qc_summary.tsv QC/
     zip -r report.zip RNAseq_report.html DESeq2/ QC/
     """
