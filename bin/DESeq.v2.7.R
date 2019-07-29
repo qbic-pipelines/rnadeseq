@@ -21,7 +21,8 @@ library("extrafont")
 #clean up graphs
 graphics.off()
 
-theme_set(theme_classic())
+theme_set(theme_bw(base_family = "ArialMT") + 
+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
 extrafont::font_import()
 extrafont::loadfonts()
 
