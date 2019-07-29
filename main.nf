@@ -289,8 +289,7 @@ process Report {
     """
     unzip $deseq2
     unzip $multiqc
-    mkdir gProfileR
-    unzip $gprofiler -d gProfileR/
+    unzip $gprofiler
     mkdir QC
     mv multiqc_plots/ multiqc_data/ multiqc_report.html $fastqcopt QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
