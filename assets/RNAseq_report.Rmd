@@ -367,8 +367,7 @@ for (i in 1:length(contrnames)){
   enriched_list = paste0(dirname, '_pathway_enrichment_results.tsv')
   enriched_plot = paste0(dirname,'_keg_pathway_enrichment_plot.png')
   path = paste0('/', dirname, '/', enriched_plot)
-  cat(paste0('### ',contrnames[i],' {-}
-  \'))
+  cat(paste0('### ',contrnames[i],' {-}\'))
   knitr::include_graphics(paste0(wd,path))
 }
 ```
