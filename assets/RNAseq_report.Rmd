@@ -364,7 +364,7 @@ Shown below you find the KEGG pathways enrichment plot for every contrast:
 \")
 
 for (i in 1:length(contrnames)){
-  dirname = paste0("DE_contrast_", contrnames[i])
+  dirname = paste0('DE_contrast_', contrnames[i])
   enriched_list = paste0(dirname, "_pathway_enrichment_results.tsv")
   enriched_plot = paste0(dirname,"_keg_pathway_enrichment_plot.png")
   path = paste0("/", dirname, "/", enriched_plot)
