@@ -295,7 +295,7 @@ process Report {
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
     --versions $softwareversions --model $model --config $config $contrastsopt $genelistopt
     mv qc_summary.tsv QC/
-    cp -r "./gProfileR/" report/
+    cp -r "../gProfileR/" report/
     zip -r report.zip RNAseq_report.html DESeq2/ QC/
     """
 }
