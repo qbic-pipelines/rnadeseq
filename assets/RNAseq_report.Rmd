@@ -360,14 +360,18 @@ knitr::include_graphics("./GO/GO_terms_enriched.png")
 ```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=config$KEGG}
 cat("## KEGG pathway analysis
 Enriched KEGG pathways were found using a pathway analysis with `gProfileR`. The results are stored in [this folder](./gProfileR/), divided in subfolders, one for each contrast. Each subfolders contains a list of the enriched pathways, stored in the file ending with `results.tsv`, and also the plots of the KEGG pathway maps of the enriched pathways, that can be found in the subfolder named `KEGG_pathways`; in these maps, red corresponds to upregulated and green to downregulated parts of the pathways. There hardly is a difference in colour intensity between ~ 0.5 and 2.5 fold change.
-Shown below you find the KEGG pathways enrichment plot for every contrast:\")
+Shown below you find the KEGG pathways enrichment plot for every contrast:
+\
+")
 
 for (i in 1:length(contrnames)){
   dirname = paste0('DE_contrast_', contrnames[i])
   enriched_list = paste0(dirname, '_pathway_enrichment_results.tsv')
   enriched_plot = paste0(dirname,'_keg_pathway_enrichment_plot.png')
   path = paste0('/', dirname, '/', enriched_plot)
-  cat(paste0('### ',contrnames[i],' {-}\'))
+  cat(paste0('### ',contrnames[i],' {-}
+  \
+  '))
   knitr::include_graphics(paste0(wd,path))
 }
 ```
