@@ -290,12 +290,12 @@ process Report {
     unzip $deseq2
     unzip $multiqc
     unzip $gprofiler
+    cp -r ./gProfiler/ report/
     mkdir QC
     mv multiqc_plots/ multiqc_data/ multiqc_report.html $fastqcopt QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
     --versions $softwareversions --model $model --config $config $contrastsopt $genelistopt
     mv qc_summary.tsv QC/
-    cp -r "../gProfileR/" report/
     zip -r report.zip RNAseq_report.html DESeq2/ QC/
     """
 }
