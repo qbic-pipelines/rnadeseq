@@ -128,7 +128,7 @@ The sample information, including quality assessment of the RNA samples, is summ
 \
 ")
 
-datatable(df_QA, caption = "Quality Assessment", colnames = sub(".", " ", names(df_QA)), extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
+datatable(df_QA, caption = "Quality Assessment", colnames = sub(".", " ", colnames(df_QA)), extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
 ```
 
 ```{r noRIN_block, echo=FALSE, results='asis', eval=no_RIN}
@@ -142,7 +142,7 @@ if ("RIN" %in% colnames(df_QA)){
   df_QA$RIN <- NULL
 }
 
-datatable(df_QA, caption = "Sample metadata", colnames = sub(".", " ", names(df_QA)), extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
+datatable(df_QA, caption = "Sample metadata", colnames = sub(".", " ", colnames(df_QA)), extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
 ```
 
 ***
