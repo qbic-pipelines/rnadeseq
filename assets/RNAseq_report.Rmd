@@ -22,12 +22,9 @@ params:
   path_contrasts: ""
   path_wd: ""
   path_genelist: ""
+# Author: Simon Heumos
+# Contributor: Silvia Morini, Gisela Gabernet
 ---
-<!--
-Author: Simon Heumos
-Contributor: Silvia Morini, Gisela Gabernet
--->
-
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
 df <- read.csv(file = params$path_proj_summary, sep="\t", header = TRUE)
