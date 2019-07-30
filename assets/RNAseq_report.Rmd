@@ -190,24 +190,13 @@ cat("The table downloadable under [this link](./QC/qc_summary.tsv) (extracted fr
 
 The alignment scores for each sample are shown below.
 
-### Generalities about mapping rate {.tabset}
-
-The mapping rate of data originating from the sequencing machine depends on several factors:
-
-* The error rate of an Illumina sequencing machine is ~0.1%.
-* The error rate for sequencing of GC rich regions is higher.
-* Sequencing devices are not able to sequence highly repeated regions.
-* Low quality of sequencing data results in a low mapping rate.
-* There is no perfect algorithm to align the reads to a reference genome.
-* There is no perfect transcript annotation of the reference genome.
-
-#### Percercentages {-}
+### Percercentages {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1800, fig.cap="STAR: Alignment Scores", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg"))
 ```
 
-#### Number of reads {-}
+### Number of reads {-}
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="STAR: Alignment Scores", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1.svg"))
 ```
