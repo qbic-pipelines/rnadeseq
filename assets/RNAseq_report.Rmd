@@ -362,20 +362,13 @@ knitr::include_graphics("./GO/GO_terms_enriched.png")
 ```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=config$KEGG}
 cat("## KEGG pathway analysis
 Enriched KEGG pathways were found using a pathway analysis with `gProfileR`. The results are stored in [this folder](./gProfileR/), divided in subfolders, one for each contrast. Each subfolders contains a list of the enriched pathways, stored in the file ending with `results.tsv`, and also the plots of the KEGG pathway maps of the enriched pathways, that can be found in the subfolder named `KEGG_pathways`; in these maps, red corresponds to upregulated and green to downregulated parts of the pathways. There hardly is a difference in colour intensity between ~ 0.5 and 2.5 fold change.
-Shown below you find the KEGG pathways enrichment plot for every contrast:
+Shown below you find the KEGG pathways enrichment plot for the example contrast ´r cat(contrnames[1]`):
 \
 ")
-(function(hrefCode){setTimeout(function(){
- var tabContent = document.createElement('div');
- var tabContainerTarget = document.getElementsByClassName('tab-content')[0];
+knitr::include_graphics(paste0(wd,"/gProfileR/", 'DE_contrast_', contrnames[i], "/", 'DE_contrast_', contrnames[i], '_keg_pathway_enrichment_plot.png'))
 
-   tabContent.setAttribute('id', 'tab-' + hrefCode);
-   tabContent.setAttribute('class', 'tab-pane')
-   tabContent.innerHTML = '", gsub('\n', '', Panel, fixed = TRUE), "';
 
-   tabContainerTarget.appendChild(tabContent);
-   }, 100);
-})(hrefCode);
+# here a possible improvement for showing tabs: https://stackoverflow.com/questions/42631642/creating-dynamic-tabs-in-rmarkdown
 
 #for (i in 1:length(contrnames)){
 #  dirname = paste0('DE_contrast_', contrnames[i])
