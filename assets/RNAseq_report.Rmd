@@ -178,7 +178,7 @@ metadata = metadata[,c("QBiC.Code","Secondary.Name")]
 metadata$Sample = metadata$QBiC.Code
 metadata$QBiC.Code = NULL
 table_complete = merge(metadata,df_DE_selected,by="Sample")
-write.table(table_complete,"./qc_summary.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = c("Sample Name", "Secondary Name", "% Assigned", "% Aligned", "% Trimmed", "% Dups", "% GC", "Seqs"), qmethod = c("escape", "double"))
+write.table(table_complete,"./qc_summary.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, check.names = F, col.names = c("Sample Name", "Secondary Name", "% Assigned", "% Aligned", "% Trimmed", "% Dups", "% GC", "Seqs"), qmethod = c("escape", "double"))
 if (nrow(table_complete) < 20){
 cat("The table below (extracted from the `MultiQC` report) shows a summary of the bioinformatics analysis quality control including the percentage of assigned reads (% Assigned), the percentage of aligned reads (% Aligned), trimmed reads (% Trimmed), and duplicate reads (% Dups). The mean GC content (%GC) for each of the sequences and total number of reads (Seqs) is additionally indicated.")
 datatable(table_complete, caption = "Quality control summary", colnames= c("Sample Name", "Secondary Name", "% Assigned", "% Aligned", "% Trimmed", "% Dups", "% GC", "Seqs"), extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print'), pageLength = 10))} else {
@@ -190,7 +190,7 @@ cat("The table downloadable under [this link](./QC/qc_summary.tsv) (extracted fr
 
 The alignment scores for each sample are shown below.
 
-### Percercentages {-}
+### Percentages {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1800, fig.cap="STAR: Alignment Scores", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg"))
@@ -210,7 +210,7 @@ The gene assignments of featureCounts are shown below. Interpretation of the dif
 **Unassigned_MultiMapping:** The reads could not be assigned because they map to several distinct locations on the reference genome. \
 **Unassigned_NoFeatures:** The reads could not be assigned because their mapping position in the reference genome is not annotated with any gene.
 
-### Percercentages {-}
+### Percentages {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1_pc.svg"))
@@ -228,7 +228,7 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assi
 ## Read Distribution {.tabset}
 The read distribution of mapped reads over different genome feature (like CDS exon, 5'UTR exon, 3' UTR exon, Intron, Intergenic regions) is shown below. The majority of the reads is assigned to CDS exons.
 
-### Percercentages {-}
+### Percentages {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="RSeQC: Read Distribution", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1_pc.svg"))
@@ -350,15 +350,15 @@ knitr::include_graphics("./GO/GO_terms_enriched.png")
 ```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=config$KEGG}
 cont = contrnames[1]
 cat(paste0("## KEGG pathway analysis
-Enriched KEGG pathways were found using a pathway analysis with `gProfileR`. The results are stored in [this folder](./gProfileR/), divided in subfolders, one for each contrast. Each subfolders contains a list of the enriched pathways, stored in the file ending with `results.tsv`, and also the plots of the KEGG pathway maps of the enriched pathways, that can be found in the subfolder named `KEGG_pathways`; in these maps, red corresponds to upregulated and green to downregulated parts of the pathways. There hardly is a difference in colour intensity between ~ 0.5 and 2.5 fold change.
+Enriched KEGG pathways were found using a pathway analysis with `gProfileR`. The results are stored in [this folder](./gProfileR/), divided in subfolders, one for each contrast. Each subfolder contains a list of the enriched pathways, stored in the file ending with `results.tsv`, and also the plots of the KEGG pathway maps of the enriched pathways, that can be found in the subfolder named `KEGG_pathways`; in these maps, red corresponds to upregulated and green to downregulated parts of the pathways.
 Shown below you find the KEGG pathways enrichment plot for the example contrast ",contrnames[1],":",
 "\"
-)
+))
 ```
 ```{r, out.width = "600px"}
 knitr::include_graphics(paste0(wd,"/gProfileR/", 'DE_contrast_', contrnames[i], "/", 'DE_contrast_', contrnames[i], '_keg_pathway_enrichment_plot.png'))
 ```
-```
+```{r improvement, echo=FALSE, results='asis'}
 # here a possible improvement for showing tabs: https://stackoverflow.com/questions/42631642/creating-dynamic-tabs-in-rmarkdown
 
 #for (i in 1:length(contrnames)){
