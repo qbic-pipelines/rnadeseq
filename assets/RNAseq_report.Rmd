@@ -365,8 +365,10 @@ Enriched KEGG pathways were found using a pathway analysis with `gProfileR`. The
 Shown below you find the KEGG pathways enrichment plot for the example contrast `r cat(contrnames[1]`):
 \
 ")
+```
+```{r, out.width = "400px"}
 knitr::include_graphics(paste0(wd,"/gProfileR/", 'DE_contrast_', contrnames[i], "/", 'DE_contrast_', contrnames[i], '_keg_pathway_enrichment_plot.png'))
-
+```
 
 # here a possible improvement for showing tabs: https://stackoverflow.com/questions/42631642/creating-dynamic-tabs-in-rmarkdown
 
