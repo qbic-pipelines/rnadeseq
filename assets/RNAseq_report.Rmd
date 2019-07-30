@@ -164,7 +164,7 @@ if(file.exists(paste0(wd,"/QC/fastqc.zip"))){
 ```
 
 ```{r echo=FALSE, results='asis'}
-library(DT) 
+library(DT)
 df_DE <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"), header=TRUE, sep="\t", check.names = F)
 is.num <- sapply(df_DE, is.numeric)
 df_DE[is.num] <- lapply(df_DE[is.num], round, 2)
@@ -178,7 +178,7 @@ metadata = metadata[,c("QBiC.Code","Secondary.Name")]
 metadata$Sample = metadata$QBiC.Code
 metadata$QBiC.Code = NULL
 table_complete = merge(metadata,df_DE_selected,by="Sample")
-write.table(table_complete,"./qc_summary.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = c("Sample Name", "Secondary Name", "% Assigned", "% Aligned", "% Trimmed", "% Dups", "% GC", "Seqs"), qmethod = c("escape", "double"))
+write.table(table_complete,"./qc_summary.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = c("Sample Name", "Secondary Name", "% Assigned", "% Aligned", "% Trimmed", "% Dups", "% GC", "Seqs"), qmethod = c("escape", "double"))
 if (nrow(table_complete) < 20){
 cat("The table below (extracted from the `MultiQC` report) shows a summary of the bioinformatics analysis quality control including the percentage of assigned reads (% Assigned), the percentage of aligned reads (% Aligned), trimmed reads (% Trimmed), and duplicate reads (% Dups). The mean GC content (%GC) for each of the sequences and total number of reads (Seqs) is additionally indicated.")
 datatable(table_complete, caption = "Quality control summary", colnames= c("Sample Name", "Secondary Name", "% Assigned", "% Aligned", "% Trimmed", "% Dups", "% GC", "Seqs"), extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print'), pageLength = 10))} else {
