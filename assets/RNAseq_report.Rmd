@@ -365,18 +365,29 @@ Enriched KEGG pathways were found using a pathway analysis with `gProfileR`. The
 Shown below you find the KEGG pathways enrichment plot for every contrast:
 \
 ")
+(function(hrefCode){setTimeout(function(){
+ var tabContent = document.createElement('div');
+ var tabContainerTarget = document.getElementsByClassName('tab-content')[0];
 
-for (i in 1:length(contrnames)){
-  dirname = paste0('DE_contrast_', contrnames[i])
-  enriched_list = paste0(dirname, '_pathway_enrichment_results.tsv')
-  enriched_plot = paste0(dirname,'_keg_pathway_enrichment_plot.png')
-  path = paste0('/gProfileR/', dirname, '/', enriched_plot)
-  cat(paste0('### ',contrnames[i],' {-}
-  \
-  '))
-  knitr::include_graphics(paste0(wd,path))
-  cat("![](",(paste0(wd,path)),")")
-}
+   tabContent.setAttribute('id', 'tab-' + hrefCode);
+   tabContent.setAttribute('class', 'tab-pane')
+   tabContent.innerHTML = '", gsub('\n', '', Panel, fixed = TRUE), "';
+
+   tabContainerTarget.appendChild(tabContent);
+   }, 100);
+})(hrefCode);
+
+#for (i in 1:length(contrnames)){
+#  dirname = paste0('DE_contrast_', contrnames[i])
+#  enriched_list = paste0(dirname, '_pathway_enrichment_results.tsv')
+#  enriched_plot = paste0(dirname,'_keg_pathway_enrichment_plot.png')
+#  path = paste0('/gProfileR/', dirname, '/', enriched_plot)
+#  cat(paste0('### ',contrnames[i],' {-}
+#  \
+#  '))
+#  knitr::include_graphics(paste0(wd,path))
+#  cat("![](",(paste0(wd,path)),")")
+#}
 ```
 
 <!-- If a DEU analysis has also been performed -->
