@@ -106,7 +106,7 @@ QAfile = paste0(wd, "/DESeq2/metadata/metadata.tsv")
 no_RIN = FALSE
 RIN=FALSE
 if(file.exists(QAfile)){
-  df_QA <- read.table(QAfile, header=TRUE, sep="\t", check.names = FALSE)
+  #df_QA <- read.table(QAfile, header=TRUE, sep="\t", check.names = FALSE)
   if ("RIN" %in% colnames(df_QA)){
     if (any(is.na(df_QA$RIN))){
       no_RIN <- TRUE
