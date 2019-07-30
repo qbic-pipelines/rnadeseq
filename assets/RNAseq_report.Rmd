@@ -366,7 +366,7 @@ Shown below you find the KEGG pathways enrichment plot for the example contrast 
 \
 ")
 ```
-```{r, out.width = "500px"}
+```{r, out.width = "600px"}
 knitr::include_graphics(paste0(wd,"/gProfileR/", 'DE_contrast_', contrnames[i], "/", 'DE_contrast_', contrnames[i], '_keg_pathway_enrichment_plot.png'))
 ```
 ```
