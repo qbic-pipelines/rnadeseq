@@ -351,7 +351,7 @@ knitr::include_graphics("./GO/GO_terms_enriched.png")
 cont = contrnames[1]
 cat(paste0("## KEGG pathway analysis
 Enriched KEGG pathways were found using a pathway analysis with `gProfileR`. The results are stored in [this folder](./gProfileR/), divided in subfolders, one for each contrast. Each subfolder contains a list of the enriched pathways, stored in the file ending with `results.tsv`, and also the plots of the KEGG pathway maps of the enriched pathways, that can be found in the subfolder named `KEGG_pathways`; in these maps, red corresponds to upregulated and green to downregulated parts of the pathways.
-Shown below you find the KEGG pathways enrichment plot for the example contrast ",contrnames[1],":","
+Shown below you find the KEGG pathways enrichment plot for the example contrast ", `contrnames[1]`,":","
 \
 ")) 
 ```
