@@ -142,7 +142,7 @@ if ("RIN" %in% colnames(df_QA)){
   df_QA$RIN <- NULL
 }
 
-datatable(df_QA, caption = "Sample metadata", extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
+datatable(df_QA, caption = "Sample metadata",check.names = F, extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
 ```
 
 ***
