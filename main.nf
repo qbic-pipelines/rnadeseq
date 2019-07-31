@@ -249,7 +249,7 @@ process Pathway_analysis {
     file(model) from ch_model_file_for_pathway
 
     output:
-    file "*.zip"
+    file "*.zip" into ch_gprofiler_for_report
 
     script:
     """
@@ -277,6 +277,7 @@ process Report {
     file(deseq2) from ch_deseq2_for_report
     file(multiqc) from ch_multiqc_file
     file(genelist) from ch_genes_for_report_file
+    file(gprofiler) from ch_gprofiler_for_report
 
     output:
     file "*.zip"
@@ -288,12 +289,13 @@ process Report {
     """
     unzip $deseq2
     unzip $multiqc
+    unzip $gprofiler
     mkdir QC
     mv multiqc_plots/ multiqc_data/ multiqc_report.html $fastqcopt QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
     --versions $softwareversions --model $model --config $config $contrastsopt $genelistopt
     mv qc_summary.tsv QC/
-    zip -r report.zip RNAseq_report.html DESeq2/ QC/
+    zip -r report.zip RNAseq_report.html DESeq2/ QC/ gProfileR/
     """
 }
 

@@ -22,8 +22,9 @@ params:
   path_contrasts: ""
   path_wd: ""
   path_genelist: ""
+# Author: Simon Heumos
+# Contributor: Silvia Morini, Gisela Gabernet
 ---
-
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
 df <- read.csv(file = params$path_proj_summary, sep="\t", header = TRUE)
@@ -105,7 +106,7 @@ QAfile = paste0(wd, "/DESeq2/metadata/metadata.tsv")
 no_RIN = FALSE
 RIN=FALSE
 if(file.exists(QAfile)){
-  df_QA <- read.table(QAfile, header=TRUE, sep="\t")
+  df_QA <- read.table(QAfile, header=TRUE, sep="\t", check.names = FALSE)
   if ("RIN" %in% colnames(df_QA)){
     if (any(is.na(df_QA$RIN))){
       no_RIN <- TRUE
@@ -126,7 +127,6 @@ cat("***
 The sample information, including quality assessment of the RNA samples, is summed up in the table below and can be found [here](./DESeq2/metadata/Sample_preparations.tsv). The RNA Integrity Number (RIN) value has a maximum value of 10.
 \
 ")
-
 datatable(df_QA, caption = "Quality Assessment", extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
 ```
 
@@ -177,7 +177,7 @@ metadata = metadata[,c("QBiC.Code","Secondary.Name")]
 metadata$Sample = metadata$QBiC.Code
 metadata$QBiC.Code = NULL
 table_complete = merge(metadata,df_DE_selected,by="Sample")
-write.table(table_complete,"./qc_summary.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = c("Sample Name", "Secondary Name", "% Assigned", "% Aligned", "% Trimmed", "% Dups", "% GC", "Seqs"), qmethod = c("escape", "double"))
+write.table(table_complete,"./qc_summary.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = c("Sample Name", "Secondary Name", "% Assigned", "% Aligned", "% Trimmed", "% Dups", "% GC", "Seqs"), qmethod = c("escape", "double"))
 if (nrow(table_complete) < 20){
 cat("The table below (extracted from the `MultiQC` report) shows a summary of the bioinformatics analysis quality control including the percentage of assigned reads (% Assigned), the percentage of aligned reads (% Aligned), trimmed reads (% Trimmed), and duplicate reads (% Dups). The mean GC content (%GC) for each of the sequences and total number of reads (Seqs) is additionally indicated.")
 datatable(table_complete, caption = "Quality control summary", colnames= c("Sample Name", "Secondary Name", "% Assigned", "% Aligned", "% Trimmed", "% Dups", "% GC", "Seqs"), extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print'), pageLength = 10))} else {
@@ -189,24 +189,13 @@ cat("The table downloadable under [this link](./QC/qc_summary.tsv) (extracted fr
 
 The alignment scores for each sample are shown below.
 
-### Generalities about mapping rate {.tabset}
-
-The mapping rate of data originating from the sequencing machine depends on several factors:
-
-* The error rate of an Illumina sequencing machine is ~0.1%.
-* The error rate for sequencing of GC rich regions is higher.
-* Sequencing devices are not able to sequence highly repeated regions.
-* Low quality of sequencing data results in a low mapping rate.
-* There is no perfect algorithm to align the reads to a reference genome.
-* There is no perfect transcript annotation of the reference genome.
-
-#### Percercentages {-}
+### Percentages {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1800, fig.cap="STAR: Alignment Scores", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg"))
 ```
 
-#### Number of reads {-}
+### Number of reads {-}
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="STAR: Alignment Scores", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1.svg"))
 ```
@@ -220,7 +209,7 @@ The gene assignments of featureCounts are shown below. Interpretation of the dif
 **Unassigned_MultiMapping:** The reads could not be assigned because they map to several distinct locations on the reference genome. \
 **Unassigned_NoFeatures:** The reads could not be assigned because their mapping position in the reference genome is not annotated with any gene.
 
-### Percercentages {-}
+### Percentages {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1_pc.svg"))
@@ -238,7 +227,7 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assi
 ## Read Distribution {.tabset}
 The read distribution of mapped reads over different genome feature (like CDS exon, 5'UTR exon, 3' UTR exon, Intron, Intergenic regions) is shown below. The majority of the reads is assigned to CDS exons.
 
-### Percercentages {-}
+### Percentages {-}
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="RSeQC: Read Distribution", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1_pc.svg"))
@@ -307,7 +296,7 @@ library(DT)
 contr=FALSE
 df_contr <- try(read.table(params$path_contrasts, header=TRUE, sep="\t"))
 if (!inherits(df_contr, 'try-error')){
-  names = grep('vs', colnames(df_contr), value=TRUE)
+  contrnames = grep('vs', colnames(df_contr), value=TRUE)
   contr <- TRUE
   }
 ```
@@ -318,8 +307,8 @@ Additional tables for all individual contrasts are provided [here](./DESeq2/DE_g
 \
 ")
 
-for (i in 1:length(names)){
-  cat(paste("* ", names[i], "\n"))
+for (i in 1:length(contrnames)){
+  cat(paste("* ", contrnames[i], "\n"))
 }
 ```
 
@@ -356,11 +345,31 @@ knitr::include_graphics("./GO/GO_terms_enriched.png")
 ```
 </center>
 
-<!-- In case KEGG analysis was also included -->
-```{r conditional_KEGG, echo=FALSE, results='asis', eval=config$KEGG}
-cat("## KEGG pathway analysis
-Enriched KEGG pathways of interest were found using a pathway analysis with `clusterProfiler`.
-A list of the pathways enriched, can be found [here](./input/KEGG/): kegg_enriched_pathways.tsv. The plots of the KEGG pathways that were enriched can be found in the respective folders [here](./input/KEGG/pathway_plots). In the maps, red corresponds to upregulated and green to downregulated parts of the pathways. There hardly is a difference in colour intensity between ~ 0.5 and 2.5 fold change.")
+<!-- In case KEGG analysis was also included; differentiating the cases with and without contrasts -->
+```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=config$KEGG}
+cat(paste0("## KEGG pathway analysis
+Enriched KEGG pathways were found using a pathway analysis with `gProfileR`. The results are stored in [this folder](./gProfileR/), divided in subfolders, one for each contrast. Each subfolder contains a list of the enriched pathways, stored in the file ending with `results.tsv`, and also the plots of the KEGG pathway maps of the enriched pathways, that can be found in the subfolder named `KEGG_pathways`; in these maps, red corresponds to upregulated and green to downregulated parts of the pathways.
+Shown below you find the KEGG pathways enrichment plot for the example contrast ", contrnames[1],":","
+\
+")) 
+```
+```{r, out.width = "600px"}
+knitr::include_graphics(paste0(wd,"/gProfileR/", 'DE_contrast_', contrnames[i], "/", 'DE_contrast_', contrnames[i], '_keg_pathway_enrichment_plot.png'))
+```
+```{r improvement, echo=FALSE, results='asis'}
+# here a possible improvement for showing tabs: https://stackoverflow.com/questions/42631642/creating-dynamic-tabs-in-rmarkdown
+
+#for (i in 1:length(contrnames)){
+#  dirname = paste0('DE_contrast_', contrnames[i])
+#  enriched_list = paste0(dirname, '_pathway_enrichment_results.tsv')
+#  enriched_plot = paste0(dirname,'_keg_pathway_enrichment_plot.png')
+#  path = paste0('/gProfileR/', dirname, '/', enriched_plot)
+#  cat(paste0('### ',contrnames[i],' {-}
+#  \
+#  '))
+#  knitr::include_graphics(paste0(wd,path))
+#  cat("![](",(paste0(wd,path)),")")
+#}
 ```
 
 <!-- If a DEU analysis has also been performed -->
