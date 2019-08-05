@@ -170,20 +170,20 @@ for (file in contrast_files){
               print(paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database."))
             } else {
               gene.data = DE_genes
-            gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
-            
-            entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype="ENSEMBL", multiVals="first")
-            
-            gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
-            row.names(gene.data.subset) <- entrez_ids[!is.na(entrez_ids)]
-            
-            gene.data.subset$Ensembl_ID <- NULL
-            pathview(gene.data  = gene.data.subset,
-                    pathway.id = pathway_kegg,
-                    species    = short_organism_name,
-                    out.suffix=paste(fname,sep="_"))
-            mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
-            system(mv_command)
+              gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
+              
+              entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype="ENSEMBL", multiVals="first")
+              
+              gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
+              row.names(gene.data.subset) <- entrez_ids[!is.na(entrez_ids)]
+              
+              gene.data.subset$Ensembl_ID <- NULL
+              pathview(gene.data  = gene.data.subset,
+                      pathway.id = pathway_kegg,
+                      species    = short_organism_name,
+                      out.suffix=paste(fname,sep="_"))
+              mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
+              system(mv_command)
             }
           }
         }
