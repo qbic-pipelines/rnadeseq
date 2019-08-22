@@ -390,6 +390,7 @@ cat("***
 ```
 ```{r conditional_outlook_content, echo=FALSE, results='asis', eval=!is.null(config$outlook)}
 cat(config$outlook)
+cat("The results for all work packages, as described in the quote (give link to quote) can be found in this report. Further support for this project will be restricted to the results presented in this report (e.g. requests to update/manipulate figures and tables). For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.")
 ```
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
