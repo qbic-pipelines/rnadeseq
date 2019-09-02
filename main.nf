@@ -23,6 +23,7 @@ def helpMessage() {
     Mandatory arguments:
       --rawcounts                   Raw count table (TSV). Columns are samples and rows are genes.
       --metadata                    Metadata table (TSV). Rows are samples and columns contain sample grouping.
+      --quote                       Signed copy of the offer.
       --model                       Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file.
       --contrasts                   Table indicating which contrasts to consider. 1 or 0 for every variable specified in the design. Alternatively you can set the parameter defaultcontrasts
       --species                     Species name. Format example: Hsapiens.
@@ -88,6 +89,9 @@ Channel.fromPath("${params.rawcounts}")
 Channel.fromPath("${params.metadata}")
            .ifEmpty{exit 1, "Please provide metadata file!"}
            .into { ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway }
+Channel.fromPath("${params.quote}")
+           .ifEmpty{exit 1, "Please provide a PDF of the signed quote!"}
+           .into { ch_quote_file}
 Channel.fromPath("${params.model}")
             .ifEmpty{exit 1, "Please provide linear model file!"}
             .into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
@@ -278,6 +282,7 @@ process Report {
     file(multiqc) from ch_multiqc_file
     file(genelist) from ch_genes_for_report_file
     file(gprofiler) from ch_gprofiler_for_report
+    file(quote) from ch_quote_file
 
     output:
     file "*.zip"
@@ -293,9 +298,9 @@ process Report {
     mkdir QC
     mv multiqc_plots/ multiqc_data/ multiqc_report.html $fastqcopt QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
-    --versions $softwareversions --model $model --config $config $contrastsopt $genelistopt
+    --versions $softwareversions --model $model --config $config $contrastsopt $genelistopt --quote $quote
     mv qc_summary.tsv QC/
-    zip -r report.zip RNAseq_report.html DESeq2/ QC/ gProfileR/
+    zip -r report.zip RNAseq_report.html DESeq2/ QC/ gProfileR/ $quote
     """
 }
 
