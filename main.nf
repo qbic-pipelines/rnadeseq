@@ -110,8 +110,8 @@ Channel.fromPath("${params.multiqc}")
             .ifEmpty{exit 1, "Please provide multiqc.zip folder!"}
             .set { ch_multiqc_file }
 Channel.fromPath("${params.genelist}")
-            .into { ch_genes_for_deseq2_file; ch_genes_for_report_file }          
-/sfs/7/workspace/ws/qeamo01-QBNAA-0
+            .into { ch_genes_for_deseq2_file; ch_genes_for_report_file }
+
 ch_fastqc_file = file(params.fastqc)
 
 /*
