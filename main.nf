@@ -111,7 +111,7 @@ Channel.fromPath("${params.multiqc}")
             .set { ch_multiqc_file }
 Channel.fromPath("${params.genelist}")
             .into { ch_genes_for_deseq2_file; ch_genes_for_report_file }          
-
+/sfs/7/workspace/ws/qeamo01-QBNAA-0
 ch_fastqc_file = file(params.fastqc)
 
 /*
@@ -154,7 +154,7 @@ if(params.config_profile_description) summary['Config Description'] = params.con
 if(params.config_profile_contact)     summary['Config Contact']     = params.config_profile_contact
 if(params.config_profile_url)         summary['Config URL']         = params.config_profile_url
 if(params.email) {
-  summary['E-mail Address']  = params.email
+  summary['E-mail Address']  = params.email/sfs/7/workspace/ws/qeamo01-QBNAA-0
   summary['MultiQC maxsize'] = params.maxMultiqcEmailFileSize
 }
 log.info summary.collect { k,v -> "${k.padRight(18)}: $v" }.join("\n")
@@ -296,7 +296,7 @@ process Report {
     unzip $multiqc
     unzip $gprofiler
     mkdir QC
-    mv multiqc/multiqc_plots/ multiqc/multiqc_data/ multiqc_report.html $fastqcopt QC/
+    mv multiqc/multiqc_plots/ multiqc/multiqc_data/ multiqc/multiqc_report.html $fastqcopt QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
     --versions $softwareversions --model $model --config $config $contrastsopt $genelistopt --quote $quote
     mv qc_summary.tsv QC/
