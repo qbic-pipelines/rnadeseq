@@ -37,5 +37,5 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_config = opt$config,
                                 path_wd = wd,
                                 path_contrasts = path_contrasts,
-                                path_genelist = path_genelist
+                                path_genelist = path_genelist,
                                 path_quote = opt$quote))
