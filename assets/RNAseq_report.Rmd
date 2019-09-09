@@ -186,7 +186,7 @@ cat("The table downloadable under [this link](./QC/qc_summary.tsv) (extracted fr
 }
 ```
 
-## Mapping Statistics
+## Mapping Statistics {.tabset}
 
 The alignment scores for each sample are shown below.
 
