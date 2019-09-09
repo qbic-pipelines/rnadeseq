@@ -279,7 +279,7 @@ helps reduce the number of false postives (not real differentially expressed gen
 The model design in DESeq2 was:`r cat(paste(readLines(params$path_design), collapse=" "))`.
 The list of the first 20 differentially expressed genes is shown below. 
 The differentially expressed genes are marked with "DE" in the filter column. 
-The full table, can be found [here](./DESeq2/results/final/final_list_DESeq2.tsv).
+The full table can be found [here](./DESeq2/results/final/final_list_DESeq2.tsv).
 
 ```{r}
 library(DT)
