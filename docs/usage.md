@@ -9,20 +9,24 @@
 * [Running the pipeline](#running-the-pipeline)
   * [Updating the pipeline](#updating-the-pipeline)
   * [Reproducibility](#reproducibility)
-* [Main arguments](#main-arguments)
+* [Mandatory arguments](#Mandatory-arguments)
   * [`-profile`](#-profile)
-  * [`--reads`](#--reads)
-  * [`--singleEnd`](#--singleend)
-* [Reference genomes](#reference-genomes)
-  * [`--genome` (using iGenomes)](#--genome-using-igenomes)
-  * [`--fasta`](#--fasta)
-  * [`--igenomesIgnore`](#--igenomesignore)
-* [Job resources](#job-resources)
-  * [Automatic resubmission](#automatic-resubmission)
-  * [Custom resource requests](#custom-resource-requests)
+  * [`--rawcounts`](#--rawcounts)
+  * [`--metadata`](#--metadata)
+  * [`--quote`](#--quote)
+  * [`--model`](#--model)
+  * [`--contrasts`](#--contrasts)
+  * [`--species`](#--species)
+* [Optional arguments](#Optional-arguments)
+  * [`--logFCthreshold`](#--logFCthreshold)
+  * [`--genelist`](#--genelist)
+  * [`--fastqc`](#--fastqc)
 * [AWS Batch specific parameters](#aws-batch-specific-parameters)
   * [`--awsqueue`](#--awsqueue)
   * [`--awsregion`](#--awsregion)
+* [Job resources](#job-resources)
+  * [Automatic resubmission](#automatic-resubmission)
+  * [Custom resource requests](#custom-resource-requests)
 * [Other command line parameters](#other-command-line-parameters)
   * [`--outdir`](#--outdir)
   * [`--email`](#--email)
@@ -84,10 +88,10 @@ First, go to the [qbicsoftware/rnadeseq releases page](https://github.com/qbicso
 This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future.
 
 
-## Main arguments
+## Mandatory arguments
 
 ### `-profile`
-Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments. Note that multiple profiles can be loaded, for example: `-profile docker` - the order of arguments is important!
+Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments. Note that multiple profiles can be loaded, for example: `-profile docker, test` - the order of arguments is important!
 
 If `-profile` is not specified at all the pipeline will be run locally and expects all software to be installed and available on the `PATH`.
 
@@ -108,78 +112,58 @@ If `-profile` is not specified at all the pipeline will be run locally and expec
 
 <!-- TODO qbicsoftware: Document required command line parameters -->
 
-### `--reads`
-Use this to specify the location of your input FastQ files. For example:
+### `--rawcounts`
+Raw count table (TSV). Columns are samples and rows are genes. For example:
 
 ```bash
---reads 'path/to/data/sample_*_{1,2}.fastq'
+--rawcounts 'path/to/raw_count_table.tsv'
 ```
 
 Please note the following requirements:
-
 1. The path must be enclosed in quotes
-2. The path must have at least one `*` wildcard character
-3. When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.
 
-If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
-
-### `--singleEnd`
-By default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--singleEnd` on the command line when you launch the pipeline. A normal glob pattern, enclosed in quotation marks, can then be used for `--reads`. For example:
+### `--metadata`
+Metadata table (TSV). Rows are samples and columns contain sample grouping. For example:
 
 ```bash
---singleEnd --reads '*.fastq'
+--metadata --reads 'path/to/sample_preparations.tsv'
 ```
 
-It is not possible to run a mixture of single-end and paired-end files in one run.
+### `--quote`
+Signed copy of the offer.
 
+### `--model`
+Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file.
 
-## Reference genomes
+### `--contrasts`
+Table indicating which contrasts to consider. 1 or 0 for every variable specified in the design. Alternatively you can set the parameter defaultcontrasts.
 
-The pipeline config files come bundled with paths to the illumina iGenomes reference index files. If running with docker or AWS, the configuration is set up to use the [AWS-iGenomes](https://ewels.github.io/AWS-iGenomes/) resource.
+### `--species`
+Species name. For example:
 
-### `--genome` (using iGenomes)
-There are 31 different species supported in the iGenomes references. To run the pipeline, you must specify which to use with the `--genome` flag.
+```bash
+--species Hsapiens
+```
 
-You can find the keys to specify the genomes in the [iGenomes config file](../conf/igenomes.config). Common genomes that are supported are:
+## Optional arguments
 
-* Human
-  * `--genome GRCh37`
-* Mouse
-  * `--genome GRCm38`
-* _Drosophila_
-  * `--genome BDGP6`
-* _S. cerevisiae_
-  * `--genome 'R64-1-1'`
+### `--logFCthreshold`
+Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed.
 
-> There are numerous others - check the config file for more.
+### `--genelist`
+List of genes (one per line) of which to plot heatmaps for normalized counts across all samples.
 
-Note that you can use the same configuration setup to save sets of reference files for your own use, even if they are not part of the iGenomes resource. See the [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for instructions on where to save such a file.
+### `--fastqc`
+Zipped folder containing the fastqc reports.
+
+## AWS Batch specific parameters
+Running the pipeline on AWS Batch requires a couple of specific parameters to be set according to your AWS Batch configuration. Please use the `-awsbatch` profile and then specify all of the following parameters.
+### `--awsqueue`
+The JobQueue that you intend to use on AWS Batch.
+### `--awsregion`
+The AWS region to run your job in. Default is set to `eu-west-1` but can be adjusted to your needs.
 
 The syntax for this reference configuration is as follows:
-
-<!-- TODO qbicsoftware: Update reference genome example according to what is needed -->
-
-```nextflow
-params {
-  genomes {
-    'GRCh37' {
-      fasta   = '<path to the genome fasta file>' // Used if no star index given
-    }
-    // Any number of additional genomes, key is used with --genome
-  }
-}
-```
-
-<!-- TODO qbicsoftware: Describe reference path flags -->
-### `--fasta`
-If you prefer, you can specify the full path to your reference genome when you run the pipeline:
-
-```bash
---fasta '[path to Fasta reference]'
-```
-
-### `--igenomesIgnore`
-Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`.
 
 ## Job resources
 ### Automatic resubmission
@@ -192,39 +176,9 @@ If you are likely to be running `qbicsoftware` pipelines regularly it may be a g
 
 If you have any questions or issues please send us a message on [Slack](https://qbicsoftware-invite.herokuapp.com/).
 
-## AWS Batch specific parameters
-Running the pipeline on AWS Batch requires a couple of specific parameters to be set according to your AWS Batch configuration. Please use the `-awsbatch` profile and then specify all of the following parameters.
-### `--awsqueue`
-The JobQueue that you intend to use on AWS Batch.
-### `--awsregion`
-The AWS region to run your job in. Default is set to `eu-west-1` but can be adjusted to your needs.
-
-Please make sure to also set the `-w/--work-dir` and `--outdir` parameters to a S3 storage bucket of your choice - you'll get an error message notifying you if you didn't.
-
 ## Other command line parameters
 
 <!-- TODO qbicsoftware: Describe any other command line flags here -->
-
-### `--outdir`
-The output directory where the results will be saved.
-
-### `--email`
-Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.
-
-### `-name`
-Name for the pipeline run. If not specified, Nextflow will automatically generate a random mnemonic.
-
-This is used in the MultiQC report (if not default) and in the summary HTML / e-mail (always).
-
-**NB:** Single hyphen (core Nextflow option)
-
-### `-resume`
-Specify this when restarting a pipeline. Nextflow will used cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously.
-
-You can also supply a run name to resume a specific run: `-resume [run-name]`. Use the `nextflow log` command to show previous run names.
-
-**NB:** Single hyphen (core Nextflow option)
-
 ### `-c`
 Specify the path to a specific config file (this is a core NextFlow command).
 

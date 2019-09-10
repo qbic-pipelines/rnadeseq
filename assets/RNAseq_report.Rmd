@@ -22,6 +22,7 @@ params:
   path_contrasts: ""
   path_wd: ""
   path_genelist: ""
+  path_quote: ""
 # Author: Simon Heumos
 # Contributor: Silvia Morini, Gisela Gabernet
 ---
@@ -179,13 +180,13 @@ metadata$QBiC.Code = NULL
 table_complete = merge(metadata,df_DE_selected,by="Sample")
 write.table(table_complete,"./qc_summary.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = c("Sample Name", "Secondary Name", "% Assigned", "% Aligned", "% Trimmed", "% Dups", "% GC", "Seqs"), qmethod = c("escape", "double"))
 if (nrow(table_complete) < 20){
-cat("The table below (extracted from the `MultiQC` report) shows a summary of the bioinformatics analysis quality control including the percentage of assigned reads (% Assigned), the percentage of aligned reads (% Aligned), trimmed reads (% Trimmed), and duplicate reads (% Dups). The mean GC content (%GC) for each of the sequences and total number of reads (Seqs) is additionally indicated.")
+cat("The table below (extracted from the `MultiQC` report) shows a summary of the bioinformatics analysis quality control including the percentage of assigned reads (% Assigned), the percentage of aligned reads (% Aligned), trimmed reads (% Trimmed), and duplicate reads (% Dups). The mean GC content (% GC) for each of the sequences and total number of reads (Seqs) is additionally indicated.")
 datatable(table_complete, caption = "Quality control summary", colnames= c("Sample Name", "Secondary Name", "% Assigned", "% Aligned", "% Trimmed", "% Dups", "% GC", "Seqs"), extensions = c('Buttons', 'FixedColumns'), "Autofill", options = list(dom = 'Bfrtip', scrollX = T, scrollCollapse = T, buttons = c('copy', 'csv', 'excel', 'pdf', 'print'), pageLength = 10))} else {
 cat("The table downloadable under [this link](./QC/qc_summary.tsv) (extracted from the `MultiQC` report) shows a summary of the bioinformatics analysis quality control including the percentage of assigned reads (% Assigned), the percentage of aligned reads (% Aligned), trimmed reads (% Trimmed), and duplicate reads (% Dups). The mean GC content (%GC) for each of the sequences and total number of reads (Seqs) is additionally indicated.")
 }
 ```
 
-## Mapping Statistics
+## Mapping Statistics {.tabset}
 
 The alignment scores for each sample are shown below.
 
@@ -278,7 +279,7 @@ helps reduce the number of false postives (not real differentially expressed gen
 The model design in DESeq2 was:`r cat(paste(readLines(params$path_design), collapse=" "))`.
 The list of the first 20 differentially expressed genes is shown below. 
 The differentially expressed genes are marked with "DE" in the filter column. 
-The full table, can be found [here](./DESeq2/results/final/final_list_DESeq2.tsv).
+The full table can be found [here](./DESeq2/results/final/final_list_DESeq2.tsv).
 
 ```{r}
 library(DT)
@@ -356,21 +357,6 @@ Shown below you find the KEGG pathways enrichment plot for the example contrast 
 ```{r, out.width = "600px"}
 knitr::include_graphics(paste0(wd,"/gProfileR/", 'DE_contrast_', contrnames[i], "/", 'DE_contrast_', contrnames[i], '_keg_pathway_enrichment_plot.png'))
 ```
-```{r improvement, echo=FALSE, results='asis'}
-# here a possible improvement for showing tabs: https://stackoverflow.com/questions/42631642/creating-dynamic-tabs-in-rmarkdown
-
-#for (i in 1:length(contrnames)){
-#  dirname = paste0('DE_contrast_', contrnames[i])
-#  enriched_list = paste0(dirname, '_pathway_enrichment_results.tsv')
-#  enriched_plot = paste0(dirname,'_keg_pathway_enrichment_plot.png')
-#  path = paste0('/gProfileR/', dirname, '/', enriched_plot)
-#  cat(paste0('### ',contrnames[i],' {-}
-#  \
-#  '))
-#  knitr::include_graphics(paste0(wd,path))
-#  cat("![](",(paste0(wd,path)),")")
-#}
-```
 
 <!-- If a DEU analysis has also been performed -->
 ```{r conditional_DEU_results, echo=FALSE, results='asis', eval=config$DEU}
@@ -391,6 +377,9 @@ cat("***
 ```{r conditional_outlook_content, echo=FALSE, results='asis', eval=!is.null(config$outlook)}
 cat(config$outlook)
 ```
+\
+The results for all work packages, as described in the [quote](`r params$path_quote`) can be found in this report. Further support for this project will be restricted to the results presented in this report (e.g. requests to update/manipulate figures and tables). For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.
+
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
 # Import the .csv file output by the rna-seq Nextflow pipeline

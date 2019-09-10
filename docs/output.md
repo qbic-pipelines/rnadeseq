@@ -9,8 +9,8 @@ This document describes the output produced by the pipeline. Most of the plots a
 The pipeline is built using [Nextflow](https://www.nextflow.io/)
 and processes data using the following steps:
 
-* [DE analysis](#DE analysis) - differential expression analysis with DESeq2
-* [Pathway analysis](#Pathway analysis) - pathway analysis with gProfileR
+* [DE analysis](#DE-analysis) - differential expression analysis with DESeq2
+* [Pathway analysis](#Pathway-analysis) - pathway analysis with gProfileR
 * [Report](#Report) - QBiC Report describing results of the whole pipeline
 
 ## DE analysis
@@ -65,6 +65,8 @@ In this directory the zipped report is contained. This file is ready for upload 
 
 * `Report.html`
   * QBiC report describing the RNAseq results.
+* `YYYYMMDD_PiName_QXXXX_signed.pdf`
+  * Signed quote for the QXXXX project
 * `DESeq2/`
   * DESeq2 results to be attached to the report (see DESeq2 output description).
 * `QC/`
