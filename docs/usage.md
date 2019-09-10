@@ -21,11 +21,6 @@
   * [`--logFCthreshold`](#--logFCthreshold)
   * [`--genelist`](#--genelist)
   * [`--fastqc`](#--fastqc)
-* [Further optional arguments](#Further-optional-arguments)
-  * [`--outdir`](#--outdir)
-  * [`--email`](#--email)
-  * [`--maxMultiqcEmailFileSize`](#--maxMultiqcEmailFileSize)
-  * [`-name`](#-name)
 * [AWS Batch specific parameters](#aws-batch-specific-parameters)
   * [`--awsqueue`](#--awsqueue)
   * [`--awsregion`](#--awsregion)
@@ -184,15 +179,6 @@ params {
 ```
 
 <!-- TODO qbicsoftware: Describe reference path flags -->
-### `--fasta`
-If you prefer, you can specify the full path to your reference genome when you run the pipeline:
-
-```bash
---fasta '[path to Fasta reference]'
-```
-
-### `--igenomesIgnore`
-Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`.
 
 ## Job resources
 ### Automatic resubmission
