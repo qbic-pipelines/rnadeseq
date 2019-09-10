@@ -161,28 +161,6 @@ List of genes (one per line) of which to plot heatmaps for normalized counts acr
 ### `--fastqc`
 Zipped folder containing the fastqc reports.
 
-## Further optional arguments
-
-### `--outdir`
-The output directory where the results will be saved.
-
-### `--email`
-Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.
-
-### `-name`
-Name for the pipeline run. If not specified, Nextflow will automatically generate a random mnemonic.
-
-This is used in the MultiQC report (if not default) and in the summary HTML / e-mail (always).
-
-**NB:** Single hyphen (core Nextflow option)
-
-### `-resume`
-Specify this when restarting a pipeline. Nextflow will used cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously.
-
-You can also supply a run name to resume a specific run: `-resume [run-name]`. Use the `nextflow log` command to show previous run names.
-
-**NB:** Single hyphen (core Nextflow option)
-
 ## AWS Batch specific parameters
 Running the pipeline on AWS Batch requires a couple of specific parameters to be set according to your AWS Batch configuration. Please use the `-awsbatch` profile and then specify all of the following parameters.
 ### `--awsqueue`
