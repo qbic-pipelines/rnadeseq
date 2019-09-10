@@ -9,8 +9,8 @@ This document describes the output produced by the pipeline. Most of the plots a
 The pipeline is built using [Nextflow](https://www.nextflow.io/)
 and processes data using the following steps:
 
-* [DE analysis](#DE analysis) - differential expression analysis with DESeq2
-* [Pathway analysis](#Pathway analysis) - pathway analysis with gProfileR
+* [DE analysis](#DE-analysis) - differential expression analysis with DESeq2
+* [Pathway analysis](#Pathway-analysis) - pathway analysis with gProfileR
 * [Report](#Report) - QBiC Report describing results of the whole pipeline
 
 ## DE analysis
