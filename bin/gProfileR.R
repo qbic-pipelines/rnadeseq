@@ -71,8 +71,7 @@ path_contrasts <- opt$dirContrasts
 
 outdir <- "gProfileR"
 
-norm_counts <- read.table(file = path_norm_counts, header = T, row.names = 2, sep = "\t", quote = "")
-norm_counts$Ensembl_ID <- NULL
+norm_counts <- read.table(file = path_norm_counts, header = T, row.names = 1, sep = "\t", quote = "")
 metadata <- read.table(file=metadata_path, sep = "\t", header = T, quote="")
 
 
@@ -158,6 +157,9 @@ for (file in contrast_files){
           pathway <- df[i,]
           gene_list <- unlist(strsplit(pathway$intersection, ","))
           mat <- norm_counts[gene_list, ]
+          rownames(mat) <- mat$gene_name
+          mat$gene_name <- NULL
+
           if (nrow(mat)>1){
             png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$domain, "_", pathway$term.id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
             pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$domain,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
