@@ -71,7 +71,8 @@ path_contrasts <- opt$dirContrasts
 
 outdir <- "gProfileR"
 
-norm_counts <- read.table(file = path_norm_counts, header = T, row.names = 1, sep = "\t", quote = "")
+norm_counts <- read.table(file = path_norm_counts, header = T, row.names = 2, sep = "\t", quote = "")
+norm_counts$Ensembl_ID <- NULL
 metadata <- read.table(file=metadata_path, sep = "\t", header = T, quote="")
 
 
