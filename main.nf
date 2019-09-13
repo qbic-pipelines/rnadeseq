@@ -289,6 +289,7 @@ process Report {
 
     output:
     file "*.zip"
+    file "RNAseq_report.html" into rnaseq_report
 
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
@@ -362,18 +363,18 @@ workflow.onComplete {
     email_fields['summary']['Nextflow Build'] = workflow.nextflow.build
     email_fields['summary']['Nextflow Compile Timestamp'] = workflow.nextflow.timestamp
 
-    // On success try attach the multiqc report
-    def mqc_report = null
+    // On success try attach the RNAseq report ot the email
+    def qbic_report = null
     try {
         if (workflow.success) {
-            mqc_report = multiqc_report.getVal()
-            if (mqc_report.getClass() == ArrayList){
-                log.warn "[qbicsoftware/rnadeseq] Found multiple reports from process 'multiqc', will use only one"
-                mqc_report = mqc_report[0]
+            qbic_report = rnaseq_report.getVal()
+            if (qbic_report.getClass() == ArrayList){
+                log.warn "[qbicsoftware/rnadeseq] Found multiple reports from process 'RNAseq report', will use only one"
+                qbic_report = qbic_report[0]
             }
         }
     } catch (all) {
-        log.warn "[qbicsoftware/rnadeseq] Could not attach MultiQC report to summary email"
+        log.warn "[qbicsoftware/rnadeseq] Could not attach RNAseq report to summary email"
     }
 
     // Render the TXT template
