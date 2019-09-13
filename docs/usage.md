@@ -116,7 +116,7 @@ If `-profile` is not specified at all the pipeline will be run locally and expec
 <!-- TODO qbicsoftware: Document required command line parameters -->
 
 ### `--rawcounts`
-Raw count table (TSV). Columns are samples and rows are genes. For example:
+Raw count table (TSV). Column names must start with the QBiC code. Columns are samples and rows are genes. For example:
 
 ```bash
 --rawcounts 'path/to/raw_count_table.tsv'
@@ -126,7 +126,11 @@ Please note the following requirements:
 1. The path must be enclosed in quotes
 
 ### `--metadata`
-Metadata table (TSV). Rows are samples and columns contain sample grouping. For example:
+Metadata table is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
+* **QBiC Code**: is needed to match metadata with the raw counts.
+* **Secondary Name**, samples will be named with the pattern: QBiC code + Secondary name.
+* **Condition: xxxxx**: a separated column for each of the conditions.
+
 
 ```bash
 --metadata 'path/to/sample_preparations.tsv'
@@ -136,7 +140,7 @@ Metadata table (TSV). Rows are samples and columns contain sample grouping. For 
 Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file.
 
 ### `--contrasts`
-Table indicating which contrasts to consider. 1 or 0 for every variable specified in the design. Alternatively you can set the parameter defaultcontrasts.
+Table indicating which contrasts to consider. 1 or 0 for every variable specified in the design. Alternatively you can set the parameter "defaultcontrasts".
 
 ### `--species`
 Species name. For example: Hsapiens, Mmusculus.
