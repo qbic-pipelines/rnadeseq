@@ -157,7 +157,7 @@ if(params.config_profile_description) summary['Config Description'] = params.con
 if(params.config_profile_contact)     summary['Config Contact']     = params.config_profile_contact
 if(params.config_profile_url)         summary['Config URL']         = params.config_profile_url
 if(params.email) {
-  summary['E-mail Address']  = params.email/sfs/7/workspace/ws/qeamo01-QBNAA-0
+  summary['E-mail Address']  = params.email
   summary['MultiQC maxsize'] = params.maxMultiqcEmailFileSize
 }
 log.info summary.collect { k,v -> "${k.padRight(18)}: $v" }.join("\n")
