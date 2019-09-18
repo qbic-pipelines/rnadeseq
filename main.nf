@@ -296,9 +296,9 @@ process Report {
     def fastqcopt = fastqc.name != 'NO_FILE' ? "$fastqc" : ''
     def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
     """
-    unzip $deseq2 .
-    unzip $multiqc .
-    unzip $gprofiler .
+    unzip $deseq2
+    unzip $multiqc
+    unzip $gprofiler
     mkdir QC
     mv multiqc/multiqc_plots/ multiqc/multiqc_data/ multiqc/multiqc_report.html $fastqcopt QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
