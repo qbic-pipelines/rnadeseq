@@ -298,7 +298,7 @@ process Report {
     def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
     """
     unzip $deseq2
-    unzip $multiqc .
+    unzip $multiqc
     unzip $gprofiler
     mkdir QC
     mv multiqc/multiqc_plots/ multiqc/multiqc_data/ multiqc/multiqc_report.html $fastqcopt QC/
