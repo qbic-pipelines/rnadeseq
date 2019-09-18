@@ -9,7 +9,7 @@ option_list = list(
   make_option(c("-s", "--proj_summary"), type="character", default=NULL, help="project summary file", metavar="character"),
   make_option(c("-v", "--versions"), type="character", default=NULL, help="versions file", metavar="character"),
   make_option(c("-m", "--model"), type="character", default=NULL, help="linear model file", metavar="character"),
-  make_option(c("-c", "--config"), type="character", default=NULL, help="report config file", metavar="character"),
+  make_option(c("-c", "--report_options"), type="character", default=NULL, help="report options file", metavar="character"),
   make_option(c("-k", "--contrasts"), type="character", default=NULL, help="contrasts file", metavar="character"),
   make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
   make_option(c("-q", "--quote"), type="character", default=NULL, help="path to the signed quote PDF file", metavar="character")
@@ -34,7 +34,7 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                   params = list(path_proj_summary = opt$proj_summary,
                                 path_versions = opt$versions,
                                 path_design = opt$model,
-                                path_config = opt$config,
+                                path_report_options = opt$report_options,
                                 path_wd = wd,
                                 path_contrasts = path_contrasts,
                                 path_genelist = path_genelist,
