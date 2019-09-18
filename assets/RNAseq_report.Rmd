@@ -18,7 +18,7 @@ params:
   path_proj_summary: ""
   path_versions: ""
   path_design: ""
-  path_config: ""
+  path_report_options: ""
   path_contrasts: ""
   path_wd: ""
   path_genelist: ""
