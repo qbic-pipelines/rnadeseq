@@ -45,7 +45,7 @@ description = as.character(df$Description)
 <!-- load report_options.yaml + design.txt -->
 ```{r load_config, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
 library(yaml)
-report_options <- read_yaml(params$path_config)
+report_options <- read_yaml(params$path_report_options)
 design_deseq2 <- paste(readLines(params$path_design), collapse=" ")
 ```
 
