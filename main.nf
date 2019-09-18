@@ -301,7 +301,7 @@ process Report {
     unzip $multiqc
     unzip $gprofiler
     mkdir QC
-    mv multiqc/multiqc_plots/ multiqc/multiqc_data/ multiqc/multiqc_report.html $fastqcopt QC/
+    mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html $fastqcopt QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
     --versions $softwareversions --model $model --config $config $contrastsopt $genelistopt --quote $quote
     mv qc_summary.tsv QC/
