@@ -157,33 +157,38 @@ for (file in contrast_files){
           pathway <- df[i,]
           gene_list <- unlist(strsplit(pathway$intersection, ","))
           mat <- norm_counts[gene_list, ]
-          png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$domain, "_", pathway$term.id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
-          pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$domain,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = F )
-          dev.off()
+          rownames(mat) <- mat$gene_name
+          mat$gene_name <- NULL
+
+          if (nrow(mat)>1){
+            png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$domain, "_", pathway$term.id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
+            pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$domain,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+            dev.off()
+          }
 
           # Plotting pathway view only for kegg pathways
           if (pathway$domain == "keg"){
             pathway_kegg <- sapply(pathway$term.id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
-            
+            print(paste0("Plotting pathway: ", pathway_kegg))
             # KEGG pathway blacklist. This pathway graphs contain errors and pathview crashes if plotting them.
-            if (pathway_kegg %in% c("mmu05206", "mmu04215") ) {
+            if (pathway_kegg %in% c("mmu05206", "mmu04215", "hsa05206") ) {
               print(paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database."))
             } else {
               gene.data = DE_genes
-            gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
-            
-            entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype="ENSEMBL", multiVals="first")
-            
-            gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
-            row.names(gene.data.subset) <- entrez_ids[!is.na(entrez_ids)]
-            
-            gene.data.subset$Ensembl_ID <- NULL
-            pathview(gene.data  = gene.data.subset,
-                    pathway.id = pathway_kegg,
-                    species    = short_organism_name,
-                    out.suffix=paste(fname,sep="_"))
-            mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
-            system(mv_command)
+              gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
+              
+              entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype="ENSEMBL", multiVals="first")
+              
+              gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
+              row.names(gene.data.subset) <- entrez_ids[!is.na(entrez_ids)]
+              
+              gene.data.subset$Ensembl_ID <- NULL
+              pathview(gene.data  = gene.data.subset,
+                      pathway.id = pathway_kegg,
+                      species    = short_organism_name,
+                      out.suffix=paste(fname,sep="_"))
+              mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
+              system(mv_command)
             }
           }
         }

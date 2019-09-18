@@ -147,7 +147,8 @@ sizeFactors(cds)
 write.table(sizeFactors(cds),paste("DESeq2/gene_counts_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
 
 #write raw counts to file
-write.table(count.table, paste("DESeq2/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = NA, qmethod = c("escape", "double"))
+count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
+write.table(count_table_names, paste("DESeq2/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
 ###4.2) contrasts
 coefficients <- resultsNames(cds)
@@ -170,6 +171,7 @@ if (!is.null(opt$contrasts)){
     d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
     d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
     d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
+    d1DE <- d1DE[order(d1DE$padj),]
     write.table(d1DE, file=paste("DESeq2/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
@@ -283,8 +285,10 @@ rld <- rlog(cds)
 vsd <- varianceStabilizingTransformation(cds)
 
 #write normalized values to a file
-write.table(assay(rld), "DESeq2/gene_counts_tables/rlog_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,  col.names = NA, qmethod = c("escape", "double"))
-write.table(assay(vsd), "DESeq2/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,  col.names = NA, qmethod = c("escape", "double"))
+rld_names <- merge(x=gene_names, y=assay(rld), by.x = "Ensembl_ID", by.y="row.names")
+write.table(rld_names, "DESeq2/gene_counts_tables/rlog_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  qmethod = c("escape", "double"))
+vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
+write.table(vsd_names, "DESeq2/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
 ##6) Diagnostic plots
 
