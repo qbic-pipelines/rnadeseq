@@ -57,7 +57,7 @@ design_deseq2 <- paste(readLines(params$path_design), collapse=" ")
 
 ---
 title: "`r projectcode` - Project Report"
-subtitle: "`r cat(title)`"
+subtitle: "`r title`"
 author: "`r PM`, Bioinformatics Research Scientist"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
