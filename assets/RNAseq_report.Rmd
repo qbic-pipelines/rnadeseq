@@ -35,6 +35,7 @@ projectcode = as.character(df$Sub.Project)
 title = as.character(df$Short.Title)
 if (nchar(title) > 65 & nchar(title) < 130) {
   title = paste(substr(title, 1, 65), substr(title, 66, nchar(title)),sep= " \ ")
+  cat(title)
 } else if (nchar(title) > 130) {
   title = paste(substr(title, 1, 65), substr(title, 66, 130), substr(title, 131, nchar(title)),sep= "\n")
 }
