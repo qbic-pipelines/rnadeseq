@@ -31,6 +31,7 @@ dependencies:
   - conda-forge::r-dt 0.6
   - r::r-yaml=2.2.0 # chose R channel because conda-forge has only 0.1.7
   - conda-forge::r-rmarkdown=1.13
+  - r::r-hmisc=4.2.0 
 # Additional packages for the gProfileR script
   - bioconda::bioconductor-annotationdbi=1.44.0
   - conda-forge::r-reshape2=1.4.3
