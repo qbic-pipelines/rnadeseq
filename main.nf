@@ -235,6 +235,7 @@ process DESeq2 {
 
     output:
     file "*.zip" into ch_deseq2_for_report, ch_deseq2_for_pathway
+    file "contrast_names.txt" into ch_contrnames_for_report
 
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
@@ -281,7 +282,7 @@ process Report {
     file(softwareversions) from ch_softwareversions_file
     file(model) from ch_model_for_report_file
     file(report_options) from ch_report_options_file
-    file(contrasts) from ch_contrasts_for_report_file
+    file(contrnames) from ch_contrnames_for_report
     file(fastqc) from ch_fastqc_file
     file(deseq2) from ch_deseq2_for_report
     file(multiqc) from ch_multiqc_file
@@ -296,7 +297,6 @@ process Report {
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def fastqcopt = fastqc.name != 'NO_FILE' ? "$fastqc" : ''
-    def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
     """
     unzip $deseq2
     unzip $multiqc
@@ -304,7 +304,7 @@ process Report {
     mkdir QC
     mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html $fastqcopt QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
-    --versions $softwareversions --model $model --report_options $report_options $contrastsopt $genelistopt --quote $quote
+    --versions $softwareversions --model $model --report_options $report_options --contrasts $contrnames $genelistopt --quote $quote
     mv qc_summary.tsv QC/
     zip -r report.zip RNAseq_report.html DESeq2/ QC/ gProfileR/ $quote
     """

@@ -176,6 +176,7 @@ if (!is.null(opt$contrasts)){
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
   }
+  write(colnames(contrasts))
 } else {
   for (contname in coefficients[2:length(coefficients)]) {
     d1 <- results(cds, name=contname)

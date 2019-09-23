@@ -304,9 +304,9 @@ datatable(df, caption = "Outcome of Differential Expression analysis", extension
 ```{r setup2, echo=FALSE, message=FALSE, bootstrap.show.message=FALSE, include=FALSE}
 library(DT)
 contr=FALSE
-df_contr <- try(read.table(params$path_contrasts, header=TRUE, sep="\t"))
+df_contr <- try(read.table(params$path_contrasts, header=FALSE, sep="\t"))
 if (!inherits(df_contr, 'try-error')){
-  contrnames = grep('vs', colnames(df_contr), value=TRUE)
+  contrnames = df_contr$V1
   contr <- TRUE
   }
 ```
