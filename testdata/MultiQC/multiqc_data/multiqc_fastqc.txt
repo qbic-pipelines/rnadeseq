@@ -1,0 +1,7 @@
+Sample	Filename	File type	Encoding	Total Sequences	Sequences flagged as poor quality	Sequence length	%GC	total_deduplicated_percentage	avg_sequence_length	basic_statistics	per_base_sequence_quality	per_tile_sequence_quality	per_sequence_quality_scores	per_base_sequence_content	per_sequence_gc_content	per_base_n_content	sequence_length_distribution	sequence_duplication_levels	overrepresented_sequences	adapter_content
+QMCDP007A3	QMCDP007A3_R2.fastq.gz	Conventional base calls	Sanger / Illumina 1.9	29726153.0	0.0	51.0	48.0	43.5172923818866	51.0	pass	pass	pass	pass	warn	warn	pass	pass	fail	pass	pass
+QMCDP008AB	QMCDP008AB_R1.fastq.gz	Conventional base calls	Sanger / Illumina 1.9	32006318.0	0.0	51.0	48.0	45.819923099414034	51.0	pass	pass	pass	pass	fail	warn	pass	pass	fail	pass	pass
+QMCDP009AJ	QMCDP009AJ_R2.fastq.gz	Conventional base calls	Sanger / Illumina 1.9	29170863.0	0.0	51.0	49.0	38.92847820102395	51.0	pass	pass	pass	pass	warn	pass	pass	pass	fail	pass	pass
+QMCDP010AM	QMCDP010AM_R1.fastq.gz	Conventional base calls	Sanger / Illumina 1.9	23374288.0	0.0	51.0	48.0	50.78840949894773	51.0	pass	pass	pass	pass	fail	pass	pass	pass	warn	pass	pass
+QMCDP011AU	QMCDP011AU_R1.fastq.gz	Conventional base calls	Sanger / Illumina 1.9	29643222.0	0.0	51.0	48.0	49.11395820274765	51.0	pass	pass	pass	pass	fail	warn	pass	pass	fail	pass	pass
+QMCDP012A4	QMCDP012A4_R1.fastq.gz	Conventional base calls	Sanger / Illumina 1.9	30978083.0	0.0	51.0	48.0	50.17151044337894	51.0	pass	pass	pass	pass	fail	warn	pass	pass	warn	pass	pass
