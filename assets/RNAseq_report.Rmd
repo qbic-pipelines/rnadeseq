@@ -39,21 +39,6 @@ splitInParts <- function(string, size){
     strsplit(string, pat, perl=TRUE)
  }
 title_split=splitInParts(title, 65)
-#if (nchar(title) > 65 & nchar(title) < 130) {
-#  title1 = substr(title, 1, 65)
-#  title2 = substr(title, 66, nchar(title))
-#  title = paste(title1, title2, sep= " <br> ")
-#} else if (nchar(title) > 130) {
-#  title1 = substr(title, 1, 65)
-#  title2 = substr(title, 66, 130)
-#  title3 = substr(title, 131, nchar(title))
-#  title = paste(title1, title2, title3, sep= " <br> ")
-#} #else {
-  #title1 = title
-#}
-#title1 = substr(title, 1, 65)
-#title2 = substr(title, 66, 130)
-#title3 = substr(title, 131, nchar(title))
 PI = as.character(df$Principal.Investigator)
 PI_address = as.character(df$PI.Address)
 PI_email = as.character(df$PI.E.Mail)
