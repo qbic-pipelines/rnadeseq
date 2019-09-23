@@ -18,7 +18,7 @@ option_list = list(
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 
-# wd=getwd()
+wd=getwd()
 # if(!is.null(opt$contrasts)){
 #   path_contrasts = opt$contrasts
 # } else {
