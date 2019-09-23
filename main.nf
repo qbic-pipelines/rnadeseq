@@ -21,7 +21,7 @@ def helpMessage() {
     nextflow run qbicsoftware/rnadeseq --rawcounts 'counts.tsv' --metadata 'metadata.tsv' --design 'design.txt' --contrasts 'contrasts.tsv' -profile docker
 
     Mandatory arguments:
-      --rawcounts                   Raw count table (TSV). Columns are samples and rows are genes.
+      --rawcounts                   Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name.
       --metadata                    Metadata table (TSV). Rows are samples and columns contain sample grouping.
       --model                       Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file.
       --contrasts                   Table indicating which contrasts to consider. 1 or 0 for every variable specified in the design. If not provided, default DESeq2 contrasts are calculated.
@@ -135,8 +135,8 @@ summary['Metadata'] = params.metadata
 summary['Model'] = params.model
 summary['Contrasts'] = params.contrasts
 summary['Gene list'] = params.genelist
-summary['Project summary file'] = params.project_summary
-summary['nf-core/rnaseq software versions'] = params.versions
+summary['Project summary'] = params.project_summary
+summary['nf-core/rnaseq versions'] = params.versions
 summary['Report config file'] = params.config
 summary['Fastqc reports'] = params.fastqc
 summary['Multiqc results'] = params.multiqc

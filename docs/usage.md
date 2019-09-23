@@ -6,6 +6,7 @@
 <!-- TOC START min:2 max:3 link:true asterisk:true update:true -->
 * [Table of contents](#table-of-contents)
 * [Introduction](#introduction)
+* [Pre-requisites](#pre-requisites)
 * [Running the pipeline](#running-the-pipeline)
   * [Updating the pipeline](#updating-the-pipeline)
   * [Reproducibility](#reproducibility)
@@ -58,11 +59,25 @@ NXF_OPTS='-Xms1g -Xmx4g'
 
 <!-- TODO qbicsoftware: Document required command line parameters to run the pipeline-->
 
+## Pre-requisites
+The `qbicsoftware/rnadeseq` pipeline relies on the output from the `nf-core/rnaseq` pipeline. To be able to match the results of the `nf-core/rnaseq` pipeline with the metadata sheet containing the experimental design for the differential expression analysis, **the filenames of the fastq files used as input to the `qbicsoftware/rnadeseq` pipeline, need to start with the corresponding QBiC codes!**. *E.g. QBICKXXXXX_original_file_name.fastq*. Once the filenames are corrected if necessary, you can run the `qbicsoftware/rnadeseq` pipeline as usual.
+
+
 ## Running the pipeline
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run qbicsoftware/rnadeseq --reads '*_R{1,2}.fastq.gz' -profile docker
+nextflow run qbicsoftware/rnadeseq -r dev -profile docker \
+--rawcounts 'merged_gene_counts.txt' \
+--metadata 'QXXXX_sample_preparations.tsv' \
+--model 'linear_model.txt' \
+--contrasts 'contrasts.tsv' \
+--project_summary 'QXXXX_summary.tsv' \
+--multiqc 'MultiQC.zip' \
+--quote 'QXXXX_signed_offer.pdf' \
+--versions 'software_versions.csv' \
+--report_options 'report_options.yml' \
+--species Hsapiens
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -129,15 +144,10 @@ Please note the following requirements:
 Metadata table is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
 * **QBiC Code**: is needed to match metadata with the raw counts.
 * **Secondary Name**, samples will be named with the pattern: QBiC code + Secondary name.
-* **Condition: xxxxx**: a separated column for each of the conditions.
-
-
-```bash
---metadata 'path/to/sample_preparations.tsv'
-```
+* **Condition: tag**: a separated column for each of the conditions. The headers of this columns start with "Condition: ". The values of these columns should not contain spaces.
 
 ### `--model`
-Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file.
+Linear model function to calculate the contrasts (TXT). Variable names should be identical as the tags of the "Condition: tag" headers in the metadata file.
 
 ### `--contrasts`
 Table indicating which contrasts to consider. Each contrast is specified in one column, each row corresponds to the each of the expanded terms of the linear model. If not specified, DESeq2 default contrasts are calculated.
