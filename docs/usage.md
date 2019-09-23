@@ -140,10 +140,10 @@ Metadata table is the "Sample_preparations_sheet.tsv" that can be directly downl
 Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file.
 
 ### `--contrasts`
-Table indicating which contrasts to consider. 1 or 0 for every variable specified in the design. Alternatively you can set the parameter "defaultcontrasts".
+Table indicating which contrasts to consider. Each contrast is specified in one column, each row corresponds to the each of the expanded terms of the linear model. If not specified, DESeq2 default contrasts are calculated.
 
 ### `--species`
-Species name. For example: Hsapiens, Mmusculus.
+Species name. For example: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
 
 ### `--project_summary`
 Project summary as downloaded from the portal: User database portlet, Projects tab, select your project and "Download Project Information". Please check first that this information is correct in the project Browser.

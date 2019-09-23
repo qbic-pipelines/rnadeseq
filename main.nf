@@ -24,7 +24,7 @@ def helpMessage() {
       --rawcounts                   Raw count table (TSV). Columns are samples and rows are genes.
       --metadata                    Metadata table (TSV). Rows are samples and columns contain sample grouping.
       --model                       Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file.
-      --contrasts                   Table indicating which contrasts to consider. 1 or 0 for every variable specified in the design. Alternatively you can set the parameter defaultcontrasts
+      --contrasts                   Table indicating which contrasts to consider. 1 or 0 for every variable specified in the design. If not provided, default DESeq2 contrasts are calculated.
       --species                     Species name. Format example: Hsapiens.
       --project_summary             Project summary file downloaded from the qPortal.
       --multiqc                     multiqc.zip folder containing the multiQC plots and report.
