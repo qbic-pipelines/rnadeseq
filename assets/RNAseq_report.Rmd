@@ -28,7 +28,6 @@ params:
 ---
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
-library(hmisc)
 df <- read.csv(file = params$path_proj_summary, sep="\t", header = TRUE)
 # Import the .tsv file downloadable from https://portal.qbic.uni-tuebingen.de/portal/web/qbic/user-database -> Projects
 projectcode = as.character(df$Sub.Project)
