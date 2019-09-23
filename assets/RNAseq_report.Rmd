@@ -33,16 +33,22 @@ df <- read.csv(file = params$path_proj_summary, sep="\t", header = TRUE)
 projectcode = as.character(df$Sub.Project)
 # Set the title; if the title is too long, it would get covered by the logo, so it is split in 2 or 3 parts.
 title = as.character(df$Short.Title)
-if (nchar(title) > 65 & nchar(title) < 130) {
-  title1 = substr(title, 1, 65)
-  title2 = substr(title, 66, nchar(title))
-  title = paste(title1, title2, sep= " <br> ")
-} else if (nchar(title) > 130) {
-  title1 = substr(title, 1, 65)
-  title2 = substr(title, 66, 130)
-  title3 = substr(title, 131, nchar(title))
-  title = paste(title1, title2, title3, sep= " <br> ")
-} #else {
+## function to split the title
+splitInParts <- function(string, size){
+    pat <- paste0('(?<=.{',size,'})')
+    strsplit(string, pat, perl=TRUE)
+ }
+title_split=splitInParts(title, 65)
+#if (nchar(title) > 65 & nchar(title) < 130) {
+#  title1 = substr(title, 1, 65)
+#  title2 = substr(title, 66, nchar(title))
+#  title = paste(title1, title2, sep= " <br> ")
+#} else if (nchar(title) > 130) {
+#  title1 = substr(title, 1, 65)
+#  title2 = substr(title, 66, 130)
+#  title3 = substr(title, 131, nchar(title))
+#  title = paste(title1, title2, title3, sep= " <br> ")
+#} #else {
   #title1 = title
 #}
 #title1 = substr(title, 1, 65)
@@ -67,7 +73,7 @@ design_deseq2 <- paste(readLines(params$path_design), collapse=" ")
 
 ---
 title: "`r projectcode` - Project Report"
-subtitle: "`r title`"
+subtitle: "`r sapply(title_split, paste, collapse=" <br> ")`"
 author: "`r PM`, Bioinformatics Research Scientist"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
