@@ -28,18 +28,27 @@ params:
 ---
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
+library(hmisc)
 df <- read.csv(file = params$path_proj_summary, sep="\t", header = TRUE)
 # Import the .tsv file downloadable from https://portal.qbic.uni-tuebingen.de/portal/web/qbic/user-database -> Projects
 projectcode = as.character(df$Sub.Project)
 # Set the title; if the title is too long, it would get covered by the logo, so it is split in 2 or 3 parts.
 title = as.character(df$Short.Title)
-if (nchar(title) > 65 & nchar(title) < 130) {
-  title = paste(substr(title, 1, 65), substr(title, 66, nchar(title)),sep= "\n")
-  title = string.break.line(title)
-  cat(title)
-} else if (nchar(title) > 130) {
-  title = paste(substr(title, 1, 65), substr(title, 66, 130), substr(title, 131, nchar(title)),sep= "\n")
-}
+#if (nchar(title) > 65 & nchar(title) < 130) {
+  #title1 = paste(substr(title, 1, 65), substr(title, 66, nchar(title)),sep= "\n")
+  #title1 = substr(title, 1, 65)
+  #title2 = substr(title, 66, nchar(title))
+#} else if (nchar(title) > 130) {
+  #title = paste(substr(title, 1, 65), substr(title, 66, 130), substr(title, 131, nchar(title)),sep= "\n")
+  #title1 = substr(title, 1, 65)
+  #title2 = substr(title, 66, 130)
+  #title3 = substr(title, 131, nchar(title))
+#} else {
+#  title1 = title
+#}
+title1 = substr(title, 1, 65)
+title2 = substr(title, 66, 130)
+title3 = substr(title, 131, nchar(title))
 PI = as.character(df$Principal.Investigator)
 PI_address = as.character(df$PI.Address)
 PI_email = as.character(df$PI.E.Mail)
@@ -59,7 +68,7 @@ design_deseq2 <- paste(readLines(params$path_design), collapse=" ")
 
 ---
 title: "`r projectcode` - Project Report"
-subtitle: "`r title`"
+subtitle: "`r title1`" \ "`r title2`" \ "`r title3`"
 author: "`r PM`, Bioinformatics Research Scientist"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
