@@ -19,11 +19,11 @@ opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 
 wd=getwd()
-# if(!is.null(opt$contrasts)){
-#   path_contrasts = opt$contrasts
-# } else {
-#   path_contrasts = ''
-# }
+if(!is.null(opt$contrasts)){
+  path_contrasts = opt$contrasts
+} else {
+  path_contrasts = ''
+}
 if(!is.null(opt$genelist)){
   path_genelist = opt$genelist
 } else {
@@ -36,6 +36,6 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_design = opt$model,
                                 path_report_options = opt$report_options,
                                 path_wd = wd,
-                                path_contrasts = opt$contrasts,
+                                path_contrasts = path_contrasts,
                                 path_genelist = path_genelist,
                                 path_quote = opt$quote))
