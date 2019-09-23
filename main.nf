@@ -282,7 +282,7 @@ process Report {
     file(softwareversions) from ch_softwareversions_file
     file(model) from ch_model_for_report_file
     file(report_options) from ch_report_options_file
-    file(contrasts) from ch_contrasts_for_report_file.mic(ch_contrasts_from_deseq2).collect()
+    file(contrasts) from ch_contrasts_for_report_file.mix(ch_contrasts_from_deseq2).collect()
     file(fastqc) from ch_fastqc_file
     file(deseq2) from ch_deseq2_for_report
     file(multiqc) from ch_multiqc_file
