@@ -176,7 +176,7 @@ if (!is.null(opt$contrasts)){
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
   }
-  write(colnames(contrasts))
+  write(colnames(contrasts), file="contrast_names.txt", sep="\t")
 } else {
   for (contname in coefficients[2:length(coefficients)]) {
     d1 <- results(cds, name=contname)
@@ -192,7 +192,7 @@ if (!is.null(opt$contrasts)){
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
   }
-  write(coefficients[2:length(coefficients)], file="default_contrasts.txt", sep="\t")
+  write(coefficients[2:length(coefficients)], file="contrast_names.txt", sep="\t")
 }
 
 
