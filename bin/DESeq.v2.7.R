@@ -210,10 +210,10 @@ names(bg)
 #4.3) get DE genes from any contrast
 padj=names(bg)[grepl("padj",names(bg))]
 logFC = names(bg)[grepl("log2FoldChange", names(bg))]
-logFC = bg[,logFC,,drop=F]
+logFC = bg[,logFC,drop=F]
 print("This is logFC")
 print(logFC)
-padj = bg[,padj,,drop=F]
+padj = bg[,padj,drop=F]
 print("This is padj")
 print(padj)
 padj[is.na(padj)] <- 1
