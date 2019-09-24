@@ -221,13 +221,13 @@ cols <- names(padj)
 print("This is DE_bin")
 print(DE_bin)
 print(ncol(DE_bin))
-#if (ncol(DE_bin)>1){
-DE_bin$filter <- apply(DE_bin[ ,cols],1,paste, collapse = "-")
-DE_bin$Ensembl_ID = row.names(padj)
-#} else {
-# DE_bin$filter <- DE_bin$V1
-#  DE_bin$Ensembl_ID = row.names(padj)
-#}
+if (ncol(DE_bin)>1){
+  DE_bin$filter <- apply(DE_bin[ ,cols],1,paste, collapse = "-")
+  DE_bin$Ensembl_ID = row.names(padj)
+} else {
+  DE_bin$filter <- DE_bin[,1]
+  DE_bin$Ensembl_ID = row.names(padj)
+}
 print("This is DE_bin_filter")
 print(DE_bin)
 DE_bin = DE_bin[,c("Ensembl_ID","filter")]
