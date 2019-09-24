@@ -211,9 +211,13 @@ names(bg)
 padj=names(bg)[grepl("padj",names(bg))]
 logFC = names(bg)[grepl("log2FoldChange", names(bg))]
 logFC = bg[,logFC]
+print("This is logFC")
+print(logFC)
 padj = bg[,padj]
 padj[is.na(padj)] <- 1
 padj_bin = data.matrix(ifelse(padj < 0.05, 1, 0))
+print("This is padj_bin")
+print(padj_bin)
 logFC_bin = data.matrix(ifelse(abs(logFC) > opt$logFCthreshold, 1, 0))
 DE_bin = padj_bin * logFC_bin
 DE_bin = as.data.frame(DE_bin)
@@ -222,6 +226,8 @@ print("This is DE_bin")
 print(DE_bin)
 DE_bin$filter <- apply(DE_bin[ ,cols],1,paste, collapse = "-")
 DE_bin$Ensembl_ID = row.names(padj)
+print("This is DE_bin_filter")
+print(DE_bin)
 DE_bin = DE_bin[,c("Ensembl_ID","filter")]
 
 #make final data frame
