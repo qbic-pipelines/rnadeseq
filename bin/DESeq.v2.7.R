@@ -191,6 +191,8 @@ if (!is.null(opt$contrasts)){
     write.table(d1DE, file=paste("DESeq2/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
+    print("This is d1")
+    print(d1)
   }
   write(coefficients[2:length(coefficients)], file="contrast_names.txt", sep="\t")
 }
@@ -228,6 +230,9 @@ bg1$filter1 = ifelse(grepl("1",bg1$filter),"DE","not_DE")
 bg1 = merge(x=bg1, y=gene_names, by.x="Ensembl_ID", by.y="Ensembl_ID", all.x = T)
 bg1 = bg1[,c(dim(bg1)[2],1:dim(bg1)[2]-1)]
 bg1 = bg1[order(bg1[,"Ensembl_ID"]),]
+
+#write to file
+write.table(bg1, "DESeq2/final_gene_table/final_gene_list_DESeq2.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 
 #4.4) extract ID for genes to plot, make 20 plots:
 kip <- subset(bg1, filter1 == "DE")
@@ -278,8 +283,6 @@ if (!is.null(opt$genelist)){
   }
 }
 
-#write to file
-write.table(bg1, "DESeq2/final_gene_table/final_gene_list_DESeq2.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 
 ##5) Data transformation
 #rlog
