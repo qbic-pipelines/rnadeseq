@@ -218,24 +218,21 @@ logFC_bin = data.matrix(ifelse(abs(logFC) > opt$logFCthreshold, 1, 0))
 DE_bin = padj_bin * logFC_bin
 DE_bin = as.data.frame(DE_bin)
 cols <- names(padj)
-print("This is DE_bin")
-print(DE_bin)
-print(ncol(DE_bin))
+
 if (ncol(DE_bin)>1){
-  DE_bin$filter <- apply(DE_bin[ ,cols],1,paste, collapse = "-")
+  DE_bin$contrast_vector <- apply(DE_bin[ ,cols],1,paste, collapse = "-")
   DE_bin$Ensembl_ID = row.names(padj)
 } else {
-  DE_bin$filter <- DE_bin[,1]
+  DE_bin$contrast_vector <- DE_bin[,1]
   DE_bin$Ensembl_ID = row.names(padj)
 }
-print("This is DE_bin_filter")
-print(DE_bin)
-DE_bin = DE_bin[,c("Ensembl_ID","filter")]
+
+DE_bin = DE_bin[,c("Ensembl_ID","contrast_vector")]
 
 #make final data frame
 bg1 = merge(bg,DE_bin,by.x="Ensembl_ID",by.y="Ensembl_ID")
 stopifnot(identical(dim(bg1)[1],dim(assay(cds))[1]))
-bg1$filter1 = ifelse(grepl("1",bg1$filter),"DE","not_DE")
+bg1$outcome = ifelse(grepl("1",bg1$contrast_vector),"DE","not_DE")
 bg1 = merge(x=bg1, y=gene_names, by.x="Ensembl_ID", by.y="Ensembl_ID", all.x = T)
 bg1 = bg1[,c(dim(bg1)[2],1:dim(bg1)[2]-1)]
 bg1 = bg1[order(bg1[,"Ensembl_ID"]),]
@@ -244,7 +241,7 @@ bg1 = bg1[order(bg1[,"Ensembl_ID"]),]
 write.table(bg1, "DESeq2/final_gene_table/final_gene_list_DESeq2.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 
 #4.4) extract ID for genes to plot, make 20 plots:
-kip <- subset(bg1, filter1 == "DE")
+kip <- subset(bg1, outcome == "DE")
 kip = unique(kip$Ensembl_ID)
 
 if (length(kip) > 20) {

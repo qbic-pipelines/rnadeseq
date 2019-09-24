@@ -287,7 +287,7 @@ The adjusted p-value is calculated in the `DESeq2` package with the Benjamini-Ho
 helps reduce the number of false postives (not real differentially expressed genes). 
 The model design in DESeq2 was:`r cat(paste(readLines(params$path_design), collapse=" "))`.
 The list of the first 20 differentially expressed genes is shown below. 
-The differentially expressed genes are marked with "DE" in the filter column. 
+The differentially expressed genes are marked with "DE" in the outcome column. 
 The full table can be found [here](./DESeq2/final_gene_table/final_gene_list_DESeq2.tsv).
 
 ```{r}
