@@ -305,7 +305,6 @@ datatable(df, caption = "Outcome of Differential Expression analysis", extension
 library(DT)
 df_contr <- read.table(params$path_contrasts, header=FALSE, sep="\t")
 contrnames = df_contr$V1
-  }
 ```
 
 ```{r contrasts_block, echo=FALSE, results='asis'}
