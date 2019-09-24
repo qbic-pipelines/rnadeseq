@@ -210,10 +210,10 @@ names(bg)
 #4.3) get DE genes from any contrast
 padj=names(bg)[grepl("padj",names(bg))]
 logFC = names(bg)[grepl("log2FoldChange", names(bg))]
-logFC = bg[,logFC]
+logFC = bg[,logFC,,drop=F]
 print("This is logFC")
 print(logFC)
-padj = bg[,padj]
+padj = bg[,padj,,drop=F]
 print("This is padj")
 print(padj)
 padj[is.na(padj)] <- 1
@@ -224,6 +224,7 @@ DE_bin = as.data.frame(DE_bin)
 cols <- names(padj)
 print("This is DE_bin")
 print(DE_bin)
+print(ncol(DE_bin))
 if (ncol(DE_bin)>1){
   DE_bin$filter <- apply(DE_bin[ ,cols],1,paste, collapse = "-")
   DE_bin$Ensembl_ID = row.names(padj)
