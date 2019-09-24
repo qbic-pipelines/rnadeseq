@@ -216,6 +216,9 @@ logFC_bin = data.matrix(ifelse(abs(logFC) > opt$logFCthreshold, 1, 0))
 DE_bin = padj_bin * logFC_bin
 DE_bin = as.data.frame(DE_bin)
 cols <- names(padj)
+print(cols)
+print(DE_bin)
+print(padj)
 DE_bin$filter <- apply(DE_bin[ ,cols],1,paste, collapse = "-")
 DE_bin$Ensembl_ID = row.names(padj)
 DE_bin = DE_bin[,c("Ensembl_ID","filter")]
