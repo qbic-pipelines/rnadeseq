@@ -15,6 +15,8 @@ matrix:
     env: NXF_VER='' SUITE=test FLAGS=
   - name: "Latest Nextflow version, default contrasts"
     env: NXF_VER='' SUITE=test FLAGS='--contrasts DEFAULT'
+  - name: "Latest Nextflow version, one contrast"
+    env: NXF_VER='' SUITE=test FLAGS:'--contrasts '
   - name: "Latest Nextflow version, no fastqc"
     env: NXF_VER='' SUITE=test FLAGS='--fastqc NO_FILE'
   - name: "Latest Nextflow version, no gene_list"
