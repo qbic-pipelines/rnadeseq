@@ -224,7 +224,7 @@ DE_bin = as.data.frame(DE_bin)
 cols <- names(padj)
 print("This is DE_bin")
 print(DE_bin)
-if (ncols(DE_bin)>1){
+if (ncol(DE_bin)>1){
   DE_bin$filter <- apply(DE_bin[ ,cols],1,paste, collapse = "-")
   DE_bin$Ensembl_ID = row.names(padj)
 } else {
