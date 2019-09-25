@@ -22,7 +22,7 @@ params:
   path_contrasts: ""
   path_wd: ""
   path_genelist: ""
-  path_quote: ""
+  path_offer: ""
 # Author: Simon Heumos
 # Contributor: Silvia Morini, Gisela Gabernet
 ---
@@ -386,7 +386,7 @@ Plots of the fitted expression values of each exon were generated for a subset o
 cat(report_options$outlook)
 ```
 \
-The results for all work packages, as described in the [quote](`r params$path_quote`) can be found in this report. Further support for this project will be restricted to the results presented in this report (e.g. requests to update/manipulate figures and tables). For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.
+The results for all work packages, as described in the [offer](`r params$path_offer`) can be found in this report. Further support for this project will be restricted to the results presented in this report (e.g. requests to update/manipulate figures and tables). For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.
 
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}

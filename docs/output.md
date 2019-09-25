@@ -66,7 +66,7 @@ In this directory the zipped report is contained. This file is ready for upload 
 * `Report.html`
   * QBiC report describing the RNAseq results.
 * `YYYYMMDD_PiName_QXXXX_signed.pdf`
-  * Signed quote for the QXXXX project
+  * Signed offer for the QXXXX project
 * `DESeq2/`
   * DESeq2 results to be attached to the report (see DESeq2 output description).
 * `QC/`

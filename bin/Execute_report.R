@@ -12,7 +12,7 @@ option_list = list(
   make_option(c("-c", "--report_options"), type="character", default=NULL, help="report options file", metavar="character"),
   make_option(c("-k", "--contrasts"), type="character", default=NULL, help="contrasts file", metavar="character"),
   make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
-  make_option(c("-q", "--quote"), type="character", default=NULL, help="path to the signed quote PDF file", metavar="character")
+  make_option(c("-q", "--offer"), type="character", default=NULL, help="path to the signed offer PDF file", metavar="character")
 )
 
 opt_parser = OptionParser(option_list=option_list)
@@ -38,4 +38,4 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_wd = wd,
                                 path_contrasts = opt$contrasts,
                                 path_genelist = path_genelist,
-                                path_quote = opt$quote))
+                                path_offer = opt$offer))
