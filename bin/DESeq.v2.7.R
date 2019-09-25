@@ -176,6 +176,7 @@ if (!is.null(opt$contrasts)){
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
   }
+  write(colnames(contrasts), file="contrast_names.txt", sep="\t")
 } else {
   for (contname in coefficients[2:length(coefficients)]) {
     d1 <- results(cds, name=contname)
@@ -190,9 +191,12 @@ if (!is.null(opt$contrasts)){
     write.table(d1DE, file=paste("DESeq2/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
+    print("This is d1")
+    print(d1)
   }
+  write(coefficients[2:length(coefficients)], file="contrast_names.txt", sep="\t")
 }
-
+print(bg)
 
 #remove identical columns
 bg$bg <- NULL
@@ -206,28 +210,38 @@ names(bg)
 #4.3) get DE genes from any contrast
 padj=names(bg)[grepl("padj",names(bg))]
 logFC = names(bg)[grepl("log2FoldChange", names(bg))]
-logFC = bg[,logFC]
-padj = bg[,padj]
+logFC = bg[,logFC,drop=F]
+padj = bg[,padj,drop=F]
 padj[is.na(padj)] <- 1
 padj_bin = data.matrix(ifelse(padj < 0.05, 1, 0))
 logFC_bin = data.matrix(ifelse(abs(logFC) > opt$logFCthreshold, 1, 0))
 DE_bin = padj_bin * logFC_bin
 DE_bin = as.data.frame(DE_bin)
 cols <- names(padj)
-DE_bin$filter <- apply(DE_bin[ ,cols],1,paste, collapse = "-")
-DE_bin$Ensembl_ID = row.names(padj)
-DE_bin = DE_bin[,c("Ensembl_ID","filter")]
+
+if (ncol(DE_bin)>1){
+  DE_bin$contrast_vector <- apply(DE_bin[ ,cols],1,paste, collapse = "-")
+  DE_bin$Ensembl_ID = row.names(padj)
+} else {
+  DE_bin$contrast_vector <- DE_bin[,1]
+  DE_bin$Ensembl_ID = row.names(padj)
+}
+
+DE_bin = DE_bin[,c("Ensembl_ID","contrast_vector")]
 
 #make final data frame
 bg1 = merge(bg,DE_bin,by.x="Ensembl_ID",by.y="Ensembl_ID")
 stopifnot(identical(dim(bg1)[1],dim(assay(cds))[1]))
-bg1$filter1 = ifelse(grepl("1",bg1$filter),"DE","not_DE")
+bg1$outcome = ifelse(grepl("1",bg1$contrast_vector),"DE","not_DE")
 bg1 = merge(x=bg1, y=gene_names, by.x="Ensembl_ID", by.y="Ensembl_ID", all.x = T)
 bg1 = bg1[,c(dim(bg1)[2],1:dim(bg1)[2]-1)]
 bg1 = bg1[order(bg1[,"Ensembl_ID"]),]
 
+#write to file
+write.table(bg1, "DESeq2/final_gene_table/final_gene_list_DESeq2.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
+
 #4.4) extract ID for genes to plot, make 20 plots:
-kip <- subset(bg1, filter1 == "DE")
+kip <- subset(bg1, outcome == "DE")
 kip = unique(kip$Ensembl_ID)
 
 if (length(kip) > 20) {
@@ -275,8 +289,6 @@ if (!is.null(opt$genelist)){
   }
 }
 
-#write to file
-write.table(bg1, "DESeq2/final_gene_table/final_gene_list_DESeq2.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 
 ##5) Data transformation
 #rlog

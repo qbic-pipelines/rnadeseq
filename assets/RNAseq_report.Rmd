@@ -287,7 +287,11 @@ The adjusted p-value is calculated in the `DESeq2` package with the Benjamini-Ho
 helps reduce the number of false postives (not real differentially expressed genes). 
 The model design in DESeq2 was:`r cat(paste(readLines(params$path_design), collapse=" "))`.
 The list of the first 20 differentially expressed genes is shown below. 
+<<<<<<< HEAD
 The differentially expressed genes are marked with "DE" in the filter column. 
+=======
+The differentially expressed genes are marked with "DE" in the outcome column. 
+>>>>>>> 66a1fca00ac28b21c59233a25fb91a83f3a3b4b4
 The full table can be found [here](./DESeq2/final_gene_table/final_gene_list_DESeq2.tsv).
 
 ```{r}
@@ -303,15 +307,11 @@ datatable(df, caption = "Outcome of Differential Expression analysis", extension
 
 ```{r setup2, echo=FALSE, message=FALSE, bootstrap.show.message=FALSE, include=FALSE}
 library(DT)
-contr=FALSE
-df_contr <- try(read.table(params$path_contrasts, header=TRUE, sep="\t"))
-if (!inherits(df_contr, 'try-error')){
-  contrnames = grep('vs', colnames(df_contr), value=TRUE)
-  contr <- TRUE
-  }
+df_contr <- read.table(params$path_contrasts, header=FALSE, sep="\t")
+contrnames = df_contr$V1
 ```
 
-```{r contrasts_block, echo=FALSE, results='asis', eval=contr}
+```{r contrasts_block, echo=FALSE, results='asis'}
 cat("***
 Additional tables for all individual contrasts are provided [here](./DESeq2/DE_genes_tables):
 \
@@ -363,7 +363,7 @@ Shown below you find the KEGG pathways enrichment plot for the example contrast 
 \
 ")) 
 ```
-```{r, out.width = "600px"}
+```{r, out.width = "600px", eval=report_options$KEGG}
 knitr::include_graphics(paste0(wd,"/gProfileR/", 'DE_contrast_', contrnames[i], "/", 'DE_contrast_', contrnames[i], '_keg_pathway_enrichment_plot.png'))
 ```
 

@@ -21,10 +21,10 @@ def helpMessage() {
     nextflow run qbicsoftware/rnadeseq --rawcounts 'counts.tsv' --metadata 'metadata.tsv' --design 'design.txt' --contrasts 'contrasts.tsv' -profile docker
 
     Mandatory arguments:
-      --rawcounts                   Raw count table (TSV). Columns are samples and rows are genes.
+      --rawcounts                   Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name.
       --metadata                    Metadata table (TSV). Rows are samples and columns contain sample grouping.
       --model                       Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file.
-      --contrasts                   Table indicating which contrasts to consider. 1 or 0 for every variable specified in the design. Alternatively you can set the parameter defaultcontrasts
+      --contrasts                   Table indicating which contrasts to consider. 1 or 0 for every variable specified in the design. If not provided, default DESeq2 contrasts are calculated.
       --species                     Species name. Format example: Hsapiens.
       --project_summary             Project summary file downloaded from the qPortal.
       --multiqc                     multiqc.zip folder containing the multiQC plots and report.
@@ -136,12 +136,18 @@ summary['Metadata'] = params.metadata
 summary['Model'] = params.model
 summary['Contrasts'] = params.contrasts
 summary['Gene list'] = params.genelist
+<<<<<<< HEAD
 summary['Project summary file'] = params.project_summary
 summary['nf-core/rnaseq software versions'] = params.versions
+=======
+summary['Project summary'] = params.project_summary
+summary['nf-core/rnaseq versions'] = params.versions
+>>>>>>> 66a1fca00ac28b21c59233a25fb91a83f3a3b4b4
 summary['Report options file'] = params.report_options
 summary['Fastqc reports'] = params.fastqc
 summary['Multiqc results'] = params.multiqc
 summary['Species'] = params.species
+summary['Quote'] = params.quote
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if(workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
 summary['Output dir']       = params.outdir
@@ -234,6 +240,7 @@ process DESeq2 {
 
     output:
     file "*.zip" into ch_deseq2_for_report, ch_deseq2_for_pathway
+    file "contrast_names.txt" into ch_contrnames_for_report
 
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
@@ -280,7 +287,11 @@ process Report {
     file(softwareversions) from ch_softwareversions_file
     file(model) from ch_model_for_report_file
     file(report_options) from ch_report_options_file
+<<<<<<< HEAD
     file(contrasts) from ch_contrasts_for_report_file
+=======
+    file(contrnames) from ch_contrnames_for_report
+>>>>>>> 66a1fca00ac28b21c59233a25fb91a83f3a3b4b4
     file(fastqc) from ch_fastqc_file
     file(deseq2) from ch_deseq2_for_report
     file(multiqc) from ch_multiqc_file
@@ -295,7 +306,6 @@ process Report {
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def fastqcopt = fastqc.name != 'NO_FILE' ? "$fastqc" : ''
-    def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
     """
     unzip $deseq2
     rm -r DESeq2/plots/further_diagnostics_plots
@@ -304,7 +314,11 @@ process Report {
     mkdir QC
     mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html $fastqcopt QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
+<<<<<<< HEAD
     --versions $softwareversions --model $model --report_options $report_options $contrastsopt $genelistopt --quote $quote
+=======
+    --versions $softwareversions --model $model --report_options $report_options --contrasts $contrnames $genelistopt --quote $quote
+>>>>>>> 66a1fca00ac28b21c59233a25fb91a83f3a3b4b4
     mv qc_summary.tsv QC/
     zip -r report.zip RNAseq_report.html DESeq2/ QC/ gProfileR/ $quote
     """
