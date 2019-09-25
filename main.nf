@@ -298,6 +298,7 @@ process Report {
     def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
     """
     unzip $deseq2
+    rm -r DESeq2/plots/further_diagnostics_plots
     unzip $multiqc
     unzip $gprofiler
     mkdir QC
