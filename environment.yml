@@ -38,3 +38,12 @@ dependencies:
   - bioconda::bioconductor-org.mm.eg.db=3.7.0
   - bioconda::bioconductor-org.hs.eg.db=3.7.0
   - conda-forge::r-gprofiler=0.6.7
+# HUMAnN2
+  - conda-forge::h5py=2.10.0
+  - bioconda::humann2=2.8.1
+  - bioconda::bowtie2=2.3.5
+  - bioconda::diamond=0.8.36
+  - bioconda::metaphlan2=2.7.7
+  - bioconda::maaslin2=0.99.2 #most recent maaslin2=0.99.12 causes conflicts!
+  - conda-forge::python=2.7.15
+  - bioconda::krona=2.7.1
