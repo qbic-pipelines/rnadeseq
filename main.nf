@@ -86,37 +86,59 @@ ch_output_docs = Channel.fromPath("$baseDir/docs/output.md")
 /*
  * Create a channel for input  files
  */
- // DESeq2
-Channel.fromPath("${params.rawcounts}")
-           .ifEmpty{exit 1, "Please provide raw counts file!"}
-           .set {ch_counts_file}
-Channel.fromPath("${params.metadata}")
-           .ifEmpty{exit 1, "Please provide metadata file!"}
-           .into { ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway }
-Channel.fromPath("${params.quote}")
-           .ifEmpty{exit 1, "Please provide a PDF of the signed quote!"}
-           .set { ch_quote_file}
-Channel.fromPath("${params.model}")
-            .ifEmpty{exit 1, "Please provide linear model file!"}
-            .into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
+//Check that all input files are given in case that a report is needed
+params.NoReportNeeded = false
+if (!params.NoReportNeeded) {
+    if (!params.rawcounts || !params.metadata || !params.quote || !params.model || !params.project_summary || !params.versions || !params.report_options || !params.multiqc ) {
+      exit 1, "If you need a report, please provide all parameters! Otherwise use --NoReportNeeded"
+    }
+}
+
+if (params.rawcounts) {
+  Channel.fromPath("${params.rawcounts}")
+            .ifEmpty{exit 1, "Please provide raw counts file!"}
+            .set {ch_counts_file}
+}
+if (params.metadata) {
+  Channel.fromPath("${params.metadata}")
+            .ifEmpty{exit 1, "Please provide metadata file!"}
+            .into { ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway }
+}
+if (params.quote) {
+  Channel.fromPath("${params.quote}")
+            .ifEmpty{exit 1, "Please provide a PDF of the signed quote!"}
+            .set { ch_quote_file}
+}
+if (params.model) {
+  Channel.fromPath("${params.model}")
+              .ifEmpty{exit 1, "Please provide linear model file!"}
+              .into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
+}
+if (params.project_summary) {
+  Channel.fromPath("${params.project_summary}")
+              .ifEmpty{exit 1, "Please provide project summary file!"}
+              .set { ch_proj_summary_file }
+}
+if (params.versions) {
+  Channel.fromPath("${params.versions}")
+              .ifEmpty{exit 1, "Please provide sofware versions file!"}
+              .set { ch_softwareversions_file }
+}
+if (params.report_options) {
+  Channel.fromPath("${params.report_options}")
+              .ifEmpty{exit 1, "Please provide report options file!"}
+              .set { ch_report_options_file }
+}
+if (params.multiqc) {
+  Channel.fromPath("${params.multiqc}")
+              .ifEmpty{exit 1, "Please provide multiqc.zip folder!"}
+              .set { ch_multiqc_file }
+}
+
 Channel.fromPath("${params.contrasts}")
             .into { ch_contrasts_for_deseq2_file; ch_contrasts_for_report_file }
-Channel.fromPath("${params.project_summary}")
-            .ifEmpty{exit 1, "Please provide project summary file!"}
-            .set { ch_proj_summary_file }
-Channel.fromPath("${params.versions}")
-            .ifEmpty{exit 1, "Please provide sofware versions file!"}
-            .set { ch_softwareversions_file }
-Channel.fromPath("${params.report_options}")
-            .ifEmpty{exit 1, "Please provide report options file!"}
-            .set { ch_report_options_file }
-Channel.fromPath("${params.multiqc}")
-            .ifEmpty{exit 1, "Please provide multiqc.zip folder!"}
-            .set { ch_multiqc_file }
 Channel.fromPath("${params.genelist}")
             .into { ch_genes_for_deseq2_file; ch_genes_for_report_file }
-
-ch_fastqc_file = file(params.fastqc)
 
 /*
  * Check mandatory parameters
