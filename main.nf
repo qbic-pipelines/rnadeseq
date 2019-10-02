@@ -285,6 +285,13 @@ process get_software_versions {
     Rscript -e "library(pheatmap); write(x=as.character(packageVersion('pheatmap')), file='v_pheatmap.txt')" 
     Rscript -e "library(optparse); write(x=as.character(packageVersion('optparse')), file='v_optparse.txt')"
     Rscript -e "library(svglite); write(x=as.character(packageVersion('svglite')), file='v_svglite.txt')"
+    humann2 --version > v_humann2.txt
+    bowtie2 --version > v_bowtie2.txt
+    diamond --version > v_diamond.txt
+    metaphlan2.py -v > v_metaphlan2.txt
+    Rscript -e "library(Maaslin2); write(x=as.character(packageVersion('Maaslin2')), file='v_maaslin2.txt')"
+    python --version > v_python.txt
+    ktImportText > v_kronatools.txt
     scrape_software_versions.py &> software_versions_mqc.yaml
     """
 }

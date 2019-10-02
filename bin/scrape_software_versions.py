@@ -16,7 +16,14 @@ regexes = {
     'gplots': ['v_gplots.txt', r"(\S+)"],
     'pheatmap': ['v_pheatmap.txt', r"(\S+)"],
     'optparse': ['v_optparse.txt', r"(\S+)"],
-    'svglite': ['v_optparse.txt', r"(\S+)"]
+    'svglite': ['v_svglite.txt', r"(\S+)"],
+    'HUMAn2': ['v_humann2.txt', r"humann2 v(\S+)"],
+    'Bowtie2': ['v_bowtie2.txt', r"/opt/conda/envs/qbicsoftware-rnadeseq-1.0dev/bin/bowtie2-align-s version (\S+)"],
+    'Diamond': ['v_diamond.txt', r"diamond version (\S+)"],
+    'MetaPhlAn': ['v_metaphlan2.txt', r"MetaPhlAn version (\S+)"],
+    'Python': ['v_optparse.txt', r"Python (\S+)"],
+    'KronaTools': ['v_kronatools.txt', r"_______________________________________________________________________________________________________________________/ KronaTools (\S+) - ktImportText \\___"],
+    'MaAsLin2': ['v_maaslin2.txt', r"(\S+)"]
 }
 results = OrderedDict()
 results['qbicsoftware/rnadeseq'] = '<span style="color:#999999;\">N/A</span>'
