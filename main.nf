@@ -89,63 +89,107 @@ ch_output_docs = Channel.fromPath("$baseDir/docs/output.md")
 //Check that all input files are given in case that a report is needed
 params.NoReportNeeded = false
 if (!params.NoReportNeeded) {
-    if (!params.rawcounts || !params.metadata || !params.quote || !params.model || !params.project_summary || !params.versions || !params.report_options || !params.multiqc ) {
-      exit 1, "If you need a report, please provide all parameters! Otherwise use --NoReportNeeded"
+    if (!params.rawcounts || !params.metadata || !params.quote || !params.model || !params.project_summary || !params.versions || !params.report_options || !params.multiqc || !params.species ) {
+      if (!params.rawcounts) { log.info"Please provide raw counts file!"} 
+      if (!params.metadata) { log.info "Please provide metadata file!"}
+      if (!params.quote) { log.infog"Please provide a PDF of the signed quote!"}
+      if (!params.model) { log.info"Please provide linear model file!"}
+      if (!params.project_summary) { log.info"Please provide project summary file!"}
+      if (!params.versions) {log.info"Please provide sofware versions file!"}
+      if (!params.report_options) {log.info"Please provide report options file!"}
+      if (!params.multiqc) {log.info"Please provide multiqc.zip folder!"}
+      if (!params.species) {log.info"Please provide species name!"}
+      exit 1, "If you need a report, please provide all parameters! Otherwise use '--NoReportNeeded'"
     }
 }
 
+//Return empty channel for unspecified parameters or check that specified paths exist
 if (params.rawcounts) {
-  Channel.fromPath("${params.rawcounts}")
-            .ifEmpty{exit 1, "Please provide raw counts file!"}
+  Channel.fromPath("${params.rawcounts}", checkIfExists: true)
+            .ifEmpty{exit 1, "Please provide a valid path to raw counts file!"}
             .set {ch_counts_file}
-}
-if (params.metadata) {
-  Channel.fromPath("${params.metadata}")
-            .ifEmpty{exit 1, "Please provide metadata file!"}
-            .into { ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway }
-}
-if (params.quote) {
-  Channel.fromPath("${params.quote}")
-            .ifEmpty{exit 1, "Please provide a PDF of the signed quote!"}
-            .set { ch_quote_file}
-}
-if (params.model) {
-  Channel.fromPath("${params.model}")
-              .ifEmpty{exit 1, "Please provide linear model file!"}
-              .into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
-}
-if (params.project_summary) {
-  Channel.fromPath("${params.project_summary}")
-              .ifEmpty{exit 1, "Please provide project summary file!"}
-              .set { ch_proj_summary_file }
-}
-if (params.versions) {
-  Channel.fromPath("${params.versions}")
-              .ifEmpty{exit 1, "Please provide sofware versions file!"}
-              .set { ch_softwareversions_file }
-}
-if (params.report_options) {
-  Channel.fromPath("${params.report_options}")
-              .ifEmpty{exit 1, "Please provide report options file!"}
-              .set { ch_report_options_file }
-}
-if (params.multiqc) {
-  Channel.fromPath("${params.multiqc}")
-              .ifEmpty{exit 1, "Please provide multiqc.zip folder!"}
-              .set { ch_multiqc_file }
-}
+} else { Channel.from().set {ch_counts_file} }
 
-Channel.fromPath("${params.contrasts}")
-            .into { ch_contrasts_for_deseq2_file; ch_contrasts_for_report_file }
-Channel.fromPath("${params.genelist}")
-            .into { ch_genes_for_deseq2_file; ch_genes_for_report_file }
+if (params.metadata) {
+  Channel.fromPath("${params.metadata}", checkIfExists: true)
+            .ifEmpty{exit 1, "Please provide a valid path to metadata file!"}
+            .into { ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway }
+} else { Channel.from().into{ ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway } }
+
+if (params.quote) {
+  Channel.fromPath("${params.quote}", checkIfExists: true)
+            .ifEmpty{exit 1, "Please provide a valid path to a PDF of the signed quote!"}
+            .set { ch_quote_file}
+} else { Channel.from().set {ch_quote_file} }
+
+if (params.model) {
+  Channel.fromPath("${params.model}", checkIfExists: true)
+              .ifEmpty{exit 1, "Please provide a valid path to linear model file!"}
+              .into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
+} else { Channel.from().into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway} }
+
+if (params.project_summary) {
+  Channel.fromPath("${params.project_summary}", checkIfExists: true)
+              .ifEmpty{exit 1, "Please provide a valid path to project summary file!"}
+              .set { ch_proj_summary_file }
+} else { Channel.from().set {ch_proj_summary_file} }
+
+if (params.versions) {
+  Channel.fromPath("${params.versions}", checkIfExists: true)
+              .ifEmpty{exit 1, "Please provide a valid path to sofware versions file!"}
+              .set { ch_softwareversions_file }
+} else { Channel.from().set {ch_softwareversions_file} }
+
+if (params.report_options) {
+  Channel.fromPath("${params.report_options}", checkIfExists: true)
+              .ifEmpty{exit 1, "Please provide a valid path to report options file!"}
+              .set { ch_report_options_file }
+} else { Channel.from().set {ch_report_options_file} }
+
+if (params.multiqc) {
+  Channel.fromPath("${params.multiqc}", checkIfExists: true)
+              .ifEmpty{exit 1, "Please provide a valid path to multiqc.zip folder!"}
+              .set { ch_multiqc_file }
+} else { Channel.from().set {ch_multiqc_file} }
+
+if (params.contrasts) {
+  if ("${params.contrasts}"=="DEFAULT") { 
+    Channel.fromPath("${params.contrasts}")
+                .into { ch_contrasts_for_deseq2_file; ch_contrasts_for_report_file }
+  } else {
+    Channel.fromPath("${params.contrasts}", checkIfExists: true)
+                .ifEmpty{exit 1, "Please provide contrast file!"}
+                .into { ch_contrasts_for_deseq2_file; ch_contrasts_for_report_file }
+  }
+} else { Channel.from().into { ch_contrasts_for_deseq2_file; ch_contrasts_for_report_file } }
+
+if (params.genelist) {
+  if ("${params.genelist}"=="NO_FILE") { 
+    Channel.fromPath("${params.genelist}")
+                .into { ch_genes_for_deseq2_file; ch_genes_for_report_file }
+  } else {
+    Channel.fromPath("${params.genelist}", checkIfExists: true)
+                .ifEmpty{exit 1, "Please provide a valid path to a gene list file!"}
+                .into { ch_genes_for_deseq2_file; ch_genes_for_report_file }
+  }
+} else { Channel.from().into { ch_genes_for_deseq2_file; ch_genes_for_report_file } }
+
+if (params.fastqc) {
+  if ("${params.fastqc}"=="NO_FILE") { 
+    Channel.fromPath("${params.fastqc}")
+                .set { ch_fastqc_file }
+  } else {
+    Channel.fromPath("${params.fastqc}", checkIfExists: true)
+                .ifEmpty{exit 1, "Please provide a valid path to FastQC report!"}
+                .set { ch_fastqc_file }
+  }
+} else { Channel.from().set { ch_fastqc_file } }
 
 /*
  * Check mandatory parameters
  */
-if (!params.species) {
-  exit 1, "No species has been specified!"
-}
+//All input parameters are optional right now, when --NoReportNeeded
+//TODO: log.info warnings when specific processes are not executed because of limited input.
 
 
 // Header log info
