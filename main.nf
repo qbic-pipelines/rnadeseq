@@ -37,6 +37,12 @@ def helpMessage() {
     When not aiming for a report:
       --NoReportNeeded              When this is specified, all arguments are optional and analysis steps are run depending on specified input paths.
 
+    For bacteria communities (metagenome or metatranscriptome)
+      --humann_reads                Pre-processed reads (e.g. from nf-core/rnaseq with parameters --remove_rRNA & --save_nonrRNA_reads)
+      --humann_nucleotide_db        (default: internal uniref_DEMO database)
+      --humann_protein_db           Diamond dabase (default: internal chocophlan_DEMO database)
+      --humann_metaphlan2_db        MetaPhlAn2 database (default: "https://bitbucket.org/biobakery/metaphlan2/downloads/mpa_v20_m200.tar")
+
     Options:
       --logFCthreshold              Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed.
       --genelist                    List of genes (one per line) of which to plot heatmaps for normalized counts across all samples.                
@@ -187,6 +193,26 @@ if (params.fastqc) {
                 .set { ch_fastqc_file }
   }
 } else { Channel.from().set { ch_fastqc_file } }
+
+Channel.fromPath("${params.humann_nucleotide_db}")
+          .ifEmpty{exit 1, "Please provide a valid path to a folder containing the chocophlan database!"}
+          .set { ch_humann_nucdb }
+
+Channel.fromPath("${params.humann_protein_db}")
+          .ifEmpty{exit 1, "Please provide a valid path to a folder containing a uniref_90 database!"}
+          .set { ch_humann_protdb }
+
+//TODO: remove the default below!
+params.humann_reads = "https://bitbucket.org/biobakery/biobakery/raw/tip/demos/biobakery_demos/data/humann2/input/demo.fastq"
+if (params.humann_reads) {
+  Channel.fromPath("${params.humann_reads}")
+            .ifEmpty{exit 1, "Please provide a valid path to a read file!"}
+            .set { ch_processed_reads }
+} else { Channel.from().set { ch_processed_reads } }
+
+Channel.fromPath("${params.humann_metaphlan2_db}")
+          .ifEmpty{exit 1, "Please provide a valid path to a MetaPhlAn2 file (.tar)!"}
+          .set { ch_humann_metaphlan2_db }
 
 /*
  * Check mandatory parameters
@@ -344,6 +370,80 @@ process Pathway_analysis {
     --model $model --normCounts 'DESeq2/gene_counts_tables/rlog_transformed_gene_counts.tsv' \
     --species $params.species
     zip -r gProfileR.zip gProfileR/
+    """
+}
+
+/*
+ * STEP 2.1 - Pathway analysis with HUMAnN2
+ */
+
+process bowtie_db {
+    tag "${tar_db.baseName}"
+
+    input:
+    file(tar_db) from ch_humann_metaphlan2_db
+
+    output:
+    file "${tar_db.baseName}*" into ch_humann_bowtie_db
+
+    script:
+    """
+    tar -xvf ${tar_db}
+    bzip2 -dk ${tar_db.baseName}.fna.bz2
+    bowtie2-build -f ${tar_db.baseName}.fna ${tar_db.baseName}
+    """
+}
+
+process humann {
+    tag "${reads}"
+    //publishDir "${params.outdir}/pathway_analysis", mode: 'copy'
+
+    input:
+    file("bowtie_db/*") from ch_humann_bowtie_db
+    file(NUCDB) from ch_humann_nucdb
+    file(PROTDB) from ch_humann_protdb
+    each file(reads) from ch_processed_reads
+
+    output:
+    file "outfolder/*" into ch_humann_all
+
+    script:
+    """
+    humann2 \
+      --metaphlan-options "-t rel_ab --bowtie2db ./bowtie_db" \
+      --threads ${task.cpus} \
+      -i $reads \
+      -o outfolder \
+      --nucleotide-database $NUCDB \
+      --protein-database $PROTDB \
+      --gap-fill on \
+      --verbose
+    """
+}
+
+process humann_merge {
+    publishDir "${params.outdir}/pathway_analysis_humann", mode: 'copy'
+
+    input:
+    file("all/*") from ch_humann_all.collect()
+
+    output:
+    file "*.tsv"
+
+    script:
+    """
+    humann2_join_tables \
+      --input all \
+      --output humann2_genefamilies.tsv \
+      --file_name genefamilies
+    humann2_join_tables \
+      --input all \
+      --output humann2_pathcoverage.tsv \
+      --file_name pathcoverage
+    humann2_join_tables \
+      --input all \
+      --output humann2_pathabundance.tsv \
+      --file_name pathabundance
     """
 }
 
