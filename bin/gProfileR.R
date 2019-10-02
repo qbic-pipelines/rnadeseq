@@ -147,7 +147,7 @@ for (file in contrast_files){
 
       # Plotting heatmaps and pathways for all pathways
       print("Plotting heatmaps...")
-      if (nrow(df) <= 100 & nrow(df) > 0) {
+      if (nrow(df) <= 1000 & nrow(df) > 0) {
         conditions <- grepl("Condition", colnames(metadata))
         metadata_cond <- as.data.frame(metadata[,conditions])
         metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
