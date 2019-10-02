@@ -16,7 +16,7 @@ regexes = {
     'gplots': ['v_gplots.txt', r"(\S+)"],
     'pheatmap': ['v_pheatmap.txt', r"(\S+)"],
     'optparse': ['v_optparse.txt', r"(\S+)"],
-    'svglite': ['v_optparse.txt', r"(\S+)"]
+    'svglite': ['v_svglite.txt', r"(\S+)"]
 }
 results = OrderedDict()
 results['qbicsoftware/rnadeseq'] = '<span style="color:#999999;\">N/A</span>'
