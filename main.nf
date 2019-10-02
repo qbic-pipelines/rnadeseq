@@ -20,7 +20,7 @@ def helpMessage() {
 
     nextflow run qbicsoftware/rnadeseq --rawcounts 'counts.tsv' --metadata 'metadata.tsv' --design 'design.txt' --contrasts 'contrasts.tsv' -profile docker
 
-    Mandatory arguments:
+    Mandatory arguments when producing a report:
       --rawcounts                   Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name.
       --metadata                    Metadata table (TSV). Rows are samples and columns contain sample grouping.
       --model                       Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file.
@@ -33,6 +33,9 @@ def helpMessage() {
       --report_options              Configuration file containing the section to be present in the report. Also contains any line to be added to the outlook.
       -profile                      Configuration profile to use. Can use multiple (comma separated)
                                     Available: conda, docker, singularity, awsbatch, test and more.
+
+    When not aiming for a report:
+      --NoReportNeeded              When this is specified, all arguments are optional and analysis steps are run depending on specified input paths.
 
     Options:
       --logFCthreshold              Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed.
