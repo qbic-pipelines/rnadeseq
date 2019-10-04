@@ -406,6 +406,7 @@ process humann {
 
     output:
     file "outfolder/*" into ch_humann_all
+    set val("${reads[0].name}"), file("outfolder/**metaphlan_bugs_list.tsv") into ch_humann_buglist
 
     script:
     """
@@ -444,6 +445,34 @@ process humann_merge {
       --input all \
       --output humann2_pathabundance.tsv \
       --file_name pathabundance
+    """
+}
+
+process buglist_to_krona {
+    input:
+    set val(bug), file("krona") from ch_humann_buglist
+
+    output:
+    file "*.krona" into ch_humann_krona
+
+    script:
+    """
+    metaphlan2krona.py -p krona -k ${bug}.krona
+    """
+}
+
+process krona {
+    publishDir "${params.outdir}/pathway_analysis_humann", mode: 'copy'
+
+    input:
+    file(krona) from ch_humann_krona.collect()
+
+    output:
+    file "taxonomy.krona.html"
+
+    script:
+    """
+    ktImportText -o taxonomy.krona.html $krona
     """
 }
 
