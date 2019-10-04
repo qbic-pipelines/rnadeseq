@@ -203,12 +203,31 @@ Channel.fromPath("${params.humann_protein_db}")
           .set { ch_humann_protdb }
 
 //TODO: remove the default below!
-params.humann_reads = "https://bitbucket.org/biobakery/biobakery/raw/tip/demos/biobakery_demos/data/humann2/input/demo.fastq"
-if (params.humann_reads) {
-  Channel.fromPath("${params.humann_reads}")
-            .ifEmpty{exit 1, "Please provide a valid path to a read file!"}
+//params.humann_reads = "https://bitbucket.org/biobakery/biobakery/raw/tip/demos/biobakery_demos/data/humann2/input/demo.fastq"
+
+//Channel for preprocessed reads for HUMAnN2
+if(params.readPaths){
+    if(params.singleEnd){
+        Channel
+            .from(params.readPaths)
+            .map { row -> [ row[0], [file(row[1][0])]] }
+            .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
             .set { ch_processed_reads }
-} else { Channel.from().set { ch_processed_reads } }
+    } else {
+        Channel
+            .from(params.readPaths)
+            .map { row -> [ row[0], [file(row[1][0]), file(row[1][1])]] }
+            .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
+            .set { ch_processed_reads }
+    }
+} else {
+  if (params.humann_reads) {
+    Channel
+        .fromFilePairs( params.humann_reads, size: params.singleEnd ? 1 : 2 )
+        .ifEmpty { exit 1, "Cannot find any reads matching: ${params.humann_reads}\nNB: Path needs to be enclosed in quotes!\nNB: Path requires at least one * wildcard!\nIf this is single-end data, please specify --singleEnd on the command line." }
+        .set { ch_processed_reads }
+  } else { Channel.from().set { ch_processed_reads } }
+}
 
 Channel.fromPath("${params.humann_metaphlan2_db}")
           .ifEmpty{exit 1, "Please provide a valid path to a MetaPhlAn2 file (.tar)!"}
@@ -384,7 +403,7 @@ process bowtie_db {
     file(tar_db) from ch_humann_metaphlan2_db
 
     output:
-    file "${tar_db.baseName}*" into ch_humann_bowtie_db
+    set val("${tar_db.baseName}"), file("${tar_db.baseName}*") into ch_humann_bowtie_db
 
     script:
     """
@@ -395,21 +414,20 @@ process bowtie_db {
 }
 
 process humann {
-    tag "${reads}"
+    tag "${name}"
     //publishDir "${params.outdir}/pathway_analysis", mode: 'copy'
 
     input:
-    file("bowtie_db/*") from ch_humann_bowtie_db
-    file(NUCDB) from ch_humann_nucdb
-    file(PROTDB) from ch_humann_protdb
-    each file(reads) from ch_processed_reads
+    set val(name), file(reads), file(NUCDB), file(PROTDB), val(db_name), file("bowtie_db/*") from ch_processed_reads.combine(ch_humann_nucdb).combine(ch_humann_protdb).combine(ch_humann_bowtie_db)
 
     output:
     file "outfolder/*" into ch_humann_all
     set val("${reads[0].name}"), file("outfolder/**metaphlan_bugs_list.tsv") into ch_humann_buglist
 
     script:
+    def command_merge = params.singleEnd ? '' : "cat $reads > $name.fastq.gz"
     """
+    ${command_merge}
     humann2 \
       --metaphlan-options "-t rel_ab --bowtie2db ./bowtie_db" \
       --threads ${task.cpus} \
