@@ -37,8 +37,9 @@ def helpMessage() {
     When not aiming for a report:
       --NoReportNeeded              When this is specified, all arguments are optional and analysis steps are run depending on specified input paths.
 
-    For bacteria communities (metagenome or metatranscriptome)
-      --humann_reads                Pre-processed reads (e.g. from nf-core/rnaseq with parameters --remove_rRNA & --save_nonrRNA_reads)
+    For bacteria communities (metagenome or metatranscriptome):
+      --humann_reads                Pre-processed fastq gzipped reads (e.g. from nf-core/rnaseq with parameters --remove_rRNA & --save_nonrRNA_reads)
+      --singleEnd                   Indicates that files are single ended (default: false)
       --humann_nucleotide_db        (default: internal uniref_DEMO database)
       --humann_protein_db           Diamond dabase (default: internal chocophlan_DEMO database)
       --humann_metaphlan2_db        MetaPhlAn2 database (default: "https://bitbucket.org/biobakery/metaphlan2/downloads/mpa_v20_m200.tar")
