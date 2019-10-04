@@ -123,8 +123,8 @@ if (params.rawcounts) {
 if (params.metadata) {
   Channel.fromPath("${params.metadata}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide a valid path to metadata file!"}
-            .into { ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway }
-} else { Channel.from().into{ ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway } }
+            .into { ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway; ch_metadata_for_maaslin }
+} else { Channel.from().into{ ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway; ch_metadata_for_maaslin } }
 
 if (params.quote) {
   Channel.fromPath("${params.quote}", checkIfExists: true)
@@ -449,6 +449,7 @@ process humann_merge {
 
     output:
     file "*.tsv"
+    file("*_relab.tsv") into ch_humann_to_maaslin
 
     script:
     """
@@ -464,6 +465,8 @@ process humann_merge {
       --input all \
       --output humann2_pathabundance.tsv \
       --file_name pathabundance
+    humann2_renorm_table --input humann2_genefamilies.tsv --output humann2_genefamilies_relab.tsv --units relab
+    humann2_renorm_table --input humann2_pathabundance.tsv --output humann2_pathabundance_relab.tsv --units relab
     """
 }
 
@@ -492,6 +495,24 @@ process krona {
     script:
     """
     ktImportText -o taxonomy.krona.html $krona
+    """
+}
+
+process maaslin {
+    tag "${table.baseName}"
+
+    publishDir "${params.outdir}/pathway_analysis_humann", mode: 'copy'
+
+    input:
+    file(metadata) from ch_metadata_for_maaslin
+    each file(table) from ch_humann_to_maaslin.flatten()
+
+    output:
+    file "${table.baseName}/*"
+
+    script:
+    """
+    MaAsLin2.R --metadata $metadata --data $table --cores ${task.cpus} --output_folder ${table.baseName}
     """
 }
 
