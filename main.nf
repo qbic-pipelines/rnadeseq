@@ -40,8 +40,9 @@ def helpMessage() {
     For bacteria communities (metagenome or metatranscriptome):
       --humann_reads                Pre-processed fastq gzipped reads (e.g. from nf-core/rnaseq with parameters --remove_rRNA & --save_nonrRNA_reads)
       --singleEnd                   Indicates that files are single ended (default: false)
-      --humann_nucleotide_db        (default: internal uniref_DEMO database)
-      --humann_protein_db           Diamond dabase (default: internal chocophlan_DEMO database)
+      --humann_nucleotide_db        Nucleotide database ".tar.gz" (default: 'http://huttenhower.sph.harvard.edu/humann2_data/chocophlan/full_chocophlan.v201901.tar.gz')
+      --humann_protein_db           Diamond protein database ".tar.gz" (default: 'http://huttenhower.sph.harvard.edu/humann2_data/uniprot/uniref_ec_filtered/uniref90_ec_filtered_201901.tar.gz')
+      --humann_utility_db           Utility database ".tar.gz" (default: 'http://huttenhower.sph.harvard.edu/humann2_data/full_mapping_1_1.tar.gz')
       --humann_metaphlan2_db        MetaPhlAn2 database (default: "https://bitbucket.org/biobakery/metaphlan2/downloads/mpa_v20_m200.tar")
 
     Options:
@@ -195,13 +196,29 @@ if (params.fastqc) {
   }
 } else { Channel.from().set { ch_fastqc_file } }
 
-Channel.fromPath("${params.humann_nucleotide_db}")
-          .ifEmpty{exit 1, "Please provide a valid path to a folder containing the chocophlan database!"}
-          .set { ch_humann_nucdb }
+if ( !params.humann_nucleotide_db_folder ) {
+    if ( params.humann_nucleotide_db ) {
+        Channel.fromPath("${params.humann_nucleotide_db}")
+                  .ifEmpty{exit 1, "Please provide a valid path to a chocophlan database!"}
+                  .set { ch_humann_nucdb_file }
+    } else { Channel.from().set { ch_humann_nucdb_file } }
+}
 
-Channel.fromPath("${params.humann_protein_db}")
-          .ifEmpty{exit 1, "Please provide a valid path to a folder containing a uniref_90 database!"}
-          .set { ch_humann_protdb }
+if ( !params.humann_protein_db_folder ) {
+    if ( params.humann_protein_db ) {
+        Channel.fromPath("${params.humann_protein_db}")
+                  .ifEmpty{exit 1, "Please provide a valid path to a uniref_90 database!"}
+                  .set { ch_humann_protdb_file }
+    } else { Channel.from().set { ch_humann_protdb_file } }
+}
+
+if ( !params.humann_utility_db_folder ) {
+    if ( params.humann_utility_db ) {
+        Channel.fromPath("${params.humann_utility_db}")
+                  .ifEmpty{exit 1, "Please provide a valid path to a utility database!"}
+                  .set { ch_humann_utilitydb_file }
+    } else { Channel.from().set { ch_humann_utilitydb_file } }
+}
 
 //TODO: remove the default below!
 //params.humann_reads = "https://bitbucket.org/biobakery/biobakery/raw/tip/demos/biobakery_demos/data/humann2/input/demo.fastq"
@@ -413,6 +430,60 @@ process bowtie_db {
     bowtie2-build -f ${tar_db.baseName}.fna ${tar_db.baseName}
     """
 }
+
+if ( !params.humann_nucleotide_db_folder ) {
+    process human_nuc_db {
+        tag "${tar_db.simpleName}"
+
+        input:
+        file(tar_db) from ch_humann_nucdb_file
+
+        output:
+        file("${tar_db.simpleName}") into ch_humann_nucdb
+
+        script:
+        """
+        mkdir ${tar_db.simpleName}
+        tar -xvzf ${tar_db} --directory ${tar_db.simpleName}/
+        """
+    }
+} else { Channel.fromPath("${params.humann_nucleotide_db_folder}").set{ch_humann_nucdb} }
+
+if ( !params.humann_protein_db_folder ) {
+    process human_prot_db {
+        tag "${tar_db.simpleName}"
+
+        input:
+        file(tar_db) from ch_humann_protdb_file
+
+        output:
+        file("${tar_db.simpleName}") into ch_humann_protdb
+
+        script:
+        """
+        mkdir ${tar_db.simpleName}
+        tar -xvzf ${tar_db} --directory ${tar_db.simpleName}/
+        """
+    }
+} else { Channel.fromPath("${params.humann_protein_db_folder}").set{ch_humann_protdb} }
+
+if ( !params.humann_utility_db_folder ) {
+    process human_utility_db {
+        tag "${tar_db.simpleName}"
+
+        input:
+        file(tar_db) from ch_humann_utilitydb_file
+
+        output:
+        file("${tar_db.simpleName}") into ch_humann_utilitydb
+
+        script:
+        """
+        mkdir ${tar_db.simpleName}
+        tar -xvzf ${tar_db} --directory ${tar_db.simpleName}/
+        """
+    }
+} else { Channel.fromPath("${params.humann_utility_db_folder}").set{ch_humann_utilitydb} }
 
 process humann {
     tag "${name}"
