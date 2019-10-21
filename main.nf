@@ -396,6 +396,9 @@ process Pathway_analysis {
     output:
     file "*.zip" into ch_gprofiler_for_report
 
+    when:
+    params.species
+
     script:
     """
     unzip $deseq_output
