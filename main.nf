@@ -100,7 +100,7 @@ ch_output_docs = Channel.fromPath("$baseDir/docs/output.md")
 //Check that all input files are given in case that a report is needed
 params.NoReportNeeded = false
 if (!params.NoReportNeeded) {
-    if (!params.rawcounts || !params.metadata || !params.quote || !params.model || !params.project_summary || !params.versions || !params.report_options || !params.multiqc || !params.species ) {
+    if (!params.rawcounts || !params.metadata || !params.quote || !params.model || !params.project_summary || !params.versions || !params.report_options || !params.multiqc ) {
       if (!params.rawcounts) { log.info"Please provide raw counts file!"} 
       if (!params.metadata) { log.info "Please provide metadata file!"}
       if (!params.quote) { log.infog"Please provide a PDF of the signed quote!"}
@@ -109,7 +109,6 @@ if (!params.NoReportNeeded) {
       if (!params.versions) {log.info"Please provide sofware versions file!"}
       if (!params.report_options) {log.info"Please provide report options file!"}
       if (!params.multiqc) {log.info"Please provide multiqc.zip folder!"}
-      if (!params.species) {log.info"Please provide species name!"}
       exit 1, "If you need a report, please provide all parameters! Otherwise use '--NoReportNeeded'"
     }
 }
@@ -196,33 +195,6 @@ if (params.fastqc) {
   }
 } else { Channel.from().set { ch_fastqc_file } }
 
-if ( !params.humann_nucleotide_db_folder ) {
-    if ( params.humann_nucleotide_db ) {
-        Channel.fromPath("${params.humann_nucleotide_db}")
-                  .ifEmpty{exit 1, "Please provide a valid path to a chocophlan database!"}
-                  .set { ch_humann_nucdb_file }
-    } else { Channel.from().set { ch_humann_nucdb_file } }
-}
-
-if ( !params.humann_protein_db_folder ) {
-    if ( params.humann_protein_db ) {
-        Channel.fromPath("${params.humann_protein_db}")
-                  .ifEmpty{exit 1, "Please provide a valid path to a uniref_90 database!"}
-                  .set { ch_humann_protdb_file }
-    } else { Channel.from().set { ch_humann_protdb_file } }
-}
-
-if ( !params.humann_utility_db_folder ) {
-    if ( params.humann_utility_db ) {
-        Channel.fromPath("${params.humann_utility_db}")
-                  .ifEmpty{exit 1, "Please provide a valid path to a utility database!"}
-                  .set { ch_humann_utilitydb_file }
-    } else { Channel.from().set { ch_humann_utilitydb_file } }
-}
-
-//TODO: remove the default below!
-//params.humann_reads = "https://bitbucket.org/biobakery/biobakery/raw/tip/demos/biobakery_demos/data/humann2/input/demo.fastq"
-
 //Channel for preprocessed reads for HUMAnN2
 if(params.readPaths){
     if(params.singleEnd){
@@ -245,6 +217,30 @@ if(params.readPaths){
         .ifEmpty { exit 1, "Cannot find any reads matching: ${params.humann_reads}\nNB: Path needs to be enclosed in quotes!\nNB: Path requires at least one * wildcard!\nIf this is single-end data, please specify --singleEnd on the command line." }
         .set { ch_processed_reads }
   } else { Channel.from().set { ch_processed_reads } }
+}
+
+if ( !params.humann_nucleotide_db_folder ) {
+    if ( params.humann_nucleotide_db ) {
+        Channel.fromPath("${params.humann_nucleotide_db}")
+                  .ifEmpty{exit 1, "Please provide a valid path to a chocophlan database!"}
+                  .set { ch_humann_nucdb_file }
+    } else { Channel.from().set { ch_humann_nucdb_file } }
+}
+
+if ( !params.humann_protein_db_folder ) {
+    if ( params.humann_protein_db ) {
+        Channel.fromPath("${params.humann_protein_db}")
+                  .ifEmpty{exit 1, "Please provide a valid path to a uniref_90 database!"}
+                  .set { ch_humann_protdb_file }
+    } else { Channel.from().set { ch_humann_protdb_file } }
+}
+
+if ( !params.humann_utility_db_folder ) {
+    if ( params.humann_utility_db ) {
+        Channel.fromPath("${params.humann_utility_db}")
+                  .ifEmpty{exit 1, "Please provide a valid path to a utility database!"}
+                  .set { ch_humann_utilitydb_file }
+    } else { Channel.from().set { ch_humann_utilitydb_file } }
 }
 
 Channel.fromPath("${params.humann_metaphlan2_db}")
@@ -423,6 +419,9 @@ process bowtie_db {
     output:
     set val("${tar_db.baseName}"), file("${tar_db.baseName}*") into ch_humann_bowtie_db
 
+    when:
+    params.readPaths || params.humann_reads
+
     script:
     """
     tar -xvf ${tar_db}
@@ -440,6 +439,9 @@ if ( !params.humann_nucleotide_db_folder ) {
 
         output:
         file("${tar_db.simpleName}") into ch_humann_nucdb
+
+        when:
+        params.readPaths || params.humann_reads
 
         script:
         """
@@ -459,6 +461,9 @@ if ( !params.humann_protein_db_folder ) {
         output:
         file("${tar_db.simpleName}") into ch_humann_protdb
 
+        when:
+        params.readPaths || params.humann_reads
+
         script:
         """
         mkdir ${tar_db.simpleName}
@@ -476,6 +481,9 @@ if ( !params.humann_utility_db_folder ) {
 
         output:
         file("${tar_db.simpleName}") into ch_humann_utilitydb
+
+        when:
+        params.readPaths || params.humann_reads
 
         script:
         """
