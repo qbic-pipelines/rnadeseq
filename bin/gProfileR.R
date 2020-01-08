@@ -130,7 +130,6 @@ for (file in contrast_files){
     res <- split(path_enrich, path_enrich$domain)
     for (df in res){
       db_source <- df$domain[1]
-      print(db_source)
       df$short_name <- sapply(df$term.name, substr, start=1, stop=50)
 
       # Plotting results for df
@@ -162,17 +161,7 @@ for (file in contrast_files){
           mat <- norm_counts[gene_list, ]
           rownames(mat) <- mat$gene_name
           mat$gene_name <- NULL
-
           mat <- data.matrix(mat)
-
-          print(mat)
-          print(metadata_cond)
-          print(pathway$domain)
-          print(pathway$term.id)
-          print(pathway$short_name)
-          print(fname)
-          print(outdir)
-          print(pathway_heatmaps_dir)
 
           if (nrow(mat)>1){
             png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$domain, "_", pathway$term.id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
