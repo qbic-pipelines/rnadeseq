@@ -37,7 +37,6 @@ def helpMessage() {
     Options:
       --logFCthreshold              Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed.
       --genelist                    List of genes (one per line) of which to plot heatmaps for normalized counts across all samples.                
-      --fastqc                      zip file containing the fastqc reports.
 
     Other options:
       --outdir                      The output directory where the results will be saved
@@ -87,30 +86,30 @@ ch_output_docs = Channel.fromPath("$baseDir/docs/output.md")
  * Create a channel for input  files
  */
  // DESeq2
-Channel.fromPath("${params.rawcounts}")
+Channel.fromPath("${params.rawcounts}", checkIfExists: true)
            .ifEmpty{exit 1, "Please provide raw counts file!"}
            .set {ch_counts_file}
-Channel.fromPath("${params.metadata}")
+Channel.fromPath("${params.metadata}", checkIfExists: true)
            .ifEmpty{exit 1, "Please provide metadata file!"}
            .into { ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway }
-Channel.fromPath("${params.quote}")
+Channel.fromPath("${params.quote}", checkIfExists: true)
            .ifEmpty{exit 1, "Please provide a PDF of the signed quote!"}
            .set { ch_quote_file}
-Channel.fromPath("${params.model}")
+Channel.fromPath("${params.model}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide linear model file!"}
             .into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
 Channel.fromPath("${params.contrasts}")
             .into { ch_contrasts_for_deseq2_file; ch_contrasts_for_report_file }
-Channel.fromPath("${params.project_summary}")
+Channel.fromPath("${params.project_summary}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide project summary file!"}
             .set { ch_proj_summary_file }
-Channel.fromPath("${params.versions}")
+Channel.fromPath("${params.versions}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide sofware versions file!"}
             .set { ch_softwareversions_file }
-Channel.fromPath("${params.report_options}")
+Channel.fromPath("${params.report_options}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide report options file!"}
             .set { ch_report_options_file }
-Channel.fromPath("${params.multiqc}")
+Channel.fromPath("${params.multiqc}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide multiqc.zip folder!"}
             .set { ch_multiqc_file }
 Channel.fromPath("${params.genelist}")
@@ -139,7 +138,6 @@ summary['Gene list'] = params.genelist
 summary['Project summary'] = params.project_summary
 summary['nf-core/rnaseq versions'] = params.versions
 summary['Report options file'] = params.report_options
-summary['Fastqc reports'] = params.fastqc
 summary['Multiqc results'] = params.multiqc
 summary['Species'] = params.species
 summary['Quote'] = params.quote
@@ -283,7 +281,6 @@ process Report {
     file(model) from ch_model_for_report_file
     file(report_options) from ch_report_options_file
     file(contrnames) from ch_contrnames_for_report
-    file(fastqc) from ch_fastqc_file
     file(deseq2) from ch_deseq2_for_report
     file(multiqc) from ch_multiqc_file
     file(genelist) from ch_genes_for_report_file
@@ -296,13 +293,12 @@ process Report {
 
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
-    def fastqcopt = fastqc.name != 'NO_FILE' ? "$fastqc" : ''
     """
     unzip $deseq2
     unzip $multiqc
     unzip $gprofiler
     mkdir QC
-    mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html $fastqcopt QC/
+    mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
     --versions $softwareversions --model $model --report_options $report_options --contrasts $contrnames $genelistopt --quote $quote
     mv qc_summary.tsv QC/

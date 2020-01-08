@@ -162,7 +162,11 @@ for (file in contrast_files){
 
           if (nrow(mat)>1){
             png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$domain, "_", pathway$term.id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
-            pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$domain,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+            tryCatch(withCallingHandlers(pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$domain,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T ), 
+                    error=function(e) {print(paste0("Skipping heatmap plot due to problem:"))},
+                    warning=function(w) {print(paste0("Warning for heatmap plot."))
+                                invokeRestart("muffleWarning")}), 
+            error = function(e) { print(paste0("Heatmap plot finished")) })
             dev.off()
           }
 
