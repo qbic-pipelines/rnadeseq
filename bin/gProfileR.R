@@ -160,7 +160,7 @@ for (file in contrast_files){
           rownames(mat) <- mat$gene_name
           mat$gene_name <- NULL
 
-          if (nrow(mat)>2){
+          if (nrow(mat)>1){
             png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$domain, "_", pathway$term.id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
             pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$domain,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
             dev.off()
