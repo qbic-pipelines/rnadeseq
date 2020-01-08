@@ -86,7 +86,8 @@ drop <- c("Ensembl_ID","gene_name")
 gene_names <- count.table[,drop]
 
 # Reduce sample names to QBiC codes in count table
-names(count.table) <- gsub('([A-Z0-9]{10})\\(.*)','\\1', names(count.table))
+#names(count.table) <- gsub('([A-Z0-9]{10})\\.(.*)','\\1', names(count.table))
+names(count.table) <- substr(names(count.table), 1, 10)
 count.table <- count.table[ , !(names(count.table) %in% drop)]
 
 # Remove lines with "__" from HTSeq, not needed for featureCounts (will not harm here)
@@ -107,6 +108,9 @@ for (i in conditions) {
 
 # Need to order columns in count.table
 count.table <- count.table[, order(names(count.table))]
+
+print(names(count.table))
+print(row.names(metadata))
 
 # check metadata and count table sorting, (correspond to QBiC codes): if not in the same order stop
 stopifnot(identical(names(count.table),row.names(metadata)))
@@ -309,12 +313,13 @@ dev.off()
 
 
 ############################ PCA PLOTS ########################
-pcaData <- plotPCA(rld,intgroup=c("x"),ntop = dim(rld)[1], returnData=TRUE)
+pcaData <- plotPCA(rld,intgroup=c("combfactor"),ntop = dim(rld)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
-pca <- ggplot(pcaData, aes(PC1, PC2, color=x)) +
+pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor)) +
   geom_point(size=3) +
   xlab(paste0("PC1: ",percentVar[1],"% variance")) +
   ylab(paste0("PC2: ",percentVar[2], "% variance")) +
+  theme(legend.title = element_blank()) +
   coord_fixed()
 ggsave(plot = pca, filename = "DESeq2/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca, filename = "DESeq2/plots/PCA_plot.svg", device = "svg", dpi = 150)
