@@ -18,15 +18,15 @@ library("optparse")
 library("svglite")
 library("extrafont")
 
-#clean up graphs
+# clean up graphs
 graphics.off()
 
+# Load fonts and set plot themes
 theme_set(theme_bw(base_family = "ArialMT") + 
 theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
 extrafont::font_import()
 extrafont::loadfonts()
 
-######################################
 # create directories needed
 ifelse(!dir.exists("DESeq2"), dir.create("DESeq2"), FALSE)
 dir.create("DESeq2/metadata")
@@ -37,10 +37,8 @@ dir.create("DESeq2/plots/further_diagnostics_plots")
 dir.create("DESeq2/gene_counts_tables")
 dir.create("DESeq2/DE_genes_tables")
 dir.create("DESeq2/final_gene_table")
-######################################
 
-# #1)check input data path
-
+# check input data path
 # provide these files as arguments:
 option_list = list(
   make_option(c("-c", "--counts"), type="character", default=NULL, help="path to raw count table", metavar="character"),
@@ -79,78 +77,73 @@ if(!is.null(opt$genelist)){
   requested_genes_path = opt$genelist
 }
 
-##2) load count table
+####### LOADING AND PROCESSING COUNT TABLE AND METADATA TABLE #####################################
 
+# Load count table
 count.table <- read.table(path_count_table,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
 count.table$Ensembl_ID <- row.names(count.table)
 drop <- c("Ensembl_ID","gene_name")
 gene_names <- count.table[,drop]
 
-
-##Need to reduce gene names to QBiC codes
-names(count.table) <- gsub('([A-Z0-9]{10})\\Aligned\\.(.*)\\.(.*)','\\1', names(count.table))
-#write.table(count.table , file = "DESeq2/raw_counts/raw_counts.txt", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
-
+# Reduce sample names to QBiC codes in count table
+names(count.table) <- gsub('([A-Z0-9]{10})\\(.*)','\\1', names(count.table))
 count.table <- count.table[ , !(names(count.table) %in% drop)]
 
-###2.1) remove lines with "__" from HTSeq, not needed for featureCounts (will not harm here)
+# Remove lines with "__" from HTSeq, not needed for featureCounts (will not harm here)
 count.table <- count.table[!grepl("^__",row.names(count.table)),]
-#do some hard filtering just based on number of 0's per row
+# Do some hard filtering for genes with 0 expression
 count.table = count.table[rowSums(count.table)>0,]
 
-###3) load metadata: sample preparations tsv file from qPortal
-
-m <- read.table(metadata_path, sep="\t", header=TRUE,na.strings =c("","NaN"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names = 1)
+# Load metadata: sample preparations tsv file from qPortal
+metadata <- read.table(metadata_path, sep="\t", header=TRUE,na.strings =c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
 system(paste("mv ",metadata_path," DESeq2/metadata/metadata.tsv",sep=""))
 
-#make sure m is factor where needed
-names(m) = gsub("Condition..","condition_",names(m))
-conditions = names(m)[grepl("condition_",names(m))]
-sapply(m,class)
+# Make sure metadata is factor where needed
+names(metadata) = gsub("Condition..","condition_",names(metadata))
+conditions = names(metadata)[grepl("condition_",names(metadata))]
 for (i in conditions) {
-  m[,i] = as.factor(m[,i])
+  metadata[,i] = as.factor(metadata[,i])
 }
-sapply(m,class)
 
-
-## Need to order columns in count.table
+# Need to order columns in count.table
 count.table <- count.table[, order(names(count.table))]
 
-#check m and count table sorting, (correspond to QBiC codes): if not in the same order stop
-stopifnot(identical(names(count.table),row.names(m)))
+# check metadata and count table sorting, (correspond to QBiC codes): if not in the same order stop
+stopifnot(identical(names(count.table),row.names(metadata)))
 
-#change row.names now:
-m$Secondary.Name <- gsub(" ; ", "_", m$Secondary.Name)
-m$nn = paste(row.names(m),m$Secondary.Name,sep="_")
-names(count.table) = m$nn
-row.names(m) = m$nn
+# process secondary names and change row names in metadata
+metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name)
+metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
+metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
+names(count.table) = metadata$sampleName
+row.names(metadata) = metadata$sampleName
 
-stopifnot(identical(names(count.table),row.names(m)))
-
+stopifnot(identical(names(count.table),row.names(metadata)))
 
 #to get all possible pairwise comparisons, make a combined factor
 
-conditions <- grepl(colnames(m),pattern = "condition_")
-m$x <- apply(as.data.frame(m[ ,conditions]),1,paste, collapse = "_")
-print(m)
+conditions <- grepl(colnames(metadata),pattern = "condition_")
+metadata$combfactor <- apply(as.data.frame(metadata[ ,conditions]),1,paste, collapse = "_")
 
-
-###4) run DESeq function
+# Read design file
 design <- read.csv(path_design, sep="\t", header = F)
 write.table(design, file="DESeq2/metadata/linear_model.txt", sep="\t", quote=F, col.names = F, row.names = F)
-cds <- DESeqDataSetFromMatrix( countData =count.table, colData =m, design = eval(parse(text=as.character(design[[1]]))))
+
+################## RUN DESEQ2 ######################################
+
+# Run DESeq function
+cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
 cds <- DESeq(cds,  parallel = FALSE)
 
-
-### 4.1) sizeFactors(cds) as indicator of library sequencing depth
+# SizeFactors(cds) as indicator of library sequencing depth
 sizeFactors(cds)
 write.table(sizeFactors(cds),paste("DESeq2/gene_counts_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
 
-#write raw counts to file
+# Write raw counts to file
 count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
 write.table(count_table_names, paste("DESeq2/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
-###4.2) contrasts
+# Contrasts
 coefficients <- resultsNames(cds)
 bg = data.frame(bg = character(nrow(cds)))
 if (!is.null(opt$contrasts)){
@@ -191,23 +184,19 @@ if (!is.null(opt$contrasts)){
     write.table(d1DE, file=paste("DESeq2/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
-    print("This is d1")
-    print(d1)
   }
   write(coefficients[2:length(coefficients)], file="contrast_names.txt", sep="\t")
 }
-print(bg)
 
-#remove identical columns
+# Remove identical columns
 bg$bg <- NULL
 idx <- duplicated(t(bg))
 bg <- bg[, !idx]
 bg$Ensembl_ID <- row.names(bg)
 bg <- bg[,c(dim(bg)[2],1:dim(bg)[2]-1)]
 names(bg)[1:2] = c("Ensembl_ID","baseMean")
-names(bg)
 
-#4.3) get DE genes from any contrast
+# Get DE genes from any contrast
 padj=names(bg)[grepl("padj",names(bg))]
 logFC = names(bg)[grepl("log2FoldChange", names(bg))]
 logFC = bg[,logFC,drop=F]
@@ -229,7 +218,7 @@ if (ncol(DE_bin)>1){
 
 DE_bin = DE_bin[,c("Ensembl_ID","contrast_vector")]
 
-#make final data frame
+# Make final data frame
 bg1 = merge(bg,DE_bin,by.x="Ensembl_ID",by.y="Ensembl_ID")
 stopifnot(identical(dim(bg1)[1],dim(assay(cds))[1]))
 bg1$outcome = ifelse(grepl("1",bg1$contrast_vector),"DE","not_DE")
@@ -240,7 +229,8 @@ bg1 = bg1[order(bg1[,"Ensembl_ID"]),]
 #write to file
 write.table(bg1, "DESeq2/final_gene_table/final_gene_list_DESeq2.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 
-#4.4) extract ID for genes to plot, make 20 plots:
+############### BOXPLOTS GENE EXPRESSION PER CONDITION ##########################
+# extract ID for genes to plot, make 20 plots:
 kip <- subset(bg1, outcome == "DE")
 kip = unique(kip$Ensembl_ID)
 
@@ -252,9 +242,9 @@ if (length(kip) > 20) {
   }
 
 for (i in kip1){
-  d <- plotCounts(cds, gene=i, intgroup=c("x"), returnData=TRUE,normalized = T)
+  d <- plotCounts(cds, gene=i, intgroup=c("combfactor"), returnData=TRUE, normalized = T)
   d$variable = row.names(d)
-  plot <- ggplot(data=d, aes(x=x, y=count, fill=x)) +
+  plot <- ggplot(data=d, aes(x=combfactor, y=count, fill=combfactor)) +
             geom_boxplot(position=position_dodge()) +
             geom_jitter(position=position_dodge(.8)) +
             ggtitle(paste("Gene ",i,sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
@@ -264,8 +254,8 @@ for (i in kip1){
   print(i)
 }
 
+# make plots of interesting genes in gene list
 if (!is.null(opt$genelist)){
-  #4.5) make plots of interesting genes
   gene_ids <- read.table(requested_genes_path, col.names = "requested_gene_name")
   write.table(gene_ids, file="DESeq2/metadata/gene_list.txt", col.names=F, row.names=F, sep="\t")
   gene_ids$requested_gene_name <- sapply(gene_ids$requested_gene_name, toupper)
@@ -276,9 +266,9 @@ if (!is.null(opt$genelist)){
   kip2_gene_name <- kip2$gene_name
   for (i in c(1:length(kip2_Ensembl)))
   {
-    d <- plotCounts(cds, gene=kip2_Ensembl[i], intgroup=c("x"), returnData=TRUE,normalized = T)
+    d <- plotCounts(cds, gene=kip2_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE,normalized = T)
     d$variable = row.names(d)
-    plot <- ggplot(data=d, aes(x=x, y=count, fill=x)) +
+    plot <- ggplot(data=d, aes(x=combfactor, y=count, fill=combfactor)) +
       geom_boxplot(position=position_dodge()) +
       geom_jitter(position=position_dodge(.8)) +
       ggtitle(paste("Gene ",kip2_gene_name[i],sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
@@ -289,50 +279,25 @@ if (!is.null(opt$genelist)){
   }
 }
 
-
-##5) Data transformation
-#rlog
+############################## TRANSFORMED AND NORMALIZED COUNTS ###################
+# rlog transformation
 rld <- rlog(cds)
-##vst
+# vst transformation
 vsd <- varianceStabilizingTransformation(cds)
 
-#write normalized values to a file
+# write normalized values to a file
 rld_names <- merge(x=gene_names, y=assay(rld), by.x = "Ensembl_ID", by.y="row.names")
 write.table(rld_names, "DESeq2/gene_counts_tables/rlog_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  qmethod = c("escape", "double"))
 vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
 write.table(vsd_names, "DESeq2/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
-##6) Diagnostic plots
 
-#Cooks distances: get important for example when checking knock-out and overexpression studies
-pdf("DESeq2/plots/further_diagnostics_plots/Cooks-distances.pdf")
-par(mar=c(10,3,3,3))
-par( mfrow = c(1,2))
-boxplot(log10(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log10-Cooks")
-boxplot(log2(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log2-Cooks")
-dev.off()
-
-#The function plotDispEsts visualizes DESeqs dispersion estimates: 
-pdf("DESeq2/plots/further_diagnostics_plots/Dispersion_plot.pdf")
-plotDispEsts(cds, ylim = c(1e-5, 1e8))
-dev.off()
-
-#Effects of transformations on the variance
-notAllZero <- (rowSums(counts(cds))>0) 
-pdf("DESeq2/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.pdf")
-par(oma=c(3,3,3,3))
-par(mfrow = c(1, 3))
-meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
-meanSdPlot(assay(rld[notAllZero,]),ylab  = "sd rlog transformed count data")
-meanSdPlot(assay(vsd[notAllZero,]),ylab  = "sd vst transformed count data")
-dev.off()
-
-###Sample distances
+##################  SAMPLE DISTANCES HEATMAP ##################
+# Sample distances
 sampleDists <- dist(t(assay(rld)))
 sampleDistMatrix <- as.matrix(sampleDists)
-colours = colorRampPalette(rev(brewer.pal(9, "Blues")))(255) 
+colours = colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
 
-### Visualization of distance using Heatmaps
 pdf("DESeq2/plots/Heatmaps_of_distances.pdf")
 par(oma=c(3,3,3,3))
 pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=6)
@@ -342,7 +307,8 @@ svg("DESeq2/plots/Heatmaps_of_distances.svg")
 pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=6)
 dev.off()
 
-#### Visualization of distance using PCA plots
+
+############################ PCA PLOTS ########################
 pcaData <- plotPCA(rld,intgroup=c("x"),ntop = dim(rld)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
 pca <- ggplot(pcaData, aes(PC1, PC2, color=x)) +
@@ -353,26 +319,51 @@ pca <- ggplot(pcaData, aes(PC1, PC2, color=x)) +
 ggsave(plot = pca, filename = "DESeq2/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca, filename = "DESeq2/plots/PCA_plot.svg", device = "svg", dpi = 150)
 
-#further diagnostics plots
 
+############################## DIAGNOSTICS AND QUALITY CONTROL PLOTS ###############################
+
+# Cooks distances: get important for example when checking knock-out and overexpression studies
+pdf("DESeq2/plots/further_diagnostics_plots/Cooks-distances.pdf")
+par(mar=c(10,3,3,3))
+par( mfrow = c(1,2))
+boxplot(log10(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log10-Cooks")
+boxplot(log2(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log2-Cooks")
+dev.off()
+
+# The function plotDispEsts visualizes DESeqs dispersion estimates: 
+pdf("DESeq2/plots/further_diagnostics_plots/Dispersion_plot.pdf")
+plotDispEsts(cds, ylim = c(1e-5, 1e8))
+dev.off()
+
+# Effects of transformations on the variance
+notAllZero <- (rowSums(counts(cds))>0) 
+pdf("DESeq2/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.pdf")
+par(oma=c(3,3,3,3))
+par(mfrow = c(1, 3))
+meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
+meanSdPlot(assay(rld[notAllZero,]),ylab  = "sd rlog transformed count data")
+meanSdPlot(assay(vsd[notAllZero,]),ylab  = "sd vst transformed count data")
+dev.off()
+
+# Further diagnostics plots
 res=0
 for (i in resultsNames(cds)[-1]) {
   res = results(cds,name = i)
   pdf(paste("DESeq2/plots/further_diagnostics_plots/all_results_MA_plot_",i,".pdf",sep=""))
   plotMA(res,ylim = c(-4, 4))
   dev.off()
-  #multiple hyptothesis testing
+  # multiple hyptothesis testing
   qs <- c( 0, quantile(results(cds)$baseMean[res$baseMean > 0], 0:4/4 ))
   bins <- cut(res$baseMean, qs )
   # rename the levels of the bins using the middle point
   levels(bins) <- paste0("~",round(.5*qs[-1] + .5*qs[-length(qs)]))
-  # 3) calculate the ratio of p values less than .01 for each bin
+  # calculate the ratio of p values less than .01 for each bin
   ratios <- tapply(res$pvalue, bins, function(p) mean(p < .01, na.rm=TRUE ))
-  # 4) plot these ratios
+  # plot these ratios
   pdf(paste("DESeq2/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_",i,".pdf",sep=""))
   barplot(ratios, xlab="mean normalized count", ylab="ratio of small p values")
   dev.off()
-  #plot number of rejections
+  # plot number of rejections
   pdf(paste("DESeq2/plots/further_diagnostics_plots/number.of.rejections_",i,".pdf",sep=""))
   plot(metadata(res)$filterNumRej,
        type="b", ylab="number of rejections",
@@ -380,7 +371,7 @@ for (i in resultsNames(cds)[-1]) {
   lines(metadata(res)$lo.fit, col="red")
   abline(v=metadata(res)$filterTheta)
   dev.off()
-  #Histogram of passed and rejected hypothesis
+  # Histogram of passed and rejected hypothesis
   use <- res$baseMean > metadata(res)$filterThreshold
   table(use)
   h1 <- hist(res$pvalue[!use], breaks=0:50/50, plot=FALSE)
@@ -395,11 +386,3 @@ for (i in resultsNames(cds)[-1]) {
   dev.off()
   rm(res,qs,bins,ratios,use,h1,h2,colori)
 }
-
-#end of script
-####-------------save Sessioninfo
-fn <- paste("DESeq2/sessionInfo_",format(Sys.Date(), "%d_%m_%Y"),".txt",sep="")
-sink(fn)
-sessionInfo()
-sink()
-####---------END----save Sessioninfo

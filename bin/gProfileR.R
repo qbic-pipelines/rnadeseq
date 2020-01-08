@@ -71,12 +71,15 @@ path_contrasts <- opt$dirContrasts
 
 outdir <- "gProfileR"
 
+# Reading count table
 norm_counts <- read.table(file = path_norm_counts, header = T, row.names = 1, sep = "\t", quote = "")
+
+# Reading metadata table
 metadata <- read.table(file=metadata_path, sep = "\t", header = T, quote="")
+metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name) # Remove blank spaces and ; from secondary name
+metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name) # Remove blank spaces if there from secondary name
 
-
-#Search params
-
+# Search params
 datasources <- c("KEGG","REAC")
 min_set_size <- 1
 max_set_size <- 500
@@ -160,13 +163,20 @@ for (file in contrast_files){
           rownames(mat) <- mat$gene_name
           mat$gene_name <- NULL
 
+          mat <- data.matrix(mat)
+
+          print(mat)
+          print(metadata_cond)
+          print(pathway$domain)
+          print(pathway$term.id)
+          print(pathway$short_name)
+          print(fname)
+          print(outdir)
+          print(pathway_heatmaps_dir)
+
           if (nrow(mat)>1){
             png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$domain, "_", pathway$term.id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
-            tryCatch(withCallingHandlers(pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$domain,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T ), 
-                    error=function(e) {print(paste0("Skipping heatmap plot due to problem:"))},
-                    warning=function(w) {print(paste0("Warning for heatmap plot."))
-                                invokeRestart("muffleWarning")}), 
-            error = function(e) { print(paste0("Heatmap plot finished")) })
+            pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$domain,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
             dev.off()
           }
 
