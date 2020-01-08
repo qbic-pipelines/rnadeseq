@@ -5,5 +5,5 @@ LABEL authors="QBiC" \
 
 COPY environment.yml /
 RUN conda env create -f /environment.yml && conda clean -a
-RUN apt-get install -y zip procps ghostscript
+RUN apt-get install -y zip procps ghostscript --fix-missing
 ENV PATH /opt/conda/envs/qbicsoftware-rnadeseq-1.0dev/bin:$PATH
