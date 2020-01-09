@@ -39,3 +39,4 @@ dependencies:
   - bioconda::bioconductor-org.hs.eg.db
   - conda-forge::r-gprofiler
   - r::r-dplyr
+  - conda-forge::r-kableextra
