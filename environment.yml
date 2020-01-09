@@ -20,7 +20,7 @@ dependencies:
   - conda-forge::r-rcolorbrewer=1.1.2
   - bioconda::bioconductor-genefilter=1.64.0
   - bioconda::bioconductor-deseq2=1.22.1 #ResolvePackageNotFound error with version 1.22.2
-  - bioconda::bioconductor-vsn=3.50.0
+  - bioconda::bioconductor-vsn
   - bioconda::bioconductor-genomeinfodbdata=1.2.1
   - conda-forge::cairo=1.16.0
   - conda-forge::r-optparse=1.6.2
