@@ -38,4 +38,4 @@ dependencies:
   - bioconda::bioconductor-org.mm.eg.db
   - bioconda::bioconductor-org.hs.eg.db
   - conda-forge::r-gprofiler
-  - bioconda::r-dplyr
+  - r::r-dplyr
