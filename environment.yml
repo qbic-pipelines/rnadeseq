@@ -10,7 +10,7 @@ channels:
   - anaconda
 dependencies:
   - r-base=3.5.1
-  - r::r-hexbin=1.27.2
+  - r::r-hexbin
   - conda-forge::r-svglite=1.2.2
   - conda-forge::r-pheatmap=1.0.12
   - conda-forge::r-gplots=3.0.1.1
@@ -38,4 +38,4 @@ dependencies:
   - bioconda::bioconductor-org.mm.eg.db=3.7.0
   - bioconda::bioconductor-org.hs.eg.db=3.7.0
   - conda-forge::r-gprofiler=0.6.7
-  - bioconda::r-dplyr=0.5.0
+  - bioconda::r-dplyr
