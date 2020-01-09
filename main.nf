@@ -222,7 +222,7 @@ process get_software_versions {
  * STEP 1 - DE analysis
  */
 process DESeq2 {
-    publishDir "${params.outdir}/DESeq2", mode: 'copy'
+    publishDir "${params.outdir}/differential_gene_expression", mode: 'copy'
 
     input:
     file(gene_counts) from ch_counts_file
@@ -239,8 +239,8 @@ process DESeq2 {
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
     """
-    DESeq.v2.7.R --counts $gene_counts --metadata $metadata --design $model --logFCthreshold $params.logFCthreshold $contrastsopt $genelistopt
-    zip -r DESeq2.zip DESeq2
+    DESeq2.R --counts $gene_counts --metadata $metadata --design $model --logFCthreshold $params.logFCthreshold $contrastsopt $genelistopt
+    zip -r differential_gene_expression.zip differential_gene_expression
     """
 }
 
@@ -257,15 +257,15 @@ process Pathway_analysis {
     file(model) from ch_model_file_for_pathway
 
     output:
-    file "*.zip" into ch_gprofiler_for_report
+    file "*.zip" into ch_pathway_analysis_for_report
 
     script:
     """
     unzip $deseq_output
-    gProfileR.R --dirContrasts 'DESeq2/DE_genes_tables/' --metadata $metadata \
+    pathway_analysis.R --dirContrasts 'DESeq2/DE_genes_tables/' --metadata $metadata \
     --model $model --normCounts 'DESeq2/gene_counts_tables/rlog_transformed_gene_counts.tsv' \
     --species $params.species
-    zip -r gProfileR.zip gProfileR/
+    zip -r pathway_analysis.zip pathway_analysis/
     """
 }
 
@@ -284,7 +284,7 @@ process Report {
     file(deseq2) from ch_deseq2_for_report
     file(multiqc) from ch_multiqc_file
     file(genelist) from ch_genes_for_report_file
-    file(gprofiler) from ch_gprofiler_for_report
+    file(gprofiler) from ch_pathway_analysis_for_report
     file(quote) from ch_quote_file
 
     output:
@@ -302,7 +302,7 @@ process Report {
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' --output 'RNAseq_report.html' --proj_summary $proj_summary \
     --versions $softwareversions --model $model --report_options $report_options --contrasts $contrnames $genelistopt --quote $quote
     mv qc_summary.tsv QC/
-    zip -r report.zip RNAseq_report.html DESeq2/ QC/ gProfileR/ $quote
+    zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quote
     """
 }
 

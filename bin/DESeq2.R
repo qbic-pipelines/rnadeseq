@@ -28,15 +28,15 @@ extrafont::font_import()
 extrafont::loadfonts()
 
 # create directories needed
-ifelse(!dir.exists("DESeq2"), dir.create("DESeq2"), FALSE)
-dir.create("DESeq2/metadata")
-dir.create("DESeq2/plots")
-dir.create("DESeq2/plots/boxplots_example_genes")
-dir.create("DESeq2/plots/boxplots_requested_genes")
-dir.create("DESeq2/plots/further_diagnostics_plots")
-dir.create("DESeq2/gene_counts_tables")
-dir.create("DESeq2/DE_genes_tables")
-dir.create("DESeq2/final_gene_table")
+ifelse(!dir.exists("differential_gene_expression"), dir.create("differential_gene_expression"), FALSE)
+dir.create("differential_gene_expression/metadata")
+dir.create("differential_gene_expression/plots")
+dir.create("differential_gene_expression/plots/boxplots_example_genes")
+dir.create("differential_gene_expression/plots/boxplots_requested_genes")
+dir.create("differential_gene_expression/plots/further_diagnostics_plots")
+dir.create("differential_gene_expression/gene_counts_tables")
+dir.create("differential_gene_expression/DE_genes_tables")
+dir.create("differential_gene_expression/final_gene_table")
 
 # check input data path
 # provide these files as arguments:
@@ -97,7 +97,7 @@ count.table = count.table[rowSums(count.table)>0,]
 
 # Load metadata: sample preparations tsv file from qPortal
 metadata <- read.table(metadata_path, sep="\t", header=TRUE,na.strings =c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
-system(paste("mv ",metadata_path," DESeq2/metadata/metadata.tsv",sep=""))
+system(paste("mv ",metadata_path," differential_gene_expression/metadata/metadata.tsv",sep=""))
 
 # Make sure metadata is factor where needed
 names(metadata) = gsub("Condition..","condition_",names(metadata))
@@ -131,7 +131,7 @@ metadata$combfactor <- apply(as.data.frame(metadata[ ,conditions]),1,paste, coll
 
 # Read design file
 design <- read.csv(path_design, sep="\t", header = F)
-write.table(design, file="DESeq2/metadata/linear_model.txt", sep="\t", quote=F, col.names = F, row.names = F)
+write.table(design, file="differential_gene_expression/metadata/linear_model.txt", sep="\t", quote=F, col.names = F, row.names = F)
 
 ################## RUN DESEQ2 ######################################
 
@@ -141,18 +141,18 @@ cds <- DESeq(cds,  parallel = FALSE)
 
 # SizeFactors(cds) as indicator of library sequencing depth
 sizeFactors(cds)
-write.table(sizeFactors(cds),paste("DESeq2/gene_counts_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
+write.table(sizeFactors(cds),paste("differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
 
 # Write raw counts to file
 count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
-write.table(count_table_names, paste("DESeq2/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
+write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
 # Contrasts
 coefficients <- resultsNames(cds)
 bg = data.frame(bg = character(nrow(cds)))
 if (!is.null(opt$contrasts)){
   contrasts <- read.table(path_contrasts, sep="\t", header = T)
-  write.table(contrasts, file="DESeq2/metadata/contrasts.tsv", sep="\t", quote=F, col.names = T, row.names = F)
+  write.table(contrasts, file="differential_gene_expression/metadata/contrasts.tsv", sep="\t", quote=F, col.names = T, row.names = F)
   stopifnot(length(coefficients)==nrow(contrasts))
 
   ## Contrast calculation
@@ -169,7 +169,7 @@ if (!is.null(opt$contrasts)){
     d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
     d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
     d1DE <- d1DE[order(d1DE$padj),]
-    write.table(d1DE, file=paste("DESeq2/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    write.table(d1DE, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
   }
@@ -185,7 +185,7 @@ if (!is.null(opt$contrasts)){
     d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
     d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
     d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
-    write.table(d1DE, file=paste("DESeq2/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    write.table(d1DE, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
   }
@@ -231,7 +231,7 @@ bg1 = bg1[,c(dim(bg1)[2],1:dim(bg1)[2]-1)]
 bg1 = bg1[order(bg1[,"Ensembl_ID"]),]
 
 #write to file
-write.table(bg1, "DESeq2/final_gene_table/final_gene_list_DESeq2.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
+write.table(bg1, "differential_gene_expression/final_gene_table/final_DE_gene_list.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 
 ############### BOXPLOTS GENE EXPRESSION PER CONDITION ##########################
 # extract ID for genes to plot, make 20 plots:
@@ -254,14 +254,14 @@ for (i in kip1){
             ggtitle(paste("Gene ",i,sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
             theme(text = element_text(size=12),
                axis.text.x = element_text(angle=45, vjust=1,hjust=1))
-  ggsave(filename=paste("DESeq2/plots/boxplots_example_genes/",i,".svg",sep=""), width=10, height=5, plot=plot)
+  ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".svg",sep=""), width=10, height=5, plot=plot)
   print(i)
 }
 
 # make plots of interesting genes in gene list
 if (!is.null(opt$genelist)){
   gene_ids <- read.table(requested_genes_path, col.names = "requested_gene_name")
-  write.table(gene_ids, file="DESeq2/metadata/gene_list.txt", col.names=F, row.names=F, sep="\t")
+  write.table(gene_ids, file="differential_gene_expression/metadata/gene_list.txt", col.names=F, row.names=F, sep="\t")
   gene_ids$requested_gene_name <- sapply(gene_ids$requested_gene_name, toupper)
   bg1$gene_name <- sapply(bg1$gene_name, toupper)
 
@@ -278,7 +278,7 @@ if (!is.null(opt$genelist)){
       ggtitle(paste("Gene ",kip2_gene_name[i],sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
       theme(text = element_text(size=12),
             axis.text.x = element_text(angle=45, vjust=1,hjust=1))
-    ggsave(filename=paste("DESeq2/plots/boxplots_requested_genes/",kip2_gene_name[i],"_",kip2_Ensembl[i],".svg",sep=""), plot=plot)
+    ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",kip2_gene_name[i],"_",kip2_Ensembl[i],".svg",sep=""), plot=plot)
     print(kip2_gene_name[i])
   }
 }
@@ -291,9 +291,9 @@ vsd <- varianceStabilizingTransformation(cds)
 
 # write normalized values to a file
 rld_names <- merge(x=gene_names, y=assay(rld), by.x = "Ensembl_ID", by.y="row.names")
-write.table(rld_names, "DESeq2/gene_counts_tables/rlog_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  qmethod = c("escape", "double"))
+write.table(rld_names, "differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  qmethod = c("escape", "double"))
 vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
-write.table(vsd_names, "DESeq2/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
+write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
 
 ##################  SAMPLE DISTANCES HEATMAP ##################
@@ -302,12 +302,12 @@ sampleDists <- dist(t(assay(rld)))
 sampleDistMatrix <- as.matrix(sampleDists)
 colours = colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
 
-pdf("DESeq2/plots/Heatmaps_of_distances.pdf")
+pdf("differential_gene_expression/plots/Heatmaps_of_distances.pdf")
 par(oma=c(3,3,3,3))
 pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=6)
 dev.off()
 
-svg("DESeq2/plots/Heatmaps_of_distances.svg")
+svg("differential_gene_expression/plots/Heatmaps_of_distances.svg")
 pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=6)
 dev.off()
 
@@ -321,14 +321,14 @@ pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor)) +
   ylab(paste0("PC2: ",percentVar[2], "% variance")) +
   theme(legend.title = element_blank()) +
   coord_fixed()
-ggsave(plot = pca, filename = "DESeq2/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
-ggsave(plot = pca, filename = "DESeq2/plots/PCA_plot.svg", device = "svg", dpi = 150)
+ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
+ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg", device = "svg", dpi = 150)
 
 
 ############################## DIAGNOSTICS AND QUALITY CONTROL PLOTS ###############################
 
 # Cooks distances: get important for example when checking knock-out and overexpression studies
-pdf("DESeq2/plots/further_diagnostics_plots/Cooks-distances.pdf")
+pdf("differential_gene_expression/plots/further_diagnostics_plots/Cooks-distances.pdf")
 par(mar=c(10,3,3,3))
 par( mfrow = c(1,2))
 boxplot(log10(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log10-Cooks")
@@ -336,13 +336,13 @@ boxplot(log2(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log
 dev.off()
 
 # The function plotDispEsts visualizes DESeqs dispersion estimates: 
-pdf("DESeq2/plots/further_diagnostics_plots/Dispersion_plot.pdf")
+pdf("differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.pdf")
 plotDispEsts(cds, ylim = c(1e-5, 1e8))
 dev.off()
 
 # Effects of transformations on the variance
 notAllZero <- (rowSums(counts(cds))>0) 
-pdf("DESeq2/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.pdf")
+pdf("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.pdf")
 par(oma=c(3,3,3,3))
 par(mfrow = c(1, 3))
 meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
@@ -354,7 +354,7 @@ dev.off()
 res=0
 for (i in resultsNames(cds)[-1]) {
   res = results(cds,name = i)
-  pdf(paste("DESeq2/plots/further_diagnostics_plots/all_results_MA_plot_",i,".pdf",sep=""))
+  pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_",i,".pdf",sep=""))
   plotMA(res,ylim = c(-4, 4))
   dev.off()
   # multiple hyptothesis testing
@@ -365,11 +365,11 @@ for (i in resultsNames(cds)[-1]) {
   # calculate the ratio of p values less than .01 for each bin
   ratios <- tapply(res$pvalue, bins, function(p) mean(p < .01, na.rm=TRUE ))
   # plot these ratios
-  pdf(paste("DESeq2/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_",i,".pdf",sep=""))
+  pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_",i,".pdf",sep=""))
   barplot(ratios, xlab="mean normalized count", ylab="ratio of small p values")
   dev.off()
   # plot number of rejections
-  pdf(paste("DESeq2/plots/further_diagnostics_plots/number.of.rejections_",i,".pdf",sep=""))
+  pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_",i,".pdf",sep=""))
   plot(metadata(res)$filterNumRej,
        type="b", ylab="number of rejections",
        xlab="quantiles of filter")
@@ -382,7 +382,7 @@ for (i in resultsNames(cds)[-1]) {
   h1 <- hist(res$pvalue[!use], breaks=0:50/50, plot=FALSE)
   h2 <- hist(res$pvalue[use], breaks=0:50/50, plot=FALSE)
   colori <- c('do not pass'="khaki", 'pass'="powderblue")
-  pdf(paste("DESeq2/plots/further_diagnostics_plots/histogram_of_p.values",i,".pdf",sep=""))
+  pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values",i,".pdf",sep=""))
   barplot(height = rbind(h1$density, h2$density), beside = FALSE,
           col = colori, space = 0, main = "", xlab="p value",ylab="frequency")
   text(x = c(0, length(h1$counts)), y = 0, label = paste(c(0,1)),

@@ -69,7 +69,7 @@ if(is.null(opt$species)){
 contrast_files <- list.files(path=opt$dirContrasts)
 path_contrasts <- opt$dirContrasts
 
-outdir <- "gProfileR"
+outdir <- "pathway_analysis"
 
 # Reading count table
 norm_counts <- read.table(file = path_norm_counts, header = T, row.names = 1, sep = "\t", quote = "")
