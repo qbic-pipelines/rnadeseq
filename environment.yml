@@ -11,31 +11,31 @@ channels:
 dependencies:
   - r-base=3.5.1
   - r::r-hexbin
-  - conda-forge::r-svglite=1.2.2
-  - conda-forge::r-pheatmap=1.0.12
-  - conda-forge::r-gplots=3.0.1.1
-  - bioconda::bioconductor-vsn=3.50.0
-  - r::r-plyr=1.8.4
-  - conda-forge::r-ggplot2=3.1.1
-  - conda-forge::r-rcolorbrewer=1.1.2
-  - bioconda::bioconductor-genefilter=1.64.0
+  - conda-forge::r-svglite
+  - conda-forge::r-pheatmap
+  - conda-forge::r-gplots
+  - bioconda::bioconductor-vsn
+  - r::r-plyr
+  - conda-forge::r-ggplot2
+  - conda-forge::r-rcolorbrewer
+  - bioconda::bioconductor-genefilter
   - bioconda::bioconductor-deseq2=1.22.1 #ResolvePackageNotFound error with version 1.22.2
   - bioconda::bioconductor-vsn
-  - bioconda::bioconductor-genomeinfodbdata=1.2.1
-  - conda-forge::cairo=1.16.0
-  - conda-forge::r-optparse=1.6.2
-  - conda-forge::r-extrafont=0.17
+  - bioconda::bioconductor-genomeinfodbdata
+  - conda-forge::cairo
+  - conda-forge::r-optparse
+  - conda-forge::r-extrafont
 # additional packages for the RNAseq report
-  - conda-forge::r-knitr=1.22
-  - conda-forge::r-tidyverse=1.2.1
-  - conda-forge::r-dt 0.6
-  - r::r-yaml=2.2.0 # chose R channel because conda-forge has only 0.1.7
-  - conda-forge::r-rmarkdown=1.13
+  - conda-forge::r-knitr
+  - conda-forge::r-tidyverse
+  - conda-forge::r-dt
+  - r::r-yaml # chose R channel because conda-forge has only 0.1.7
+  - conda-forge::r-rmarkdown
 # Additional packages for the gProfileR script
-  - bioconda::bioconductor-annotationdbi=1.44.0
-  - conda-forge::r-reshape2=1.4.3
-  - bioconda::bioconductor-pathview=1.22.0
-  - bioconda::bioconductor-org.mm.eg.db=3.7.0
-  - bioconda::bioconductor-org.hs.eg.db=3.7.0
-  - conda-forge::r-gprofiler=0.6.7
+  - bioconda::bioconductor-annotationdbi
+  - conda-forge::r-reshape2
+  - bioconda::bioconductor-pathview
+  - bioconda::bioconductor-org.mm.eg.db
+  - bioconda::bioconductor-org.hs.eg.db
+  - conda-forge::r-gprofiler
   - bioconda::r-dplyr
