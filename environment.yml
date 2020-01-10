@@ -7,7 +7,6 @@ channels:
   - bioconda
   - defaults
   - r
-  - anaconda
 dependencies:
   - r-base=3.5.1
   - r::r-hexbin
@@ -40,3 +39,4 @@ dependencies:
   - conda-forge::r-gprofiler
   - r::r-dplyr
   - conda-forge::r-kableextra
+  - conda-forge::r-formattable
