@@ -24,13 +24,11 @@ dependencies:
   - conda-forge::cairo
   - conda-forge::r-optparse
   - conda-forge::r-extrafont
-# additional packages for the RNAseq report
   - conda-forge::r-knitr
   - conda-forge::r-tidyverse
   - conda-forge::r-dt
   - r::r-yaml # chose R channel because conda-forge has only 0.1.7
   - conda-forge::r-rmarkdown
-# Additional packages for the gProfileR script
   - bioconda::bioconductor-annotationdbi
   - conda-forge::r-reshape2
   - bioconda::bioconductor-pathview
@@ -40,3 +38,4 @@ dependencies:
   - r::r-dplyr
   - conda-forge::r-kableextra
   - conda-forge::r-formattable
+  - conda-forge::r-gprofiler2
