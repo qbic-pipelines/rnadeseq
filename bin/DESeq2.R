@@ -52,6 +52,7 @@ option_list = list(
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 
+# Validate and read input
 if (is.null(opt$counts)){
   print_help(opt_parser)
   stop("Counts table needs to be provided!")
@@ -86,7 +87,6 @@ drop <- c("Ensembl_ID","gene_name")
 gene_names <- count.table[,drop]
 
 # Reduce sample names to QBiC codes in count table
-#names(count.table) <- gsub('([A-Z0-9]{10})\\.(.*)','\\1', names(count.table))
 names(count.table) <- substr(names(count.table), 1, 10)
 count.table <- count.table[ , !(names(count.table) %in% drop)]
 
@@ -153,7 +153,11 @@ bg = data.frame(bg = character(nrow(cds)))
 if (!is.null(opt$contrasts)){
   contrasts <- read.table(path_contrasts, sep="\t", header = T)
   write.table(contrasts, file="differential_gene_expression/metadata/contrasts.tsv", sep="\t", quote=F, col.names = T, row.names = F)
-  stopifnot(length(coefficients)==nrow(contrasts))
+  
+  if(length(coefficients) != nrow(contrasts)){
+    print(coefficients)
+    stop("Error: Your contrast table has different number of rows than the number of coefficients in the DESeq2 model.")
+  }
 
   ## Contrast calculation
   for (i in c(1:ncol(contrasts))) {
@@ -304,11 +308,11 @@ colours = colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
 
 pdf("differential_gene_expression/plots/Heatmaps_of_distances.pdf")
 par(oma=c(3,3,3,3))
-pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=6)
+pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=11)
 dev.off()
 
 svg("differential_gene_expression/plots/Heatmaps_of_distances.svg")
-pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=6)
+pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=11)
 dev.off()
 
 

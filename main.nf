@@ -262,8 +262,8 @@ process Pathway_analysis {
     script:
     """
     unzip $deseq_output
-    pathway_analysis.R --dirContrasts 'DESeq2/DE_genes_tables/' --metadata $metadata \
-    --model $model --normCounts 'DESeq2/gene_counts_tables/rlog_transformed_gene_counts.tsv' \
+    pathway_analysis.R --dirContrasts 'differential_gene_expression/DE_genes_tables/' --metadata $metadata \
+    --model $model --normCounts 'differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv' \
     --species $params.species
     zip -r pathway_analysis.zip pathway_analysis/
     """
