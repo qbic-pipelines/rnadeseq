@@ -23,6 +23,7 @@ params:
   path_wd: ""
   path_genelist: ""
   path_quote: ""
+  organism: ""
 # Author: Simon Heumos
 # Contributor: Silvia Morini, Gisela Gabernet
 ---
@@ -358,8 +359,10 @@ The table for download can be found [here](./differential_gene_expression/final_
 ```{r}
 df_DE <- read.table(paste0(wd,"/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv"), 
                           header=TRUE, sep="\t")
-# Removed ordering according to padj!!
-kable(df_DE, escape=F,row.names =F) %>%
+padj = names(df_DE)[grepl("padj",names(df_DE))]
+# Take the last column on this list, ordering dataframe according to ascending padj, subset fist 20 rows.
+df = head(df_DE %>% arrange(df_DE[[tail(padj, n=1)]]),20)
+kable(df, escape=F,row.names =F) %>%
   kable_styling("hover") %>%
   scroll_box(width = "100%", height = "400px")
 ```
@@ -404,6 +407,53 @@ knitr::include_graphics("./GO/GO_terms_enriched.png")
 </center>
 
 <!-- In case KEGG analysis was also included; differentiating the cases with and without contrasts -->
+# Pathway and GO analysis
+
+```{r}
+  library(gprofiler2)
+  #library(htmltools)
+  contrast_files <- list.files(path=paste0(wd, "/differential_gene_expression/DE_genes_tables/"))
+
+  #pg_list <- list()
+  for (file in contrast_files){
+    #Reading DE genes list
+    fname <- tools::file_path_sans_ext(basename(file))
+
+    DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
+    q = as.character(DE_genes$Ensembl_ID)
+
+    datasources <- c("KEGG","REAC")
+
+    #gost query
+    gostres <- gost(query=q,
+                    organism=params$organism,
+                    significant=T,
+                    correction_method="fdr",
+                    sources=datasources,
+                    user_threshold=0.05)
+    
+    path_enrich <- gostres$result
+    path_enrich <- path_enrich[which(path_enrich$significant==TRUE),]
+
+    if (nrow(path_enrich) > 0){
+      path_enrich$original.query.size <- rep(length(q), nrow(path_enrich))
+
+      pg <- gostplot(gostres, capped=T, interactive=T)
+      #pg_list <- list.append(pg_list,pg)
+    }
+  }
+  #htmltools::tagList(list(pg_list))
+  pg
+```
+
+```{r, echo=FALSE}
+  pathenrich_table <- path_enrich
+  pathenrich_table$parents <- NULL
+  kable(pathenrich_table) %>%
+    kable_styling("hover") %>%
+    scroll_box(width = "100%", height = "400px")
+```
+
 
 ```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=report_options$KEGG}
 cat(paste0("## KEGG pathway analysis

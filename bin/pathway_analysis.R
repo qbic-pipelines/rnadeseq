@@ -4,17 +4,21 @@
 # Author: Gisela Gabernet
 # QBiC 2019; MIT License
 
-library("gProfileR")
-library("ggplot2")
-library("reshape2")
-library("pheatmap")
-library("pathview")
-library("AnnotationDbi")
-library("optparse")
+library(gprofiler2)
+library(gProfileR)
+library(ggplot2)
+library(reshape2)
+library(pheatmap)
+library(pathview)
+library(AnnotationDbi)
+library(optparse)
 
 # Need to load library for your species
 library(org.Mm.eg.db) #Mmusculus
 library(org.Hs.eg.db) #Hsapiens
+
+# Blacklist pathways: some pathways are badly written in KEGG and produce errors. Add the pathway here if you have this kind of error
+blacklist_pathways <- c("mmu05206", "mmu04215", "hsa05206", "mmu04723")
 
 # Reading parameters
 
@@ -54,11 +58,11 @@ if(is.null(opt$normCounts)){
 if(is.null(opt$species)){
   print_help(opt_parser)
   stop("Species needs to be provided")
-} else if (opt$species == "Hsapiens") {
+} else if (opt$species == "hsapiens") {
   organism <- "hsapiens"
   short_organism_name <- "hsa"
   library <- org.Hs.eg.db
-} else if (opt$species == "Mmusculus") {
+} else if (opt$species == "mmusculus") {
   organism <- "mmusculus"
   short_organism_name <- "mmu"
   library <- org.Mm.eg.db
@@ -80,7 +84,7 @@ metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name) # Remove bl
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name) # Remove blank spaces if there from secondary name
 
 # Search params
-datasources <- c("KEGG","REAC")
+datasources <- c("KEGG", "REAC")
 min_set_size <- 1
 max_set_size <- 500
 min_isect_size <- 1
@@ -107,15 +111,48 @@ for (file in contrast_files){
  
   #gprofiler query
   path_enrich <- gprofiler(query = q, organism=organism, 
-                           significant = T, correction_method = "fdr",
-                           min_set_size = min_set_size, max_set_size = max_set_size, min_isect_size = min_isect_size,
-                           src_filter = datasources)
+                          significant = T, 
+                          correction_method = "fdr",
+                          min_set_size = min_set_size, 
+                          max_set_size = max_set_size, 
+                          min_isect_size = min_isect_size,
+                          src_filter = datasources)
+
+  #gost query
+  gostres <- gost(query=q,
+                  organism=organism,
+                  significant=TRUE,
+                  correction_method="fdr",
+                  sources=datasources,
+                  user_threshold=0.05)
+
+  path_gostres<- gostres$result
+  path_gostres <- path_gostres[which(path_gostres$significant==TRUE),]
+
+  if (nrow(path_gostres) > 0){
+    path_gostres$original.query.size <- rep(length(q), nrow(path_gostres))
+
+    pg <- gostplot(gostres, capped=T, interactive=F)
+    ggsave(pg, filename = paste0(outdir, "/", fname, "_gost_pathway_enrichment_plot.pdf"), 
+          device="pdf", 
+          height=10, width=15, units="cm", limitsize=F)
+    ggsave(pg, filename = paste0(outdir, "/", fname, "_gost_pathway_enrichment_plot.png"), 
+          device="png", 
+          height=10, width=15, units="cm", dpi=300, limitsize=F)
+  }
   
   if (nrow(path_enrich) > 0){
     path_enrich$original.query.size <- rep(length(q), nrow(path_enrich))
   }
-  write.table(path_enrich, file = paste0(outdir, "/", fname, "/",fname, "_pathway_enrichment_results.tsv"), sep = "\t", quote = F, col.names = T, row.names = F )
-  
+  write.table(path_enrich, 
+              file = paste0(outdir, "/", fname, "/",fname, "_pathway_enrichment_results.tsv"), 
+              sep = "\t", quote = F, col.names = T, row.names = F )
+  path_gostres_table = path_gostres
+  path_gostres_table$parents <- NULL
+  write.table(path_gostres_table, 
+              file = paste0(outdir, "/", fname, "/", fname, "_pathway_gostres_enrighment_results.tsv"), 
+              sep="\t", quote = F, col.names = T, row.names = F)
+
   # Printing numbers
   print("------------------------------------")
   print(fname)
@@ -172,26 +209,31 @@ for (file in contrast_files){
           # Plotting pathway view only for kegg pathways
           if (pathway$domain == "keg"){
             pathway_kegg <- sapply(pathway$term.id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
-            print(paste0("Plotting pathway: ", pathway_kegg))
             # KEGG pathway blacklist. This pathway graphs contain errors and pathview crashes if plotting them.
-            if (pathway_kegg %in% c("mmu05206", "mmu04215", "hsa05206") ) {
+            if (pathway_kegg %in% blacklist_pathways) {
               print(paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database."))
             } else {
+              print(paste0("Plotting pathway: ", pathway_kegg))
               gene.data = DE_genes
               gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
               
               entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype="ENSEMBL", multiVals="first")
               
               gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
-              row.names(gene.data.subset) <- entrez_ids[!is.na(entrez_ids)]
-              
-              gene.data.subset$Ensembl_ID <- NULL
-              pathview(gene.data  = gene.data.subset,
-                      pathway.id = pathway_kegg,
-                      species    = short_organism_name,
-                      out.suffix=paste(fname,sep="_"))
-              mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
-              system(mv_command)
+
+              if (length(entrez_ids)!=length(unique(entrez_ids))) {
+                print(paste0("Skipping pathway: ", pathway_kegg,". This pathway has multiple IDs with same name."))
+              } else {
+                row.names(gene.data.subset) <- entrez_ids[!is.na(entrez_ids)]
+                
+                gene.data.subset$Ensembl_ID <- NULL
+                pathview(gene.data  = gene.data.subset,
+                        pathway.id = pathway_kegg,
+                        species    = short_organism_name,
+                        out.suffix=paste(fname,sep="_"))
+                mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
+                system(mv_command)
+              }
             }
           }
         }
