@@ -307,6 +307,8 @@ A PCA plot of the rlog normalized gene expression visualizes the clustering of s
 In this way, the overall effect of experimental conditions and sample grouping, and any batch effects are visualized.
 The original plot can be downloaded [here](./differential_gene_expression/plots/PCA_plot.pdf).
 
+\
+
 ```{r, echo=F, out.width="80%", dpi=1200, fig.align='center'}
 knitr::include_graphics(paste0(wd,"/differential_gene_expression/plots/PCA_plot.svg"))
 ```
@@ -345,29 +347,32 @@ Genes were considered differentially expressed (DE) when the adjusted p-value wa
 The adjusted p-value is calculated in the `DESeq2` package with the Benjamini-Hochberg method. P-value adjustment 
 helps reduce the number of false postives (not real differentially expressed genes). 
 
-\
+The linear model employed to model gene expression in DESeq2 was:
 
-The linear model employed to model gene expression in DESeq2 
-was:
-```r cat(paste(readLines(params$path_design), collapse=" "))```
+```{r} 
+cat(paste(readLines(params$path_design), collapse=" "))
+```
 
 The list summarizing all found differentially expressed genes for any contrast (comparison) is shown here. 
 The differentially expressed genes are marked with "DE" in the outcome column if they were found 
 differentially expressed for any of the contrasts considered. 
 The table for download can be found [here](./differential_gene_expression/final_gene_table/final_DE_gene_list.tsv).
 
+\
+
+Additional tables for all individual contrasts are provided [here](./differential_gene_expression/DE_genes_tables).
+
+<!-- Show table here removed as I dont like showing only top 20 genes.
 ```{r}
 df_DE <- read.table(paste0(wd,"/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv"), 
                           header=TRUE, sep="\t")
 padj = names(df_DE)[grepl("padj",names(df_DE))]
-# Take the last column on this list, ordering dataframe according to ascending padj, subset fist 20 rows.
 df = head(df_DE %>% arrange(df_DE[[tail(padj, n=1)]]),20)
 kable(df, escape=F,row.names =F) %>%
   kable_styling("hover") %>%
   scroll_box(width = "100%", height = "400px")
 ```
-
-Additional tables for all individual contrasts are provided [here](./differential_gene_expression/DE_genes_tables).
+-->
 
 ## Barplots of gene normalized counts
 
