@@ -39,3 +39,4 @@ dependencies:
   - conda-forge::r-kableextra
   - conda-forge::r-formattable
   - conda-forge::r-gprofiler2
+  - conda-forge::r-rlist
