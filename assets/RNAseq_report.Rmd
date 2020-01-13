@@ -355,10 +355,9 @@ cat(paste(readLines(params$path_design), collapse=" "))
 
 The list summarizing all found differentially expressed genes for any contrast (comparison) is shown here. 
 The differentially expressed genes are marked with "DE" in the outcome column if they were found 
-differentially expressed for any of the contrasts considered. 
-The table for download can be found [here](./differential_gene_expression/final_gene_table/final_DE_gene_list.tsv).
+differentially expressed for any of the contrasts considered.
 
-\
+The table for download can be found [here](./differential_gene_expression/final_gene_table/final_DE_gene_list.tsv).
 
 Additional tables for all individual contrasts are provided [here](./differential_gene_expression/DE_genes_tables).
 
@@ -373,6 +372,63 @@ kable(df, escape=F,row.names =F) %>%
   scroll_box(width = "100%", height = "400px")
 ```
 -->
+
+## Volcano plots of DE genes
+
+Volcano plots display the DE genes in Log2 Fold Change values (x axis) 
+against their adjusted p-value (y axis) in a form of a -log10. Only significantly DE genes are shown (padj > 0.05). 
+It is recommended to select differentially expressed genes with a Log2FC > 1 or < -1 (blue lines show that threshold).
+Here, volcano plots for all considered contrasts are shown. Hover over the dots to show the gene names.
+
+```{r, echo=F, message =F}
+  library(gprofiler2)
+  library(ggplot2)
+  library(plotly)
+  library(plyr)
+  #library(rlist)
+```
+
+```{r}
+  # Set plot theme
+  theme_set(theme_bw(base_family = "ArialMT") + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
+
+  contrast_files <- list.files(path=paste0(wd, "/differential_gene_expression/DE_genes_tables/"))
+
+  table_list <- list()
+  for (file in contrast_files){
+    #Reading DE genes list
+    fname <- tools::file_path_sans_ext(basename(file))
+
+    DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
+    DE_genes$contrast <- rep(fname, nrow(DE_genes))
+    # label: gene_name
+    # x: log2FoldChange
+    # y: -log10(padj)
+    #list.append(table_list, DE_genes)
+  }
+  #DE_all <- ldply(data, rbind)
+  DE_all <- DE_genes
+  DE_all$logpval <- -log10(DE_all$padj)
+  DE_all$logpval[DE_all$logpval > 16] <- 17
+
+  pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
+        geom_point(aes(alpha=0.3)) +
+        geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") + 
+        geom_vline(xintercept = 1, size = 0.2, color = "blue") +
+        geom_vline(xintercept = -1, size = 0.2, color = "blue") +
+        scale_y_continuous(limits = c(1, 18)) +
+        scale_x_continuous(limits = c(-5,5), breaks = c(-5:5)) +
+        facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
+        ylab("-log 10 padj") + xlab("Log2 Fold Change") + theme(legend.position = "none") +
+        annotate(geom = "text", x = 4.2, y = 16.2, 
+            label = "values above this threshold are capped", 
+            size = 2, color = "grey")
+  pg <- ggplotly(pg, tooltip = "text")
+  pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05
+  pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
+  pg %>% layout(margin = list(l = 75))
+```
 
 ## Barplots of gene normalized counts
 
@@ -412,11 +468,15 @@ knitr::include_graphics("./GO/GO_terms_enriched.png")
 </center>
 
 <!-- In case KEGG analysis was also included; differentiating the cases with and without contrasts -->
-# Pathway and GO analysis
+# Pathway analysis
+
+Pathway analysis is performed with the `gProfiler2` tool. The plot below summarizes the pathways that were 
+found significantly deregulated (padj value > 0.05). 
+Both KEGG pathways and REACTOME pathways are considered. Hover over the dots to reveal the pathway names.
 
 ```{r}
   library(gprofiler2)
-  #library(htmltools)
+  #library(rlist)
   contrast_files <- list.files(path=paste0(wd, "/differential_gene_expression/DE_genes_tables/"))
 
   #pg_list <- list()
@@ -444,11 +504,10 @@ knitr::include_graphics("./GO/GO_terms_enriched.png")
       path_enrich$original.query.size <- rep(length(q), nrow(path_enrich))
 
       pg <- gostplot(gostres, capped=T, interactive=T)
-      #pg_list <- list.append(pg_list,pg)
     }
   }
-  #htmltools::tagList(list(pg_list))
-  pg
+  pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05
+  pg %>% layout(margin = list(l = 75))
 ```
 
 ```{r, echo=FALSE}
@@ -461,12 +520,12 @@ knitr::include_graphics("./GO/GO_terms_enriched.png")
 
 
 ```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=report_options$KEGG}
-cat(paste0("## KEGG pathway analysis
+cat(paste0("## KEGG pathway list
 Enriched KEGG pathways were found using a pathway analysis with `gProfileR`. The results are stored in [this folder](./pathway_analysis/), 
 divided in subfolders, one for each contrast. Each subfolder contains a list of the enriched pathways, stored in the file ending with `results.tsv`, 
 and also the plots of the KEGG pathway maps of the enriched pathways, that can be found in the subfolder named `KEGG_pathways`; 
 in these maps, red corresponds to upregulated and green to downregulated parts of the pathways.
-Shown below you find the KEGG pathways enrichment plot for the example contrast ", contrnames[1],":","
+Shown below you find the KEGG pathways enrichment plot for the example contrast ", contrnames[1],".","
 \
 ")) 
 ```
