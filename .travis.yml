@@ -26,7 +26,7 @@ matrix:
       - pip install nf-core
     script: nf-core lint ${TRAVIS_BUILD_DIR}
     python: '3.6'
-    env: NXF_VER='0.32.0'
+    env: NXF_VER='19.04.0'
     jdk: openjdk8
   - name: "Lint the pipeline documentation"
     script: markdownlint ${TRAVIS_BUILD_DIR} -c ${TRAVIS_BUILD_DIR}/.github/markdownlint.yml
