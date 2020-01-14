@@ -8,7 +8,7 @@ matrix:
   fast_finish: true
   include:
   - name: "Minimum Nextflow version, regular test suite"
-    env: NXF_VER='0.32.0' SUITE=test FLAGS=
+    env: NXF_VER='19.04.0' SUITE=test FLAGS=
     language: java
     jdk: openjdk8
   - name: "Latest Nextflow version, regular test suite"
@@ -17,8 +17,6 @@ matrix:
     env: NXF_VER='' SUITE=test FLAGS='--contrasts DEFAULT'
   - name: "Latest Nextflow version, one contrast"
     env: NXF_VER='' SUITE=test FLAGS:'--contrasts https://raw.githubusercontent.com/qbicsoftware/rnadeseq/dev/testdata/onecontrast.tsv'
-  - name: "Latest Nextflow version, no fastqc"
-    env: NXF_VER='' SUITE=test FLAGS='--fastqc NO_FILE'
   - name: "Latest Nextflow version, no gene_list"
     env: NXF_VER='' SUITE=test FLAGS='--genelist NO_FILE'
   - name: "Lint the pipeline code"
