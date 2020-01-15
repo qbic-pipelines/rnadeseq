@@ -110,13 +110,13 @@ for (file in contrast_files){
   
  
   #gprofiler query
-  path_enrich <- gprofiler(query = q, organism=organism, 
-                          significant = T, 
-                          correction_method = "fdr",
-                          min_set_size = min_set_size, 
-                          max_set_size = max_set_size, 
-                          min_isect_size = min_isect_size,
-                          src_filter = datasources)
+  #path_enrich <- gprofiler(query = q, organism=organism, 
+  #                        significant = T, 
+  #                        correction_method = "fdr",
+  #                        min_set_size = min_set_size, 
+  #                        max_set_size = max_set_size, 
+  #                        min_isect_size = min_isect_size,
+  #                        src_filter = datasources)
 
   #gost query
   gostres <- gost(query=q,
@@ -124,6 +124,7 @@ for (file in contrast_files){
                   significant=TRUE,
                   correction_method="fdr",
                   sources=datasources,
+                  evcodes=TRUE,
                   user_threshold=0.05)
 
   path_gostres<- gostres$result
@@ -141,16 +142,16 @@ for (file in contrast_files){
           height=10, width=15, units="cm", dpi=300, limitsize=F)
   }
   
-  if (nrow(path_enrich) > 0){
-    path_enrich$original.query.size <- rep(length(q), nrow(path_enrich))
+  if (nrow(path_gostres) > 0){
+    path_gostres$original_query_size <- rep(length(q), nrow(path_gostres))
   }
-  write.table(path_enrich, 
-              file = paste0(outdir, "/", fname, "/",fname, "_pathway_enrichment_results.tsv"), 
-              sep = "\t", quote = F, col.names = T, row.names = F )
+  #write.table(path_enrich, 
+  #            file = paste0(outdir, "/", fname, "/",fname, "_pathway_enrichment_results.tsv"), 
+  #            sep = "\t", quote = F, col.names = T, row.names = F )
   path_gostres_table = path_gostres
   path_gostres_table$parents <- NULL
   write.table(path_gostres_table, 
-              file = paste0(outdir, "/", fname, "/", fname, "_pathway_gostres_enrighment_results.tsv"), 
+              file = paste0(outdir, "/", fname, "/", fname, "_pathway_enrichment_results.tsv"), 
               sep="\t", quote = F, col.names = T, row.names = F)
 
   # Printing numbers
@@ -159,27 +160,30 @@ for (file in contrast_files){
   print("Number of genes in query:")
   print(length(DE_genes$Ensembl_ID))
   print("Number of pathways found:")
-  print(summary(as.factor(path_enrich$domain)))
+  print(summary(as.factor(path_gostres_table$source)))
   print("------------------------------------")
   
-  if (nrow(path_enrich) > 0){ #if there are enriched pathways
+  if (nrow(path_gostres) > 0){ #if there are enriched pathways
     # Splitting results according to tools
-    res <- split(path_enrich, path_enrich$domain)
+    res <- split(path_gostres, path_gostres$source)
     for (df in res){
-      db_source <- df$domain[1]
-      df$short_name <- sapply(df$term.name, substr, start=1, stop=50)
+      db_source <- df$source[1]
+      df$short_name <- sapply(df$term_name, substr, start=1, stop=50)
 
       # Plotting results for df
-      df_subset <- data.frame(Pathway_name = df$short_name, Query = df$overlap.size, Pathway = df$term.size, Fraction = (df$overlap.size / df$term.size), Pval = df$p.value)
+      df_subset <- data.frame(Pathway_name = df$short_name, Pathway_code = df$term_id, DE_genes = df$intersection_size, Pathway_size = df$term_size, Fraction_DE = (df$intersection_size / df$term_size), Padj = df$p_value)
+      write.table(df_subset, 
+              file = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"), 
+              sep="\t", quote = F, col.names = T, row.names = F)
 
-      p <- ggplot(df_subset, aes(x=reorder(Pathway_name, Fraction), y=Fraction)) +
-        geom_bar(aes(fill=Pval), stat="identity", width = 0.7) +
-        geom_text(aes(label=paste0(df_subset$Query, "/", df_subset$Pathway)), vjust=0.4, hjust=-0.5, size=3) +
+      p <- ggplot(df_subset, aes(x=reorder(Pathway_name, Fraction_DE), y=Fraction_DE)) +
+        geom_bar(aes(fill=Padj), stat="identity", width = 0.7) +
+        geom_text(aes(label=paste0(df_subset$DE_genes, "/", df_subset$Pathway_size)), vjust=0.4, hjust=-0.5, size=3) +
         coord_flip() +
         scale_y_continuous(limits = c(0.00, 1.00)) +
         scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
         ggtitle("Enriched pathways") +
-        xlab("") + ylab("Gene fraction (Query / Pathway)")
+        xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
       ggsave(p, filename = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
       ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
 
@@ -201,14 +205,18 @@ for (file in contrast_files){
           mat <- data.matrix(mat)
 
           if (nrow(mat)>1){
-            png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$domain, "_", pathway$term.id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
-            pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$domain,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+            png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
+            pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+            dev.off()
+
+            pdf(paste(outdir, "/", fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
+            pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
             dev.off()
           }
 
           # Plotting pathway view only for kegg pathways
-          if (pathway$domain == "keg"){
-            pathway_kegg <- sapply(pathway$term.id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
+          if (pathway$source == "keg"){
+            pathway_kegg <- sapply(pathway$term_id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
             # KEGG pathway blacklist. This pathway graphs contain errors and pathview crashes if plotting them.
             if (pathway_kegg %in% blacklist_pathways) {
               print(paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database."))

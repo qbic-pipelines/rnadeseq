@@ -468,62 +468,80 @@ knitr::include_graphics("./GO/GO_terms_enriched.png")
 </center>
 
 <!-- In case KEGG analysis was also included; differentiating the cases with and without contrasts -->
+
+```{r pathway_analysis, echo=FALSE, results='asis', eval=report_options$KEGG}
+cat(paste0("***
 # Pathway analysis
+Pathway analysis is performed with the `gProfiler2` tool. The pathway analysis results are stored [here](./pathway_analysis).
 
-Pathway analysis is performed with the `gProfiler2` tool. The plot below summarizes the pathways that were 
-found significantly deregulated (padj value > 0.05). 
+## Enriched pathways
+The plot below summarizes the pathways that were 
+found significantly enriched in DE genes (padj value > 0.05). 
 Both KEGG pathways and REACTOME pathways are considered. Hover over the dots to reveal the pathway names.
+The table below provides more detail on all enriched pathways."))
+```
 
-```{r}
+```{r, eval=report_options$KEGG}
   library(gprofiler2)
   #library(rlist)
   contrast_files <- list.files(path=paste0(wd, "/differential_gene_expression/DE_genes_tables/"))
 
-  #pg_list <- list()
+  #q_list <- list()
   for (file in contrast_files){
     #Reading DE genes list
     fname <- tools::file_path_sans_ext(basename(file))
 
     DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
     q = as.character(DE_genes$Ensembl_ID)
-
-    datasources <- c("KEGG","REAC")
-
-    #gost query
-    gostres <- gost(query=q,
-                    organism=params$organism,
-                    significant=T,
-                    correction_method="fdr",
-                    sources=datasources,
-                    user_threshold=0.05)
-    
-    path_enrich <- gostres$result
-    path_enrich <- path_enrich[which(path_enrich$significant==TRUE),]
-
-    if (nrow(path_enrich) > 0){
-      path_enrich$original.query.size <- rep(length(q), nrow(path_enrich))
-
-      pg <- gostplot(gostres, capped=T, interactive=T)
-    }
+    #q_list <- list.append(q_list, q)
   }
-  pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05
+  #contrast_names <- sapply(strsub)
+  #q_list <- list.append(q_list, q)
+  # TODO: add different contrasts in list and make gost plot for all of them
+
+  datasources <- c("KEGG","REAC")
+
+  #gost query
+  gostres <- gost(query=q,
+                  organism=params$organism,
+                  significant=T,
+                  correction_method="fdr",
+                  sources=datasources,
+                  user_threshold=0.05)
+  
+  path_enrich <- gostres$result
+  path_enrich <- path_enrich[which(path_enrich$significant==TRUE),]
+
+  if (nrow(path_enrich) > 0){
+    path_enrich$original.query.size <- rep(length(q), nrow(path_enrich))
+
+    pg <- gostplot(gostres, capped=T, interactive=T)
+  
+  }
+  pg[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
+  #print(pg[['x']][['layout']][['annotations']])
   pg %>% layout(margin = list(l = 75))
 ```
 
 ```{r, echo=FALSE}
-  pathenrich_table <- path_enrich
-  pathenrich_table$parents <- NULL
-  kable(pathenrich_table) %>%
+  df_subset <- data.frame(Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id, 
+                          DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size, 
+                          Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3), 
+                          Padj = formatC(path_enrich$p_value, digits=3))
+  # TODO: add contrast name to table
+  colnames <- c("Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)", 
+  "Fraction of DE genes in pathway", "Padj value (pathway enrichment)")
+  kable(df_subset, col.names = colnames) %>%
     kable_styling("hover") %>%
     scroll_box(width = "100%", height = "400px")
 ```
 
 
 ```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=report_options$KEGG}
-cat(paste0("## KEGG pathway list
-Enriched KEGG pathways were found using a pathway analysis with `gProfileR`. The results are stored in [this folder](./pathway_analysis/), 
-divided in subfolders, one for each contrast. Each subfolder contains a list of the enriched pathways, stored in the file ending with `results.tsv`, 
-and also the plots of the KEGG pathway maps of the enriched pathways, that can be found in the subfolder named `KEGG_pathways`; 
+cat(paste0("## KEGG pathways
+Here is a plot summarizing the KEGG pathways that were found enriched in DE genes. For KEGG pathways, 
+a KEGG pathway map was also generated that can be found in the subfolder named `KEGG_pathways`.
+
 in these maps, red corresponds to upregulated and green to downregulated parts of the pathways.
 Shown below you find the KEGG pathways enrichment plot for the example contrast ", contrnames[1],".","
 \
@@ -531,7 +549,18 @@ Shown below you find the KEGG pathways enrichment plot for the example contrast 
 ```
 
 ```{r, out.width = "600px", eval=report_options$KEGG}
-knitr::include_graphics(paste0(wd,"/pathway_analysis/", 'DE_contrast_', contrnames[1], "/", 'DE_contrast_', contrnames[1], '_keg_pathway_enrichment_plot.png'))
+knitr::include_graphics(paste0(wd,"/pathway_analysis/", 'DE_contrast_', contrnames[1], "/", 'DE_contrast_', 
+                contrnames[1], '_KEGG_pathway_enrichment_plot.png'))
+```
+
+```{r conditional_pathway_maps, echo=FALSE, results='asis', eval=report_options$KEGG}
+cat(paste0("## Pathway heatmaps
+For all considered contrasts, a heatmap of all DE genes that were found in each of the pathways is produced. 
+You can find these heatmaps inside the [pathway_analysis](./pathway_analysis) folder, inside the subfolder corresponding to each of the contrasts,
+and the subfolder: `pathway_heatmaps`.
+
+\
+")) 
 ```
 
 <!-- If a DEU analysis has also been performed -->
