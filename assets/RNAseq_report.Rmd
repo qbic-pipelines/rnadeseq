@@ -543,7 +543,6 @@ cat(paste0("## KEGG pathways
 Here is a plot summarizing the KEGG pathways that were found enriched in DE genes. For KEGG pathways, 
 a KEGG pathway map was also generated that can be found in the subfolder named `KEGG_pathways`.
 
-in these maps, red corresponds to upregulated and green to downregulated parts of the pathways.
 Shown below you find the KEGG pathways enrichment plot for the example contrast ", contrnames[1],".","
 \
 ")) 
