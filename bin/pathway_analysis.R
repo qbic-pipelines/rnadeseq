@@ -215,7 +215,7 @@ for (file in contrast_files){
           }
 
           # Plotting pathway view only for kegg pathways
-          if (pathway$source == "keg"){
+          if (pathway$source == "KEGG"){
             pathway_kegg <- sapply(pathway$term_id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
             # KEGG pathway blacklist. This pathway graphs contain errors and pathview crashes if plotting them.
             if (pathway_kegg %in% blacklist_pathways) {
