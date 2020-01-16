@@ -321,7 +321,7 @@ knitr::include_graphics(paste0(wd,"/differential_gene_expression/plots/PCA_plot.
 
 ```{r batch, echo=FALSE, eval=params$batch_effect, results='asis'}
 cat("Batch effects were observed in the PCA, so batch effects were corrected. 
-Here, a PCA of the batch-effect corrected data is shown.")
+A PCA of the batch-effect corrected data is shown below and can be found [here](./differential_gene_expression/plots/PCA_batch_corrected_plot.pdf)")
 ```
 
 ```{r, echo=F, out.width="80%", dpi=1200, fig.align='center', eval=params$batch_effect}
