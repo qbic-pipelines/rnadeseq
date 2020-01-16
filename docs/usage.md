@@ -25,6 +25,7 @@
 * [Optional arguments](#Optional-arguments)
   * [`--logFCthreshold`](#--logFCthreshold)
   * [`--genelist`](#--genelist)
+  * [`--batch_effect`](#--batch_effect)
 * [Special cases](#Special-cases)
   * [Controlling for batch effects](#Controlling-for-batch-effects)
 * [AWS Batch specific parameters](#aws-batch-specific-parameters)
@@ -194,15 +195,24 @@ Threshold (int) to apply to Log 2 Fold Change to consider a gene as differential
 
 List of genes (one per line) of which to plot heatmaps for normalized counts across all samples.
 
+### `--batch_effect`
+
+Option needed to account for batch effects in the data. Please check the section `Controlling for batch effects` to do so.
+
 ## Special cases
 
 ### Controlling for batch effects
 
-To control for batch effects, include the batch effect as a condition in the metadata file (it will be automatically included in the sample preparation file if it is specified in the wizard during project registration to the portal). Then, your design file needs to additionally include the batch in the linear model. The name provided in the linear design needs to be identical to the header of the column in the metadata file:
+To control for batch effects follow ALL these steps:
+
+1. Include the batch effect in the metadata file in a column with the header `batch`.
+2. Your design file needs to additionally include the batch effect in the linear model. E.g.:
 
 ```R
-~ condition_batch + condition_genotype
+~ batch + condition_genotype
 ```
+
+3. Use the `--batch_effect` option when running the pipeline to generate an extra PCA plot with the corrected batch effects.
 
 Then the DESeq2 script calculates the contrasts as usual, the batch effect just needs to be considered during the design definition.
 For more information, please check the [DESeq2 vignette](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).

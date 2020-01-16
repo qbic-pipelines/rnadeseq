@@ -13,18 +13,15 @@ option_list = list(
   make_option(c("-k", "--contrasts"), type="character", default=NULL, help="contrasts file", metavar="character"),
   make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
   make_option(c("-q", "--quote"), type="character", default=NULL, help="path to the signed quote PDF file", metavar="character"),
-  make_option(c("-g", "--organism"), type="character", default=NULL, help="Organism, e.g. Hsapiens.")
+  make_option(c("-g", "--organism"), type="character", default=NULL, help="Organism, e.g. Hsapiens."),
+  make_option(c("-b", "--batch_effect"), action="store_true", default=FALSE, help="Batch effect correction.")
 )
 
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 
 wd=getwd()
-# if(!is.null(opt$contrasts)){
-#   path_contrasts = opt$contrasts
-# } else {
-#   path_contrasts = ''
-# }
+
 if(!is.null(opt$genelist)){
   path_genelist = opt$genelist
 } else {
@@ -40,4 +37,5 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_contrasts = opt$contrasts,
                                 path_genelist = path_genelist,
                                 path_quote = opt$quote,
-                                organism = opt$organism))
+                                organism = opt$organism,
+                                batch_effect = opt$batch_effect))

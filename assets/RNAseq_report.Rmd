@@ -24,6 +24,7 @@ params:
   path_genelist: ""
   path_quote: ""
   organism: ""
+  batch_effect: ""
 # Author: Simon Heumos
 # Contributor: Silvia Morini, Gisela Gabernet
 ---
@@ -51,10 +52,12 @@ description = as.character(df$Description)
 ```
 
 <!-- load report_options.yaml + design.txt -->
+
 ```{r load_config, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
 library(yaml)
 report_options <- read_yaml(params$path_report_options)
 design_deseq2 <- paste(readLines(params$path_design), collapse=" ")
+#if(batch_effect=="Yes"){batch_effect=TRUE}else{batch_effect=FALSE}
 ```
 
 ---
@@ -312,6 +315,17 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 
 ```{r, echo=F, out.width="80%", dpi=1200, fig.align='center'}
 knitr::include_graphics(paste0(wd,"/differential_gene_expression/plots/PCA_plot.svg"))
+```
+
+\ 
+
+```{r batch, echo=FALSE, eval=params$batch_effect, results='asis'}
+cat("Batch effects were observed in the PCA, so batch effects were corrected. 
+Here, a PCA of the batch-effect corrected data is shown.")
+```
+
+```{r, echo=F, out.width="80%", dpi=1200, fig.align='center', eval=params$batch_effect}
+knitr::include_graphics(paste0(wd,"/differential_gene_expression/plots/PCA_batch_corrected_plot.svg"))
 ```
 
 ## Sample distance heatmap

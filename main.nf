@@ -36,7 +36,8 @@ def helpMessage() {
 
     Options:
       --logFCthreshold              Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed.
-      --genelist                    List of genes (one per line) of which to plot heatmaps for normalized counts across all samples.                
+      --genelist                    List of genes (one per line) of which to plot heatmaps for normalized counts across all samples.
+      --batch_effect                Turn on this flag if you wish to consider batch effects. You need to add the batch effect to the linear model too!                
 
     Other options:
       --outdir                      The output directory where the results will be saved
@@ -238,8 +239,9 @@ process DESeq2 {
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
+    def batcheffectopt = params.batch_effect ? "--batchEffect" : ''
     """
-    DESeq2.R --counts $gene_counts --metadata $metadata --design $model --logFCthreshold $params.logFCthreshold $contrastsopt $genelistopt
+    DESeq2.R --counts $gene_counts --metadata $metadata --design $model --logFCthreshold $params.logFCthreshold $contrastsopt $genelistopt $batcheffectopt
     zip -r differential_gene_expression.zip differential_gene_expression
     """
 }
@@ -269,6 +271,7 @@ process Pathway_analysis {
     """
 }
 
+// TODO: report options need to be provided via pipeline params, not extra file.
 /*
  * STEP 3 - RNAseq Report
  */
@@ -293,6 +296,7 @@ process Report {
 
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
+    def batchopt = params.batch_effect ? "--batch_effect" : ''
     """
     unzip $deseq2
     unzip $multiqc
@@ -302,7 +306,7 @@ process Report {
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' \
     --output 'RNAseq_report.html' --proj_summary $proj_summary \
     --versions $softwareversions --model $model --report_options $report_options \
-    --contrasts $contrnames $genelistopt --quote $quote --organism $params.species
+    --contrasts $contrnames $genelistopt --quote $quote --organism $params.species $batchopt
     mv qc_summary.tsv QC/
     zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quote
     """

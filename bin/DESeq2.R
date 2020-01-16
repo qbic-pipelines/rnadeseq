@@ -5,18 +5,19 @@
 # Contributors: Gisela Gabernet
 # QBiC 2019; MIT License
 
-library("RColorBrewer")
-library("reshape2")
-library("genefilter")
-library("DESeq2")
-library("ggplot2")
-library("plyr")
-library("vsn")
-library("gplots")
-library("pheatmap")
-library("optparse")
-library("svglite")
-library("extrafont")
+library(RColorBrewer)
+library(reshape2)
+library(genefilter)
+library(DESeq2)
+library(ggplot2)
+library(plyr)
+library(vsn)
+library(gplots)
+library(pheatmap)
+library(optparse)
+library(svglite)
+library(extrafont)
+library(limma)
 
 # clean up graphs
 graphics.off()
@@ -46,7 +47,8 @@ option_list = list(
   make_option(c("-d", "--design"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
   make_option(c("-k", "--contrasts"), type="character", default=NULL, help="path to contrast matrix file", metavar="character"),
   make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
-  make_option(c("-t", "--logFCthreshold"), type="integer", default=0, help="Log 2 Fold Change threshold for DE genes", metavar="character")
+  make_option(c("-t", "--logFCthreshold"), type="integer", default=0, help="Log 2 Fold Change threshold for DE genes", metavar="character"),
+  make_option(c("-b", "--batchEffect"), default=FALSE, action="store_true", help="Whether to consider batch effects in the DESeq2 analysis", metavar="character")
 )
 
 opt_parser = OptionParser(option_list=option_list)
@@ -289,9 +291,9 @@ if (!is.null(opt$genelist)){
 
 ############################## TRANSFORMED AND NORMALIZED COUNTS ###################
 # rlog transformation
-rld <- rlog(cds)
+rld <- rlog(cds, blind=FALSE)
 # vst transformation
-vsd <- varianceStabilizingTransformation(cds)
+vsd <- vst(cds, blind=FALSE)
 
 # write normalized values to a file
 rld_names <- merge(x=gene_names, y=assay(rld), by.x = "Ensembl_ID", by.y="row.names")
@@ -302,7 +304,7 @@ write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_tran
 
 ##################  SAMPLE DISTANCES HEATMAP ##################
 # Sample distances
-sampleDists <- dist(t(assay(rld)))
+sampleDists <- dist(t(assay(vsd)))
 sampleDistMatrix <- as.matrix(sampleDists)
 colours = colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
 
@@ -317,7 +319,7 @@ dev.off()
 
 
 ############################ PCA PLOTS ########################
-pcaData <- plotPCA(rld,intgroup=c("combfactor"),ntop = dim(rld)[1], returnData=TRUE)
+pcaData <- plotPCA(vsd,intgroup=c("combfactor"),ntop = dim(vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
 pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor)) +
   geom_point(size=3) +
@@ -327,6 +329,21 @@ pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor)) +
   coord_fixed()
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg", device = "svg", dpi = 150)
+
+########################### PCA PLOT with batch-corrected data ############
+if(opt$batchEffect){
+  assay(vsd) <- limma::removeBatchEffect(assay(vsd), vsd$batch)
+  pcaData2 <- plotPCA(vsd, intgroup=c("combfactor"), ntop = dim(vsd)[1], returnData=TRUE)
+  percentVar <- round(100*attr(pcaData, "percentVar"))
+  pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor)) +
+            geom_point(size=3)+
+            xlab(paste0("PC1: ", percentVar[1],"% variance")) +
+            ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+            theme(legend.title = element_blank()) +
+            coord_fixed()
+  ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.pdf", device = "pdf", dpi=300)
+  ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.svg", device = "svg", dpi = 150)
+}
 
 
 ############################## DIAGNOSTICS AND QUALITY CONTROL PLOTS ###############################
