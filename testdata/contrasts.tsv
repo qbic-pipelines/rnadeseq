@@ -1,7 +1,5 @@
-time_16H_vs_1H_WT_Control	treatment_effect
-0	0
-0	0
+treatment_treated_vs_control	genotype_KO_vs_WT
 0	0
 1	0
 0	1
-0	0
+
