@@ -1,1 +1,1 @@
-~ condition_treatment + condition_genotype + condition_time + condition_treatment:condition_time + condition_genotype:condition_time
+~ condition_treatment + condition_genotype
