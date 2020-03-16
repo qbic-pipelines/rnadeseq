@@ -114,7 +114,7 @@ Channel.fromPath("${params.multiqc}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide multiqc.zip folder!"}
             .set { ch_multiqc_file }
 Channel.fromPath("${params.genelist}")
-            .into { ch_genes_for_deseq2_file; ch_genes_for_report_file }
+            .into { ch_genes_for_deseq2_file; ch_genes_for_report_file; ch_genes_for_pathway }
 
 ch_fastqc_file = file(params.fastqc)
 
@@ -257,6 +257,7 @@ process Pathway_analysis {
     file(deseq_output) from ch_deseq2_for_pathway
     file(metadata) from ch_metadata_file_for_pathway
     file(model) from ch_model_file_for_pathway
+    file(genelist) from ch_genes_for_pathway
 
     output:
     file "*.zip" into ch_pathway_analysis_for_report
