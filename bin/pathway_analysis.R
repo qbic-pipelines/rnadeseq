@@ -266,6 +266,7 @@ if (!is.null(opt$metadata)){
   row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
   gene_list <- read.table(file=metadata_path, sep = "\t", header = F, quote="")
+  gene_list <- unlist(gene_list)
 
   mat <- norm_counts[gene_list, ]
   rownames(mat) <- mat$gene_name
