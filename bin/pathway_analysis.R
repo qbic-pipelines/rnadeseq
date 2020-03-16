@@ -268,7 +268,7 @@ if (!is.null(opt$genelist)){
   row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
   gene_list_tab <- read.table(file=genelist_path, sep = "\t", header = F, quote="")
-  gene_list <- gene_list_tab$V1
+  gene_list <- as.character(gene_list_tab$V1)
   print(gene_list)
 
   mat <- norm_counts[gene_list, ]
