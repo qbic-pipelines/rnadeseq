@@ -265,8 +265,7 @@ if (!is.null(opt$metadata)){
   metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
   row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
-  gene_list_read <- read.table(file=metadata_path, sep = "\t", header = F, quote="")
-  gene_list <- gene_list$V1
+  gene_list <- read.table(file=metadata_path, sep = "\t", header = F, quote="")
 
   mat <- norm_counts[gene_list, ]
   rownames(mat) <- mat$gene_name
