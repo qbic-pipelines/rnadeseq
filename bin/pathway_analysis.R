@@ -270,7 +270,7 @@ if (!is.null(opt$genelist)){
   gene_list_tab <- read.table(file=genelist_path, sep = "\t", header = F, quote="")
   print(gene_list)
 
-  norm_counts <- read.table(file = path_norm_counts, header = T, row.names = F, sep = "\t", quote = "")
+  norm_counts <- read.table(file = path_norm_counts, header = T, sep = "\t", quote = "")
   norm_counts$gene_name <- toupper(norm_counts$gene_name)
 
   IDs <- norm_counts[,c("Ensembl_ID","gene_name")]
@@ -281,7 +281,7 @@ if (!is.null(opt$genelist)){
   rownames(norm_counts) <- norm_counts$gene_name
   norm_counts$gene_name <- NULL
   norm_counts$Ensembl_ID <- NULL
-  
+
   mat <- norm_counts[gene_list, ]
   rownames(mat) <- mat$gene_name
   mat$gene_name <- NULL
@@ -297,7 +297,3 @@ if (!is.null(opt$genelist)){
     dev.off()
   }
 }
-
-
-
-
