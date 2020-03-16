@@ -283,6 +283,7 @@ if (!is.null(opt$genelist)){
   mat <- norm_counts[gene_list, ]
   rownames(mat) <- mat$gene_name
   mat$gene_name <- NULL
+  mat$ensembl_ID <- NULL
   mat <- data.matrix(mat)
 
   if (nrow(mat)>1){
