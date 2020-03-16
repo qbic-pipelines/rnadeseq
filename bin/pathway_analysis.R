@@ -278,9 +278,7 @@ if (!is.null(opt$genelist)){
   genestoEnsmbl <- merge(x=gene_list_tab, y=IDs, by.x="V1", by.y="gene_name", all.x=T)
   gene_list <- genestoEnsmbl$Ensembl_ID
 
-  rownames(norm_counts) <- norm_counts$gene_name
-  norm_counts$gene_name <- NULL
-  norm_counts$Ensembl_ID <- NULL
+  rownames(norm_counts) <- norm_counts$Ensembl_ID
 
   mat <- norm_counts[gene_list, ]
   rownames(mat) <- mat$gene_name
