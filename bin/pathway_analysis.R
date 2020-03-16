@@ -256,7 +256,7 @@ for (file in contrast_files){
 if (!is.null(opt$metadata)){
 
   genelist_heatmaps_dir <- "heatmap_gene_list"
-  dir.create(paste(outdir, genelist_heatmaps_dir))
+  dir.create(paste(outdir, genelist_heatmaps_dir, sep="/"))
 
 
   print("Plotting heatmaps...")
