@@ -262,11 +262,12 @@ process Pathway_analysis {
     file "*.zip" into ch_pathway_analysis_for_report
 
     script:
+    def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     """
     unzip $deseq_output
     pathway_analysis.R --dirContrasts 'differential_gene_expression/DE_genes_tables/' --metadata $metadata \
     --model $model --normCounts 'differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv' \
-    --species $params.species
+    --species $params.species $genelistopt
     zip -r pathway_analysis.zip pathway_analysis/
     """
 }

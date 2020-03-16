@@ -17,7 +17,7 @@ library(optparse)
 library(org.Mm.eg.db) #Mmusculus
 library(org.Hs.eg.db) #Hsapiens
 
-# Blacklist pathways: some pathways are badly written in KEGG and produce errors. Add the pathway here if you have this kind of error
+# Blacklist pathways: some pathways are corrupted in KEGG and produce errors. Add the pathway here if you have this kind of error:
 blacklist_pathways <- c("mmu05206", "mmu04215", "hsa05206", "mmu04723")
 
 # Reading parameters
@@ -28,6 +28,7 @@ option_list = list(
   make_option(c("-d", "--model"), type="character", default=NULL, help="path to linear model file", metavar="character"),
   make_option(c("-n", "--normCounts"), type="character", default=NULL, help="path to normalized counts", metavar="character"),
   make_option(c("-s", "--species"), type="character", default=NULL, help="Species name. Example format: Hsapiens", metavar="character")
+  make_option(c("-g", "--genelist"), type="character", default=NULL, help="Gene list for heatmap plot.", metavar="character")
 )
 
 opt_parser = OptionParser(option_list=option_list)
@@ -249,6 +250,40 @@ for (file in contrast_files){
     }
   }
 }
+
+# Plotting heatmap for provided gene list
+
+if (!is.null(opt$metadata)){
+
+  genelist_heatmaps_dir <- "heatmap_gene_list"
+  dir.create(paste(outdir, genelist_heatmaps_dir))
+
+
+  print("Plotting heatmaps...")
+  conditions <- grepl("Condition", colnames(metadata))
+  metadata_cond <- as.data.frame(metadata[,conditions])
+  metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
+  row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
+
+  gene_list_read <- read.table(file=metadata_path, sep = "\t", header = F, quote="")
+  gene_list <- gene_list$V1
+
+  mat <- norm_counts[gene_list, ]
+  rownames(mat) <- mat$gene_name
+  mat$gene_name <- NULL
+  mat <- data.matrix(mat)
+
+  if (nrow(mat)>1){
+    png(filename = paste(outdir, "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.png", sep=""), width = 2500, height = 3000, res = 300)
+    pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
+    dev.off()
+
+    pdf(paste(outdir, "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""))
+    pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
+    dev.off()
+  }
+}
+
 
 
 
