@@ -253,7 +253,9 @@ for (file in contrast_files){
 
 # Plotting heatmap for provided gene list
 
-if (!is.null(opt$metadata)){
+if (!is.null(opt$genelist)){
+
+  genelist_path = opt$genelist
 
   genelist_heatmaps_dir <- "heatmap_gene_list"
   dir.create(paste(outdir, genelist_heatmaps_dir, sep="/"))
@@ -265,8 +267,8 @@ if (!is.null(opt$metadata)){
   metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
   row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
-  gene_list <- read.table(file=metadata_path, sep = "\t", header = F, quote="")
-  gene_list <- unlist(gene_list)
+  gene_list_tab <- read.table(file=genelist_path, sep = "\t", header = F, quote="")
+  gene_list <- gene_list_tab$V1
   print(gene_list)
 
   mat <- norm_counts[gene_list, ]
