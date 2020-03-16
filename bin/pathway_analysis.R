@@ -269,11 +269,14 @@ if (!is.null(opt$genelist)){
 
   gene_list_tab <- read.table(file=genelist_path, sep = "\t", header = F, quote="")
   gene_list <- as.character(gene_list_tab$V1)
+  gene_list <- unique(gene_list)
   print(gene_list)
 
+  norm_counts <- read.table(file = path_norm_counts, header = T, row.names = 2, sep = "\t", quote = "")
+  rownames(norm_counts) <- toupper(rownames(norm_counts))
+
   mat <- norm_counts[gene_list, ]
-  rownames(mat) <- mat$gene_name
-  mat$gene_name <- NULL
+  mat$Ensembl_ID <- NULL
   mat <- data.matrix(mat)
 
   if (nrow(mat)>1){
