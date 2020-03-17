@@ -263,8 +263,8 @@ if (!is.null(opt$genelist)){
 
   print("Plotting heatmaps...")
   conditions <- grepl("Condition", colnames(metadata))
-  annotations <- metadata[,conditions]
-  metadata_cond <- as.data.frame(annotations)
+  condition <- metadata[,conditions]
+  metadata_cond <- as.data.frame(condition)
   metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
   row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
