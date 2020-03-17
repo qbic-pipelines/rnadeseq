@@ -278,6 +278,9 @@ if (!is.null(opt$genelist)){
 
   genestoEnsmbl <- merge(x=gene_list_tab, y=IDs, by.x="V1", by.y="gene_name", all.x=T)
   gene_list <- genestoEnsmbl$Ensembl_ID
+  
+  # Omit genes not present in the count table
+  gene_list <- na.omit(gene_list)
 
   rownames(norm_counts) <- norm_counts$Ensembl_ID
 
