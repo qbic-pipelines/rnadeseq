@@ -129,7 +129,7 @@ for (file in contrast_files){
                   user_threshold=0.05)
 
   path_gostres<- gostres$result
-  path_gostres <- path_gostres[which(path_gostres$significant==TRUE),]
+  path_gostres <- as.data.frame(path_gostres[which(path_gostres$significant==TRUE),])
 
   if (nrow(path_gostres) > 0){
     path_gostres$original.query.size <- rep(length(q), nrow(path_gostres))
