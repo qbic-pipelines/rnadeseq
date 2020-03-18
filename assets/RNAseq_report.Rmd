@@ -186,6 +186,7 @@ It can also be downloaded [here](./QC/qc_summary.tsv).
 ```{r echo=FALSE, results='asis'}
 library(formattable)
 df_DE <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"), header=TRUE, sep="\t")
+print(colnames(df_DE))
 is.num <- sapply(df_DE, is.numeric)
 df_DE[is.num] <- lapply(df_DE[is.num], round, 2)
 columns <- c("Sample", 
