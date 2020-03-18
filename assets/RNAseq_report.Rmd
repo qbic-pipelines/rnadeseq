@@ -191,9 +191,9 @@ is.num <- sapply(df_DE, is.numeric)
 df_DE[is.num] <- lapply(df_DE[is.num], round, 2)
 columns <- c("Sample", 
             "FastQC_mqc-generalstats-fastqc-total_sequences",
-            "DupRadar_mqc.generalstats-dupradar-dupRadar_intercept", 
-            "FastQC_mqc.generalstats-fastqc-percent_gc",
-            "Cutadapt_mqc.generalstats-cutadapt-percent_trimmed", 
+            "DupRadar_mqc-generalstats-dupradar-dupRadar_intercept", 
+            "FastQC_mqc-generalstats-fastqc-percent_gc",
+            "Cutadapt_mqc-generalstats-cutadapt-percent_trimmed", 
             "STAR_mqc-generalstats-star-uniquely_mapped_percent",  
             "featureCounts_mqc-generalstats-featurecounts-percent_assigned"
             )
