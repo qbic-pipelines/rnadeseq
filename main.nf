@@ -309,7 +309,6 @@ process Report {
     --output 'RNAseq_report.html' --proj_summary $proj_summary \
     --versions $softwareversions --model $model --report_options $report_options \
     --contrasts $contrnames $genelistopt --quote $quote --organism $params.species $batchopt
-    mv qc_summary.tsv QC/
     zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quote
     """
 }
