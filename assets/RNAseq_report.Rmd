@@ -540,16 +540,18 @@ The table below provides more detail on all enriched pathways."))
 ```
 
 ```{r, echo=FALSE}
-  df_subset <- data.frame(Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id, 
-                          DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size, 
-                          Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3), 
-                          Padj = formatC(path_enrich$p_value, digits=3))
-  # TODO: add contrast name to table
-  colnames <- c("Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)", 
-  "Fraction of DE genes in pathway", "Padj value (pathway enrichment)")
-  kable(df_subset, col.names = colnames) %>%
-    kable_styling("hover") %>%
-    scroll_box(width = "100%", height = "400px")
+  if (nrow(path_enrich) > 0) {
+    df_subset <- data.frame(Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id, 
+                            DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size, 
+                            Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3), 
+                            Padj = formatC(path_enrich$p_value, digits=3))
+    # TODO: add contrast name to table
+    colnames <- c("Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)", 
+    "Fraction of DE genes in pathway", "Padj value (pathway enrichment)")
+    kable(df_subset, col.names = colnames) %>%
+      kable_styling("hover") %>%
+      scroll_box(width = "100%", height = "400px")
+  }
 ```
 
 
