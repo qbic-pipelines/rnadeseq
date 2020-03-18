@@ -198,6 +198,7 @@ columns <- c("Sample",
             )
 df_DE_selected = df_DE %>% select(one_of(columns))
 df_DE_selected$Sample <- substr(df_DE_selected$Sample, 1, 10)
+colnames(df_DE_selected) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
 n_rows = nrow(df_DE_selected)
 metadata <- read.table((paste0(wd, "/differential_gene_expression/metadata/metadata.tsv")), header=TRUE, sep="\t")
 metadata = metadata[,c("QBiC.Code", "Lab.ID")]
@@ -211,18 +212,18 @@ table_complete %>%
   mutate(
     Sample = Sample,
     LabID = Lab.ID,
-    ReadNumber = color_bar("lightblue")(round(("FastQC_mqc-generalstats-fastqc-total_sequences"/1000000),2)),
-    DuplicateReadsIntercept = ifelse("DupRadar_mqc-generalstats-dupradar-dupRadar_intercept" > 1,
-                                    cell_spec("DupRadar_mqc-generalstats-dupradar-dupRadar_intercept", color="orange", bold=T),
-                                    cell_spec("DupRadar_mqc-generalstats-dupradar-dupRadar_intercept", color="black")),
-    GCcontent = "FastQC_mqc-generalstats-fastqc-percent_gc",
-    TrimmedReads = "Cutadapt_mqc-generalstats-cutadapt-percent_trimmed",
-    MappedReads =  ifelse("STAR_mqc-generalstats-star-uniquely_mapped_percent" > 80,
-                          color_bar("lightblue")("STAR_mqc-generalstats-star-uniquely_mapped_percent"),
-                          color_bar("orange")("STAR_mqc-generalstats-star-uniquely_mapped_percent")),
-    AssignedReads = ifelse("featureCounts_mqc-generalstats-featurecounts-percent_assigned" > 60,
-                          color_bar("lightblue")("featureCounts_mqc-generalstats-featurecounts-percent_assigned"),
-                          color_bar("orange")("featureCounts_mqc-generalstats-featurecounts-percent_assigned"))
+    ReadNumber = color_bar("lightblue")(round((C1/1000000),2)),
+    DuplicateReadsIntercept = ifelse(C2 > 1,
+                                    cell_spec(C2, color="orange", bold=T),
+                                    cell_spec(C2, color="black")),
+    GCcontent = C3,
+    TrimmedReads = C4,
+    MappedReads =  ifelse(C5 > 80,
+                          color_bar("lightblue")(C5),
+                          color_bar("orange")(C5)),
+    AssignedReads = ifelse(C6 > 60,
+                          color_bar("lightblue")(C6),
+                          color_bar("orange")(C6))
   ) %>%
   select(1,9:15) %>%
   kable(escape=F,row.names =F, col.names=colnames) %>%
