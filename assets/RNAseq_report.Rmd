@@ -211,18 +211,18 @@ table_complete %>%
   mutate(
     Sample = Sample,
     LabID = Lab.ID,
-    ReadNumber = color_bar("lightblue")(round((FastQC_mqc.generalstats.fastqc.total_sequences/1000000),2)),
-    DuplicateReadsIntercept = ifelse(DupRadar_mqc-generalstats-dupradar-dupRadar_intercept > 1,
-                                    cell_spec(DupRadar_mqc-generalstats-dupradar-dupRadar_intercept, color="orange", bold=T),
-                                    cell_spec(DupRadar_mqc-generalstats-dupradar-dupRadar_intercept, color="black")),
-    GCcontent = FastQC_mqc-generalstats-fastqc-percent_gc,
-    TrimmedReads = Cutadapt_mqc-generalstats-cutadapt-percent_trimmed,
-    MappedReads =  ifelse(STAR_mqc-generalstats-star-uniquely_mapped_percent > 80,
-                          color_bar("lightblue")(STAR_mqc-generalstats-star-uniquely_mapped_percent),
-                          color_bar("orange")(STAR_mqc-generalstats-star-uniquely_mapped_percent)),
-    AssignedReads = ifelse(featureCounts_mqc-generalstats-featurecounts-percent_assigned > 60,
-                          color_bar("lightblue")(featureCounts_mqc-generalstats-featurecounts-percent_assigned),
-                          color_bar("orange")(featureCounts_mqc-generalstats-featurecounts-percent_assigned))
+    ReadNumber = color_bar("lightblue")(round(("FastQC_mqc-generalstats-fastqc-total_sequences"/1000000),2)),
+    DuplicateReadsIntercept = ifelse("DupRadar_mqc-generalstats-dupradar-dupRadar_intercept" > 1,
+                                    cell_spec("DupRadar_mqc-generalstats-dupradar-dupRadar_intercept", color="orange", bold=T),
+                                    cell_spec("DupRadar_mqc-generalstats-dupradar-dupRadar_intercept", color="black")),
+    GCcontent = "FastQC_mqc-generalstats-fastqc-percent_gc",
+    TrimmedReads = "Cutadapt_mqc-generalstats-cutadapt-percent_trimmed",
+    MappedReads =  ifelse("STAR_mqc-generalstats-star-uniquely_mapped_percent" > 80,
+                          color_bar("lightblue")("STAR_mqc-generalstats-star-uniquely_mapped_percent"),
+                          color_bar("orange")("STAR_mqc-generalstats-star-uniquely_mapped_percent")),
+    AssignedReads = ifelse("featureCounts_mqc-generalstats-featurecounts-percent_assigned" > 60,
+                          color_bar("lightblue")("featureCounts_mqc-generalstats-featurecounts-percent_assigned"),
+                          color_bar("orange")("featureCounts_mqc-generalstats-featurecounts-percent_assigned"))
   ) %>%
   select(1,9:15) %>%
   kable(escape=F,row.names =F, col.names=colnames) %>%
