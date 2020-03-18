@@ -211,7 +211,7 @@ table_complete %>%
   mutate(
     Sample = Sample,
     LabID = Lab.ID,
-    ReadNumber = color_bar("lightblue")(round((FastQC_mqc-generalstats-fastqc-total_sequences/1000000),2)),
+    ReadNumber = color_bar("lightblue")(round((FastQC_mqc.generalstats.fastqc.total_sequences/1000000),2)),
     DuplicateReadsIntercept = ifelse(DupRadar_mqc-generalstats-dupradar-dupRadar_intercept > 1,
                                     cell_spec(DupRadar_mqc-generalstats-dupradar-dupRadar_intercept, color="orange", bold=T),
                                     cell_spec(DupRadar_mqc-generalstats-dupradar-dupRadar_intercept, color="black")),
