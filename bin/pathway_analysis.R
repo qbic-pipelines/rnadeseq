@@ -269,14 +269,14 @@ if (!is.null(opt$genelist)){
   row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
   gene_list_tab <- read.table(file=genelist_path, sep = "\t", header = F, quote="")
-  gene_list_tab$V1 <- unique(gene_list_tab$V1)
+  gene_list_unique_tab <- data.frame(gene_list=unique(gene_list_tab$V1))
 
   norm_counts <- read.table(file = path_norm_counts, header = T, sep = "\t", quote = "")
   norm_counts$gene_name <- toupper(norm_counts$gene_name)
 
   IDs <- norm_counts[,c("Ensembl_ID","gene_name")]
 
-  genestoEnsmbl <- merge(x=gene_list_tab, y=IDs, by.x="V1", by.y="gene_name", all.x=T)
+  genestoEnsmbl <- merge(x=gene_list_unique_tab, y=IDs, by.x="gene_list", by.y="gene_name", all.x=T)
   gene_list <- genestoEnsmbl$Ensembl_ID
   
   # Omit genes not present in the count table
