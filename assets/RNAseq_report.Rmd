@@ -190,7 +190,7 @@ is.num <- sapply(df_DE, is.numeric)
 df_DE[is.num] <- lapply(df_DE[is.num], round, 2)
 columns <- c("Sample", 
             "FastQC_mqc-generalstats-fastqc-total_sequences",
-            "DupRadar_mqc-generalstats-dupradar-dupRadar_intercept", 
+            "FastQC_mqc-generalstats-fastqc-percent_duplicates", 
             "FastQC_mqc-generalstats-fastqc-percent_gc",
             "Cutadapt_mqc-generalstats-cutadapt-percent_trimmed", 
             "STAR_mqc-generalstats-star-uniquely_mapped_percent",  
@@ -206,7 +206,7 @@ metadata$Sample = metadata$QBiC.Code
 metadata$QBiC.Code = NULL
 table_complete = merge(metadata,df_DE_selected,by="Sample")
 print(table_complete)
-colnames = c("Sample", "Lab ID", "Number of reads (M)", "Duplicate Intercept (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
+colnames = c("Sample", "Lab ID", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
 #write.table(table_complete,"./qc_summary.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 table_complete %>% 
   mutate(
