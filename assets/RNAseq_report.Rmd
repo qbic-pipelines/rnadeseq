@@ -526,7 +526,7 @@ The table below provides more detail on all enriched pathways."))
                   user_threshold=0.05)
   
   path_enrich <- gostres$result
-  path_enrich <- path_enrich[which(path_enrich$significant==TRUE),]
+  path_enrich <- as.data.frame(path_enrich[which(path_enrich$significant==TRUE),])
 
   if (nrow(path_enrich) > 0){
     path_enrich$original.query.size <- rep(length(q), nrow(path_enrich))
