@@ -269,7 +269,7 @@ if (!is.null(opt$genelist)){
   row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
   gene_list_tab <- read.table(file=genelist_path, sep = "\t", header = F, quote="")
-  print(gene_list)
+  gene_list_tab$V1 <- unique(gene_list_tab$V1)
 
   norm_counts <- read.table(file = path_norm_counts, header = T, sep = "\t", quote = "")
   norm_counts$gene_name <- toupper(norm_counts$gene_name)
