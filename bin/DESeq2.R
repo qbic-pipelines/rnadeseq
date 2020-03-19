@@ -261,6 +261,8 @@ for (i in kip1){
             theme(text = element_text(size=12),
                axis.text.x = element_text(angle=45, vjust=1,hjust=1))
   ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".svg",sep=""), width=10, height=5, plot=plot)
+  ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".png",sep=""), width=10, height=5, plot=plot)
+
   print(i)
 }
 
@@ -285,6 +287,7 @@ if (!is.null(opt$genelist)){
       theme(text = element_text(size=12),
             axis.text.x = element_text(angle=45, vjust=1,hjust=1))
     ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",kip2_gene_name[i],"_",kip2_Ensembl[i],".svg",sep=""), plot=plot)
+    ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",kip2_gene_name[i],"_",kip2_Ensembl[i],".png",sep=""), plot=plot)
     print(kip2_gene_name[i])
   }
 }

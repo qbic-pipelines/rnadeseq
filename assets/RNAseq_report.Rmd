@@ -486,12 +486,14 @@ knitr::include_graphics("./GO/GO_terms_enriched.png")
 ```{r pathway_analysis, echo=FALSE, results='asis', eval=report_options$KEGG}
 cat(paste0("***
 # Pathway analysis
-The pathway analysis was performed with the `gProfiler2` tool. The pathway analysis results are stored [here](./pathway_analysis), and explained in this section.
+The pathway analysis was performed with the `gProfiler2` tool. 
+The pathway analysis results are stored [here](./pathway_analysis), and explained in this section.
 
 ## Enriched pathways
 The plot below summarizes the pathways that were 
 found significantly enriched in DE genes (padj value > 0.05). 
-Both KEGG pathways and REACTOME pathways are considered. Hover over the dots to reveal the pathway names.
+Both KEGG pathways and REACTOME (REAC) pathways are considered. 
+Hover over the dots to reveal the pathway names.
 The table below provides more detail on all enriched pathways."))
 ```
 
