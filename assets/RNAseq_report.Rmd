@@ -132,8 +132,7 @@ if(file.exists(QAfile)){
   conditions <- grepl(colnames(df_QA),pattern = "Condition")
   df_QA_cond <- df_QA[ ,conditions]
   df_QA_neat <- df_QA[,c("QBiC Code", "Secondary Name", "Lab ID", "Sample Type")]
-  df_QA_neat <- merge(df_QA_neat, df_QA_cond, by.x="row.names", by.y="row.names")
-  print(colnames(df_QA_neat))
+  df_QA_neat <- merge(df_QA_neat, df_QA_cond, by="row.names")
   df_QA_neat$Row.names <- NULL
   if ("RIN" %in% colnames(df_QA)){
     if (any(is.na(df_QA$RIN))){no_RIN <- TRUE} else {RIN <- TRUE; df_QA_neat$RIN <- df_QA$RIN}
