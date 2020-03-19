@@ -529,9 +529,9 @@ The table below provides more detail on all enriched pathways."))
 
     pg2 <- gostplot(gostres, capped=T, interactive=T)
     pg2
-    #pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
+    pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
     #print(pg[['x']][['layout']][['annotations']])
-    #pg2 %>% layout(margin = list(l = 75))
+    pg2 %>% layout(margin = list(l = 75))
   }
 
 ```
