@@ -549,18 +549,11 @@ if (nrow(path_enrich) > 0) {
 
 
 ```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=report_options$KEGG}
-cat(paste0("## KEGG pathways
-Here is a plot summarizing the KEGG pathways that were found enriched in DE genes. For KEGG pathways, 
-a KEGG pathway map was also generated that can be found in the subfolder named `KEGG_pathways`.
+cat(paste0("## KEGG pathway maps
+For KEGG pathways, a KEGG pathway map was also generated that can be found in the subfolder named `KEGG_pathways`, for each contrast folder.
 
-Shown below you find the KEGG pathways enrichment plot for the example contrast ", contrnames[1],".","
 \
 ")) 
-```
-
-```{r, out.width = "600px", eval=report_options$KEGG}
-knitr::include_graphics(paste0(wd,"/pathway_analysis/", 'DE_contrast_', contrnames[1], "/", 'DE_contrast_', 
-                contrnames[1], '_KEGG_pathway_enrichment_plot.png'))
 ```
 
 ```{r conditional_pathway_maps, echo=FALSE, results='asis', eval=report_options$KEGG}
