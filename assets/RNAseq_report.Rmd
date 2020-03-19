@@ -525,20 +525,19 @@ The table below provides more detail on all enriched pathways."))
 
   if (nrow(path_enrich) > 0){
     path_enrich <- as.data.frame(path_enrich[which(path_enrich$significant==TRUE),])
-    path_enrich$original.query.size <- rep(length(q), nrow(path_enrich))
 
     pg2 <- gostplot(gostres, capped=T, interactive=T)
 
     #pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
     #print(pg[['x']][['layout']][['annotations']])
-    pg2 %>% layout(margin = list(l = 75))
+    #pg2 %>% layout(margin = list(l = 75))
   }
 
 ```
 
 ```{r, echo=FALSE}
   if (nrow(path_enrich) > 0) {
-    df_subset <- data.frame(Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id, 
+    df_subset <- data.frame(Contrast = path_enrich$query, Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id, 
                             DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size, 
                             Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3), 
                             Padj = formatC(path_enrich$p_value, digits=3))
