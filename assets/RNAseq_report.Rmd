@@ -508,11 +508,12 @@ The table below provides more detail on all enriched pathways."))
 
     DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
     q = as.character(DE_genes$Ensembl_ID)
-    q_list <- append(q_list, q)
+    q_list <- append(q_list, list(q), 0)
     q_names <- append(q_names, fname)
   }
   datasources <- c("KEGG","REAC")
   names(q_list) <- q_names
+  
   #gost query
   gostres <- gost(query=q_list,
                   organism=params$organism,
@@ -536,18 +537,18 @@ The table below provides more detail on all enriched pathways."))
 ```
 
 ```{r, echo=FALSE}
-  if (nrow(path_enrich) > 0) {
-    df_subset <- data.frame(Contrast = path_enrich$query, Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id, 
-                            DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size, 
-                            Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3), 
-                            Padj = formatC(path_enrich$p_value, digits=3))
-    # TODO: add contrast name to table
-    colnames <- c("Contrast", "Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)", 
-    "Fraction of DE genes in pathway", "Padj value (pathway enrichment)")
-    kable(df_subset, col.names = colnames) %>%
-      kable_styling("hover") %>%
-      scroll_box(width = "100%", height = "400px")
-  }
+if (nrow(path_enrich) > 0) {
+  df_subset <- data.frame(Contrast = path_enrich$query, Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id, 
+                          DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size, 
+                          Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3), 
+                          Padj = formatC(path_enrich$p_value, digits=3))
+  # TODO: add contrast name to table
+  colnames <- c("Contrast", "Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)", 
+  "Fraction of DE genes in pathway", "Padj value (pathway enrichment)")
+  kable(df_subset, col.names = colnames) %>%
+    kable_styling("hover") %>%
+    scroll_box(width = "100%", height = "400px")
+}
 ```
 
 
