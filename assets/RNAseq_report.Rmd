@@ -335,7 +335,7 @@ This visualizes how similar the samples are to each other according to gene expr
 Two samples have more similar gene expression if their distance is closer to 0 (darker blue).
 The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances.pdf).
 
-```{r, echo=F, out.width="70%", dpi=1200, fig.align='center'}
+```{r, echo=F, out.width="80%", dpi=1200, fig.align='center'}
 knitr::include_graphics(paste0(wd,"/differential_gene_expression/plots/Heatmaps_of_distances.svg"))
 ```
 
@@ -444,7 +444,7 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
   pg %>% layout(margin = list(l = 75))
 ```
 
-## Barplots of gene normalized counts
+## Boxplots of gene normalized counts
 
 Plots of the normalized counts were generated for some example genes. Count normalization was performed by 
 sequencing depth and adding a pseudocount of 1/2 to allow for log scale plotting. 
@@ -529,7 +529,7 @@ The table below provides more detail on all enriched pathways."))
 
     pg2 <- gostplot(gostres, capped=T, interactive=T)
 
-    pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
+    #pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
     #print(pg[['x']][['layout']][['annotations']])
     pg2 %>% layout(margin = list(l = 75))
   }
