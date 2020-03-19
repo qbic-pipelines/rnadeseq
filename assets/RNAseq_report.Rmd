@@ -524,10 +524,10 @@ The table below provides more detail on all enriched pathways."))
   path_enrich <- gostres$result
 
   if (nrow(path_enrich) > 0){
-    path_enrich <- as.data.frame(path_enrich[which(path_enrich$significant==TRUE),])
+    #path_enrich <- as.data.frame(path_enrich[which(path_enrich$significant==TRUE),])
 
     pg2 <- gostplot(gostres, capped=T, interactive=T)
-
+    pg2
     #pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
     #print(pg[['x']][['layout']][['annotations']])
     #pg2 %>% layout(margin = list(l = 75))
