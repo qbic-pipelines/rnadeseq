@@ -498,7 +498,7 @@ The table below provides more detail on all enriched pathways."))
 ```{r, eval=report_options$KEGG}
   library(gprofiler2)
   #library(rlist)
-  contrast_files <- list.files(path=paste0(wd, "/differential_gene_expression/DE_genes_tables/"))
+  contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
 
   q_list <- list()
   q_names <- c()
@@ -506,7 +506,7 @@ The table below provides more detail on all enriched pathways."))
     #Reading DE genes list
     fname <- tools::file_path_sans_ext(basename(file))
 
-    DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
+    DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
     q = as.character(DE_genes$Ensembl_ID)
     q_list <- append(q_list, q)
     q_names <- append(q_names, fname)
