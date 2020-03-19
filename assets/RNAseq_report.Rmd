@@ -333,7 +333,7 @@ A sample distance heatmap was generated from the distances of the normalized exp
 
 This visualizes how similar the samples are to each other according to gene expression. 
 Two samples have more similar gene expression if their distance is closer to 0 (darker blue).
-The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances.pdf)
+The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances.pdf).
 
 ```{r, echo=F, out.width="70%", dpi=1200, fig.align='center'}
 knitr::include_graphics(paste0(wd,"/differential_gene_expression/plots/Heatmaps_of_distances.svg"))
@@ -420,10 +420,9 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     # label: gene_name
     # x: log2FoldChange
     # y: -log10(padj)
-    #list.append(table_list, DE_genes)
+    table_list <- append(table_list, list(DE_genes), 0)
   }
-  #DE_all <- ldply(data, rbind)
-  DE_all <- DE_genes
+  DE_all <- ldply(table_list, rbind)
   DE_all$logpval <- -log10(DE_all$padj)
   DE_all$logpval[DE_all$logpval > 16] <- 17
 
