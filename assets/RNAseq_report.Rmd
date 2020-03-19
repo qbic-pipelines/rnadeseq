@@ -542,7 +542,7 @@ The table below provides more detail on all enriched pathways."))
                             Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3), 
                             Padj = formatC(path_enrich$p_value, digits=3))
     # TODO: add contrast name to table
-    colnames <- c("Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)", 
+    colnames <- c("Contrast", "Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)", 
     "Fraction of DE genes in pathway", "Padj value (pathway enrichment)")
     kable(df_subset, col.names = colnames) %>%
       kable_styling("hover") %>%
