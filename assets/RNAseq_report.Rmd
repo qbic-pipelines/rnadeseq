@@ -167,7 +167,7 @@ found [here](./differential_gene_expression/metadata/metadata.tsv).
 if ("RIN" %in% colnames(df_QA_neat)){df_QA_neat$RIN <- NULL}
 kable(df_QA_neat) %>%
     kable_styling("hover") %>%
-    scroll_box(width = "100%", height = "100%")
+    scroll_box(width = "100%", height = "400px")
 ```
 
 # Read Mapping and Assignment
@@ -181,8 +181,7 @@ The read sequencing quality was analyzed using `FASTQC`. More detailed informati
 
 The read mapping and gene assignment statistics, together with other quality control parameters are summarized here. 
 
-The table below, extracted from the `MultiQC` report, shows a summary of the bioinformatics analysis quality control. 
-It can also be downloaded [here](./QC/qc_summary.tsv).
+The table below, extracted from the `MultiQC` report, shows a summary of the bioinformatics analysis quality control.
 
 ```{r echo=FALSE, results='asis'}
 library(formattable)
@@ -227,7 +226,7 @@ table_complete %>%
   select(1,9:15) %>%
   kable(escape=F,row.names =F, col.names=colnames) %>%
   kable_styling("hover") %>%
-  scroll_box(width = "100%", height = "100%")
+  scroll_box(width = "100%", height = "400px")
 ```
 
 Note: Duplicate intercept (%) is the percentage of duplicate reads for the intercept of a linear model of duplicate reads vs read counts. High numbers of duplicates at low read counts can indicate low library complexity with technical duplication.
