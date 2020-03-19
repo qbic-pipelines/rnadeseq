@@ -500,23 +500,21 @@ The table below provides more detail on all enriched pathways."))
   #library(rlist)
   contrast_files <- list.files(path=paste0(wd, "/differential_gene_expression/DE_genes_tables/"))
 
-  #q_list <- list()
+  q_list <- list()
+  q_names <- c()
   for (file in contrast_files){
     #Reading DE genes list
     fname <- tools::file_path_sans_ext(basename(file))
 
     DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
     q = as.character(DE_genes$Ensembl_ID)
-    #q_list <- list.append(q_list, q)
+    q_list <- append(q_list, q)
+    q_names <- append(q_names, fname)
   }
-  #contrast_names <- sapply(strsub)
-  #q_list <- list.append(q_list, q)
-  # TODO: add different contrasts in list and make gost plot for all of them
-
   datasources <- c("KEGG","REAC")
-
+  names(q_list) <- q_names
   #gost query
-  gostres <- gost(query=q,
+  gostres <- gost(query=q_list,
                   organism=params$organism,
                   significant=T,
                   correction_method="fdr",
@@ -524,17 +522,18 @@ The table below provides more detail on all enriched pathways."))
                   user_threshold=0.05)
   
   path_enrich <- gostres$result
-  path_enrich <- as.data.frame(path_enrich[which(path_enrich$significant==TRUE),])
 
   if (nrow(path_enrich) > 0){
+    path_enrich <- as.data.frame(path_enrich[which(path_enrich$significant==TRUE),])
     path_enrich$original.query.size <- rep(length(q), nrow(path_enrich))
 
-    pg <- gostplot(gostres, capped=T, interactive=T)
-  
+    pg2 <- gostplot(gostres, capped=T, interactive=T)
+
+    pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
+    #print(pg[['x']][['layout']][['annotations']])
+    pg2 %>% layout(margin = list(l = 75))
   }
-  pg[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
-  #print(pg[['x']][['layout']][['annotations']])
-  pg %>% layout(margin = list(l = 75))
+
 ```
 
 ```{r, echo=FALSE}
