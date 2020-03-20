@@ -151,6 +151,9 @@ write.table(count_table_names, paste("differential_gene_expression/gene_counts_t
 
 # Contrasts
 coefficients <- resultsNames(cds)
+coef_tab <- data.frame(coef=coefficients)
+write.table(coef_tab,file="differential_gene_expression/metadata/DESeq2_coefficients.tsv", sep="\t", quote=F, col.names = T, row.names = F)
+
 bg = data.frame(bg = character(nrow(cds)))
 if (!is.null(opt$contrasts)){
   contrasts <- read.table(path_contrasts, sep="\t", header = T)
