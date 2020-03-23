@@ -159,11 +159,14 @@ write.table(design, file="differential_gene_expression/metadata/linear_model.txt
 ################## RUN DESEQ2 ######################################
 
 # Apply relevel if provided to metadata
-if (!is.null) {
-  relevel <- read.table(path_relevel, sep="\t", header = T)
+if (!is.null(opt$relevel)) {
+  relevel <- read.table(path_relevel, sep="\t", header = T, colClasses = "character")
   write.table(relevel, file="differential_gene_expression/metadata/relevel.tsv")
 
-# TODO
+  for (i in c(1:nrow(relevel))) {
+    relev <- relevel[i,]
+    metadata[,relev[1]] <- relevel(metadata[,relev[1]], relev[2])
+  }
 }
 
 # Run DESeq function
@@ -221,7 +224,7 @@ if (!is.null(opt$contrasts_table)){
   # Contrast calculation for contrast list
   contnames <- c()
   for (i in c(1:nrow(contrasts))) {
-    cont <- as.character(contrasts[1,])
+    cont <- as.character(contrasts[i,])
     contname <- paste0(cont[1], "_", cont[2], "_vs_", cont[3])
 # TODO: add checks if provided contnames and factors are in metadata
     d1 <- results(cds, contrast=cont)
@@ -249,7 +252,7 @@ if (!is.null(opt$contrasts_table)){
     # Contrast calculation for contrast pairs
     contnames <- c()
     for (i in c(1:nrow(contrasts))) {
-      cont <- as.character(contrasts[1,])
+      cont <- as.character(contrasts[i,])
       contname <- cont[0]
       if (!(cont[2] %in% coefficients & cont[3] %in% coefficients)){
         stop(paste0("Provided contrast name is invalid, it needs to be contained in ", coefficients))

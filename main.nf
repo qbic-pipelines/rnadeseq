@@ -238,7 +238,7 @@ process DESeq2 {
     file(contrast_table) from ch_contrast_table_for_deseq2
     file(relevel) from ch_relevel_for_deseq2
     file(contrast_list) from ch_contrast_list_for_deseq2
-    file(contrast_pairs) from ch_contrst_pairs_for_deseq2
+    file(contrast_pairs) from ch_contrast_pairs_for_deseq2
     file(genelist) from ch_genes_for_deseq2_file
 
     output:
