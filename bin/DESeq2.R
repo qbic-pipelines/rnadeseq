@@ -194,7 +194,7 @@ if (!is.null(opt$contrasts_table)){
     stop("Error: Your contrast table has different number of rows than the number of coefficients in the DESeq2 model.")
   }
 
-  ## Contrast calculation
+  ## Contrast calculation for contrast table
   for (i in c(1:ncol(contrasts))) {
     d1 <-results(cds, contrast=contrasts[[i]])
 
@@ -213,11 +213,12 @@ if (!is.null(opt$contrasts_table)){
     bg = cbind(bg,d1)
   }
   write(colnames(contrasts), file="contrast_names.txt", sep="\t")
+
 } else if (!is.null(opt$contrasts_list)) {
   contrasts <- read.table(path_contrasts_list, sep="\t", header=T, colClasses = "character")
   write.table(contrasts, file="differential_gene_expression/metadata/contrasts.tsv")
 
-  # Contrast calculation
+  # Contrast calculation for contrast list
   contnames <- c()
   for (i in c(1:nrow(contrasts))) {
     cont <- as.character(contrasts[1,])
@@ -242,7 +243,35 @@ if (!is.null(opt$contrasts_table)){
   write(contnames, file="contrast_names.txt", sep="\t")
 
 } else if (!is.null(opt$contrasts_pairs)) {
-# TODO: finish that.
+    contrasts <- read.table(path_contrasts_pairs, sep="\t", header = T, colClasses = "character")
+    write.table(contrasts, file="differential_gene_expression/metadata/contrasts.tsv", sep="\t", quote=F, col.names = T, row.names = F)
+
+    # Contrast calculation for contrast pairs
+    contnames <- c()
+    for (i in c(1:nrow(contrasts))) {
+      cont <- as.character(contrasts[1,])
+      contname <- cont[0]
+      if (!(cont[2] %in% coefficients & cont[3] %in% coefficients)){
+        stop(paste0("Provided contrast name is invalid, it needs to be contained in ", coefficients))
+      } 
+      d1 <- results(cds, contrast=list(cont[1],cont[2]))
+      d1 <- as.data.frame(d1)
+      print(contname)
+      d1_name <- d1
+      d1_name$Ensembl_ID = row.names(d1)
+      d1_name <- merge(x=d1_name, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
+      d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
+      d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
+      d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
+      d1DE <- d1DE[order(d1DE$padj),]
+      write.table(d1DE, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+      names(d1) = paste(names(d1),contname,sep="_")
+      bg = cbind(bg,d1)
+
+      contnames <- append(contnames, contname)
+    }
+    write(contnames, file="contrast_names.txt", sep="\t")
+
 } else {
   for (contname in coefficients[2:length(coefficients)]) {
     d1 <- results(cds, name=contname)

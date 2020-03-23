@@ -18,7 +18,7 @@ def helpMessage() {
 
     The typical command for running the pipeline is as follows:
 
-    nextflow run qbicsoftware/rnadeseq --rawcounts 'counts.tsv' --metadata 'metadata.tsv' --design 'design.txt' --contrasts 'contrasts.tsv' -profile docker
+    nextflow run qbicsoftware/rnadeseq --rawcounts 'counts.tsv' --metadata 'metadata.tsv' --design 'design.txt' -profile docker
 
     Mandatory arguments:
       --rawcounts                   Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name.
@@ -99,8 +99,14 @@ Channel.fromPath("${params.quote}", checkIfExists: true)
 Channel.fromPath("${params.model}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide linear model file!"}
             .into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
-Channel.fromPath("${params.contrasts}")
-            .into { ch_contrasts_for_deseq2_file; ch_contrasts_for_report_file }
+Channel.fromPath("${params.contrast_table}")
+            .into { ch_contrast_table_for_deseq2 }
+Channel.fromPath("${params.contrast_list}")
+            .into { ch_contrast_list_for_deseq2 }
+Channel.fromPath("${params.contrast_pairs}")
+            .into { ch_contrast_pairs_for_deseq2 }
+Channel.fromPath("${params.relevel}")
+            .into { ch_relevel_for_deseq2 }
 Channel.fromPath("${params.project_summary}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide project summary file!"}
             .set { ch_proj_summary_file }
@@ -229,7 +235,10 @@ process DESeq2 {
     file(gene_counts) from ch_counts_file
     file(metadata) from ch_metadata_file_for_deseq2
     file(model) from ch_model_for_deseq2_file
-    file(contrasts) from ch_contrasts_for_deseq2_file
+    file(contrast_table) from ch_contrast_table_for_deseq2
+    file(relevel) from ch_relevel_for_deseq2
+    file(contrast_list) from ch_contrast_list_for_deseq2
+    file(contrast_pairs) from ch_contrst_pairs_for_deseq2
     file(genelist) from ch_genes_for_deseq2_file
 
     output:
@@ -238,10 +247,15 @@ process DESeq2 {
 
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
-    def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
-    def batcheffectopt = params.batch_effect ? "--batchEffect" : ''
+    def contrast_tab_opt = contrast_tab.name != 'DEFAULT' ? "--contrast_table $contrast_table" : ''
+    def contrast_list_opt = contrast_list.name != 'DEFAULT' ? "--contrast_list $contrast_list" : ''
+    def contrast_pairs_opt = contrast_pairs.name != 'DEFAULT' ? "--contrast_pairs $contrast_pairs" : ''
+    def relevel_opt = relevel.name != 'NO_FILE' ? "--relevel $relevel" : ''
+    def batch_effect_opt = params.batch_effect ? "--batchEffect" : ''
     """
-    DESeq2.R --counts $gene_counts --metadata $metadata --design $model --logFCthreshold $params.logFCthreshold $contrastsopt $genelistopt $batcheffectopt
+    DESeq2.R --counts $gene_counts --metadata $metadata --design $model \
+    --logFCthreshold $params.logFCthreshold $relevel_opt $contrast_tab_opt \
+    $contrast_list_opt $contrast_pairs_opt $gene_list_opt $batch_effect_opt
     zip -r differential_gene_expression.zip differential_gene_expression
     """
 }
