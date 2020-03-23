@@ -101,7 +101,7 @@ Channel.fromPath("${params.quote}", checkIfExists: true)
            .set { ch_quote_file}
 Channel.fromPath("${params.model}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide linear model file!"}
-            .set { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
+            .into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
 Channel.fromPath("${params.contrast_table}")
             .set { ch_contrast_table_for_deseq2 }
 Channel.fromPath("${params.contrast_list}")
