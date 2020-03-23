@@ -45,10 +45,10 @@ option_list = list(
   make_option(c("-c", "--counts"), type="character", default=NULL, help="path to raw count table", metavar="character"),
   make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
   make_option(c("-d", "--design"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
-  make_option(c("-cm", "--contrasts_matrix"), type="character", default=NULL, help="path to contrasts matrix file", metavar="character"),
+  make_option(c("-m", "--contrasts_matrix"), type="character", default=NULL, help="path to contrasts matrix file", metavar="character"),
   make_option(c("-r", "--relevel"), type="character", default=NULL, help="path to factor relevel file", metaver="character"),
-  make_option(c("-cl", "--contrasts_list"), type="character", default=NULL, help="path to contrasts list file", metavar="character"),
-  make_option(c("-cp", "--contrasts_pairs"), type="character", default=NULL, help="path to contrasts pairs file", metavar="character"),
+  make_option(c("-k", "--contrasts_list"), type="character", default=NULL, help="path to contrasts list file", metavar="character"),
+  make_option(c("-p", "--contrasts_pairs"), type="character", default=NULL, help="path to contrasts pairs file", metavar="character"),
   make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
   make_option(c("-t", "--logFCthreshold"), type="integer", default=0, help="Log 2 Fold Change threshold for DE genes", metavar="character"),
   make_option(c("-b", "--batchEffect"), default=FALSE, action="store_true", help="Whether to consider batch effects in the DESeq2 analysis", metavar="character")
