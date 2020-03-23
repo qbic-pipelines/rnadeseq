@@ -89,7 +89,7 @@ ch_output_docs = Channel.fromPath("$baseDir/docs/output.md")
 /*
  * Create a channel for input  files
  */
- // DESeq2
+
 Channel.fromPath("${params.rawcounts}", checkIfExists: true)
            .ifEmpty{exit 1, "Please provide raw counts file!"}
            .set {ch_counts_file}
