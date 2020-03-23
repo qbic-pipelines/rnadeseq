@@ -33,7 +33,10 @@ def helpMessage() {
                                     Available: conda, docker, singularity, awsbatch, test and more.
 
     Options:
-      --contrasts                   Table indicating which contrasts to consider. 1 or 0 for every variable specified in the design. If not provided, default DESeq2 contrasts are calculated.
+      --contrast_table              Tsv indicating which contrasts to consider, one contrast per column. 1 or 0 for every coefficient of the linear model. Check contrasts docs.
+      --contrast_list               Tsv indicating list of the contrasts to calculate. 3 columns: factor name, contrast numerator and denominator. Check contrasts docs.
+      --contrast_pairs              Tsv indicating list of contrast pairs to calculate. 3 columns: contrast name, numerator and denominator. Check contrasts docs.
+      --relevel                     Tsv indicating list of factors (conditions in the metadata table) and the new level on which to relevel the factor. Check contrasts docs.
       --logFCthreshold              Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed.
       --genelist                    List of genes (one per line) of which to plot heatmaps for normalized counts across all samples.
       --batch_effect                Turn on this flag if you wish to consider batch effects. You need to add the batch effect to the linear model too!                
@@ -98,15 +101,15 @@ Channel.fromPath("${params.quote}", checkIfExists: true)
            .set { ch_quote_file}
 Channel.fromPath("${params.model}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide linear model file!"}
-            .into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
+            .set { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
 Channel.fromPath("${params.contrast_table}")
-            .into { ch_contrast_table_for_deseq2 }
+            .set { ch_contrast_table_for_deseq2 }
 Channel.fromPath("${params.contrast_list}")
-            .into { ch_contrast_list_for_deseq2 }
+            .set { ch_contrast_list_for_deseq2 }
 Channel.fromPath("${params.contrast_pairs}")
-            .into { ch_contrast_pairs_for_deseq2 }
+            .set { ch_contrast_pairs_for_deseq2 }
 Channel.fromPath("${params.relevel}")
-            .into { ch_relevel_for_deseq2 }
+            .set { ch_relevel_for_deseq2 }
 Channel.fromPath("${params.project_summary}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide project summary file!"}
             .set { ch_proj_summary_file }
@@ -140,7 +143,9 @@ summary['Run Name']         = custom_runName ?: workflow.runName
 summary['Gene Counts'] = params.rawcounts
 summary['Metadata'] = params.metadata
 summary['Model'] = params.model
-summary['Contrasts'] = params.contrasts
+summary['Contrast_table'] = params.contrast_table
+summary['Contrast_list'] = params.contrast_list
+summary['Contrast_pairs'] = params.contrast_pairs
 summary['Gene list'] = params.genelist
 summary['Project summary'] = params.project_summary
 summary['Software versions'] = params.versions
