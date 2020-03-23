@@ -252,9 +252,9 @@ process DESeq2 {
 
     script:
     def gene_list_opt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
-    def contrast_tab_opt = contrast_table.name != 'DEFAULT' ? "--contrast_table $contrast_table" : ''
-    def contrast_list_opt = contrast_list.name != 'DEFAULT1' ? "--contrast_list $contrast_list" : ''
-    def contrast_pairs_opt = contrast_pairs.name != 'DEFAULT2' ? "--contrast_pairs $contrast_pairs" : ''
+    def contrast_tab_opt = contrast_table.name != 'DEFAULT' ? "--contrasts_table $contrast_table" : ''
+    def contrast_list_opt = contrast_list.name != 'DEFAULT1' ? "--contrasts_list $contrast_list" : ''
+    def contrast_pairs_opt = contrast_pairs.name != 'DEFAULT2' ? "--contrasts_pairs $contrast_pairs" : ''
     def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel $relevel" : ''
     def batch_effect_opt = params.batch_effect ? "--batchEffect" : ''
     """

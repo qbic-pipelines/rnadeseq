@@ -45,10 +45,10 @@ option_list = list(
   make_option(c("-c", "--counts"), type="character", default=NULL, help="path to raw count table", metavar="character"),
   make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
   make_option(c("-d", "--design"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
-  make_option(c("-x", "--contrast_table"), type="character", default=NULL, help="path to contrasts matrix file", metavar="character"),
+  make_option(c("-x", "--contrasts_table"), type="character", default=NULL, help="path to contrasts matrix file", metavar="character"),
   make_option(c("-r", "--relevel"), type="character", default=NULL, help="path to factor relevel file", metavar="character"),
-  make_option(c("-k", "--contrast_list"), type="character", default=NULL, help="path to contrasts list file", metavar="character"),
-  make_option(c("-p", "--contrast_pairs"), type="character", default=NULL, help="path to contrasts pairs file", metavar="character"),
+  make_option(c("-k", "--contrasts_list"), type="character", default=NULL, help="path to contrasts list file", metavar="character"),
+  make_option(c("-p", "--contrasts_pairs"), type="character", default=NULL, help="path to contrasts pairs file", metavar="character"),
   make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
   make_option(c("-t", "--logFCthreshold"), type="integer", default=0, help="Log 2 Fold Change threshold for DE genes", metavar="character"),
   make_option(c("-b", "--batchEffect"), default=FALSE, action="store_true", help="Whether to consider batch effects in the DESeq2 analysis", metavar="character")
@@ -95,7 +95,7 @@ if(!is.null(opt$contrasts_pairs)){
   if(!is.null(opt$contrasts_matrix) & !is.null(opt$contrasts_list)) {
     stop("Provide only one of contrasts_table / contrasts_list / contrasts pairs!")
   }
-  path_contrasts_pairs = opt$contrast_pairs
+  path_contrasts_pairs = opt$contrasts_pairs
 }
 if(!is.null(opt$genelist)){
   requested_genes_path = opt$genelist
