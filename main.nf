@@ -246,7 +246,7 @@ process DESeq2 {
     file "contrast_names.txt" into ch_contrnames_for_report
 
     script:
-    def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
+    def gene_list_opt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def contrast_tab_opt = contrast_table.name != 'DEFAULT' ? "--contrast_table $contrast_table" : ''
     def contrast_list_opt = contrast_list.name != 'DEFAULT1' ? "--contrast_list $contrast_list" : ''
     def contrast_pairs_opt = contrast_pairs.name != 'DEFAULT2' ? "--contrast_pairs $contrast_pairs" : ''
