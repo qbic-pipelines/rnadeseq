@@ -27,4 +27,4 @@ The qbicsoftware/rnadeseq pipeline comes with documentation about the pipeline, 
 <!-- TODO qbicsoftware: Add a brief overview of what the pipeline does and how it works -->
 
 ## Credits
-qbicsoftware/rnadeseq was originally written by QBiC.
+qbicsoftware/rnadeseq was originally written by Gisela Gabernet (@ggabernet) and Silvia Morini (@silviamorins), at QBiC.
