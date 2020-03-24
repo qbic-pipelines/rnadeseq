@@ -1,8 +1,7 @@
 #!/usr/bin/env Rscript
 
 # Differential expression analysis from raw read count table using DESeq2
-# Author: Stefan Czemmel
-# Contributors: Gisela Gabernet
+# Author: Gisela Gabernet, Stefan Czemmel
 # QBiC 2019; MIT License
 
 library(RColorBrewer)
