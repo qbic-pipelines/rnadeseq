@@ -438,7 +438,7 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
   pg <- ggplotly(pg, tooltip = "text")
   pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05
   pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
-  pg %>% layout(margin = list(l = 100))
+  pg %>% layout(margin = list(l = 100), width=500, height = 1000)
 ```
 
 ## Boxplots of gene normalized counts
