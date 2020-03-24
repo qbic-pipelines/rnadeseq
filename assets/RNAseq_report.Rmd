@@ -104,7 +104,7 @@ Auf der Morgenstelle 10, 72076 Tuebingen
 ***
 ***
 
-# Introduction and Aims
+# Introduction and aims
 
 `r description`
 
@@ -167,7 +167,7 @@ kable(df_QA_neat) %>%
     scroll_box(width = "100%", height = "400px")
 ```
 
-# Read Mapping and Assignment
+# Read mapping and assignment
 
 In order to analyze the gene counts per sample, the sequencing reads need to be mapped to the reference genome, and assigned to genes or other genomic regions. 
 Here, the read mapping and gene assignment statistics are summarized, among other read processing quality control parameters. 
@@ -230,7 +230,7 @@ Note: Duplicate intercept (%) is the percentage of duplicate reads for the inter
 
 \
 
-## Mapping Statistics {.tabset}
+## Mapping statistics {.tabset}
 
 The read mapping statistics to the reference genome for each sample are shown below. Typical values for a good mapping lie at >80% uniquely mapped reads. 
 
@@ -249,7 +249,7 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plo
 </center>
 \
 
-## Read Assignment Statistics {.tabset}
+## Read assignment statistics {.tabset}
 The statistics of read assignment to genes are shown below. Most reads should be assigned. Interpretation of the different assignment types:
 
 * **Assigned:** The reads could properly be assigned to a gene or feature. \
@@ -274,7 +274,7 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assi
 </center>
 \
 
-## Read Feature Distribution {.tabset}
+## Read feature distribution {.tabset}
 The read distribution of mapped reads over different genomic features (CDS exon, 5'UTR exon, 3' UTR exon, Intron, Intergenic regions) is shown below. 
 In RNAseq experiments, the majority of the reads should be assigned to CDS exons.
 
@@ -294,7 +294,7 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distrib
 \
 ***
 
-# Gene Expression Data
+# Gene expression data
 
 ## Raw and normalized count tables
 
@@ -303,7 +303,7 @@ The differential expression analysis is performed using the raw gene count table
 For PCA analysis and heatmap plotting, the regularized logarithm (rlog) normalized gene counts were employed.
 The vst (variant stabilizing transformation) normalized counts are also provided.
 
-## Principal Component Analysis (PCA) 
+## Principal component analysis (PCA) 
 A PCA plot of the rlog normalized gene expression visualizes the clustering of samples according to their gene expression. 
 In this way, the overall effect of experimental conditions and sample grouping, and any batch effects are visualized.
 The original plot can be downloaded [here](./differential_gene_expression/plots/PCA_plot.pdf).
@@ -336,7 +336,7 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 knitr::include_graphics(paste0(wd,"/differential_gene_expression/plots/Heatmaps_of_distances.svg"))
 ```
 
-# Differential Expression analysis
+# Differential expression analysis
 
 To perform differential gene expression analysis, the gene expression data between two sample groups is compared.
 These comparisons are called *contrasts*. For this analysis, the following contrasts or comparisons were made:
