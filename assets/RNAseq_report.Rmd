@@ -495,7 +495,7 @@ Hover over the dots to reveal the pathway names.
 The table below provides more detail on all enriched pathways."))
 ```
 
-```{r, eval=report_options$KEGG, out.height = "100%", out.width = "100%"}
+```{r, eval=report_options$KEGG, out.height = "100%", out.width = "50%"}
   library(gprofiler2)
   #library(rlist)
   contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
