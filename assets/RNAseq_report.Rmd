@@ -400,7 +400,7 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
   #library(rlist)
 ```
 
-```{r, out.width=100%, out.height=80%}
+```{r, out.width="100%", out.height="100%"}
   # Set plot theme
   theme_set(theme_bw(base_family = "ArialMT") + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
