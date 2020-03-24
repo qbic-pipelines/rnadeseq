@@ -190,7 +190,7 @@ bg = data.frame(bg = character(nrow(cds)))
 
 if (!is.null(opt$contrasts_matrix)){
   contrasts <- read.table(path_contrasts_matrix, sep="\t", header = T)
-  write.table(contrasts, file="differential_gene_expression/metadata/contrasts.tsv", sep="\t", quote=F, col.names = T, row.names = F)
+  write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
   
   if(length(coefficients) != nrow(contrasts)){
     print(coefficients)
@@ -217,9 +217,9 @@ if (!is.null(opt$contrasts_matrix)){
   }
   write(colnames(contrasts), file="contrast_names.txt", sep="\t")
 
-} else if (!is.null(opt$contrasts_list)) {
+if (!is.null(opt$contrasts_list)) {
   contrasts <- read.table(path_contrasts_list, sep="\t", header=T, colClasses = "character")
-  write.table(contrasts, file="differential_gene_expression/metadata/contrasts.tsv")
+  write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv")
 
   # Contrast calculation for contrast list
   contnames <- c()
@@ -242,12 +242,11 @@ if (!is.null(opt$contrasts_matrix)){
     bg = cbind(bg,d1)
 
     contnames <- append(contnames, contname)
-  }
-  write(contnames, file="contrast_names.txt", sep="\t")
+}
 
-} else if (!is.null(opt$contrasts_pairs)) {
+if (!is.null(opt$contrasts_pairs)) {
     contrasts <- read.table(path_contrasts_pairs, sep="\t", header = T, colClasses = "character")
-    write.table(contrasts, file="differential_gene_expression/metadata/contrasts.tsv", sep="\t", quote=F, col.names = T, row.names = F)
+    write.table(contrasts, file="differential_gene_expression/metadata/contrast_pairs.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
     # Contrast calculation for contrast pairs
     contnames <- c()
@@ -272,11 +271,11 @@ if (!is.null(opt$contrasts_matrix)){
       bg = cbind(bg,d1)
 
       contnames <- append(contnames, contname)
-    }
-    write(contnames, file="contrast_names.txt", sep="\t")
+}
 
-} else {
-  for (contname in coefficients[2:length(coefficients)]) {
+if (is.null(opt$contrasts_matrix) & is.null(opt$contrasts_list) & is.null(opt$contrasts_pairs)) {
+  contnames <- coefficients[2:length(coefficients)]
+  for (contname in contnames) {
     d1 <- results(cds, name=contname)
     d1 <- as.data.frame(d1)
     print(contname)
@@ -290,8 +289,9 @@ if (!is.null(opt$contrasts_matrix)){
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
   }
-  write(coefficients[2:length(coefficients)], file="contrast_names.txt", sep="\t")
 }
+
+write(contnames, file="contrast_names.txt", sep="\t")
 
 # Remove identical columns
 bg$bg <- NULL
