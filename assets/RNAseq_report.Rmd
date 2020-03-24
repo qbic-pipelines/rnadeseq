@@ -625,7 +625,7 @@ For differential expression analysis, the raw read count table resulting from `f
 # version = packageVersion("DEXSeq")
 # cat(paste("For differential exon usage, the table count produced by `featureCounts` is processed with the R package `DEXSeq v`",version," [@anders2012detecting].", sep=''))
 ```
-```{r conditional_pathway, echo=FALSE, eval=report_options$KEGG}
+```{r conditional_pathway, echo=FALSE, message=FALSE, bootstrap.show.message=FALSE, include=FALSE}
 library(gprofiler2)
 library(AnnotationDbi)
 ```
