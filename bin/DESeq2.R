@@ -187,6 +187,7 @@ coef_tab <- data.frame(coef=coefficients)
 write.table(coef_tab,file="differential_gene_expression/metadata/DESeq2_coefficients.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
 bg = data.frame(bg = character(nrow(cds)))
+contnames <- c()
 
 if (!is.null(opt$contrasts_matrix)){
   contrasts <- read.table(path_contrasts_matrix, sep="\t", header = T)
@@ -215,14 +216,14 @@ if (!is.null(opt$contrasts_matrix)){
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
   }
-  write(colnames(contrasts), file="contrast_names.txt", sep="\t")
+  contnames <- append(contnames, colnames(contrasts))
+}
 
 if (!is.null(opt$contrasts_list)) {
   contrasts <- read.table(path_contrasts_list, sep="\t", header=T, colClasses = "character")
   write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv")
 
   # Contrast calculation for contrast list
-  contnames <- c()
   for (i in c(1:nrow(contrasts))) {
     cont <- as.character(contrasts[i,])
     contname <- paste0(cont[1], "_", cont[2], "_vs_", cont[3])
@@ -242,6 +243,7 @@ if (!is.null(opt$contrasts_list)) {
     bg = cbind(bg,d1)
 
     contnames <- append(contnames, contname)
+  }
 }
 
 if (!is.null(opt$contrasts_pairs)) {
@@ -249,7 +251,6 @@ if (!is.null(opt$contrasts_pairs)) {
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_pairs.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
     # Contrast calculation for contrast pairs
-    contnames <- c()
     for (i in c(1:nrow(contrasts))) {
       cont <- as.character(contrasts[i,])
       contname <- cont[0]
@@ -271,6 +272,7 @@ if (!is.null(opt$contrasts_pairs)) {
       bg = cbind(bg,d1)
 
       contnames <- append(contnames, contname)
+    }
 }
 
 if (is.null(opt$contrasts_matrix) & is.null(opt$contrasts_list) & is.null(opt$contrasts_pairs)) {
