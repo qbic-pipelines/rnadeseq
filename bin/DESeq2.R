@@ -45,7 +45,7 @@ option_list = list(
   make_option(c("-c", "--counts"), type="character", default=NULL, help="path to raw count table", metavar="character"),
   make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
   make_option(c("-d", "--design"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
-  make_option(c("-x", "--contrasts_table"), type="character", default=NULL, help="path to contrasts matrix file", metavar="character"),
+  make_option(c("-x", "--contrasts_matrix"), type="character", default=NULL, help="path to contrasts matrix file", metavar="character"),
   make_option(c("-r", "--relevel"), type="character", default=NULL, help="path to factor relevel file", metavar="character"),
   make_option(c("-k", "--contrasts_list"), type="character", default=NULL, help="path to contrasts list file", metavar="character"),
   make_option(c("-p", "--contrasts_pairs"), type="character", default=NULL, help="path to contrasts pairs file", metavar="character"),
@@ -81,19 +81,19 @@ if(!is.null(opt$relevel)){
 }
 if(!is.null(opt$contrasts_matrix)){
   if(!is.null(opt$contrasts_list) & !is.null(opt$contrasts_pairs)) {
-    stop("Provide only one of contrasts_table / contrasts_list / contrasts pairs!")
+    stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
   }
-  path_contrasts_table = opt$contrasts_matrix
+  path_contrasts_matrix = opt$contrasts_matrix
 }
 if(!is.null(opt$contrasts_list)){
   if(!is.null(opt$contrasts_matrix) & !is.null(opt$contrasts_pairs)) {
-    stop("Provide only one of contrasts_table / contrasts_list / contrasts pairs!")
+    stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
   }
   path_contrasts_list = opt$contrasts_list
 }
 if(!is.null(opt$contrasts_pairs)){
   if(!is.null(opt$contrasts_matrix) & !is.null(opt$contrasts_list)) {
-    stop("Provide only one of contrasts_table / contrasts_list / contrasts pairs!")
+    stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
   }
   path_contrasts_pairs = opt$contrasts_pairs
 }
@@ -188,8 +188,8 @@ write.table(coef_tab,file="differential_gene_expression/metadata/DESeq2_coeffici
 
 bg = data.frame(bg = character(nrow(cds)))
 
-if (!is.null(opt$contrasts_table)){
-  contrasts <- read.table(path_contrasts_table, sep="\t", header = T)
+if (!is.null(opt$contrasts_matrix)){
+  contrasts <- read.table(path_contrasts_matrix, sep="\t", header = T)
   write.table(contrasts, file="differential_gene_expression/metadata/contrasts.tsv", sep="\t", quote=F, col.names = T, row.names = F)
   
   if(length(coefficients) != nrow(contrasts)){

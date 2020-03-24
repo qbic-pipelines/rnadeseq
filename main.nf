@@ -33,7 +33,7 @@ def helpMessage() {
                                     Available: conda, docker, singularity, awsbatch, test and more.
 
     Options:
-      --contrast_table              Tsv indicating which contrasts to consider, one contrast per column. 1 or 0 for every coefficient of the linear model. Check contrasts docs.
+      --contrast_matrix              Tsv indicating which contrasts to consider, one contrast per column. 1 or 0 for every coefficient of the linear model. Check contrasts docs.
       --contrast_list               Tsv indicating list of the contrasts to calculate. 3 columns: factor name, contrast numerator and denominator. Check contrasts docs.
       --contrast_pairs              Tsv indicating list of contrast pairs to calculate. 3 columns: contrast name, numerator and denominator. Check contrasts docs.
       --relevel                     Tsv indicating list of factors (conditions in the metadata table) and the new level on which to relevel the factor. Check contrasts docs.
@@ -102,8 +102,8 @@ Channel.fromPath("${params.quote}", checkIfExists: true)
 Channel.fromPath("${params.model}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide linear model file!"}
             .into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
-Channel.fromPath("${params.contrast_table}")
-            .set { ch_contrast_table_for_deseq2 }
+Channel.fromPath("${params.contrast_matrix}")
+            .set { ch_contrast_matrix_for_deseq2 }
 Channel.fromPath("${params.contrast_list}")
             .set { ch_contrast_list_for_deseq2 }
 Channel.fromPath("${params.contrast_pairs}")
@@ -143,9 +143,9 @@ summary['Run Name']         = custom_runName ?: workflow.runName
 summary['Gene Counts'] = params.rawcounts
 summary['Metadata'] = params.metadata
 summary['Model'] = params.model
-summary['Contrast_table'] = params.contrast_table
-summary['Contrast_list'] = params.contrast_list
-summary['Contrast_pairs'] = params.contrast_pairs
+summary['Contrast matrix'] = params.contrast_matrix
+summary['Contrast list'] = params.contrast_list
+summary['Contrast pairs'] = params.contrast_pairs
 summary['Gene list'] = params.genelist
 summary['Project summary'] = params.project_summary
 summary['Software versions'] = params.versions
@@ -240,7 +240,7 @@ process DESeq2 {
     file(gene_counts) from ch_counts_file
     file(metadata) from ch_metadata_file_for_deseq2
     file(model) from ch_model_for_deseq2_file
-    file(contrast_table) from ch_contrast_table_for_deseq2
+    file(contrast_matrix) from ch_contrast_matrix_for_deseq2
     file(relevel) from ch_relevel_for_deseq2
     file(contrast_list) from ch_contrast_list_for_deseq2
     file(contrast_pairs) from ch_contrast_pairs_for_deseq2
@@ -252,14 +252,14 @@ process DESeq2 {
 
     script:
     def gene_list_opt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
-    def contrast_tab_opt = contrast_table.name != 'DEFAULT' ? "--contrasts_table $contrast_table" : ''
+    def contrast_mat_opt = contrast_matrix.name != 'DEFAULT' ? "--contrasts_matix $contrast_matrix" : ''
     def contrast_list_opt = contrast_list.name != 'DEFAULT1' ? "--contrasts_list $contrast_list" : ''
     def contrast_pairs_opt = contrast_pairs.name != 'DEFAULT2' ? "--contrasts_pairs $contrast_pairs" : ''
     def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel $relevel" : ''
     def batch_effect_opt = params.batch_effect ? "--batchEffect" : ''
     """
     DESeq2.R --counts $gene_counts --metadata $metadata --design $model \
-    --logFCthreshold $params.logFCthreshold $relevel_opt $contrast_tab_opt \
+    --logFCthreshold $params.logFCthreshold $relevel_opt $contrast_mat_opt \
     $contrast_list_opt $contrast_pairs_opt $gene_list_opt $batch_effect_opt
     zip -r differential_gene_expression.zip differential_gene_expression
     """
