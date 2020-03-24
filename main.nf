@@ -326,7 +326,7 @@ process Report {
     mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' \
     --output 'RNAseq_report.html' --proj_summary $proj_summary \
-    --versions $softwareversions --model $model --report_options $report_options \
+    --versions $softwareversions --model $model --report_options $report_options --revision $workflow.revision \
     --contrasts $contrnames $genelistopt --quote $quote --organism $params.species $batchopt
     zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quote
     """

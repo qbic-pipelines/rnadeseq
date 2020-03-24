@@ -9,10 +9,7 @@ output:
     df_print: paged                         # tables are printed as an html table with support for pagination over rows and columns
     css: ./corp-styles.css
     highlight: pygments
-#   code_folding: none
-#   theme: spacelab
     pdf_document: true
-#   self_contained: no
 bibliography: ./references.bibtex
 params:
   path_proj_summary: ""
@@ -25,8 +22,8 @@ params:
   path_quote: ""
   organism: ""
   batch_effect: ""
-# Author: Simon Heumos
-# Contributor: Silvia Morini, Gisela Gabernet
+  revision: ""
+# Author: Silvia Morini, Gisela Gabernet, Simon Heumos
 ---
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
@@ -608,15 +605,16 @@ version <- read.csv(file = params$path_versions, sep="\t", header = FALSE)
 
 # Computational methods
 
-The Nextflow-based nf-core RNA-Seq pipeline (https://github.com/nf-core/rnaseq)[^1] was used for the bioinfomatics analysis. 
-An aggregation of the bioinformatics workflow analysis was conducted by `MultiQC `r as.character(version[version$V1=="MultiQC",2])`` [^2] [@ewels2016multiqc]. 
+The Nextflow-based nf-core pipeline `rnaseq `r as.character(version[versions$V1=="nf-core/rnaseq",2])`` [^1] was used for the RNAseq Bioinfomatics analysis. 
 `FASTQC `r as.character(version[version$V1=="FASTQC",2])`` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files. 
 Subsequently, adapter trimming was conducted with `Trim Galore `r as.character(version[version$V1=="Trim Galore!",2])`` [^4] [@krueger2012trim]. 
 `STAR v`r substring(as.character(version[version$V1=="STAR",2]), 7, )`` [@Dobin2013] aligner was used to map the reads that passed the quality 
 control to the reference genome. 
-The evaluation of the RNA-seq experiment was performed with `RSeQC `r as.character(version[version$V1=="RSeQC",2])`` [@wang2012rseqc] and 
+The RNA-seq data quality control was performed with `RSeQC `r as.character(version[version$V1=="RSeQC",2])`` [@wang2012rseqc] and 
 read counting of the features (e.g. genes) with `featureCounts `r as.character(version[version$V1=="featureCounts",2])``[@liao2014featurecounts].
-For differential expression analysis, the raw read count table resulting from `featureCounts` is processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
+An aggregation of the quality control for the RNAseq analysis was performed with `MultiQC `r as.character(version[version$V1=="MultiQC",2])`` [^2] [@ewels2016multiqc].
+The differential expression analysis was performed by the use of the `rnadeseq `r as.character(params$revision)``. 
+For differential expression analysis, the raw read count table resulting from `featureCounts` was processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
 
 <!-- If a DEU analysis has also been performed -->
 
@@ -624,13 +622,15 @@ For differential expression analysis, the raw read count table resulting from `f
 # version = packageVersion("DEXSeq")
 # cat(paste("For differential exon usage, the table count produced by `featureCounts` is processed with the R package `DEXSeq v`",version," [@anders2012detecting].", sep=''))
 ```
-Graphs were also produced in the `RStudio v1.1.456` with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")``. Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown")``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
+Graphs were also produced in the `RStudio v1.1.456` with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")``. 
+Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown")``, with the `knitr v`r packageVersion("knitr")`` 
+and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
 
 ***
 ***
 
 # Bibliography
-[^1]: https://www.nextflow.io/
+[^1]: https://github.com/nf-core/rnaseq
 [^2]: http://multiqc.info/
 [^3]: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/
 [^4]: https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/
