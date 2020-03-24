@@ -495,7 +495,7 @@ Hover over the dots to reveal the pathway names.
 The table below provides more detail on all enriched pathways."))
 ```
 
-```{r, eval=report_options$KEGG}
+```{r, eval=report_options$KEGG, out.height = "100%", out.width = "100%"}
   library(gprofiler2)
   #library(rlist)
   contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
@@ -528,7 +528,7 @@ The table below provides more detail on all enriched pathways."))
     pg2 <- gostplot(gostres, capped=T, interactive=T)
     pg2
     pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
-    pg2 %>% layout(margin = list(l = 75))
+    pg2 %>% layout(margin = list(l = 75, b = 100))
   }
 
 ```
