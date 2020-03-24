@@ -630,7 +630,7 @@ library(gprofiler2)
 library(AnnotationDbi)
 ```
 
-```{r conditional_pathway, echo=FALSE, results='asis', eval=report_options$KEGG}
+```{r conditional_pathway2, echo=FALSE, results='asis', eval=report_options$KEGG}
 version_gprofiler2 = packageVersion("gprofiler2")
 version_annotation = packageVersion("AnnotationDbi")
 cat(paste("For pathway analysis, the R packages `gprofiler2 v",version_gprofiler2,"` and `AnnotationDbi v", version_annotation, "` were employed.", sep=''))
