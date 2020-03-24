@@ -19,7 +19,7 @@ jobs:
       - name: Pull docker image
         run: |
           docker pull qbicsoftware/rnadeseq:dev
-          docker tag qbicsoftware/rnadeseq:dev qbicsoftware/rnadeseq:dev
+          docker tag qbicsoftware/rnadeseq:dev qbicsoftware/rnadeseq:1.1.0
       - name: Basic workflow tests
         run: |
           nextflow run ${GITHUB_WORKSPACE} -profile test,docker
