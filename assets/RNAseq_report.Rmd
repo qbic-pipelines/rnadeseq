@@ -605,7 +605,7 @@ version <- read.csv(file = params$path_versions, sep="\t", header = FALSE)
 
 # Computational methods
 
-The Nextflow-based nf-core pipeline `rnaseq `r as.character(version[versions$V1=="nf-core/rnaseq",2])`` [^1] was used for the RNAseq Bioinfomatics analysis. 
+The Nextflow-based nf-core pipeline `rnaseq `r as.character(version[version$V1=="nf-core/rnaseq",2])`` [^1] was used for the RNAseq Bioinfomatics analysis. 
 `FASTQC `r as.character(version[version$V1=="FASTQC",2])`` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files. 
 Subsequently, adapter trimming was conducted with `Trim Galore `r as.character(version[version$V1=="Trim Galore!",2])`` [^4] [@krueger2012trim]. 
 `STAR v`r substring(as.character(version[version$V1=="STAR",2]), 7, )`` [@Dobin2013] aligner was used to map the reads that passed the quality 
