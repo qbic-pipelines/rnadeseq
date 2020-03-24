@@ -108,16 +108,6 @@ for (file in contrast_files){
   
   DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
   q = as.character(DE_genes$Ensembl_ID)
-  
- 
-  #gprofiler query
-  #path_enrich <- gprofiler(query = q, organism=organism, 
-  #                        significant = T, 
-  #                        correction_method = "fdr",
-  #                        min_set_size = min_set_size, 
-  #                        max_set_size = max_set_size, 
-  #                        min_isect_size = min_isect_size,
-  #                        src_filter = datasources)
 
   #gost query
   gostres <- gost(query=q,
@@ -129,7 +119,7 @@ for (file in contrast_files){
                   user_threshold=0.05)
 
   path_gostres<- gostres$result
-  path_gostres <- path_gostres[which(path_gostres$significant==TRUE),]
+  path_gostres <- as.data.frame(path_gostres[which(path_gostres$significant==TRUE),])
 
   if (nrow(path_gostres) > 0){
     path_gostres$original.query.size <- rep(length(q), nrow(path_gostres))
@@ -146,9 +136,7 @@ for (file in contrast_files){
   if (nrow(path_gostres) > 0){
     path_gostres$original_query_size <- rep(length(q), nrow(path_gostres))
   }
-  #write.table(path_enrich, 
-  #            file = paste0(outdir, "/", fname, "/",fname, "_pathway_enrichment_results.tsv"), 
-  #            sep = "\t", quote = F, col.names = T, row.names = F )
+
   path_gostres_table = path_gostres
   path_gostres_table$parents <- NULL
   write.table(path_gostres_table, 

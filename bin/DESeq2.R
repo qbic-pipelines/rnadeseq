@@ -1,8 +1,7 @@
 #!/usr/bin/env Rscript
 
 # Differential expression analysis from raw read count table using DESeq2
-# Author: Stefan Czemmel
-# Contributors: Gisela Gabernet
+# Author: Gisela Gabernet, Stefan Czemmel
 # QBiC 2019; MIT License
 
 library(RColorBrewer)
@@ -45,7 +44,10 @@ option_list = list(
   make_option(c("-c", "--counts"), type="character", default=NULL, help="path to raw count table", metavar="character"),
   make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
   make_option(c("-d", "--design"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
-  make_option(c("-k", "--contrasts"), type="character", default=NULL, help="path to contrast matrix file", metavar="character"),
+  make_option(c("-x", "--contrasts_matrix"), type="character", default=NULL, help="path to contrasts matrix file", metavar="character"),
+  make_option(c("-r", "--relevel"), type="character", default=NULL, help="path to factor relevel file", metavar="character"),
+  make_option(c("-k", "--contrasts_list"), type="character", default=NULL, help="path to contrasts list file", metavar="character"),
+  make_option(c("-p", "--contrasts_pairs"), type="character", default=NULL, help="path to contrasts pairs file", metavar="character"),
   make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
   make_option(c("-t", "--logFCthreshold"), type="integer", default=0, help="Log 2 Fold Change threshold for DE genes", metavar="character"),
   make_option(c("-b", "--batchEffect"), default=FALSE, action="store_true", help="Whether to consider batch effects in the DESeq2 analysis", metavar="character")
@@ -73,8 +75,26 @@ if (is.null(opt$design)){
 } else {
   path_design = opt$design
 }
-if(!is.null(opt$contrasts)){
-  path_contrasts = opt$contrasts
+if(!is.null(opt$relevel)){
+  path_relevel = opt$relevel
+}
+if(!is.null(opt$contrasts_matrix)){
+  if(!is.null(opt$contrasts_list) & !is.null(opt$contrasts_pairs)) {
+    stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
+  }
+  path_contrasts_matrix = opt$contrasts_matrix
+}
+if(!is.null(opt$contrasts_list)){
+  if(!is.null(opt$contrasts_matrix) & !is.null(opt$contrasts_pairs)) {
+    stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
+  }
+  path_contrasts_list = opt$contrasts_list
+}
+if(!is.null(opt$contrasts_pairs)){
+  if(!is.null(opt$contrasts_matrix) & !is.null(opt$contrasts_list)) {
+    stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
+  }
+  path_contrasts_pairs = opt$contrasts_pairs
 }
 if(!is.null(opt$genelist)){
   requested_genes_path = opt$genelist
@@ -137,6 +157,17 @@ write.table(design, file="differential_gene_expression/metadata/linear_model.txt
 
 ################## RUN DESEQ2 ######################################
 
+# Apply relevel if provided to metadata
+if (!is.null(opt$relevel)) {
+  relevel <- read.table(path_relevel, sep="\t", header = T, colClasses = "character")
+  write.table(relevel, file="differential_gene_expression/metadata/relevel.tsv")
+
+  for (i in c(1:nrow(relevel))) {
+    relev <- relevel[i,]
+    metadata[,relev[1]] <- relevel(metadata[,relev[1]], relev[2])
+  }
+}
+
 # Run DESeq function
 cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
 cds <- DESeq(cds,  parallel = FALSE)
@@ -151,17 +182,22 @@ write.table(count_table_names, paste("differential_gene_expression/gene_counts_t
 
 # Contrasts
 coefficients <- resultsNames(cds)
+coef_tab <- data.frame(coef=coefficients)
+write.table(coef_tab,file="differential_gene_expression/metadata/DESeq2_coefficients.tsv", sep="\t", quote=F, col.names = T, row.names = F)
+
 bg = data.frame(bg = character(nrow(cds)))
-if (!is.null(opt$contrasts)){
-  contrasts <- read.table(path_contrasts, sep="\t", header = T)
-  write.table(contrasts, file="differential_gene_expression/metadata/contrasts.tsv", sep="\t", quote=F, col.names = T, row.names = F)
+contnames <- c()
+
+if (!is.null(opt$contrasts_matrix)){
+  contrasts <- read.table(path_contrasts_matrix, sep="\t", header = T)
+  write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
   
   if(length(coefficients) != nrow(contrasts)){
     print(coefficients)
     stop("Error: Your contrast table has different number of rows than the number of coefficients in the DESeq2 model.")
   }
 
-  ## Contrast calculation
+  ## Contrast calculation for contrast table
   for (i in c(1:ncol(contrasts))) {
     d1 <-results(cds, contrast=contrasts[[i]])
 
@@ -179,9 +215,68 @@ if (!is.null(opt$contrasts)){
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
   }
-  write(colnames(contrasts), file="contrast_names.txt", sep="\t")
-} else {
-  for (contname in coefficients[2:length(coefficients)]) {
+  contnames <- append(contnames, colnames(contrasts))
+}
+
+if (!is.null(opt$contrasts_list)) {
+  contrasts <- read.table(path_contrasts_list, sep="\t", header=T, colClasses = "character")
+  write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv")
+
+  # Contrast calculation for contrast list
+  for (i in c(1:nrow(contrasts))) {
+    cont <- as.character(contrasts[i,])
+    contname <- paste0(cont[1], "_", cont[2], "_vs_", cont[3])
+# TODO: add checks if provided contnames and factors are in metadata
+    d1 <- results(cds, contrast=cont)
+    d1 <- as.data.frame(d1)
+    print(contname)
+    d1_name <- d1
+    d1_name$Ensembl_ID = row.names(d1)
+    d1_name <- merge(x=d1_name, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
+    d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
+    d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
+    d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
+    d1DE <- d1DE[order(d1DE$padj),]
+    write.table(d1DE, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    names(d1) = paste(names(d1),contname,sep="_")
+    bg = cbind(bg,d1)
+
+    contnames <- append(contnames, contname)
+  }
+}
+
+if (!is.null(opt$contrasts_pairs)) {
+    contrasts <- read.table(path_contrasts_pairs, sep="\t", header = T, colClasses = "character")
+    write.table(contrasts, file="differential_gene_expression/metadata/contrast_pairs.tsv", sep="\t", quote=F, col.names = T, row.names = F)
+
+    # Contrast calculation for contrast pairs
+    for (i in c(1:nrow(contrasts))) {
+      cont <- as.character(contrasts[i,])
+      contname <- cont[0]
+      if (!(cont[2] %in% coefficients & cont[3] %in% coefficients)){
+        stop(paste0("Provided contrast name is invalid, it needs to be contained in ", coefficients))
+      } 
+      d1 <- results(cds, contrast=list(cont[1],cont[2]))
+      d1 <- as.data.frame(d1)
+      print(contname)
+      d1_name <- d1
+      d1_name$Ensembl_ID = row.names(d1)
+      d1_name <- merge(x=d1_name, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
+      d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
+      d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
+      d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
+      d1DE <- d1DE[order(d1DE$padj),]
+      write.table(d1DE, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+      names(d1) = paste(names(d1),contname,sep="_")
+      bg = cbind(bg,d1)
+
+      contnames <- append(contnames, contname)
+    }
+}
+
+if (is.null(opt$contrasts_matrix) & is.null(opt$contrasts_list) & is.null(opt$contrasts_pairs)) {
+  contnames <- coefficients[2:length(coefficients)]
+  for (contname in contnames) {
     d1 <- results(cds, name=contname)
     d1 <- as.data.frame(d1)
     print(contname)
@@ -195,8 +290,9 @@ if (!is.null(opt$contrasts)){
     names(d1) = paste(names(d1),contname,sep="_")
     bg = cbind(bg,d1)
   }
-  write(coefficients[2:length(coefficients)], file="contrast_names.txt", sep="\t")
 }
+
+write(contnames, file="contrast_names.txt", sep="\t")
 
 # Remove identical columns
 bg$bg <- NULL
@@ -261,6 +357,8 @@ for (i in kip1){
             theme(text = element_text(size=12),
                axis.text.x = element_text(angle=45, vjust=1,hjust=1))
   ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".svg",sep=""), width=10, height=5, plot=plot)
+  ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".png",sep=""), width=10, height=5, plot=plot)
+
   print(i)
 }
 
@@ -285,6 +383,7 @@ if (!is.null(opt$genelist)){
       theme(text = element_text(size=12),
             axis.text.x = element_text(angle=45, vjust=1,hjust=1))
     ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",kip2_gene_name[i],"_",kip2_Ensembl[i],".svg",sep=""), plot=plot)
+    ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",kip2_gene_name[i],"_",kip2_Ensembl[i],".png",sep=""), plot=plot)
     print(kip2_gene_name[i])
   }
 }

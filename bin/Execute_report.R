@@ -14,7 +14,8 @@ option_list = list(
   make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
   make_option(c("-q", "--quote"), type="character", default=NULL, help="path to the signed quote PDF file", metavar="character"),
   make_option(c("-g", "--organism"), type="character", default=NULL, help="Organism, e.g. Hsapiens."),
-  make_option(c("-b", "--batch_effect"), action="store_true", default=FALSE, help="Batch effect correction.")
+  make_option(c("-b", "--batch_effect"), action="store_true", default=FALSE, help="Batch effect correction."),
+  make_option(c("-x", "--revision"), type="character", default=NULL, help="rnadeseq workflow revision", metavar="character")
 )
 
 opt_parser = OptionParser(option_list=option_list)
@@ -38,4 +39,5 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_genelist = path_genelist,
                                 path_quote = opt$quote,
                                 organism = opt$organism,
-                                batch_effect = opt$batch_effect))
+                                batch_effect = opt$batch_effect,
+                                revision = opt$revision))

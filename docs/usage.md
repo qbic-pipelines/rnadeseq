@@ -205,14 +205,14 @@ Path to the signed copy of the QBiC offer as pdf, to be included in the report.
 
 To control for batch effects follow ALL these steps:
 
-1. Include the batch effect in the metadata file in a column with the header `batch`.
-2. Your design file needs to additionally include the batch effect in the linear model. E.g.:
+* Include the batch effect in the metadata file in a column with the header `batch`.
+* Your design file needs to additionally include the batch effect in the linear model. E.g.:
 
-```R
-~ batch + condition_genotype
-```
+  ```R
+  ~ batch + condition_genotype
+  ```
 
-3. Use the `--batch_effect` option when running the pipeline to generate an extra PCA plot with the corrected batch effects.
+* Use the `--batch_effect` option when running the pipeline to generate an extra PCA plot with the corrected batch effects.
 
 Then the DESeq2 script calculates the contrasts as usual, the batch effect just needs to be considered during the design definition.
 For more information, please check the [DESeq2 vignette](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).

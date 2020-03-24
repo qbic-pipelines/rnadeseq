@@ -9,10 +9,11 @@
 [![Docker](https://img.shields.io/docker/automated/qbicsoftware/rnadeseq.svg)](https://hub.docker.com/r/qbicsoftware/rnadeseq)
 
 ## Introduction
+
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
 
-
 ## Documentation
+
 The qbicsoftware/rnadeseq pipeline comes with documentation about the pipeline, found in the `docs/` directory:
 
 1. [Installation](https://nf-co.re/usage/installation)
@@ -27,4 +28,5 @@ The qbicsoftware/rnadeseq pipeline comes with documentation about the pipeline, 
 <!-- TODO qbicsoftware: Add a brief overview of what the pipeline does and how it works -->
 
 ## Credits
-qbicsoftware/rnadeseq was originally written by QBiC.
+
+qbicsoftware/rnadeseq was originally written by Gisela Gabernet (@ggabernet) and Silvia Morini (@silviamorins), at QBiC.

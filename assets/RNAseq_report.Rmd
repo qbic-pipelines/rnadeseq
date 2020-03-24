@@ -9,10 +9,7 @@ output:
     df_print: paged                         # tables are printed as an html table with support for pagination over rows and columns
     css: ./corp-styles.css
     highlight: pygments
-#   code_folding: none
-#   theme: spacelab
     pdf_document: true
-#   self_contained: no
 bibliography: ./references.bibtex
 params:
   path_proj_summary: ""
@@ -25,8 +22,8 @@ params:
   path_quote: ""
   organism: ""
   batch_effect: ""
-# Author: Simon Heumos
-# Contributor: Silvia Morini, Gisela Gabernet
+  revision: ""
+# Author: Silvia Morini, Gisela Gabernet, Simon Heumos
 ---
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
@@ -130,9 +127,10 @@ RIN=FALSE
 if(file.exists(QAfile)){
   df_QA <- read.table(QAfile, header=TRUE, sep="\t", check.names = FALSE)
   conditions <- grepl(colnames(df_QA),pattern = "Condition")
-  df_QA_cond <- df_QA[ ,conditions]
+  df_QA_cond <- as.data.frame(df_QA[ ,conditions])
+  colnames(df_QA_cond) <- colnames(df_QA)[conditions]
   df_QA_neat <- df_QA[,c("QBiC Code", "Secondary Name", "Lab ID", "Sample Type")]
-  df_QA_neat <- merge(x=df_QA_neat, y=df_QA_cond, by.x="row.names", by.y="row.names")
+  df_QA_neat <- merge(df_QA_neat, df_QA_cond, by="row.names")
   df_QA_neat$Row.names <- NULL
   if ("RIN" %in% colnames(df_QA)){
     if (any(is.na(df_QA$RIN))){no_RIN <- TRUE} else {RIN <- TRUE; df_QA_neat$RIN <- df_QA$RIN}
@@ -151,7 +149,7 @@ The RNA Integrity Number (RIN) value has a maximum value of 10.
 ")
 kable(df_QA_neat) %>%
     kable_styling() %>%
-    scroll_box(width = "100%", height = "100%")
+    scroll_box(width = "100%", height = "400px")
 ```
 
 ```{r noRIN_block, echo=FALSE, results='asis', eval=no_RIN}
@@ -166,7 +164,7 @@ found [here](./differential_gene_expression/metadata/metadata.tsv).
 if ("RIN" %in% colnames(df_QA_neat)){df_QA_neat$RIN <- NULL}
 kable(df_QA_neat) %>%
     kable_styling("hover") %>%
-    scroll_box(width = "100%", height = "100%")
+    scroll_box(width = "100%", height = "400px")
 ```
 
 # Read Mapping and Assignment
@@ -180,8 +178,7 @@ The read sequencing quality was analyzed using `FASTQC`. More detailed informati
 
 The read mapping and gene assignment statistics, together with other quality control parameters are summarized here. 
 
-The table below, extracted from the `MultiQC` report, shows a summary of the bioinformatics analysis quality control. 
-It can also be downloaded [here](./QC/qc_summary.tsv).
+The table below, extracted from the `MultiQC` report, shows a summary of the bioinformatics analysis quality control.
 
 ```{r echo=FALSE, results='asis'}
 library(formattable)
@@ -190,43 +187,43 @@ is.num <- sapply(df_DE, is.numeric)
 df_DE[is.num] <- lapply(df_DE[is.num], round, 2)
 columns <- c("Sample", 
             "FastQC_mqc.generalstats.fastqc.total_sequences",
-            "DupRadar_mqc.generalstats.dupradar.dupRadar_intercept", 
+            "FastQC_mqc.generalstats.fastqc.percent_duplicates", 
             "FastQC_mqc.generalstats.fastqc.percent_gc",
             "Cutadapt_mqc.generalstats.cutadapt.percent_trimmed", 
             "STAR_mqc.generalstats.star.uniquely_mapped_percent",  
-            "featureCounts_mqc.generalstats.featurecounts.percent_assigned"
-            )
-df_DE_selected = df_DE %>% select(one_of(columns))
+            "featureCounts_mqc.generalstats.featurecounts.percent_assigned")
+df_DE_selected = df_DE[,columns]
 df_DE_selected$Sample <- substr(df_DE_selected$Sample, 1, 10)
+colnames(df_DE_selected) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
 n_rows = nrow(df_DE_selected)
 metadata <- read.table((paste0(wd, "/differential_gene_expression/metadata/metadata.tsv")), header=TRUE, sep="\t")
 metadata = metadata[,c("QBiC.Code", "Lab.ID")]
 metadata$Sample = metadata$QBiC.Code
 metadata$QBiC.Code = NULL
 table_complete = merge(metadata,df_DE_selected,by="Sample")
-colnames = c("Sample", "Lab ID", "Number of reads (M)", "Duplicate Intercept (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
-write.table(table_complete,"./qc_summary.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, col.names=colnames, qmethod = c("escape", "double"))
+colnames = c("Sample", "Lab ID", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
+#write.table(table_complete,"./qc_summary.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 table_complete %>% 
   mutate(
     Sample = Sample,
     LabID = Lab.ID,
-    ReadNumber = color_bar("lightblue")(round((FastQC_mqc.generalstats.fastqc.total_sequences/1000000),2)),
-    DuplicateReadsIntercept = ifelse(DupRadar_mqc.generalstats.dupradar.dupRadar_intercept > 1,
-                                    cell_spec(DupRadar_mqc.generalstats.dupradar.dupRadar_intercept, color="orange", bold=T),
-                                    cell_spec(DupRadar_mqc.generalstats.dupradar.dupRadar_intercept, color="black")),
-    GCcontent = FastQC_mqc.generalstats.fastqc.percent_gc,
-    TrimmedReads = Cutadapt_mqc.generalstats.cutadapt.percent_trimmed,
-    MappedReads =  ifelse(STAR_mqc.generalstats.star.uniquely_mapped_percent > 80,
-                          color_bar("lightblue")(STAR_mqc.generalstats.star.uniquely_mapped_percent),
-                          color_bar("orange")(STAR_mqc.generalstats.star.uniquely_mapped_percent)),
-    AssignedReads = ifelse(featureCounts_mqc.generalstats.featurecounts.percent_assigned > 60,
-                          color_bar("lightblue")(featureCounts_mqc.generalstats.featurecounts.percent_assigned),
-                          color_bar("orange")(featureCounts_mqc.generalstats.featurecounts.percent_assigned))
+    ReadNumber = color_bar("lightblue")(round((C1/1000000),2)),
+    DuplicateReadsIntercept = ifelse(C2 > 1,
+                                    cell_spec(C2, color="orange", bold=T),
+                                    cell_spec(C2, color="black")),
+    GCcontent = C3,
+    TrimmedReads = C4,
+    MappedReads =  ifelse(C5 > 80,
+                          color_bar("lightblue")(C5),
+                          color_bar("orange")(C5)),
+    AssignedReads = ifelse(C6 > 60,
+                          color_bar("lightblue")(C6),
+                          color_bar("orange")(C6))
   ) %>%
   select(1,9:15) %>%
   kable(escape=F,row.names =F, col.names=colnames) %>%
   kable_styling("hover") %>%
-  scroll_box(width = "100%", height = "100%")
+  scroll_box(width = "100%", height = "400px")
 ```
 
 Note: Duplicate intercept (%) is the percentage of duplicate reads for the intercept of a linear model of duplicate reads vs read counts. High numbers of duplicates at low read counts can indicate low library complexity with technical duplication.
@@ -333,9 +330,9 @@ A sample distance heatmap was generated from the distances of the normalized exp
 
 This visualizes how similar the samples are to each other according to gene expression. 
 Two samples have more similar gene expression if their distance is closer to 0 (darker blue).
-The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances.pdf)
+The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances.pdf).
 
-```{r, echo=F, out.width="70%", dpi=1200, fig.align='center'}
+```{r, echo=F, out.width="80%", dpi=1200, fig.align='center'}
 knitr::include_graphics(paste0(wd,"/differential_gene_expression/plots/Heatmaps_of_distances.svg"))
 ```
 
@@ -403,7 +400,7 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
   #library(rlist)
 ```
 
-```{r}
+```{r, out.width="100%", out.height="100%"}
   # Set plot theme
   theme_set(theme_bw(base_family = "ArialMT") + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
@@ -420,10 +417,9 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     # label: gene_name
     # x: log2FoldChange
     # y: -log10(padj)
-    #list.append(table_list, DE_genes)
+    table_list <- append(table_list, list(DE_genes), 0)
   }
-  #DE_all <- ldply(data, rbind)
-  DE_all <- DE_genes
+  DE_all <- ldply(table_list, rbind)
   DE_all$logpval <- -log10(DE_all$padj)
   DE_all$logpval[DE_all$logpval > 16] <- 17
 
@@ -442,10 +438,10 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
   pg <- ggplotly(pg, tooltip = "text")
   pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05
   pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
-  pg %>% layout(margin = list(l = 75))
+  pg %>% layout(margin = list(l = 100, b=100), width=500, height = 1000)
 ```
 
-## Barplots of gene normalized counts
+## Boxplots of gene normalized counts
 
 Plots of the normalized counts were generated for some example genes. Count normalization was performed by 
 sequencing depth and adding a pseudocount of 1/2 to allow for log scale plotting. 
@@ -487,37 +483,39 @@ knitr::include_graphics("./GO/GO_terms_enriched.png")
 ```{r pathway_analysis, echo=FALSE, results='asis', eval=report_options$KEGG}
 cat(paste0("***
 # Pathway analysis
-The pathway analysis was performed with the `gProfiler2` tool. The pathway analysis results are stored [here](./pathway_analysis), and explained in this section.
+The pathway analysis was performed with the `gProfiler2` tool. 
+The pathway analysis results are stored [here](./pathway_analysis), and explained in this section.
 
 ## Enriched pathways
 The plot below summarizes the pathways that were 
-found significantly enriched in DE genes (padj value > 0.05). 
-Both KEGG pathways and REACTOME pathways are considered. Hover over the dots to reveal the pathway names.
+found significantly enriched in DE genes for each contrast (padj value > 0.05). 
+Only contrasts for which an enriched pathway was found are shown.
+Both KEGG pathways and REACTOME (REAC) pathways are considered. 
+Hover over the dots to reveal the pathway names.
 The table below provides more detail on all enriched pathways."))
 ```
 
-```{r, eval=report_options$KEGG}
+```{r, eval=report_options$KEGG, out.height = "100%", out.width = "100%", warning = FALSE}
   library(gprofiler2)
   #library(rlist)
-  contrast_files <- list.files(path=paste0(wd, "/differential_gene_expression/DE_genes_tables/"))
+  contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
 
-  #q_list <- list()
+  q_list <- list()
+  q_names <- c()
   for (file in contrast_files){
     #Reading DE genes list
     fname <- tools::file_path_sans_ext(basename(file))
 
-    DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
+    DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
     q = as.character(DE_genes$Ensembl_ID)
-    #q_list <- list.append(q_list, q)
+    q_list <- append(q_list, list(q), 0)
+    q_names <- append(q_names, fname)
   }
-  #contrast_names <- sapply(strsub)
-  #q_list <- list.append(q_list, q)
-  # TODO: add different contrasts in list and make gost plot for all of them
-
   datasources <- c("KEGG","REAC")
-
+  names(q_list) <- q_names
+  
   #gost query
-  gostres <- gost(query=q,
+  gostres <- gost(query=q_list,
                   organism=params$organism,
                   significant=T,
                   correction_method="fdr",
@@ -525,46 +523,37 @@ The table below provides more detail on all enriched pathways."))
                   user_threshold=0.05)
   
   path_enrich <- gostres$result
-  path_enrich <- path_enrich[which(path_enrich$significant==TRUE),]
 
   if (nrow(path_enrich) > 0){
-    path_enrich$original.query.size <- rep(length(q), nrow(path_enrich))
-
-    pg <- gostplot(gostres, capped=T, interactive=T)
-  
+    pg2 <- gostplot(gostres, capped=T, interactive=T)
+    pg2
+    pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
+    pg2 %>% layout(margin = list(l = 75, b = 100), width=500, height = 1000)
   }
-  pg[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
-  #print(pg[['x']][['layout']][['annotations']])
-  pg %>% layout(margin = list(l = 75))
+
 ```
 
 ```{r, echo=FALSE}
-  df_subset <- data.frame(Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id, 
+if (nrow(path_enrich) > 0) {
+  df_subset <- data.frame(Contrast = path_enrich$query, Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id, 
                           DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size, 
                           Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3), 
                           Padj = formatC(path_enrich$p_value, digits=3))
-  # TODO: add contrast name to table
-  colnames <- c("Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)", 
+  colnames <- c("Contrast", "Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)", 
   "Fraction of DE genes in pathway", "Padj value (pathway enrichment)")
   kable(df_subset, col.names = colnames) %>%
     kable_styling("hover") %>%
     scroll_box(width = "100%", height = "400px")
+}
 ```
 
 
 ```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=report_options$KEGG}
-cat(paste0("## KEGG pathways
-Here is a plot summarizing the KEGG pathways that were found enriched in DE genes. For KEGG pathways, 
-a KEGG pathway map was also generated that can be found in the subfolder named `KEGG_pathways`.
+cat(paste0("## KEGG pathway maps
+For KEGG pathways, a KEGG pathway map was also generated that can be found in the subfolder named `KEGG_pathways`, for each contrast folder.
 
-Shown below you find the KEGG pathways enrichment plot for the example contrast ", contrnames[1],".","
 \
 ")) 
-```
-
-```{r, out.width = "600px", eval=report_options$KEGG}
-knitr::include_graphics(paste0(wd,"/pathway_analysis/", 'DE_contrast_', contrnames[1], "/", 'DE_contrast_', 
-                contrnames[1], '_KEGG_pathway_enrichment_plot.png'))
 ```
 
 ```{r conditional_pathway_maps, echo=FALSE, results='asis', eval=report_options$KEGG}
@@ -616,15 +605,19 @@ version <- read.csv(file = params$path_versions, sep="\t", header = FALSE)
 
 # Computational methods
 
-The Nextflow-based nf-core RNA-Seq pipeline (https://github.com/nf-core/rnaseq)[^1] was used for the bioinfomatics analysis. 
-An aggregation of the bioinformatics workflow analysis was conducted by `MultiQC `r as.character(version[version$V1=="MultiQC",2])`` [^2] [@ewels2016multiqc]. 
+## RNAseq data analysis
+The Nextflow-based nf-core pipeline `rnaseq `r as.character(version[version$V1=="nf-core/rnaseq",2])`` [^1] was used for the RNAseq Bioinfomatics analysis. 
 `FASTQC `r as.character(version[version$V1=="FASTQC",2])`` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files. 
 Subsequently, adapter trimming was conducted with `Trim Galore `r as.character(version[version$V1=="Trim Galore!",2])`` [^4] [@krueger2012trim]. 
 `STAR v`r substring(as.character(version[version$V1=="STAR",2]), 7, )`` [@Dobin2013] aligner was used to map the reads that passed the quality 
 control to the reference genome. 
-The evaluation of the RNA-seq experiment was performed with `RSeQC `r as.character(version[version$V1=="RSeQC",2])`` [@wang2012rseqc] and 
+The RNA-seq data quality control was performed with `RSeQC `r as.character(version[version$V1=="RSeQC",2])`` [@wang2012rseqc] and 
 read counting of the features (e.g. genes) with `featureCounts `r as.character(version[version$V1=="featureCounts",2])``[@liao2014featurecounts].
-For differential expression analysis, the raw read count table resulting from `featureCounts` is processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
+An aggregation of the quality control for the RNAseq analysis was performed with `MultiQC `r as.character(version[version$V1=="MultiQC",2])`` [^2] [@ewels2016multiqc].
+
+## Differential gene expression analysis
+The differential expression analysis was performed by the use of the `rnadeseq `r as.character(params$revision)`` pipeline [^5]. 
+For differential expression analysis, the raw read count table resulting from `featureCounts` was processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
 
 <!-- If a DEU analysis has also been performed -->
 
@@ -632,16 +625,27 @@ For differential expression analysis, the raw read count table resulting from `f
 # version = packageVersion("DEXSeq")
 # cat(paste("For differential exon usage, the table count produced by `featureCounts` is processed with the R package `DEXSeq v`",version," [@anders2012detecting].", sep=''))
 ```
-Graphs were also produced in the `RStudio v1.1.456` with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")``. Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown")``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
+```{r conditional_pathway, echo=FALSE, message=FALSE, bootstrap.show.message=FALSE, include=FALSE}
+library(gprofiler2)
+library(AnnotationDbi)
+```
+
+```{r conditional_pathway2, echo=FALSE, results='asis', eval=report_options$KEGG}
+version_gprofiler2 = packageVersion("gprofiler2")
+version_annotation = packageVersion("AnnotationDbi")
+cat(paste("For pathway analysis, the R packages `gprofiler2 v",version_gprofiler2,"` and `AnnotationDbi v", version_annotation, "` were employed.", sep=''))
+```
+
+Graphs were produced in RStudio with ``r R.version.string`` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")``. 
+Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown")``, with the `knitr v`r packageVersion("knitr")`` 
+and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
 
 ***
 ***
 
 # Bibliography
-[^1]: https://www.nextflow.io/
+[^1]: https://github.com/nf-core/rnaseq
 [^2]: http://multiqc.info/
 [^3]: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/
 [^4]: https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/
-[^6]: http://smithlabresearch.org/software/preseq/
-[^7]: https://ccb.jhu.edu/software/stringtie/
-[^8]: http://broadinstitute.github.io/picard/
+[^5]: https://github.com/qbicsoftware/rnadeseq

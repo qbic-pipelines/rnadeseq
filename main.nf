@@ -18,7 +18,7 @@ def helpMessage() {
 
     The typical command for running the pipeline is as follows:
 
-    nextflow run qbicsoftware/rnadeseq --rawcounts 'counts.tsv' --metadata 'metadata.tsv' --design 'design.txt' --contrasts 'contrasts.tsv' -profile docker
+    nextflow run qbicsoftware/rnadeseq --rawcounts 'counts.tsv' --metadata 'metadata.tsv' --design 'design.txt' -profile docker
 
     Mandatory arguments:
       --rawcounts                   Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name.
@@ -33,7 +33,10 @@ def helpMessage() {
                                     Available: conda, docker, singularity, awsbatch, test and more.
 
     Options:
-      --contrasts                   Table indicating which contrasts to consider. 1 or 0 for every variable specified in the design. If not provided, default DESeq2 contrasts are calculated.
+      --contrast_matrix              Tsv indicating which contrasts to consider, one contrast per column. 1 or 0 for every coefficient of the linear model. Check contrasts docs.
+      --contrast_list               Tsv indicating list of the contrasts to calculate. 3 columns: factor name, contrast numerator and denominator. Check contrasts docs.
+      --contrast_pairs              Tsv indicating list of contrast pairs to calculate. 3 columns: contrast name, numerator and denominator. Check contrasts docs.
+      --relevel                     Tsv indicating list of factors (conditions in the metadata table) and the new level on which to relevel the factor. Check contrasts docs.
       --logFCthreshold              Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed.
       --genelist                    List of genes (one per line) of which to plot heatmaps for normalized counts across all samples.
       --batch_effect                Turn on this flag if you wish to consider batch effects. You need to add the batch effect to the linear model too!                
@@ -86,7 +89,7 @@ ch_output_docs = Channel.fromPath("$baseDir/docs/output.md")
 /*
  * Create a channel for input  files
  */
- // DESeq2
+
 Channel.fromPath("${params.rawcounts}", checkIfExists: true)
            .ifEmpty{exit 1, "Please provide raw counts file!"}
            .set {ch_counts_file}
@@ -99,8 +102,14 @@ Channel.fromPath("${params.quote}", checkIfExists: true)
 Channel.fromPath("${params.model}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide linear model file!"}
             .into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
-Channel.fromPath("${params.contrasts}")
-            .into { ch_contrasts_for_deseq2_file; ch_contrasts_for_report_file }
+Channel.fromPath("${params.contrast_matrix}")
+            .set { ch_contrast_matrix_for_deseq2 }
+Channel.fromPath("${params.contrast_list}")
+            .set { ch_contrast_list_for_deseq2 }
+Channel.fromPath("${params.contrast_pairs}")
+            .set { ch_contrast_pairs_for_deseq2 }
+Channel.fromPath("${params.relevel}")
+            .set { ch_relevel_for_deseq2 }
 Channel.fromPath("${params.project_summary}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide project summary file!"}
             .set { ch_proj_summary_file }
@@ -134,7 +143,9 @@ summary['Run Name']         = custom_runName ?: workflow.runName
 summary['Gene Counts'] = params.rawcounts
 summary['Metadata'] = params.metadata
 summary['Model'] = params.model
-summary['Contrasts'] = params.contrasts
+summary['Contrast matrix'] = params.contrast_matrix
+summary['Contrast list'] = params.contrast_list
+summary['Contrast pairs'] = params.contrast_pairs
 summary['Gene list'] = params.genelist
 summary['Project summary'] = params.project_summary
 summary['Software versions'] = params.versions
@@ -229,7 +240,10 @@ process DESeq2 {
     file(gene_counts) from ch_counts_file
     file(metadata) from ch_metadata_file_for_deseq2
     file(model) from ch_model_for_deseq2_file
-    file(contrasts) from ch_contrasts_for_deseq2_file
+    file(contrast_matrix) from ch_contrast_matrix_for_deseq2
+    file(relevel) from ch_relevel_for_deseq2
+    file(contrast_list) from ch_contrast_list_for_deseq2
+    file(contrast_pairs) from ch_contrast_pairs_for_deseq2
     file(genelist) from ch_genes_for_deseq2_file
 
     output:
@@ -237,11 +251,16 @@ process DESeq2 {
     file "contrast_names.txt" into ch_contrnames_for_report
 
     script:
-    def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
-    def contrastsopt = contrasts.name != 'DEFAULT' ? "--contrasts $contrasts" : ''
-    def batcheffectopt = params.batch_effect ? "--batchEffect" : ''
+    def gene_list_opt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
+    def contrast_mat_opt = contrast_matrix.name != 'DEFAULT' ? "--contrasts_matix $contrast_matrix" : ''
+    def contrast_list_opt = contrast_list.name != 'DEFAULT1' ? "--contrasts_list $contrast_list" : ''
+    def contrast_pairs_opt = contrast_pairs.name != 'DEFAULT2' ? "--contrasts_pairs $contrast_pairs" : ''
+    def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel $relevel" : ''
+    def batch_effect_opt = params.batch_effect ? "--batchEffect" : ''
     """
-    DESeq2.R --counts $gene_counts --metadata $metadata --design $model --logFCthreshold $params.logFCthreshold $contrastsopt $genelistopt $batcheffectopt
+    DESeq2.R --counts $gene_counts --metadata $metadata --design $model \
+    --logFCthreshold $params.logFCthreshold $relevel_opt $contrast_mat_opt \
+    $contrast_list_opt $contrast_pairs_opt $gene_list_opt $batch_effect_opt
     zip -r differential_gene_expression.zip differential_gene_expression
     """
 }
@@ -307,9 +326,8 @@ process Report {
     mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' \
     --output 'RNAseq_report.html' --proj_summary $proj_summary \
-    --versions $softwareversions --model $model --report_options $report_options \
+    --versions $softwareversions --model $model --report_options $report_options --revision $workflow.revision \
     --contrasts $contrnames $genelistopt --quote $quote --organism $params.species $batchopt
-    mv qc_summary.tsv QC/
     zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quote
     """
 }
