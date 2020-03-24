@@ -625,13 +625,15 @@ For differential expression analysis, the raw read count table resulting from `f
 # version = packageVersion("DEXSeq")
 # cat(paste("For differential exon usage, the table count produced by `featureCounts` is processed with the R package `DEXSeq v`",version," [@anders2012detecting].", sep=''))
 ```
-
-```{r conditional_pathway, echo=FALSE, results='asis', eval=report_options$KEGG}
+```{r conditional_pathway, echo=FALSE, eval=report_options$KEGG}
 library(gprofiler2)
 library(AnnotationDbi)
+```
+
+```{r conditional_pathway, echo=FALSE, results='asis', eval=report_options$KEGG}
 version_gprofiler2 = packageVersion("gprofiler2")
 version_annotation = packageVersion("AnnotationDbi")
-cat(paste("For pathway analysis, the R packages `gprofiler2 v`",version_gprofiler2," and `AnnotationDbi v`", version_annotation, " were employed.", sep=''))
+cat(paste("For pathway analysis, the R packages `gprofiler2 v",version_gprofiler2,"` and `AnnotationDbi v", version_annotation, "` were employed.", sep=''))
 ```
 
 Graphs were produced in the `RStudio v1.1.456` with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")``. 
