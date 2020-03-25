@@ -1,4 +1,4 @@
-coefficient treatment_treated_vs_control    genotype_KO_vs_WT
-intercept   0	0
-condition_treatment_treated 1	0
-condition_genotype_KO   0	1
+coefficient	treatment_treated_vs_control	genotype_KO_vs_WT
+intercept	0	0
+condition_treatment_treated	1	0
+condition_genotype_KO	0	1
