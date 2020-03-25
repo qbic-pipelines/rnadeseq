@@ -1,4 +1,12 @@
 # qbicsoftware/rnadeseq: Changelog
 
-## v1.0dev - [date]
-Initial release of qbicsoftware/rnadeseq, created with the [qbicsoftware](http://nf-co.re/) template.
+## 1.1.0 - sunrise
+
+### Added
+
+- Major changes in handling contrasts
+- Major improvements to report
+
+## 1.0.0 - candelight
+
+Initial pre-release of qbicsoftware/rnadeseq, created with the [qbicsoftware](http://nf-co.re/) template.

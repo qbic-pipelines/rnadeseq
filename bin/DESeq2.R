@@ -189,7 +189,7 @@ bg = data.frame(bg = character(nrow(cds)))
 contnames <- c()
 
 if (!is.null(opt$contrasts_matrix)){
-  contrasts <- read.table(path_contrasts_matrix, sep="\t", header = T)
+  contrasts <- read.table(path_contrasts_matrix, sep="\t", header = T, row.names = 1)
   write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
   
   if(length(coefficients) != nrow(contrasts)){
