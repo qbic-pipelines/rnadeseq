@@ -7,4 +7,4 @@ COPY environment.yml /
 RUN conda env create -f /environment.yml && conda clean -a
 RUN apt-get update -qq && \
     apt-get install -y zip procps ghostscript
-ENV PATH /opt/conda/envs/qbicsoftware-rnadeseq-1.1.0/bin:$PATH
+ENV PATH /opt/conda/envs/qbicsoftware-rnadeseq-1.2.0dev/bin:$PATH
