@@ -533,7 +533,7 @@ The table below provides more detail on all enriched pathways."))
 
 ```
 
-```{r, echo=FALSE}
+```{r, eval=report_options$KEGG, echo=FALSE}
 if (nrow(path_enrich) > 0) {
   df_subset <- data.frame(Contrast = path_enrich$query, Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id, 
                           DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size, 
