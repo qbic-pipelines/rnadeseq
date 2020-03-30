@@ -522,7 +522,7 @@ The table below provides more detail on all enriched pathways."))
                   sources=datasources,
                   user_threshold=0.05)
   
-  path_enrich <- gostres$result
+  path_enrich <- as.data.frame(gostres$result)
 
   if (nrow(path_enrich) > 0){
     pg2 <- gostplot(gostres, capped=T, interactive=T)
