@@ -530,7 +530,7 @@ The table below provides more detail on all enriched pathways."))
     pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
     pg2 %>% layout(margin = list(l = 75, b = 100), width=500, height = 400*length(contrast_files))
   } else {
-    print("No enriched pathways were found")
+    cat("No enriched pathways were found.")
   }
 ```
 
