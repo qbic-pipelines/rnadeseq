@@ -409,11 +409,11 @@ colours = colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
 
 pdf("differential_gene_expression/plots/Heatmaps_of_distances.pdf")
 par(oma=c(3,3,3,3))
-pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=11)
+pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=10)
 dev.off()
 
 svg("differential_gene_expression/plots/Heatmaps_of_distances.svg")
-pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=11)
+pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=10)
 dev.off()
 
 
