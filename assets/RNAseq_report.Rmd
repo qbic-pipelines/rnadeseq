@@ -388,7 +388,7 @@ kable(df, escape=F,row.names =F) %>%
 ## Volcano plots of DE genes
 
 Volcano plots display the DE genes in Log2 Fold Change values (x axis) 
-against their adjusted p-value (y axis) in a form of a -log10. Only significantly DE genes are shown (padj > 0.05). 
+against their adjusted p-value (y axis) in a form of a -log10. Only significantly DE genes are shown (padj < 0.05). 
 It is recommended to select differentially expressed genes with a Log2FC > 1 or < -1 (blue lines show that threshold).
 Here, volcano plots for all considered contrasts are shown. Hover over the dots to show the gene names.
 
@@ -488,7 +488,7 @@ The pathway analysis results are stored [here](./pathway_analysis), and explaine
 
 ## Enriched pathways
 The plot below summarizes the pathways that were 
-found significantly enriched in DE genes for each contrast (padj value > 0.05). 
+found significantly enriched in DE genes for each contrast (padj value < 0.05). 
 Only contrasts for which an enriched pathway was found are shown.
 Both KEGG pathways and REACTOME (REAC) pathways are considered. 
 Hover over the dots to reveal the pathway names.
