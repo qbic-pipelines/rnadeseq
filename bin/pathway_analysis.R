@@ -59,11 +59,11 @@ if(is.null(opt$normCounts)){
 if(is.null(opt$species)){
   print_help(opt_parser)
   stop("Species needs to be provided")
-} else if (opt$species == "hsapiens") {
+} else if (tolower(opt$species) == "hsapiens") {
   organism <- "hsapiens"
   short_organism_name <- "hsa"
   library <- org.Hs.eg.db
-} else if (opt$species == "mmusculus") {
+} else if (tolower(opt$species) == "mmusculus") {
   organism <- "mmusculus"
   short_organism_name <- "mmu"
   library <- org.Mm.eg.db
