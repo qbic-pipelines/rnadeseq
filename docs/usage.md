@@ -76,7 +76,7 @@ The `qbicsoftware/rnadeseq` pipeline relies on the output from the `nf-core/rnas
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run qbicsoftware/rnadeseq -r dev -profile docker \
+nextflow run qbicsoftware/rnadeseq -r 1.1.0 -profile docker \
 --rawcounts 'merged_gene_counts.txt' \
 --metadata 'QXXXX_sample_preparations.tsv' \
 --model 'linear_model.txt' \
