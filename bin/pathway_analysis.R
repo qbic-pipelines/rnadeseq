@@ -110,7 +110,7 @@ for (file in contrast_files){
   DE_genes <- as.data.frame(DE_genes)
 
   # Skip pathway analysis for the contrast if not more than 1 DE gene was found
-  if (nrow(DE_genes <= 1)){ 
+  if (nrow(DE_genes) <= 1){ 
     print(paste0("Not enough DE genes to allow for a pathway analysis for contrast: ", fname))
     next
   }
