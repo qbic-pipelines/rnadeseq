@@ -109,7 +109,7 @@ for (file in contrast_files){
   DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
 
   # Skip pathway analysis for the contrast if not more than 1 DE gene was found
-  if nrow(DE_genes <= 1){ 
+  if (nrow(DE_genes <= 1)){ 
     print(paste0("Not enough DE genes to allow for a pathway analysis for contrast: ", fname))
     next
   }
