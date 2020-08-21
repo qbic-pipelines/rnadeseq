@@ -2,9 +2,7 @@
 
 **Downstream differential gene expression analysis with DESeq2 package**.
 
-[![Build Status](https://travis-ci.com/qbic-pipelines/rnadeseq.svg?branch=master)](https://travis-ci.com/qbicsoftware/rnadeseq)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.32.0-brightgreen.svg)](https://www.nextflow.io/)
-
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
 [![Docker](https://img.shields.io/docker/automated/qbicpipelines/rnadeseq.svg)](https://hub.docker.com/r/qbicpipelines/rnadeseq)
 
@@ -25,7 +23,6 @@ The qbic-pipelines/rnadeseq pipeline comes with documentation about the pipeline
 4. [Output and how to interpret the results](docs/output.md)
 5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
 
-<!-- TODO qbicsoftware: Add a brief overview of what the pipeline does and how it works -->
 
 ## Credits
 
