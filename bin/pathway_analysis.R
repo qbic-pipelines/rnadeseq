@@ -5,7 +5,7 @@
 # QBiC 2019; MIT License
 
 library(gprofiler2)
-library(gProfileR)
+#library(gProfileR)
 library(ggplot2)
 library(reshape2)
 library(pheatmap)
