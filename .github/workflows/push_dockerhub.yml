@@ -1,0 +1,40 @@
+name: Docker push
+# This builds the docker image and pushes it to DockerHub
+# Runs on nf-core repo releases and push event to 'dev' branch (PR merges)
+on:
+  push:
+    branches:
+      - dev
+  release:
+    types: [published]
+
+jobs:
+  push_dockerhub:
+    name: Push new Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    # Only run for the qbicpipelines repo, for releases and merged PRs
+    if: ${{ github.repository == 'qbicpipelines/rnadeseq' }}
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASS: ${{ secrets.DOCKERHUB_PASS }}
+    steps:
+      - name: Check out pipeline code
+        uses: actions/checkout@v2
+
+      - name: Build new docker image
+        run: docker build --no-cache . -t qbicpipelines/rnadeseq:latest
+
+      - name: Push Docker image to DockerHub (dev)
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+          docker tag qbicpipelines/rnadeseq:latest qbicpipelines/rnadeseq:dev
+          docker push qbicpipelines/rnadeseq:dev
+
+      - name: Push Docker image to DockerHub (release)
+        if: ${{ github.event_name == 'release' }}
+        run: |
+          echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+          docker push qbicpipelines/rnadeseq:latest
+          docker tag qbicpipelines/rnadeseq:latest qbicpipelines/rnadeseq:${{ github.event.release.tag_name }}
+          docker push qbicpipelines/rnadeseq:${{ github.event.release.tag_name }}
