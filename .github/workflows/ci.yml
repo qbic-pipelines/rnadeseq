@@ -28,7 +28,7 @@ jobs:
           PREFIX_FILTER: |
             Dockerfile
             environment.yml
-      
+
       - name: Build new docker image
         if: env.GIT_DIFF
         run: docker build --no-cache . -t nfcore/bcellmagic:dev
