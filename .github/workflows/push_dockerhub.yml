@@ -13,7 +13,7 @@ jobs:
     name: Push new Docker image to Docker Hub
     runs-on: ubuntu-latest
     # Only run for the qbicpipelines repo, for releases and merged PRs
-    if: ${{ github.repository == 'qbicpipelines/rnadeseq' }}
+    if: ${{ github.repository == 'qbic-pipelines/rnadeseq' }}
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_PASS: ${{ secrets.DOCKERHUB_PASS }}
