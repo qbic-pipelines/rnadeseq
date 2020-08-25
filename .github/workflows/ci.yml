@@ -64,8 +64,8 @@ jobs:
         uses: technote-space/get-diff-action@v1
         with:
           PREFIX_FILTER: |
-          Dockerfile
-          enfironment.yml
+            Dockerfile
+            enfironment.yml
       
       - name: Build new docker image
         if: env.GIT_DIFF
