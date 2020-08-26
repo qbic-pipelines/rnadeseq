@@ -1,5 +1,12 @@
 # qbicsoftware/rnadeseq: Changelog
 
+## 1.2.0dev
+
+### Added
+
+- Added report_options.yml in assets/ and using this one as default.
+
+
 ## 1.1.0 - sunrise
 
 ### Added
