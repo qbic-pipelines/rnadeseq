@@ -5,7 +5,7 @@
 # QBiC 2019; MIT License
 
 library(gprofiler2)
-library(gProfileR)
+#library(gProfileR)
 library(ggplot2)
 library(reshape2)
 library(pheatmap)
@@ -107,6 +107,14 @@ for (file in contrast_files){
   dir.create(paste(outdir, fname, kegg_pathways_dir, sep="/"))
   
   DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
+  DE_genes <- as.data.frame(DE_genes)
+
+  # Skip pathway analysis for the contrast if not more than 1 DE gene was found
+  if (nrow(DE_genes) <= 1){ 
+    print(paste0("Not enough DE genes to allow for a pathway analysis for contrast: ", fname))
+    next
+  }
+
   q = as.character(DE_genes$Ensembl_ID)
 
   #gost query
@@ -118,7 +126,7 @@ for (file in contrast_files){
                   evcodes=TRUE,
                   user_threshold=0.05)
 
-  path_gostres<- gostres$result
+  path_gostres <- gostres$result
   path_gostres <- as.data.frame(path_gostres[which(path_gostres$significant==TRUE),])
 
   if (nrow(path_gostres) > 0){
