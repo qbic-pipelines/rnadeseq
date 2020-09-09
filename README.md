@@ -23,7 +23,8 @@ The qbic-pipelines/rnadeseq pipeline comes with documentation about the pipeline
 4. [Output and how to interpret the results](docs/output.md)
 5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
 
-
 ## Credits
 
 qbicsoftware/rnadeseq was originally written by Gisela Gabernet (@ggabernet) and Silvia Morini (@silviamorins), at QBiC.
+
+The pipeline structure is based on the template by the `nf-core` project. For more information, please check out the [nf-core website](https://nf-co.re/).
