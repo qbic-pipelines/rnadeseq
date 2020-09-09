@@ -38,7 +38,7 @@ If any failures or warnings are encountered, please follow the listed URL for mo
 ### Pipeline Tests
 
 Each qbic-pipelines pipeline should be set up with a minimal set of test-data.
-Travis CI then runs the pipeline on this data to ensure that it exists successfully.
+GitHub actions CI then runs the pipeline on this data to ensure that it exists successfully.
 If there are any failures then the automated tests fail.
 These tests are run both with the latest available version of Nextflow and also the minimum required version that is stated in the pipeline code.
 
