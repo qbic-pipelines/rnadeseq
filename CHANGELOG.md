@@ -1,6 +1,6 @@
 # qbic-pipelines/rnadeseq: Changelog
 
-## 1.2.0dev
+## 1.2.0 - starry night
 
 ### Added
 
@@ -9,14 +9,15 @@
 ### Fixed
 
 - Skipping pathway analysis for contrasts with no found DE genes.
+- Fixed report pvalue typo.
 
 ## 1.1.0 - sunrise
 
 ### Added
 
-- Major changes in handling contrasts
-- Major improvements to report
+- Major changes in handling contrasts.
+- Major improvements to report.
 
-## 1.0.0 - candelight
+## 1.0.0 - candlelight
 
-Initial pre-release of qbic-pipelines/rnadeseq, created with the [qbic-pipelines](http://nf-co.re/) template.
+Initial pre-release of qbic-pipelines/rnadeseq, created with the [nf-core](http://nf-co.re/) template.

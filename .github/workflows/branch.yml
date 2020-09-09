@@ -15,4 +15,3 @@ jobs:
         run: |
           { [[ ${{github.event.pull_request.head.repo.full_name}} == qbic-pipelines/rnadeseq ]] && [[ $GITHUB_HEAD_REF = "dev" ]]; } || [[ $GITHUB_HEAD_REF == "release" ]]
 
-
