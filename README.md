@@ -25,6 +25,6 @@ The qbic-pipelines/rnadeseq pipeline comes with documentation about the pipeline
 
 ## Credits
 
-qbicsoftware/rnadeseq was originally written by Gisela Gabernet (@ggabernet) and Silvia Morini (@silviamorins), at QBiC.
+qbic-pipelines/rnadeseq was originally written by Gisela Gabernet (@ggabernet) and Silvia Morini (@silviamorins), at QBiC.
 
 The pipeline structure is based on the template by the `nf-core` project. For more information, please check out the [nf-core website](https://nf-co.re/).

@@ -4,7 +4,7 @@ from collections import OrderedDict
 import re
 
 regexes = {
-    'qbicsoftware/rnadeseq': ['v_pipeline.txt', r"(\S+)"],
+    'qbic-pipelines/rnadeseq': ['v_pipeline.txt', r"(\S+)"],
     'Nextflow': ['v_nextflow.txt', r"(\S+)"],
     'RColorBrewer': ['v_rcolorbrewer.txt', r"(\S+)"],
     'reshape2': ['v_reshape2.txt', r"(\S+)"],
@@ -19,7 +19,7 @@ regexes = {
     'svglite': ['v_svglite.txt', r"(\S+)"]
 }
 results = OrderedDict()
-results['qbicsoftware/rnadeseq'] = '<span style="color:#999999;\">N/A</span>'
+results['qbic-pipelines/rnadeseq'] = '<span style="color:#999999;\">N/A</span>'
 results['Nextflow'] = '<span style="color:#999999;\">N/A</span>'
 
 # Search each file using its regex
@@ -38,8 +38,8 @@ for k in results:
 # Dump to YAML
 print ('''
 id: 'software_versions'
-section_name: 'qbicsoftware/rnadeseq Software Versions'
-section_href: 'https://github.com/qbicsoftware/rnadeseq'
+section_name: 'qbic-pipelines/rnadeseq Software Versions'
+section_href: 'https://github.com/qbic-pipelines/rnadeseq'
 plot_type: 'html'
 description: 'are collected at run time from the software output.'
 data: |

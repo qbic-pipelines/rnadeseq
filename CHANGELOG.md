@@ -1,4 +1,4 @@
-# qbicsoftware/rnadeseq: Changelog
+# qbic-pipelines/rnadeseq: Changelog
 
 ## 1.2.0dev
 
@@ -19,4 +19,4 @@
 
 ## 1.0.0 - candelight
 
-Initial pre-release of qbicsoftware/rnadeseq, created with the [qbicsoftware](http://nf-co.re/) template.
+Initial pre-release of qbic-pipelines/rnadeseq, created with the [qbic-pipelines](http://nf-co.re/) template.

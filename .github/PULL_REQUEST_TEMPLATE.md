@@ -1,4 +1,4 @@
-Many thanks to contributing to qbicsoftware/rnadeseq!
+Many thanks to contributing to qbic-pipelines!
 
 Please fill in the appropriate checklist below (delete whatever is not relevant). These are the most common things requested on pull requests (PRs).
 
@@ -10,4 +10,4 @@ Please fill in the appropriate checklist below (delete whatever is not relevant)
  - [ ] `CHANGELOG.md` is updated
  - [ ] `README.md` is updated
 
-**Learn more about contributing:** https://github.com/qbicsoftware/rnadeseq/tree/master/.github/CONTRIBUTING.md
+**Learn more about contributing:** https://github.com/qbic-pipelines/rnadeseq/tree/master/.github/CONTRIBUTING.md

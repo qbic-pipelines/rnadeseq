@@ -1,8 +1,8 @@
-# qbicsoftware/rnadeseq: Output
+# qbic-pipelines/rnadeseq: Output
 
 This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
 
-<!-- TODO qbicsoftware: Write this documentation describing your workflow's output -->
+<!-- TODO qbic-pipelines: Write this documentation describing your workflow's output -->
 
 ## Pipeline overview
 
