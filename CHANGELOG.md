@@ -4,7 +4,11 @@
 
 ### Added
 
-- Added report_options.yml in assets/ and using this one as default.
+- Added report_options.yml in assets/.
+
+### Fixed
+
+- Skipping pathway analysis for contrasts with no found DE genes.
 
 ## 1.1.0 - sunrise
 
