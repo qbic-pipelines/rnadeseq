@@ -69,7 +69,7 @@ jobs:
       
       - name: Build new docker image
         if: env.GIT_DIFF
-        run: docker build --no-cache . -t nfcore/bcellmagic:dev
+        run: docker build --no-cache . -t qbicpipelines/rnadeseq:dev
 
       - name: Pull docker image
         if: ${{ !env.GIT_DIFF }}
