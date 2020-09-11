@@ -2,7 +2,7 @@
 
 **Downstream differential gene expression analysis with DESeq2 package**.
 
-[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.32.0-brightgreen.svg)](https://www.nextflow.io/)
+[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.04-brightgreen.svg)](https://www.nextflow.io/)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
 [![Docker](https://img.shields.io/docker/automated/qbicpipelines/rnadeseq.svg)](https://hub.docker.com/r/qbicpipelines/rnadeseq)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4024184.svg)](https://doi.org/10.5281/zenodo.4024184)
