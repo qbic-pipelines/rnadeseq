@@ -1,6 +1,6 @@
-# qbicsoftware/rnadeseq: Documentation
+# qbic-pipelines/rnadeseq: Documentation
 
-The qbicsoftware/rnadeseq documentation is split into the following files:
+The qbic-pipelines/rnadeseq documentation is split into the following files:
 
 1. [Installation](https://nf-co.re/usage/installation)
 2. Pipeline configuration

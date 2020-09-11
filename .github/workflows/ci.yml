@@ -1,60 +1,86 @@
-name: nf-core CI
+name: CI
 # This workflow is triggered on pushes and PRs to the repository.
 # It runs the pipeline with the minimal test dataset to check that it completes without any syntax errors
-on: [push, pull_request]
+on: 
+  push:
+  pull_request:
+  release:
+    types: [published]
 
 jobs:
   test:
+    name: Run workflow tests
     runs-on: ubuntu-latest
+    env:
+      NXF_VER: ${{ matrix.nxf_ver }}
+      NXF_ANSI_LOG: false
     strategy:
       matrix:
+        # Nextflow versions: check pipeline minimum and current latest
         nxf_ver: ['19.10.0', '']
     steps:
-      - uses: actions/checkout@v1
+      - name: Check out pipeline code
+        uses: actions/checkout@v2
+
+      - name: Check if Dockerfile or Conda environment changed
+        uses: technote-space/get-diff-action@v1
+        with:
+          PREFIX_FILTER: |
+            Dockerfile
+            environment.yml
+
+      - name: Build new docker image
+        if: env.GIT_DIFF
+        run: docker build --no-cache . -t qbicpipelines/rnadeseq:1.2.0
+
+      - name: Pull docker image
+        if: ${{ !env.GIT_DIFF }}
+        run: |
+          docker pull qbicpipelines/rnadeseq:dev
+          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:1.2.0
+
       - name: Install Nextflow
         run: |
-          export NXF_VER=${{ matrix.nxf_ver }}
           wget -qO- get.nextflow.io | bash
           sudo mv nextflow /usr/local/bin/
-      - name: Pull docker image
-        run: |
-          docker pull qbicsoftware/rnadeseq:dev
-          docker tag qbicsoftware/rnadeseq:dev qbicsoftware/rnadeseq:1.1.0
-      - name: Basic workflow tests
+
+      - name: Run pipeline with test data
         run: nextflow run ${GITHUB_WORKSPACE} -profile test,docker
-  contrast_matrix:
+  
+  parameters:
+    name: Test workflow parameters
     runs-on: ubuntu-latest
+    env: 
+      NXF_VER: '19.10.0'
+      NXF_ANSI_LOG: false
     strategy:
       matrix:
-        nxf_ver: ['19.10.0']
+        config: ['test', 'test_contrast_matrix', 'test_contrast_list']
     steps:
-      - uses: actions/checkout@v1
+      - name: Check out pipeline code
+        uses: actions/checkout@v2
+      
+      - name: Check if Dockerfile or Conda environment changed
+        uses: technote-space/get-diff-action@v1
+        with:
+          PREFIX_FILTER: |
+            Dockerfile
+            enfironment.yml
+      
+      - name: Build new docker image
+        if: env.GIT_DIFF
+        run: docker build --no-cache . -t qbicpipelines/rnadeseq:1.2.0
+
+      - name: Pull docker image
+        if: ${{ !env.GIT_DIFF }}
+        run: |
+          docker pull qbicpipelines/rnadeseq:dev
+          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:1.2.0
+
       - name: Install Nextflow
         run: |
-          export NXF_VER=${{ matrix.nxf_ver }}
           wget -qO- get.nextflow.io | bash
           sudo mv nextflow /usr/local/bin/
-      - name: Pull docker image
-        run: |
-          docker pull qbicsoftware/rnadeseq:dev
-          docker tag qbicsoftware/rnadeseq:dev qbicsoftware/rnadeseq:1.1.0
-      - name: Contrast matrix test
-        run: nextflow run ${GITHUB_WORKSPACE} -profile test_contrast_matrix,docker
-  contrast_list:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        nxf_ver: ['19.10.0']
-    steps:
-      - uses: actions/checkout@v1
-      - name: Install Nextflow
-        run: |
-          export NXF_VER=${{ matrix.nxf_ver }}
-          wget -qO- get.nextflow.io | bash
-          sudo mv nextflow /usr/local/bin/
-      - name: Pull docker image
-        run: |
-          docker pull qbicsoftware/rnadeseq:dev
-          docker tag qbicsoftware/rnadeseq:dev qbicsoftware/rnadeseq:1.1.0
-      - name: Contrast list test
-        run: nextflow run ${GITHUB_WORKSPACE} -profile test_contrast_list,docker
+
+      - name: Run pipeline with various parameters
+        run: nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.config }},docker

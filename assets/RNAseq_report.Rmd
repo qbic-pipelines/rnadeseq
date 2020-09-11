@@ -388,7 +388,7 @@ kable(df, escape=F,row.names =F) %>%
 ## Volcano plots of DE genes
 
 Volcano plots display the DE genes in Log2 Fold Change values (x axis) 
-against their adjusted p-value (y axis) in a form of a -log10. Only significantly DE genes are shown (padj > 0.05). 
+against their adjusted p-value (y axis) in a form of a -log10. Only significantly DE genes are shown (padj < 0.05). 
 It is recommended to select differentially expressed genes with a Log2FC > 1 or < -1 (blue lines show that threshold).
 Here, volcano plots for all considered contrasts are shown. Hover over the dots to show the gene names.
 
@@ -438,7 +438,7 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
   pg <- ggplotly(pg, tooltip = "text")
   pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05
   pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
-  pg %>% layout(margin = list(l = 100, b=100), width=500, height = 1000)
+  pg %>% layout(margin = list(l = 100, b=100), width=500, height = 400*length(contrast_files))
 ```
 
 ## Boxplots of gene normalized counts
@@ -488,14 +488,14 @@ The pathway analysis results are stored [here](./pathway_analysis), and explaine
 
 ## Enriched pathways
 The plot below summarizes the pathways that were 
-found significantly enriched in DE genes for each contrast (padj value > 0.05). 
+found significantly enriched in DE genes for each contrast (padj value < 0.05). 
 Only contrasts for which an enriched pathway was found are shown.
 Both KEGG pathways and REACTOME (REAC) pathways are considered. 
 Hover over the dots to reveal the pathway names.
 The table below provides more detail on all enriched pathways."))
 ```
 
-```{r, eval=report_options$KEGG, out.height = "100%", out.width = "100%", warning = FALSE}
+```{r, eval=report_options$KEGG, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE}
   library(gprofiler2)
   #library(rlist)
   contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
@@ -507,6 +507,9 @@ The table below provides more detail on all enriched pathways."))
     fname <- tools::file_path_sans_ext(basename(file))
 
     DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
+    if(nrow(DE_genes) <= 1){
+      next
+    }
     q = as.character(DE_genes$Ensembl_ID)
     q_list <- append(q_list, list(q), 0)
     q_names <- append(q_names, fname)
@@ -522,18 +525,19 @@ The table below provides more detail on all enriched pathways."))
                   sources=datasources,
                   user_threshold=0.05)
   
-  path_enrich <- gostres$result
+  path_enrich <- as.data.frame(gostres$result)
 
   if (nrow(path_enrich) > 0){
     pg2 <- gostplot(gostres, capped=T, interactive=T)
     pg2
     pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
-    pg2 %>% layout(margin = list(l = 75, b = 100), width=500, height = 1000)
+    pg2 %>% layout(margin = list(l = 75, b = 100), width=500, height = 400*length(contrast_files))
+  } else {
+    cat("No enriched pathways were found.")
   }
-
 ```
 
-```{r, echo=FALSE}
+```{r, eval=report_options$KEGG, echo=FALSE}
 if (nrow(path_enrich) > 0) {
   df_subset <- data.frame(Contrast = path_enrich$query, Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id, 
                           DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size, 
@@ -648,4 +652,4 @@ and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was
 [^2]: http://multiqc.info/
 [^3]: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/
 [^4]: https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/
-[^5]: https://github.com/qbicsoftware/rnadeseq
+[^5]: https://github.com/qbic-pipelines/rnadeseq

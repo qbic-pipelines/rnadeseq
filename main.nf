@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
 /*
 ========================================================================================
-                         qbicsoftware/rnadeseq
+                         qbic-pipelines/rnadeseq
 ========================================================================================
- qbicsoftware/rnadeseq Analysis Pipeline.
+ qbic-pipelines/rnadeseq Analysis Pipeline.
  #### Homepage / Documentation
- https://github.com/qbicsoftware/rnadeseq
+ https://github.com/qbic-pipelines/rnadeseq
 ----------------------------------------------------------------------------------------
 */
 
@@ -18,7 +18,7 @@ def helpMessage() {
 
     The typical command for running the pipeline is as follows:
 
-    nextflow run qbicsoftware/rnadeseq --rawcounts 'counts.tsv' --metadata 'metadata.tsv' --design 'design.txt' -profile docker
+    nextflow run qbic-pipelines/rnadeseq --rawcounts 'counts.tsv' --metadata 'metadata.tsv' --design 'design.txt' -profile docker
 
     Mandatory arguments:
       --rawcounts                   Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name.
@@ -182,10 +182,10 @@ checkHostname()
 def create_workflow_summary(summary) {
     def yaml_file = workDir.resolve('workflow_summary_mqc.yaml')
     yaml_file.text  = """
-    id: 'qbicsoftware-rnadeseq-summary'
+    id: 'qbic-pipelines-rnadeseq-summary'
     description: " - this information is collected when the pipeline is started."
-    section_name: 'qbicsoftware/rnadeseq Workflow Summary'
-    section_href: 'https://github.com/qbicsoftware/rnadeseq'
+    section_name: 'qbic-pipelines/rnadeseq Workflow Summary'
+    section_href: 'https://github.com/qbic-pipelines/rnadeseq'
     plot_type: 'html'
     data: |
         <dl class=\"dl-horizontal\">
@@ -360,9 +360,9 @@ process output_documentation {
 workflow.onComplete {
 
     // Set up the e-mail variables
-    def subject = "[qbicsoftware/rnadeseq] Successful: $workflow.runName"
+    def subject = "[qbic-pipelines/rnadeseq] Successful: $workflow.runName"
     if(!workflow.success){
-      subject = "[qbicsoftware/rnadeseq] FAILED: $workflow.runName"
+      subject = "[qbic-pipelines/rnadeseq] FAILED: $workflow.runName"
     }
     def email_fields = [:]
     email_fields['version'] = workflow.manifest.version
@@ -394,12 +394,12 @@ workflow.onComplete {
         if (workflow.success) {
             qbic_report = rnaseq_report.getVal()
             if (qbic_report.getClass() == ArrayList){
-                log.warn "[qbicsoftware/rnadeseq] Found multiple reports from process 'RNAseq report', will use only one"
+                log.warn "[qbic-pipelines/rnadeseq] Found multiple reports from process 'RNAseq report', will use only one"
                 qbic_report = qbic_report[0]
             }
         }
     } catch (all) {
-        log.warn "[qbicsoftware/rnadeseq] Could not attach RNAseq report to summary email"
+        log.warn "[qbic-pipelines/rnadeseq] Could not attach RNAseq report to summary email"
     }
 
     // Render the TXT template
@@ -425,11 +425,11 @@ workflow.onComplete {
           if( params.plaintext_email ){ throw GroovyException('Send plaintext e-mail, not HTML') }
           // Try to send HTML e-mail using sendmail
           [ 'sendmail', '-t' ].execute() << sendmail_html
-          log.info "[qbicsoftware/rnadeseq] Sent summary e-mail to $params.email (sendmail)"
+          log.info "[qbic-pipelines/rnadeseq] Sent summary e-mail to $params.email (sendmail)"
         } catch (all) {
           // Catch failures and try with plaintext
           [ 'mail', '-s', subject, params.email ].execute() << email_txt
-          log.info "[qbicsoftware/rnadeseq] Sent summary e-mail to $params.email (mail)"
+          log.info "[qbic-pipelines/rnadeseq] Sent summary e-mail to $params.email (mail)"
         }
     }
 
@@ -455,10 +455,10 @@ workflow.onComplete {
     }
 
     if(workflow.success){
-        log.info "- ${c_purple}[qbicsoftware/rnadeseq]${c_green} Pipeline completed successfully${c_reset}"
+        log.info "- ${c_purple}[qbic-pipelines/rnadeseq]${c_green} Pipeline completed successfully${c_reset}"
     } else {
         checkHostname()
-        log.info "- ${c_purple}[qbicsoftware/rnadeseq]${c_red} Pipeline completed with errors${c_reset}"
+        log.info "- ${c_purple}[qbic-pipelines/rnadeseq]${c_red} Pipeline completed with errors${c_reset}"
     }
 
 }
@@ -482,7 +482,7 @@ def nfcoreHeader(){
     ${c_blue}  |\\ | |__  __ /  ` /  \\ |__) |__         ${c_yellow}}  {${c_reset}
     ${c_blue}  | \\| |       \\__, \\__/ |  \\ |___     ${c_green}\\`-._,-`-,${c_reset}
                                             ${c_green}`._,._,\'${c_reset}
-    ${c_purple}  qbicsoftware/rnadeseq v${workflow.manifest.version}${c_reset}
+    ${c_purple}  qbic-pipelines/rnadeseq v${workflow.manifest.version}${c_reset}
     -${c_dim}----------------------------------------------------${c_reset}-
     """.stripIndent()
 }
