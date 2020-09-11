@@ -1,6 +1,6 @@
 # qbic-pipelines/rnadeseq: Changelog
 
-## 1.2.0 - starry night [10-09-2020]
+## 1.2.0 - starry night [11-09-2020]
 
 ### Added
 
