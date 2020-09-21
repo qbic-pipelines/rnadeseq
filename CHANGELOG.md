@@ -8,6 +8,7 @@
 - Add option to provide KEGG pathway blacklist
 - Make quote param optional
 - Make report options optional (default in assets)
+- DE gene and pathway summary table
 
 ### Fixed
 
