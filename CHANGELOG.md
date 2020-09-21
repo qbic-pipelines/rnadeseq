@@ -1,5 +1,9 @@
 # qbic-pipelines/rnadeseq: Changelog
 
+## 1.3.0 - dev
+
+- Bump versions to 1.3.0dev
+
 ## 1.2.0 - starry night [11-09-2020]
 
 ### Added
