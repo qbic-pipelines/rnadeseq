@@ -5,7 +5,6 @@
 # QBiC 2019; MIT License
 
 library(gprofiler2)
-#library(gProfileR)
 library(ggplot2)
 library(reshape2)
 library(pheatmap)
@@ -20,7 +19,9 @@ library(org.Hs.eg.db) #Hsapiens
 # Blacklist pathways: some pathways are corrupted in KEGG and produce errors. Add the pathway here if you have this kind of error:
 blacklist_pathways <- c("mmu05206", "mmu04215", "hsa05206", "mmu04723")
 
+# ------------------
 # Reading parameters
+# ------------------
 
 option_list = list(
   make_option(c("-c", "--dirContrasts"), type="character", default=".", help="directory with DE gene list for each contrast", metavar="character"),
@@ -28,12 +29,14 @@ option_list = list(
   make_option(c("-d", "--model"), type="character", default=NULL, help="path to linear model file", metavar="character"),
   make_option(c("-n", "--normCounts"), type="character", default=NULL, help="path to normalized counts", metavar="character"),
   make_option(c("-s", "--species"), type="character", default=NULL, help="Species name. Example format: Hsapiens", metavar="character"),
-  make_option(c("-g", "--genelist"), type="character", default=NULL, help="Gene list for heatmap plot.", metavar="character")
+  make_option(c("-g", "--genelist"), type="character", default=NULL, help="Path to gene list for heatmap plot.", metavar="character"),
+  make_option(c("-b", "--kegg_blacklist"), type="character", default=NULL, help="Path to KEGG pathway blacklist.", metavar="character")
 )
 
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 
+# Metadata
 if (is.null(opt$metadata)){
   print_help(opt_parser)
   stop("Metadata table needs to be provided!")
@@ -41,6 +44,7 @@ if (is.null(opt$metadata)){
   metadata_path = opt$metadata
 }
 
+# Linear model
 if (is.null(opt$model)){
   print_help(opt_parser)
   stop("Linear model file needs to be provided!")
@@ -48,11 +52,18 @@ if (is.null(opt$model)){
   path_design = opt$model
 }
 
+# Count table
 if(is.null(opt$normCounts)){
   print_help(opt_parser)
   stop("Normalized counts file needs to be provided")
 } else {
   path_norm_counts = opt$normCounts
+}
+
+# Pathway blacklist append if provided
+if(!is.null(opt$KEGG_blacklist)){
+  KEGG_blacklist <- read.table(file=KEGG_blacklist, sep = "\t", header = F, quote="")
+  blacklist_pathways <- append(blacklist_pathways, KEGG_blacklist$V1)
 }
 
 # Need to provide short and long names and libraries for your species
@@ -71,10 +82,9 @@ if(is.null(opt$species)){
   stop("Species name is unknown, check for typos or contact responsible person to add your species.")
 }
 
+# Contrast files
 contrast_files <- list.files(path=opt$dirContrasts)
 path_contrasts <- opt$dirContrasts
-
-outdir <- "pathway_analysis"
 
 # Reading count table
 norm_counts <- read.table(file = path_norm_counts, header = T, row.names = 1, sep = "\t", quote = "")
@@ -84,19 +94,35 @@ metadata <- read.table(file=metadata_path, sep = "\t", header = T, quote="")
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name) # Remove blank spaces and ; from secondary name
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name) # Remove blank spaces if there from secondary name
 
-# Search params
-datasources <- c("KEGG", "REAC")
-min_set_size <- 1
-max_set_size <- 500
-min_isect_size <- 1
 
 # Create output directory
+outdir <- "pathway_analysis"
 dir.create(outdir)
 pathway_heatmaps_dir <- "pathway_heatmaps"
 kegg_pathways_dir <- "KEGG_pathways"
 
+# ------------------
+# Set default params
+# ------------------
+
+# gprofiler pathway / term sources parameters
+datasources <- c("KEGG", "REAC")
+
 # Set theme for graphs
 theme_set(theme_classic())
+
+# ----------------------
+# Start pathway analysis
+# ----------------------
+
+# For each contrast do pathway analysis
+
+# Defining summary variables
+contrast <- c()
+number_DE_genes <- c()
+number_enriched_pathways <- c()
+list_DE_genes <- list()
+list_enriched_pathways <- list()
 
 for (file in contrast_files){
   #Reading DE genes list
@@ -109,15 +135,16 @@ for (file in contrast_files){
   DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
   DE_genes <- as.data.frame(DE_genes)
 
-  # Skip pathway analysis for the contrast if not more than 1 DE gene was found
-  if (nrow(DE_genes) <= 1){ 
+  # Skip pathway analysis for the contrast if not 2 or more DE genes were found
+  if (nrow(DE_genes) < 2){ 
     print(paste0("Not enough DE genes to allow for a pathway analysis for contrast: ", fname))
     next
   }
 
+  # Define list of Ensemble IDs (q) to run the pathway analysis
   q = as.character(DE_genes$Ensembl_ID)
 
-  #gost query
+  # gost query
   gostres <- gost(query=q,
                   organism=organism,
                   significant=TRUE,
@@ -126,12 +153,18 @@ for (file in contrast_files){
                   evcodes=TRUE,
                   user_threshold=0.05)
 
-  path_gostres <- gostres$result
-  path_gostres <- as.data.frame(path_gostres[which(path_gostres$significant==TRUE),])
+  # Make data frame of gost result
+  pathway_gostres <- gostres$result
+  # Select only significantly enriched pathways (according to adjusted p-value)
+  pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
 
-  if (nrow(path_gostres) > 0){
-    path_gostres$original.query.size <- rep(length(q), nrow(path_gostres))
+  # Plot pathways if there were any
+  if (nrow(pathway_gostres) > 0){
 
+    # annotate query size (number of DE genes in contrast)
+    pathway_gostres$original_query_size <- rep(length(q), nrow(pathway_gostres))
+
+    # Generate non-interactive pathway dotplots in the folder
     pg <- gostplot(gostres, capped=T, interactive=F)
     ggsave(pg, filename = paste0(outdir, "/", fname, "_gost_pathway_enrichment_plot.pdf"), 
           device="pdf", 
@@ -140,29 +173,35 @@ for (file in contrast_files){
           device="png", 
           height=10, width=15, units="cm", dpi=300, limitsize=F)
   }
-  
-  if (nrow(path_gostres) > 0){
-    path_gostres$original_query_size <- rep(length(q), nrow(path_gostres))
-  }
 
-  path_gostres_table = path_gostres
-  path_gostres_table$parents <- NULL
-  write.table(path_gostres_table, 
+  # Remove parents column to be able to save the table in tsv format
+  pathway_gostres_table = pathway_gostres
+  pathway_gostres_table$parents <- NULL
+
+  # Save pathway enrichment table in tsv format
+  write.table(pathway_gostres_table, 
               file = paste0(outdir, "/", fname, "/", fname, "_pathway_enrichment_results.tsv"), 
               sep="\t", quote = F, col.names = T, row.names = F)
 
-  # Printing numbers
+  # Collecting summary variables
+  contrast <- append(contrast, fname)
+  number_DE_genes <- append(number_DE_genes, length(DE_genes$Ensembl_ID))
+  number_enriched_pathways <- append(number_enriched_pathways, summary(as.factor(pathway_gostres_table$source)))
+  list_DE_genes <- append(DE_genes$Ensembl_ID)
+  list_enriched_pathways <- append(pathway_gostres_table$term_id)
+
+  # Printing summary variables
   print("------------------------------------")
   print(fname)
   print("Number of genes in query:")
   print(length(DE_genes$Ensembl_ID))
   print("Number of pathways found:")
-  print(summary(as.factor(path_gostres_table$source)))
+  print(summary(as.factor(pathway_gostres_table$source)))
   print("------------------------------------")
   
-  if (nrow(path_gostres) > 0){ #if there are enriched pathways
-    # Splitting results according to tools
-    res <- split(path_gostres, path_gostres$source)
+  if (nrow(pathway_gostres) > 0){ #if there are enriched pathways
+    # Splitting results according to pathway resources (KEGG / REACTOME / GO)
+    res <- split(pathway_gostres, pathway_gostres$source)
     for (df in res){
       db_source <- df$source[1]
       df$short_name <- sapply(df$term_name, substr, start=1, stop=50)
@@ -173,6 +212,7 @@ for (file in contrast_files){
               file = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"), 
               sep="\t", quote = F, col.names = T, row.names = F)
 
+      # Enriched pathways horizontal barplots of padj values
       p <- ggplot(df_subset, aes(x=reorder(Pathway_name, Fraction_DE), y=Fraction_DE)) +
         geom_bar(aes(fill=Padj), stat="identity", width = 0.7) +
         geom_text(aes(label=paste0(df_subset$DE_genes, "/", df_subset$Pathway_size)), vjust=0.4, hjust=-0.5, size=3) +
@@ -184,8 +224,7 @@ for (file in contrast_files){
       ggsave(p, filename = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
       ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
 
-
-      # Plotting heatmaps and pathways for all pathways
+      # Plotting heatmaps and KEGG pathways for all pathways
       print("Plotting heatmaps...")
       if (nrow(df) <= 100 & nrow(df) > 0) {
         conditions <- grepl("Condition", colnames(metadata))
@@ -214,7 +253,8 @@ for (file in contrast_files){
           # Plotting pathway view only for kegg pathways
           if (pathway$source == "KEGG"){
             pathway_kegg <- sapply(pathway$term_id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
-            # KEGG pathway blacklist. This pathway graphs contain errors and pathview crashes if plotting them.
+            
+            # Avoid KEGG pathways in blacklist. This pathway graphs contain errors and pathview crashes if plotting them.
             if (pathway_kegg %in% blacklist_pathways) {
               print(paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database."))
             } else {
@@ -237,6 +277,7 @@ for (file in contrast_files){
                         species    = short_organism_name,
                         out.suffix=paste(fname,sep="_"))
                 mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
+                rm_command <- paste0("rm ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/", "*.xml")
                 system(mv_command)
               }
             }
@@ -275,7 +316,7 @@ if (!is.null(opt$genelist)){
   genestoEnsmbl <- merge(x=gene_list_unique_tab, y=IDs, by.x="gene_list", by.y="gene_name", all.x=T)
   gene_list <- genestoEnsmbl$Ensembl_ID
   
-  # Omit genes not present in the count table
+  # Omit genes not present in the count table (NAs)
   gene_list <- na.omit(gene_list)
 
   rownames(norm_counts) <- norm_counts$Ensembl_ID

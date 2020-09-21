@@ -33,14 +33,15 @@ def helpMessage() {
                                     Available: conda, docker, singularity, awsbatch, test and more.
 
     Options:
-      --contrast_matrix              Tsv indicating which contrasts to consider, one contrast per column. 1 or 0 for every coefficient of the linear model. Check contrasts docs.
+      --contrast_matrix             Tsv indicating which contrasts to consider, one contrast per column. 1 or 0 for every coefficient of the linear model. Check contrasts docs.
       --contrast_list               Tsv indicating list of the contrasts to calculate. 3 columns: factor name, contrast numerator and denominator. Check contrasts docs.
       --contrast_pairs              Tsv indicating list of contrast pairs to calculate. 3 columns: contrast name, numerator and denominator. Check contrasts docs.
       --relevel                     Tsv indicating list of factors (conditions in the metadata table) and the new level on which to relevel the factor. Check contrasts docs.
       --logFCthreshold              Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed.
-      --genelist                    List of genes (one per line) of which to plot heatmaps for normalized counts across all samples.
+      --genelist                    Txt file with list of genes (one per line) of which to plot heatmaps for normalized counts across all samples.
       --batch_effect                Turn on this flag if you wish to consider batch effects. You need to add the batch effect to the linear model too!                
       --quote                       Signed copy of the offer.
+      --kegg_blacklist              Txt file with list of pathways (one per line) that should be discarded for the KEGG pathway plotting (e.g. because the xml file in KEGG contains errors).
 
     Other options:
       --outdir                      The output directory where the results will be saved
@@ -90,18 +91,27 @@ ch_output_docs = Channel.fromPath("$baseDir/docs/output.md")
  * Create a channel for input  files
  */
 
+// Required parameters
 Channel.fromPath("${params.rawcounts}", checkIfExists: true)
            .ifEmpty{exit 1, "Please provide raw counts file!"}
            .set {ch_counts_file}
 Channel.fromPath("${params.metadata}", checkIfExists: true)
            .ifEmpty{exit 1, "Please provide metadata file!"}
            .into { ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway }
-Channel.fromPath("${params.quote}", checkIfExists: true)
-           .ifEmpty{exit 1, "Please provide a PDF of the signed quote!"}
-           .set { ch_quote_file}
 Channel.fromPath("${params.model}", checkIfExists: true)
             .ifEmpty{exit 1, "Please provide linear model file!"}
             .into { ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway}
+Channel.fromPath("${params.project_summary}", checkIfExists: true)
+            .ifEmpty{exit 1, "Please provide project summary file!"}
+            .set { ch_proj_summary_file }
+Channel.fromPath("${params.versions}", checkIfExists: true)
+            .ifEmpty{exit 1, "Please provide sofware versions file!"}
+            .set { ch_softwareversions_file }
+Channel.fromPath("${params.multiqc}", checkIfExists: true)
+            .ifEmpty{exit 1, "Please provide multiqc.zip folder!"}
+            .set { ch_multiqc_file }
+
+// Optional parameters
 Channel.fromPath("${params.contrast_matrix}")
             .set { ch_contrast_matrix_for_deseq2 }
 Channel.fromPath("${params.contrast_list}")
@@ -110,20 +120,14 @@ Channel.fromPath("${params.contrast_pairs}")
             .set { ch_contrast_pairs_for_deseq2 }
 Channel.fromPath("${params.relevel}")
             .set { ch_relevel_for_deseq2 }
-Channel.fromPath("${params.project_summary}", checkIfExists: true)
-            .ifEmpty{exit 1, "Please provide project summary file!"}
-            .set { ch_proj_summary_file }
-Channel.fromPath("${params.versions}", checkIfExists: true)
-            .ifEmpty{exit 1, "Please provide sofware versions file!"}
-            .set { ch_softwareversions_file }
-Channel.fromPath("${params.report_options}", checkIfExists: true)
-            .ifEmpty{exit 1, "Please provide report options file!"}
-            .set { ch_report_options_file }
-Channel.fromPath("${params.multiqc}", checkIfExists: true)
-            .ifEmpty{exit 1, "Please provide multiqc.zip folder!"}
-            .set { ch_multiqc_file }
+Channel.fromPath("${params.quote}")
+           .set { ch_quote_file }
 Channel.fromPath("${params.genelist}")
             .into { ch_genes_for_deseq2_file; ch_genes_for_report_file; ch_genes_for_pathway }
+Channel.fromPath("${params.report_options}", checkIfExists: true)
+            .set { ch_report_options_file }
+Channel.fromPath("${params.kegg_blacklist}")
+            .set { ch_kegg_blacklist_for_pathway }
 
 ch_fastqc_file = file(params.fastqc)
 
@@ -278,17 +282,19 @@ process Pathway_analysis {
     file(metadata) from ch_metadata_file_for_pathway
     file(model) from ch_model_file_for_pathway
     file(genelist) from ch_genes_for_pathway
+    file(keggblacklist) from ch_kegg_blacklist_for_pathway
 
     output:
     file "*.zip" into ch_pathway_analysis_for_report
 
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
+    def keggblacklistopt = keggblacklist.name != 'NO_FILE3' ? "--kegg_blacklist $keggblacklist" : ''
     """
     unzip $deseq_output
     pathway_analysis.R --dirContrasts 'differential_gene_expression/DE_genes_tables/' --metadata $metadata \
     --model $model --normCounts 'differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv' \
-    --species $params.species $genelistopt
+    --species $params.species $genelistopt $keggblacklistopt
     zip -r pathway_analysis.zip pathway_analysis/
     """
 }
@@ -319,6 +325,7 @@ process Report {
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def batchopt = params.batch_effect ? "--batch_effect" : ''
+    def quoteopt = quote.name != 'NO_FILE4' ? "$quote" : ''
     """
     unzip $deseq2
     unzip $multiqc
@@ -328,8 +335,8 @@ process Report {
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' \
     --output 'RNAseq_report.html' --proj_summary $proj_summary \
     --versions $softwareversions --model $model --report_options $report_options --revision $workflow.revision \
-    --contrasts $contrnames $genelistopt --quote $quote --organism $params.species $batchopt
-    zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quote
+    --contrasts $contrnames $genelistopt --organism $params.species $batchopt
+    zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quoteopt
     """
 }
 
