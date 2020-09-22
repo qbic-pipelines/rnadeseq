@@ -389,7 +389,7 @@ if (length(DE_genes_plot) > 20) {
 }
 
 for (i in random_DE_genes_plot){
-  boxplot_counts <- plotCounts(vsd, gene=i, intgroup=c("combfactor"), returnData=TRUE, normalized = T)
+  boxplot_counts <- plotCounts(cds, gene=i, intgroup=c("combfactor"), returnData=TRUE, normalized = T)
   boxplot_counts$variable = row.names(boxplot_counts)
   plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
             geom_boxplot(position=position_dodge()) +
@@ -415,7 +415,7 @@ if (!is.null(opt$genelist)){
   requested_genes_plot_gene_name <- requested_genes_plot$gene_name
   for (i in c(1:length(requested_genes_plot_Ensembl)))
   {
-    boxplot_counts <- plotCounts(vsd, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE, normalized = T)
+    boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE, normalized = T)
     boxplot_counts$variable = row.names(boxplot_counts)
     plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
       geom_boxplot(position=position_dodge()) +
