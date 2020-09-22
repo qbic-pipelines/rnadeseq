@@ -418,6 +418,7 @@ if (!is.null(opt$genelist)){
   print(requested_genes_plot_Ensembl)
   for (i in c(1:length(requested_genes_plot_Ensembl)))
   {
+    print(i)
     boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE, normalized = T)
     boxplot_counts$variable = row.names(boxplot_counts)
     plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
