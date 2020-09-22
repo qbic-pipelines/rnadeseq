@@ -406,7 +406,7 @@ for (i in random_DE_genes_plot){
 # make boxplots of interesting genes in gene list
 if (!is.null(opt$genelist)){
   gene_ids <- read.table(requested_genes_path, col.names = "requested_gene_name")
-  write.table(gene_ids, file="differential_gene_expression/metadata/gene_list.txt", col.names=F, row.names=F, sep="\t")
+  write.table(gene_ids, file="differential_gene_expression/metadata/requested_gene_list.txt", col.names=F, row.names=F, sep="\t")
   gene_ids$requested_gene_name <- sapply(gene_ids$requested_gene_name, toupper)
   gene_names$gene_name <- sapply(gene_names$gene_name, toupper)
 
@@ -419,7 +419,7 @@ if (!is.null(opt$genelist)){
   for (i in c(1:length(requested_genes_plot_Ensembl))){
     print(i)
     print(requested_genes_plot_Ensembl[i])
-    boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE, normalized = T)
+    boxplot_counts <- plotCounts(cds, gene=c(requested_genes_plot_Ensembl[i]), intgroup=c("combfactor"), returnData=TRUE, normalized = T)
     boxplot_counts$variable = row.names(boxplot_counts)
     plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
       geom_boxplot(position=position_dodge()) +
