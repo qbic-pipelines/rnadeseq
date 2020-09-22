@@ -413,6 +413,9 @@ if (!is.null(opt$genelist)){
   requested_genes_plot <- subset(gene_names, gene_name %in% gene_ids$requested_gene_name)
   requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
   requested_genes_plot_gene_name <- requested_genes_plot$gene_name
+
+  print("Requested genes plot Ensembl:")
+  print(requested_genes_plot_Ensembl)
   for (i in c(1:length(requested_genes_plot_Ensembl)))
   {
     boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE, normalized = T)
