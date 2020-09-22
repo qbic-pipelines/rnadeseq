@@ -416,9 +416,9 @@ if (!is.null(opt$genelist)){
 
   print("Requested genes plot Ensembl:")
   print(requested_genes_plot_Ensembl)
-  for (i in c(1:length(requested_genes_plot_Ensembl)))
-  {
+  for (i in c(1:length(requested_genes_plot_Ensembl))){
     print(i)
+    print(requested_genes_plot_Ensembl[i])
     boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE, normalized = T)
     boxplot_counts$variable = row.names(boxplot_counts)
     plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
@@ -429,7 +429,7 @@ if (!is.null(opt$genelist)){
             axis.text.x = element_text(angle=45, vjust=1,hjust=1))
     ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".svg",sep=""), width=10, height=5, plot=plot)
     ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".png",sep=""), width=10, height=5, plot=plot)
-    print(requested_genes_plot_gene_name[i])
+    
   }
 }
 
