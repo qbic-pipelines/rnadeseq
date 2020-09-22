@@ -12,8 +12,7 @@
 
 ### Fixed
 
-- [#75](https://github.com/qbic-pipelines/rnadeseq/pull/75) Count boxplots vsd transformed.
-- [#75](https://github.com/qbic-pipelines/rnadeseq/pull/75) Boxplot of vsd transformed counts can also be done from non-DE genes.
+- [#75](https://github.com/qbic-pipelines/rnadeseq/pull/75) Boxplot of normalized counts can also be done from non-DE genes.
 - [#75](https://github.com/qbic-pipelines/rnadeseq/pull/75) More comprehensive variable names and comments
 
 ### Changed
