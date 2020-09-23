@@ -131,8 +131,11 @@ for (i in conditions) {
 # Need to order columns in count.table
 count.table <- count.table[, order(names(count.table))]
 
+print("Count table column headers are:")
 print(names(count.table))
+print("Metadata table row names are:")
 print(row.names(metadata))
+print("If count table headers do not exactly match the metadata table row names the pipeline will stop.")
 
 # check metadata and count table sorting, (correspond to QBiC codes): if not in the same order stop
 stopifnot(identical(names(count.table),row.names(metadata)))
@@ -146,8 +149,7 @@ row.names(metadata) = metadata$sampleName
 
 stopifnot(identical(names(count.table),row.names(metadata)))
 
-#to get all possible pairwise comparisons, make a combined factor
-
+# to get all possible pairwise comparisons, make a combined factor
 conditions <- grepl(colnames(metadata),pattern = "condition_")
 metadata$combfactor <- apply(as.data.frame(metadata[ ,conditions]),1,paste, collapse = "_")
 
@@ -399,8 +401,6 @@ for (i in random_DE_genes_plot){
                axis.text.x = element_text(angle=45, vjust=1,hjust=1))
   ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".svg",sep=""), width=10, height=5, plot=plot)
   ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".png",sep=""), width=10, height=5, plot=plot)
-
-  print(i)
 }
 
 # make boxplots of interesting genes in gene list
@@ -409,21 +409,15 @@ if (!is.null(opt$genelist)){
   write.table(gene_ids, file="differential_gene_expression/metadata/requested_gene_list.txt", col.names=F, row.names=F, sep="\t")
   gene_ids$requested_gene_name <- sapply(gene_ids$requested_gene_name, toupper)
   gene_names$gene_name <- sapply(gene_names$gene_name, toupper)
-
+  # get Ensemble IDs from requested genes
   requested_genes_plot <- subset(gene_names, gene_name %in% gene_ids$requested_gene_name)
-
-  print("Row names cds")
-  print(row.names(cds))
 
   # Check that genes are in the cds table
   requested_genes_plot <- requested_genes_plot[which(requested_genes_plot$Ensemble_ID %in% row.names(cds)),]
   requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
   requested_genes_plot_gene_name <- requested_genes_plot$gene_name
 
-  print("Requested genes plot Ensembl:")
-  print(requested_genes_plot_Ensembl)
   for (i in requested_genes_plot_Ensembl){
-    print(i)
     boxplot_counts <- plotCounts(cds, gene=i, intgroup=c("combfactor"), returnData=TRUE, normalized = T)
     boxplot_counts$variable = row.names(boxplot_counts)
     plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
@@ -434,10 +428,8 @@ if (!is.null(opt$genelist)){
             axis.text.x = element_text(angle=45, vjust=1,hjust=1))
     ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".svg",sep=""), width=10, height=5, plot=plot)
     ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".png",sep=""), width=10, height=5, plot=plot)
-    
   }
 }
-
 
 
 ##################  SAMPLE DISTANCES HEATMAP ##################
