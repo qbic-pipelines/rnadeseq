@@ -131,8 +131,11 @@ for (i in conditions) {
 # Need to order columns in count.table
 count.table <- count.table[, order(names(count.table))]
 
+print("Count table column headers are:")
 print(names(count.table))
+print("Metadata table row names are:")
 print(row.names(metadata))
+print("If count table headers do not exactly match the metadata table row names the pipeline will stop.")
 
 # check metadata and count table sorting, (correspond to QBiC codes): if not in the same order stop
 stopifnot(identical(names(count.table),row.names(metadata)))
@@ -146,8 +149,7 @@ row.names(metadata) = metadata$sampleName
 
 stopifnot(identical(names(count.table),row.names(metadata)))
 
-#to get all possible pairwise comparisons, make a combined factor
-
+# to get all possible pairwise comparisons, make a combined factor
 conditions <- grepl(colnames(metadata),pattern = "condition_")
 metadata$combfactor <- apply(as.data.frame(metadata[ ,conditions]),1,paste, collapse = "_")
 
@@ -173,75 +175,83 @@ cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design
 cds <- DESeq(cds,  parallel = FALSE)
 
 # SizeFactors(cds) as indicator of library sequencing depth
-sizeFactors(cds)
 write.table(sizeFactors(cds),paste("differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
 
 # Write raw counts to file
 count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
 write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
-# Contrasts
+# Contrasts coefficient table write in metadata
 coefficients <- resultsNames(cds)
 coef_tab <- data.frame(coef=coefficients)
 write.table(coef_tab,file="differential_gene_expression/metadata/DESeq2_coefficients.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
-bg = data.frame(bg = character(nrow(cds)))
-contnames <- c()
+# Start variables to store DE genes for all contrasts
+DE_genes_df = data.frame(DE_genes_df = character(nrow(cds)))
+contrast_names <- c()
 
 if (!is.null(opt$contrasts_matrix)){
   contrasts <- read.table(path_contrasts_matrix, sep="\t", header = T, row.names = 1)
   write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
   
+  # Check that contrast matrix is valid
   if(length(coefficients) != nrow(contrasts)){
-    print(coefficients)
     stop("Error: Your contrast table has different number of rows than the number of coefficients in the DESeq2 model.")
   }
 
-  ## Contrast calculation for contrast table
+  ## Contrast calculation for contrast matrix
   for (i in c(1:ncol(contrasts))) {
-    d1 <-results(cds, contrast=contrasts[[i]])
+    results_DEseq_contrast <-results(cds, contrast=contrasts[[i]])
 
     contname <- names(contrasts[i])
-    d1 <- as.data.frame(d1)
+    results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
     print(contname)
-    d1_name <- d1
-    d1_name$Ensembl_ID = row.names(d1)
-    d1_name <- merge(x=d1_name, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
-    d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
-    d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
-    d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
-    d1DE <- d1DE[order(d1DE$padj),]
-    write.table(d1DE, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
-    names(d1) = paste(names(d1),contname,sep="_")
-    bg = cbind(bg,d1)
+    # Add gene name in table
+    DE_genes_contrast_genename <- results_DEseq_contrast
+    DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
+    DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
+    DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
+    DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+    # Select only significantly DE
+    DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
+    DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
+    # Save table
+    write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
+    # Append to DE genes table for all contrasts
+    DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
   }
-  contnames <- append(contnames, colnames(contrasts))
+  contrast_names <- append(contrast_names, colnames(contrasts))
 }
 
 if (!is.null(opt$contrasts_list)) {
   contrasts <- read.table(path_contrasts_list, sep="\t", header=T, colClasses = "character")
   write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv")
 
-  # Contrast calculation for contrast list
+  ## Contrast calculation for contrast list
   for (i in c(1:nrow(contrasts))) {
     cont <- as.character(contrasts[i,])
     contname <- paste0(cont[1], "_", cont[2], "_vs_", cont[3])
-# TODO: add checks if provided contnames and factors are in metadata
-    d1 <- results(cds, contrast=cont)
-    d1 <- as.data.frame(d1)
+# TODO: add checks if provided contrast_names and factors are in metadata
+    results_DEseq_contrast <- results(cds, contrast=cont)
+    results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
     print(contname)
-    d1_name <- d1
-    d1_name$Ensembl_ID = row.names(d1)
-    d1_name <- merge(x=d1_name, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
-    d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
-    d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
-    d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
-    d1DE <- d1DE[order(d1DE$padj),]
-    write.table(d1DE, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
-    names(d1) = paste(names(d1),contname,sep="_")
-    bg = cbind(bg,d1)
+    # Add gene name in table
+    DE_genes_contrast_genename <- results_DEseq_contrast
+    DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
+    DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
+    DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
+    DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+    # Select only significantly DE
+    DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
+    DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
+    # Save table
+    write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
+    # Append to DE genes table for all contrasts
+    DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
 
-    contnames <- append(contnames, contname)
+    contrast_names <- append(contrast_names, contname)
   }
 }
 
@@ -256,64 +266,82 @@ if (!is.null(opt$contrasts_pairs)) {
       if (!(cont[2] %in% coefficients & cont[3] %in% coefficients)){
         stop(paste0("Provided contrast name is invalid, it needs to be contained in ", coefficients))
       } 
-      d1 <- results(cds, contrast=list(cont[1],cont[2]))
-      d1 <- as.data.frame(d1)
+      results_DEseq_contrast <- results(cds, contrast=list(cont[1],cont[2]))
+      results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
       print(contname)
-      d1_name <- d1
-      d1_name$Ensembl_ID = row.names(d1)
-      d1_name <- merge(x=d1_name, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
-      d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
-      d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
-      d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
-      d1DE <- d1DE[order(d1DE$padj),]
-      write.table(d1DE, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
-      names(d1) = paste(names(d1),contname,sep="_")
-      bg = cbind(bg,d1)
+      # Add gene name in table
+      DE_genes_contrast_genename <- results_DEseq_contrast
+      DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
+      DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
+      DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
+      DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+      # Select only significantly DE
+      DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
+      DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
+      # Save table
+      write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+      names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
+      # Append to DE genes table for all contrasts
+      DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
 
-      contnames <- append(contnames, contname)
+      contrast_names <- append(contrast_names, contname)
     }
 }
 
+# Calculating DE genes for default contrasts (no contrast matrix or list or pairs provided)
 if (is.null(opt$contrasts_matrix) & is.null(opt$contrasts_list) & is.null(opt$contrasts_pairs)) {
-  contnames <- coefficients[2:length(coefficients)]
-  for (contname in contnames) {
-    d1 <- results(cds, name=contname)
-    d1 <- as.data.frame(d1)
+  contrast_names <- coefficients[2:length(coefficients)]
+  for (contname in contrast_names) {
+    results_DEseq_contrast <- results(cds, name=contname)
+    results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
     print(contname)
-    d1_name <- d1
-    d1_name$Ensembl_ID = row.names(d1)
-    d1_name <- merge(x=d1_name, y=gene_names, by.x ="Ensembl_ID", by.y="Ensembl_ID", all.x=T)
-    d1_name = d1_name[,c(dim(d1_name)[2],1:dim(d1_name)[2]-1)]
-    d1_name = d1_name[order(d1_name[,"Ensembl_ID"]),]
-    d1DE <- subset(d1_name, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
-    write.table(d1DE, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
-    names(d1) = paste(names(d1),contname,sep="_")
-    bg = cbind(bg,d1)
+
+    # Adding gene name to table
+    DE_genes_contrast_genename <- results_DEseq_contrast
+    DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
+    DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x ="Ensembl_ID", by.y="Ensembl_ID", all.x=T)
+    DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
+    DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+    # Select only significantly DE
+    DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
+    DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
+    # Save table
+    write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
+    # Append to DE genes table for all contrasts
+    DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
   }
 }
 
-write(contnames, file="contrast_names.txt", sep="\t")
+# Write contrast names to file
+write(contrast_names, file="contrast_names.txt", sep="\t")
 
-# Remove identical columns
-bg$bg <- NULL
-idx <- duplicated(t(bg))
-bg <- bg[, !idx]
-bg$Ensembl_ID <- row.names(bg)
-bg <- bg[,c(dim(bg)[2],1:dim(bg)[2]-1)]
-names(bg)[1:2] = c("Ensembl_ID","baseMean")
+# Remove identical columns of DE_genes_df
+DE_genes_df$DE_genes_df <- NULL
+idx <- duplicated(t(DE_genes_df))
+DE_genes_df <- DE_genes_df[, !idx]
+DE_genes_df$Ensembl_ID <- row.names(DE_genes_df)
+DE_genes_df <- DE_genes_df[,c(dim(DE_genes_df)[2],1:dim(DE_genes_df)[2]-1)]
+names(DE_genes_df)[1:2] = c("Ensembl_ID","baseMean")
 
 # Get DE genes from any contrast
-padj=names(bg)[grepl("padj",names(bg))]
-logFC = names(bg)[grepl("log2FoldChange", names(bg))]
-logFC = bg[,logFC,drop=F]
-padj = bg[,padj,drop=F]
+padj_cols=names(DE_genes_df)[grepl("padj",names(DE_genes_df))]
+logFC_cols = names(DE_genes_df)[grepl("log2FoldChange", names(DE_genes_df))]
+logFC = DE_genes_df[,logFC_cols,drop=F]
+padj = DE_genes_df[,padj_cols,drop=F]
 padj[is.na(padj)] <- 1
+# Convert to binary (1/0) matrix if padj < 0.05 or not, respectively
 padj_bin = data.matrix(ifelse(padj < 0.05, 1, 0))
+# Convert to binary (1/0) matrix if logFC is bigger or smaller than threshold or not, respectively
 logFC_bin = data.matrix(ifelse(abs(logFC) > opt$logFCthreshold, 1, 0))
+# Multiply the two bin matrices --> if padj matrix value or LogFC matrix value is 0, will be 0
 DE_bin = padj_bin * logFC_bin
+
+# Save as data frame
 DE_bin = as.data.frame(DE_bin)
 cols <- names(padj)
 
+# Contrast vector column -> contains 1 or 0 if gene was DE for each contrast
 if (ncol(DE_bin)>1){
   DE_bin$contrast_vector <- apply(DE_bin[ ,cols],1,paste, collapse = "-")
   DE_bin$Ensembl_ID = row.names(padj)
@@ -324,69 +352,18 @@ if (ncol(DE_bin)>1){
 
 DE_bin = DE_bin[,c("Ensembl_ID","contrast_vector")]
 
-# Make final data frame
-bg1 = merge(bg,DE_bin,by.x="Ensembl_ID",by.y="Ensembl_ID")
-stopifnot(identical(dim(bg1)[1],dim(assay(cds))[1]))
-bg1$outcome = ifelse(grepl("1",bg1$contrast_vector),"DE","not_DE")
-bg1 = merge(x=bg1, y=gene_names, by.x="Ensembl_ID", by.y="Ensembl_ID", all.x = T)
-bg1 = bg1[,c(dim(bg1)[2],1:dim(bg1)[2]-1)]
-bg1 = bg1[order(bg1[,"Ensembl_ID"]),]
+# Add contrast vector to final DE genes data frame
+DE_genes_final_table = merge(DE_genes_df,DE_bin,by.x="Ensembl_ID",by.y="Ensembl_ID")
+stopifnot(identical(dim(DE_genes_final_table)[1],dim(assay(cds))[1]))
+
+# Calculate outcome --> if gene is DE in any contrast, annotate as DE
+DE_genes_final_table$outcome = ifelse(grepl("1",DE_genes_final_table$contrast_vector),"DE","not_DE")
+DE_genes_final_table = merge(x=DE_genes_final_table, y=gene_names, by.x="Ensembl_ID", by.y="Ensembl_ID", all.x = T)
+DE_genes_final_table = DE_genes_final_table[,c(dim(DE_genes_final_table)[2],1:dim(DE_genes_final_table)[2]-1)]
+DE_genes_final_table = DE_genes_final_table[order(DE_genes_final_table[,"Ensembl_ID"]),]
 
 #write to file
-write.table(bg1, "differential_gene_expression/final_gene_table/final_DE_gene_list.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
-
-############### BOXPLOTS GENE EXPRESSION PER CONDITION ##########################
-# extract ID for genes to plot, make 20 plots:
-kip <- subset(bg1, outcome == "DE")
-kip = unique(kip$Ensembl_ID)
-
-if (length(kip) > 20) {
-  set.seed(10)
-  kip1 = sample(kip,size = 2)
-} else {
-  kip1 = kip
-  }
-
-for (i in kip1){
-  d <- plotCounts(cds, gene=i, intgroup=c("combfactor"), returnData=TRUE, normalized = T)
-  d$variable = row.names(d)
-  plot <- ggplot(data=d, aes(x=combfactor, y=count, fill=combfactor)) +
-            geom_boxplot(position=position_dodge()) +
-            geom_jitter(position=position_dodge(.8)) +
-            ggtitle(paste("Gene ",i,sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
-            theme(text = element_text(size=12),
-               axis.text.x = element_text(angle=45, vjust=1,hjust=1))
-  ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".svg",sep=""), width=10, height=5, plot=plot)
-  ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".png",sep=""), width=10, height=5, plot=plot)
-
-  print(i)
-}
-
-# make plots of interesting genes in gene list
-if (!is.null(opt$genelist)){
-  gene_ids <- read.table(requested_genes_path, col.names = "requested_gene_name")
-  write.table(gene_ids, file="differential_gene_expression/metadata/gene_list.txt", col.names=F, row.names=F, sep="\t")
-  gene_ids$requested_gene_name <- sapply(gene_ids$requested_gene_name, toupper)
-  bg1$gene_name <- sapply(bg1$gene_name, toupper)
-
-  kip2 <- subset(bg1, gene_name %in% gene_ids$requested_gene_name)
-  kip2_Ensembl <- kip2$Ensembl_ID
-  kip2_gene_name <- kip2$gene_name
-  for (i in c(1:length(kip2_Ensembl)))
-  {
-    d <- plotCounts(cds, gene=kip2_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE,normalized = T)
-    d$variable = row.names(d)
-    plot <- ggplot(data=d, aes(x=combfactor, y=count, fill=combfactor)) +
-      geom_boxplot(position=position_dodge()) +
-      geom_jitter(position=position_dodge(.8)) +
-      ggtitle(paste("Gene ",kip2_gene_name[i],sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
-      theme(text = element_text(size=12),
-            axis.text.x = element_text(angle=45, vjust=1,hjust=1))
-    ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",kip2_gene_name[i],"_",kip2_Ensembl[i],".svg",sep=""), plot=plot)
-    ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",kip2_gene_name[i],"_",kip2_Ensembl[i],".png",sep=""), plot=plot)
-    print(kip2_gene_name[i])
-  }
-}
+write.table(DE_genes_final_table, "differential_gene_expression/final_gene_table/final_DE_gene_list.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 
 ############################## TRANSFORMED AND NORMALIZED COUNTS ###################
 # rlog transformation
@@ -399,6 +376,60 @@ rld_names <- merge(x=gene_names, y=assay(rld), by.x = "Ensembl_ID", by.y="row.na
 write.table(rld_names, "differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  qmethod = c("escape", "double"))
 vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
 write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
+
+
+############### BOXPLOTS GENE EXPRESSION PER CONDITION ##########################
+# extract ID for genes to plot, make 20 plots:
+DE_genes_plot <- subset(DE_genes_final_table, outcome == "DE")
+DE_genes_plot = unique(DE_genes_plot$Ensembl_ID)
+
+if (length(DE_genes_plot) > 20) {
+  set.seed(10)
+  random_DE_genes_plot = sample(DE_genes_plot,size = 2)
+} else {
+  random_DE_genes_plot = DE_genes_plot
+}
+
+for (i in random_DE_genes_plot){
+  boxplot_counts <- plotCounts(cds, gene=i, intgroup=c("combfactor"), returnData=TRUE, normalized = T)
+  boxplot_counts$variable = row.names(boxplot_counts)
+  plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
+            geom_boxplot(position=position_dodge()) +
+            geom_jitter(position=position_dodge(.8)) +
+            ggtitle(paste("Gene ",i,sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
+            theme(text = element_text(size=12),
+               axis.text.x = element_text(angle=45, vjust=1,hjust=1))
+  ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".svg",sep=""), width=10, height=5, plot=plot)
+  ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".png",sep=""), width=10, height=5, plot=plot)
+}
+
+# make boxplots of interesting genes in gene list
+if (!is.null(opt$genelist)){
+  gene_ids <- read.table(requested_genes_path, col.names = "requested_gene_name")
+  write.table(gene_ids, file="differential_gene_expression/metadata/requested_gene_list.txt", col.names=F, row.names=F, sep="\t")
+  gene_ids$requested_gene_name <- sapply(gene_ids$requested_gene_name, toupper)
+  gene_names$gene_name <- sapply(gene_names$gene_name, toupper)
+  # get Ensemble IDs from requested genes
+  requested_genes_plot <- subset(gene_names, gene_name %in% gene_ids$requested_gene_name)
+
+  # Check that genes are in the cds table
+  requested_genes_plot <- requested_genes_plot[which(requested_genes_plot$Ensemble_ID %in% row.names(cds)),]
+  requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
+  requested_genes_plot_gene_name <- requested_genes_plot$gene_name
+
+  for (i in requested_genes_plot_Ensembl){
+    boxplot_counts <- plotCounts(cds, gene=i, intgroup=c("combfactor"), returnData=TRUE, normalized = T)
+    boxplot_counts$variable = row.names(boxplot_counts)
+    plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
+      geom_boxplot(position=position_dodge()) +
+      geom_jitter(position=position_dodge(.8)) +
+      ggtitle(paste("Gene ",requested_genes_plot_gene_name[i],sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
+      theme(text = element_text(size=12),
+            axis.text.x = element_text(angle=45, vjust=1,hjust=1))
+    ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".svg",sep=""), width=10, height=5, plot=plot)
+    ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".png",sep=""), width=10, height=5, plot=plot)
+  }
+}
 
 
 ##################  SAMPLE DISTANCES HEATMAP ##################

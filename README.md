@@ -7,7 +7,6 @@
 [![Docker](https://img.shields.io/docker/automated/qbicpipelines/rnadeseq.svg)](https://hub.docker.com/r/qbicpipelines/rnadeseq)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4024184.svg)](https://doi.org/10.5281/zenodo.4024184)
 
-
 ## Introduction
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.

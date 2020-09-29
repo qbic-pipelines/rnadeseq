@@ -1,5 +1,24 @@
 # qbic-pipelines/rnadeseq: Changelog
 
+## 1.3.0 - Almond Blossoms
+
+### Added
+
+- Bump versions to 1.3.0dev
+- [#74](https://github.com/qbic-pipelines/rnadeseq/pull/74) Add option to provide KEGG pathway blacklist
+- [#74](https://github.com/qbic-pipelines/rnadeseq/pull/74) Make quote param optional
+- [#74](https://github.com/qbic-pipelines/rnadeseq/pull/74) Make report options optional (default in assets)
+- [#74](https://github.com/qbic-pipelines/rnadeseq/pull/74) DE gene and pathway summary table
+
+### Fixed
+
+- [#75](https://github.com/qbic-pipelines/rnadeseq/pull/75) Boxplot of normalized counts can also be done from non-DE genes.
+- [#75](https://github.com/qbic-pipelines/rnadeseq/pull/75) More comprehensive variable names and comments
+
+### Changed
+
+- [#74](https://github.com/qbic-pipelines/rnadeseq/pull/74) Pathway analysis only perfomed if at least 2 DE genes
+
 ## 1.2.0 - starry night [11-09-2020]
 
 ### Added
