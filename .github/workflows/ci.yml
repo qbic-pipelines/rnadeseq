@@ -31,13 +31,13 @@ jobs:
 
       - name: Build new docker image
         if: env.GIT_DIFF
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:dev
+        run: docker build --no-cache . -t qbicpipelines/rnadeseq:1.3.1
 
       - name: Pull docker image
         if: ${{ !env.GIT_DIFF }}
         run: |
           docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:dev
+          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:1.3.1
 
       - name: Install Nextflow
         run: |
@@ -69,13 +69,13 @@ jobs:
       
       - name: Build new docker image
         if: env.GIT_DIFF
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:dev
+        run: docker build --no-cache . -t qbicpipelines/rnadeseq:1.3.1
 
       - name: Pull docker image
         if: ${{ !env.GIT_DIFF }}
         run: |
           docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:dev
+          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:1.3.1
 
       - name: Install Nextflow
         run: |
