@@ -413,13 +413,15 @@ if (!is.null(opt$genelist)){
   requested_genes_plot <- subset(gene_names, gene_name %in% gene_ids$requested_gene_name)
 
   # Check that genes are in the cds table
+
+  requested_genes_plot <- requested_genes_plot[which(requested_genes_plot$Ensemble_ID %in% row.names(cds)),]
   print("Requested_genes_plot")
   print(requested_genes_plot)
-  requested_genes_plot <- requested_genes_plot[which(requested_genes_plot$Ensemble_ID %in% row.names(cds)),]
   requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
   requested_genes_plot_gene_name <- requested_genes_plot$gene_name
 
   for (i in requested_genes_plot_Ensembl){
+    print(i)
     boxplot_counts <- plotCounts(cds, gene=i, intgroup=c("combfactor"), returnData=TRUE, normalized = T)
     boxplot_counts$variable = row.names(boxplot_counts)
     plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
