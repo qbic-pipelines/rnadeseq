@@ -1,5 +1,17 @@
 # qbic-pipelines/rnadeseq: Changelog
 
+## 1.3.1 - Almond Blossoms hotfix
+
+### Added
+
+- Bump versions to 1.3.1
+
+### Fixed
+
+- Fix bug plots requested boxplots
+
+### Changed
+
 ## 1.3.0 - Almond Blossoms
 
 ### Added
