@@ -420,14 +420,14 @@ if (!is.null(opt$genelist)){
   print("Subset requested genes plot")
   print(requested_genes_plot)
 
-  print("row_names")
+  print("row_names")gg
   print(row.names(cds))
   requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
   requested_genes_plot_gene_name <- requested_genes_plot$gene_name
 
-  for (i in requested_genes_plot_Ensembl){
-    print(i)
-    boxplot_counts <- plotCounts(cds, gene=i, intgroup=c("combfactor"), returnData=TRUE, normalized = T)
+  for (i in c(1,length(requested_genes_plot_Ensembl)){
+    print(requested_genes_plot_Ensembl[i])
+    boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE, normalized = T)
     boxplot_counts$variable = row.names(boxplot_counts)
     plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
       geom_boxplot(position=position_dodge()) +
