@@ -420,7 +420,7 @@ if (!is.null(opt$genelist)){
   print("Subset requested genes plot")
   print(requested_genes_plot)
 
-  print("row_names")gg
+  print("row_names")
   print(row.names(cds))
   requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
   requested_genes_plot_gene_name <- requested_genes_plot$gene_name
