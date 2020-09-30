@@ -8,6 +8,8 @@
 
 ### Fixed
 
+- Fix bug plots requested boxplots
+
 ### Changed
 
 ## 1.3.0 - Almond Blossoms

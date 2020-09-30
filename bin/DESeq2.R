@@ -205,6 +205,7 @@ if (!is.null(opt$contrasts_matrix)){
 
     contname <- names(contrasts[i])
     results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
+    print("Analyzing contrast:")
     print(contname)
     # Add gene name in table
     DE_genes_contrast_genename <- results_DEseq_contrast
@@ -268,6 +269,7 @@ if (!is.null(opt$contrasts_pairs)) {
       } 
       results_DEseq_contrast <- results(cds, contrast=list(cont[1],cont[2]))
       results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
+      print("Analyzing contrast:")
       print(contname)
       # Add gene name in table
       DE_genes_contrast_genename <- results_DEseq_contrast
@@ -294,6 +296,7 @@ if (is.null(opt$contrasts_matrix) & is.null(opt$contrasts_list) & is.null(opt$co
   for (contname in contrast_names) {
     results_DEseq_contrast <- results(cds, name=contname)
     results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
+    print("Analyzing contrast:")
     print(contname)
 
     # Adding gene name to table
@@ -413,18 +416,12 @@ if (!is.null(opt$genelist)){
   requested_genes_plot <- subset(gene_names, gene_name %in% gene_ids$requested_gene_name)
 
   # Check that genes are in the cds table
-  print("Requested_genes_plot")
-  print(requested_genes_plot)
   requested_genes_plot <- subset(requested_genes_plot, requested_genes_plot$Ensembl_ID %in% row.names(cds))
-
-  print("Subset requested genes plot")
-  print(requested_genes_plot)
 
   requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
   requested_genes_plot_gene_name <- requested_genes_plot$gene_name
 
   for (i in c(1:length(requested_genes_plot_Ensembl))){
-    print(requested_genes_plot_Ensembl[i])
     boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE, normalized = T)
     boxplot_counts$variable = row.names(boxplot_counts)
     plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
