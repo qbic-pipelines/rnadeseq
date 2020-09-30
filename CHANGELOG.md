@@ -1,6 +1,16 @@
 # qbic-pipelines/rnadeseq: Changelog
 
-## 1.3.0 - dev
+## 1.3.1 - dev
+
+### Added
+
+- Bump versions to 1.3.1dev
+
+### Fixed
+
+### Changed
+
+## 1.3.0 - Almond Blossoms
 
 ### Added
 
