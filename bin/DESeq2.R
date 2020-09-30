@@ -413,6 +413,8 @@ if (!is.null(opt$genelist)){
   requested_genes_plot <- subset(gene_names, gene_name %in% gene_ids$requested_gene_name)
 
   # Check that genes are in the cds table
+  print("Requested_genes_plot")
+  print(requested_genes_plot)
   requested_genes_plot <- requested_genes_plot[which(requested_genes_plot$Ensemble_ID %in% row.names(cds)),]
   requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
   requested_genes_plot_gene_name <- requested_genes_plot$gene_name
