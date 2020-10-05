@@ -7,6 +7,10 @@
 - Bump versions to 1.3.2dev
 - write deseq2 table to file
 
+### Fixed
+- Contrast names in report plots
+- Removed temporarily the summary table due to error
+
 ## 1.3.1 - Almond Blossoms hotfix
 
 ### Added
