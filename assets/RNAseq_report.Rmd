@@ -417,7 +417,7 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     # label: gene_name
     # x: log2FoldChange
     # y: -log10(padj)
-    table_list <- append(table_list, list(DE_genes), 0)
+    table_list <- append(table_list, list(DE_genes))
   }
   DE_all <- ldply(table_list, rbind)
   DE_all$logpval <- -log10(DE_all$padj)
@@ -511,7 +511,7 @@ The table below provides more detail on all enriched pathways."))
       next
     }
     q = as.character(DE_genes$Ensembl_ID)
-    q_list <- append(q_list, list(q), 0)
+    q_list <- append(q_list, list(q))
     q_names <- append(q_names, fname)
   }
   datasources <- c("KEGG","REAC")
