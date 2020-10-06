@@ -519,7 +519,7 @@ The table below provides more detail on all enriched pathways."))
   
   #gost query
   gostres <- gost(query=q_list,
-                  organism=params$organism,
+                  organism=tolower(params$organism),
                   significant=T,
                   correction_method="fdr",
                   sources=datasources,
