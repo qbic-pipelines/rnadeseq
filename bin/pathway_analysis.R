@@ -117,12 +117,13 @@ theme_set(theme_classic())
 
 # For each contrast do pathway analysis
 
+# TODO debugging summary table
 # Defining summary variables
-contrast <- c()
-number_DE_genes <- c()
-number_enriched_pathways <- c()
-list_DE_genes <- list()
-list_enriched_pathways <- list()
+# contrast <- c()
+# number_DE_genes <- c()
+# number_enriched_pathways <- c()
+# list_DE_genes <- list()
+# list_enriched_pathways <- list()
 
 for (file in contrast_files){
   #Reading DE genes list
@@ -183,12 +184,13 @@ for (file in contrast_files){
               file = paste0(outdir, "/", fname, "/", fname, "_pathway_enrichment_results.tsv"), 
               sep="\t", quote = F, col.names = T, row.names = F)
 
+  # TODO debugging summary table
   # Collecting summary variables
-  contrast <- append(contrast, fname)
-  number_DE_genes <- append(number_DE_genes, length(DE_genes$Ensembl_ID))
-  number_enriched_pathways <- append(number_enriched_pathways, summary(as.factor(pathway_gostres_table$source)))
-  list_DE_genes <- append(list_DE_genes, DE_genes$Ensembl_ID)
-  list_enriched_pathways <- append(list_enriched_pathways, pathway_gostres_table$term_id)
+  # contrast <- append(contrast, fname)
+  # number_DE_genes <- append(number_DE_genes, length(DE_genes$Ensembl_ID))
+  # number_enriched_pathways <- append(number_enriched_pathways, summary(as.factor(pathway_gostres_table$source)))
+  # list_DE_genes <- append(list_DE_genes, DE_genes$Ensembl_ID)
+  # list_enriched_pathways <- append(list_enriched_pathways, pathway_gostres_table$term_id)
 
   # Printing summary variables
   print("------------------------------------")
@@ -289,10 +291,10 @@ for (file in contrast_files){
 }
 
 # Writing DE gene summary table
-df_summary <- data.frame(Contrast = contrast, Number_DE_genes = number_DE_genes, Number_enriched_pathways = number_enriched_pathways, DE_genes_list = list_DE_genes, Enriched_pathways_list = list_enriched_pathways)
-write.table(df_summary, 
-        file = paste0(outdir, "/", fname, "/", fname, "_pathway_enrichment_summary.tsv"), 
-        sep="\t", quote = F, col.names = T, row.names = F)
+# df_summary <- data.frame(Contrast = contrast, Number_DE_genes = number_DE_genes, Number_enriched_pathways = number_enriched_pathways, DE_genes_list = list_DE_genes, Enriched_pathways_list = list_enriched_pathways)
+# write.table(df_summary, 
+#         file = paste0(outdir, "/", fname, "/", fname, "_pathway_enrichment_summary.tsv"), 
+#         sep="\t", quote = F, col.names = T, row.names = F)
 
 
 # Plotting heatmap for provided gene list
