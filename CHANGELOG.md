@@ -11,6 +11,7 @@
 - Contrast names in report plots
 - Removed temporarily the summary table due to error
 - Convert species name to lower case also in report
+- LogFC is also reported in the report and set in volcano plots
 
 ## 1.3.1 - Almond Blossoms hotfix
 
