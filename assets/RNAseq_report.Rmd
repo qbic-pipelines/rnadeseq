@@ -22,6 +22,7 @@ params:
   path_quote: ""
   organism: ""
   batch_effect: ""
+  log_FC: ""
   revision: ""
 # Author: Silvia Morini, Gisela Gabernet, Simon Heumos
 ---
@@ -54,7 +55,8 @@ description = as.character(df$Description)
 library(yaml)
 report_options <- read_yaml(params$path_report_options)
 design_deseq2 <- paste(readLines(params$path_design), collapse=" ")
-#if(batch_effect=="Yes"){batch_effect=TRUE}else{batch_effect=FALSE}
+log_FC_text <- as.characther(params$log_FC)
+log_FC_num <- as.numeric(params$log_FC)
 ```
 
 ---
@@ -355,7 +357,8 @@ for (i in 1:length(contrnames)){
 ## List of differentially expressed genes
 
 The analysis of the differential gene expression was performed using `DESeq2`. 
-Genes were considered differentially expressed (DE) when the adjusted p-value was lower than 0.05 (padj < 0.05). 
+Genes were considered differentially expressed (DE) when the adjusted p-value was lower than 0.05 (padj < 0.05).
+Genes were further considered differentially expressed (DE) if the log2 Fold Change in expression between the two considered groups was above the threshold of `r log_FC_text` in absolute terms.
 The adjusted p-value is calculated in the `DESeq2` package with the Benjamini-Hochberg method. P-value adjustment 
 helps reduce the number of false postives (not real differentially expressed genes). 
 
@@ -389,7 +392,7 @@ kable(df, escape=F,row.names =F) %>%
 
 Volcano plots display the DE genes in Log2 Fold Change values (x axis) 
 against their adjusted p-value (y axis) in a form of a -log10. Only significantly DE genes are shown (padj < 0.05). 
-It is recommended to select differentially expressed genes with a Log2FC > 1 or < -1 (blue lines show that threshold).
+Genes were further considered DE with a Log2FC > `r log_FC_text` or < `-` `r log_FC_text` (the blue lines show this threshold).
 Here, volcano plots for all considered contrasts are shown. Hover over the dots to show the gene names.
 
 ```{r, echo=F, message =F}
@@ -426,8 +429,8 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
   pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
         geom_point(aes(alpha=0.3)) +
         geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") + 
-        geom_vline(xintercept = 1, size = 0.2, color = "blue") +
-        geom_vline(xintercept = -1, size = 0.2, color = "blue") +
+        geom_vline(xintercept = log_FC_num, size = 0.2, color = "blue") +
+        geom_vline(xintercept = -log_FC_num, size = 0.2, color = "blue") +
         scale_y_continuous(limits = c(1, 18)) +
         scale_x_continuous(limits = c(-5,5), breaks = c(-5:5)) +
         facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
