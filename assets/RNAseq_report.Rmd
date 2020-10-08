@@ -392,7 +392,7 @@ kable(df, escape=F,row.names =F) %>%
 
 Volcano plots display the DE genes in Log2 Fold Change values (x axis) 
 against their adjusted p-value (y axis) in a form of a -log10. Only significantly DE genes are shown (padj < 0.05). 
-Genes were further considered DE with a Log2FC > `r log_FC_text` or < `-` `r log_FC_text` (the blue lines show this threshold).
+Genes were further considered DE with a Log2FC > `r log_FC_text` or < -`r log_FC_text` (the blue lines show this threshold).
 Here, volcano plots for all considered contrasts are shown. Hover over the dots to show the gene names.
 
 ```{r, echo=F, message =F}
