@@ -55,7 +55,7 @@ description = as.character(df$Description)
 library(yaml)
 report_options <- read_yaml(params$path_report_options)
 design_deseq2 <- paste(readLines(params$path_design), collapse=" ")
-log_FC_text <- as.characther(params$log_FC)
+log_FC_text <- as.character(params$log_FC)
 log_FC_num <- as.numeric(params$log_FC)
 ```
 
