@@ -4,7 +4,7 @@
 
 ### Added
 
-- Bump versions to 1.3.2dev
+- Bump versions to 1.3.2
 - write deseq2 table to file
 
 ### Fixed
