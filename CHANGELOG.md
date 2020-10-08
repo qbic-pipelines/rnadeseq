@@ -1,6 +1,6 @@
 # qbic-pipelines/rnadeseq: Changelog
 
-## 1.3.2 - dev
+## 1.3.2 - Almond Blossoms hotfix II
 
 ### Added
 
