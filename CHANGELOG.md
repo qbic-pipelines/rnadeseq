@@ -1,5 +1,11 @@
 # qbic-pipelines/rnadeseq: Changelog
 
+## 1.4.0 - dev
+
+### Added
+
+- Bump versions to 1.4.0dev
+
 ## 1.3.2 - Almond Blossoms hotfix II
 
 ### Added
@@ -8,6 +14,7 @@
 - write deseq2 table to file
 
 ### Fixed
+
 - Contrast names in report plots
 - Convert species name to lower case also in report
 - LogFC is also reported in the report and set in volcano plots

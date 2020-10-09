@@ -9,10 +9,10 @@ RUN apt-get update -qq && \
     apt-get install -y zip procps ghostscript
 
 # Add conda installation dir to PATH
-ENV PATH /opt/conda/envs/qbic-pipelines-rnadeseq-1.3.2/bin:$PATH
+ENV PATH /opt/conda/envs/qbic-pipelines-rnadeseq-1.4.0dev/bin:$PATH
 
 # Dump the details of the installed packates to a file for posterity
-RUN conda env export --name qbic-pipelines-rnadeseq-1.3.2 > qbic-pipelines-rnadeseq-1.3.2.yml
+RUN conda env export --name qbic-pipelines-rnadeseq-1.4.0dev > qbic-pipelines-rnadeseq-1.4.0dev.yml
 
 # Instruct R processes to use these empty files instead of clashing with a local config
 RUN touch .Rprofile
