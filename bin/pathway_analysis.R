@@ -30,8 +30,9 @@ option_list = list(
   make_option(c("-n", "--normCounts"), type="character", default=NULL, help="path to normalized counts", metavar="character"),
   make_option(c("-s", "--species"), type="character", default=NULL, help="Species name. Example format: Hsapiens", metavar="character"),
   make_option(c("-g", "--genelist"), type="character", default=NULL, help="Path to gene list for heatmap plot.", metavar="character"),
-  make_option(c("-b", "--kegg_blacklist"), type="character", default=NULL, help="Path to KEGG pathway blacklist.", metavar="character")
-)
+  make_option(c("-b", "--kegg_blacklist"), type="character", default=NULL, help="Path to KEGG pathway blacklist.", metavar="character"),
+  make_option(c("-i", "--pathway_intersection_size"), type="integer", default=NULL, help="Min. number of genes DE in a pathway for this pathway to be relevant.", metavar="integer")
+  )
 
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
@@ -80,6 +81,15 @@ if(is.null(opt$species)){
   library <- org.Mm.eg.db
 } else {
   stop("Species name is unknown, check for typos or contact responsible person to add your species.")
+}
+
+# Default to 1 for the nb of genes DE in a pathway
+if(!is.null(opt$pathway_intersection_size)){
+  pathway_intersection_size <- 1
+} else if (!is.na(as.integer(opt$pathway_intersection_size))) {
+  pathway_intersection_size <- opt$pathway_intersection_size
+} else {
+  stop("The provided argument is not an integer.")
 }
 
 # Contrast files

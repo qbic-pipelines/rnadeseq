@@ -42,7 +42,7 @@ def helpMessage() {
       --batch_effect                Turn on this flag if you wish to consider batch effects. You need to add the batch effect to the linear model too!                
       --quote                       Signed copy of the offer.
       --kegg_blacklist              Txt file with list of pathways (one per line) that should be discarded for the KEGG pathway plotting (e.g. because the xml file in KEGG contains errors).
-
+      --pathway_intersection_size   Integer indicating how many genes should be DE in a pathway for this pathway to be in the reports
     Other options:
       --outdir                      The output directory where the results will be saved
       --email                       Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits
@@ -128,6 +128,8 @@ Channel.fromPath("${params.report_options}", checkIfExists: true)
             .set { ch_report_options_file }
 Channel.fromPath("${params.kegg_blacklist}")
             .set { ch_kegg_blacklist_for_pathway }
+Channel.fromPath("${params.pathway_intersection_size}")
+            .set { ch_pathway_intersection_size }
 
 ch_fastqc_file = file(params.fastqc)
 
@@ -262,6 +264,7 @@ process DESeq2 {
     def contrast_pairs_opt = contrast_pairs.name != 'DEFAULT2' ? "--contrasts_pairs $contrast_pairs" : ''
     def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel $relevel" : ''
     def batch_effect_opt = params.batch_effect ? "--batchEffect" : ''
+    
     """
     DESeq2.R --counts $gene_counts --metadata $metadata --design $model \
     --logFCthreshold $params.logFCthreshold $relevel_opt $contrast_mat_opt \
@@ -294,7 +297,7 @@ process Pathway_analysis {
     unzip $deseq_output
     pathway_analysis.R --dirContrasts 'differential_gene_expression/DE_genes_tables/' --metadata $metadata \
     --model $model --normCounts 'differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv' \
-    --species $params.species $genelistopt $keggblacklistopt
+    --species $params.species $genelistopt $keggblacklistopt --pathway_intersection_size 2
     zip -r pathway_analysis.zip pathway_analysis/
     """
 }
