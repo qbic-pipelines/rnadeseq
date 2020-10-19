@@ -19,6 +19,7 @@ params:
   path_contrasts: ""
   path_wd: ""
   path_genelist: ""
+  path_min_DEG: ""
   path_quote: ""
   organism: ""
   batch_effect: ""
@@ -529,7 +530,12 @@ The table below provides more detail on all enriched pathways."))
                   user_threshold=0.05)
   
   path_enrich <- as.data.frame(gostres$result)
-
+  
+  if(!is.na(as.integer(params$path_min_DEG))) {
+    path_enrich <- path_enrich[which(path_enrich$intersection_size>=params$path_min_DEG),]
+  }
+  
+  gostres$result <- path_enrich
   if (nrow(path_enrich) > 0){
     pg2 <- gostplot(gostres, capped=T, interactive=T)
     pg2

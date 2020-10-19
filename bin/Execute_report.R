@@ -16,7 +16,8 @@ option_list = list(
   make_option(c("-g", "--organism"), type="character", default=NULL, help="Organism, e.g. Hsapiens."),
   make_option(c("-b", "--batch_effect"), action="store_true", default=FALSE, help="Batch effect correction."),
   make_option(c("-f", "--log_FC"), type="double", default=NULL, help="Log Fold Change threshold to consider a gene DE."),
-  make_option(c("-x", "--revision"), type="character", default=NULL, help="rnadeseq workflow revision", metavar="character")
+  make_option(c("-x", "--revision"), type="character", default=NULL, help="rnadeseq workflow revision", metavar="character"),
+  make_option(c("-p", "--min_DEG_pathway"), type="integer", default=NULL, help="min. number of genes DE in a pathway for this pathway to be relevant.", metavar="integer")
 )
 
 opt_parser = OptionParser(option_list=option_list)
@@ -38,6 +39,7 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_wd = wd,
                                 path_contrasts = opt$contrasts,
                                 path_genelist = path_genelist,
+                                path_min_DEG = opt$min_DEG_pathway,
                                 path_quote = opt$quote,
                                 organism = opt$organism,
                                 batch_effect = opt$batch_effect,
