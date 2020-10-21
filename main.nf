@@ -320,7 +320,6 @@ process Report {
     file(genelist) from ch_genes_for_report_file
     file(gprofiler) from ch_pathway_analysis_for_report
     file(quote) from ch_quote_file
-    
 
     output:
     file "*.zip"
