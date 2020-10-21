@@ -329,7 +329,6 @@ process Report {
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def batchopt = params.batch_effect ? "--batch_effect" : ''
     def quoteopt = quote.name != 'NO_FILE4' ? "$quote" : ''
- 
     """
     unzip $deseq2
     unzip $multiqc
