@@ -84,11 +84,7 @@ if(is.null(opt$species)){
 }
 
 # Default to 1 for the nb of genes DE in a pathway
-if(!is.na(as.integer(opt$min_DEG_pathway))) {
-  min_DEG_pathway <- opt$min_DEG_pathway
-} else {
-  min_DEG_pathway = 1
-}
+ min_DEG_pathway <- as.integer(opt$min_DEG_pathway)
 # Contrast files
 contrast_files <- list.files(path=opt$dirContrasts)
 path_contrasts <- opt$dirContrasts
