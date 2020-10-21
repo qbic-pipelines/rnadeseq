@@ -264,7 +264,7 @@ Text file containing KEGG pathways codes to be excluded from pathway plotting (e
 
 ### `--min_DEG_pathway`
 
-Integer indicating how many genes in a pathway must be differentially expressed to report these pathways in tables and the final report. If a string is given, it will be ignored. The default value is 1. 
+Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1. 
 
 ## Special cases
 
