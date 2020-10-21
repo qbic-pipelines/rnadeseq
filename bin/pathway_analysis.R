@@ -31,7 +31,7 @@ option_list = list(
   make_option(c("-s", "--species"), type="character", default=NULL, help="Species name. Example format: Hsapiens", metavar="character"),
   make_option(c("-g", "--genelist"), type="character", default=NULL, help="Path to gene list for heatmap plot.", metavar="character"),
   make_option(c("-b", "--kegg_blacklist"), type="character", default=NULL, help="Path to KEGG pathway blacklist.", metavar="character"),
-  make_option(c("-p", "--min_DEG_pathway"), type="character", default=NULL, help="Min. number of genes DE in a pathway for this pathway to be in tables.", metavar="integer")
+  make_option(c("-p", "--min_DEG_pathway"), type="character", default=1, help="Min. number of genes DE in a pathway for this pathway to be in tables.", metavar="integer")
   )
 
 opt_parser = OptionParser(option_list=option_list)
