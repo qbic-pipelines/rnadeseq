@@ -141,8 +141,6 @@ if (!params.species) {
 }
 
 
-
-
 // Header log info
 log.info nfcoreHeader()
 def summary = [:]
