@@ -163,6 +163,7 @@ for (file in contrast_files){
   pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
   # Select only pathways with a min. number of DEG
   pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
+  gostres$result <- pathway_gostres
   # Plot pathways if there were any
   if (nrow(pathway_gostres) > 0){
     
