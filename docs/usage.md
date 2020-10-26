@@ -32,6 +32,7 @@
   * [`--quote`](#--quote)
   * [`--report_options`](#--report_options)
   * [`--kegg_blacklist`](#--kegg_blacklist)
+  * [`--min_DEG_pathway`](#--min_DEG_pathway)
 * [Special cases](#Special-cases)
   * [Controlling for batch effects](#Controlling-for-batch-effects)
 * [AWS Batch specific parameters](#aws-batch-specific-parameters)
@@ -260,6 +261,10 @@ Check here an [example file](https://raw.githubusercontent.com/qbic-pipelines/rn
 ### `--kegg_blacklist`
 
 Text file containing KEGG pathways codes to be excluded from pathway plotting (e.g. because kegg pathways xml contain errors in the KEGG resource).
+
+### `--min_DEG_pathway`
+
+Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1.
 
 ## Special cases
 

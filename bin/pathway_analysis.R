@@ -30,8 +30,9 @@ option_list = list(
   make_option(c("-n", "--normCounts"), type="character", default=NULL, help="path to normalized counts", metavar="character"),
   make_option(c("-s", "--species"), type="character", default=NULL, help="Species name. Example format: Hsapiens", metavar="character"),
   make_option(c("-g", "--genelist"), type="character", default=NULL, help="Path to gene list for heatmap plot.", metavar="character"),
-  make_option(c("-b", "--kegg_blacklist"), type="character", default=NULL, help="Path to KEGG pathway blacklist.", metavar="character")
-)
+  make_option(c("-b", "--kegg_blacklist"), type="character", default=NULL, help="Path to KEGG pathway blacklist.", metavar="character"),
+  make_option(c("-p", "--min_DEG_pathway"), type="character", default=1, help="Min. number of genes DE in a pathway for this pathway to be in tables.", metavar="integer")
+  )
 
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
@@ -82,6 +83,8 @@ if(is.null(opt$species)){
   stop("Species name is unknown, check for typos or contact responsible person to add your species.")
 }
 
+# Default to 1 for the nb of genes DE in a pathway
+ min_DEG_pathway <- as.integer(opt$min_DEG_pathway)
 # Contrast files
 contrast_files <- list.files(path=opt$dirContrasts)
 path_contrasts <- opt$dirContrasts
@@ -135,16 +138,16 @@ for (file in contrast_files){
   
   DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
   DE_genes <- as.data.frame(DE_genes)
-
+  
   # Skip pathway analysis for the contrast if not 2 or more DE genes were found
   if (nrow(DE_genes) < 2){ 
     print(paste0("Not enough DE genes to allow for a pathway analysis for contrast: ", fname))
     next
   }
-
+  
   # Define list of Ensemble IDs (q) to run the pathway analysis
   q = as.character(DE_genes$Ensembl_ID)
-
+  
   # gost query
   gostres <- gost(query=q,
                   organism=organism,
@@ -153,37 +156,40 @@ for (file in contrast_files){
                   sources=datasources,
                   evcodes=TRUE,
                   user_threshold=0.05)
-
+  
   # Make data frame of gost result
   pathway_gostres <- gostres$result
   # Select only significantly enriched pathways (according to adjusted p-value)
   pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
-
+  # Select only pathways with a min. number of DEG
+  pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
+  gostres$result <- pathway_gostres
   # Plot pathways if there were any
   if (nrow(pathway_gostres) > 0){
-
+    
     # annotate query size (number of DE genes in contrast)
     pathway_gostres$original_query_size <- rep(length(q), nrow(pathway_gostres))
 
+    
     # Generate non-interactive pathway dotplots in the folder
     pg <- gostplot(gostres, capped=T, interactive=F)
     ggsave(pg, filename = paste0(outdir, "/", fname, "_gost_pathway_enrichment_plot.pdf"), 
-          device="pdf", 
-          height=10, width=15, units="cm", limitsize=F)
+           device="pdf", 
+           height=10, width=15, units="cm", limitsize=F)
     ggsave(pg, filename = paste0(outdir, "/", fname, "_gost_pathway_enrichment_plot.png"), 
-          device="png", 
-          height=10, width=15, units="cm", dpi=300, limitsize=F)
+           device="png", 
+           height=10, width=15, units="cm", dpi=300, limitsize=F)
   }
-
+  
   # Remove parents column to be able to save the table in tsv format
   pathway_gostres_table = pathway_gostres
   pathway_gostres_table$parents <- NULL
-
+  
   # Save pathway enrichment table in tsv format
   write.table(pathway_gostres_table, 
               file = paste0(outdir, "/", fname, "/", fname, "_pathway_enrichment_results.tsv"), 
               sep="\t", quote = F, col.names = T, row.names = F)
-
+  
   # TODO debugging summary table
   # Collecting summary variables
   # contrast <- append(contrast, fname)
@@ -191,7 +197,7 @@ for (file in contrast_files){
   # number_enriched_pathways <- append(number_enriched_pathways, summary(as.factor(pathway_gostres_table$source)))
   # list_DE_genes <- append(list_DE_genes, DE_genes$Ensembl_ID)
   # list_enriched_pathways <- append(list_enriched_pathways, pathway_gostres_table$term_id)
-
+  
   # Printing summary variables
   print("------------------------------------")
   print(fname)
@@ -207,13 +213,13 @@ for (file in contrast_files){
     for (df in res){
       db_source <- df$source[1]
       df$short_name <- sapply(df$term_name, substr, start=1, stop=50)
-
+      
       # Plotting results for df
       df_subset <- data.frame(Pathway_name = df$short_name, Pathway_code = df$term_id, DE_genes = df$intersection_size, Pathway_size = df$term_size, Fraction_DE = (df$intersection_size / df$term_size), Padj = df$p_value)
       write.table(df_subset, 
-              file = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"), 
-              sep="\t", quote = F, col.names = T, row.names = F)
-
+                  file = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"), 
+                  sep="\t", quote = F, col.names = T, row.names = F)
+      
       # Enriched pathways horizontal barplots of padj values
       p <- ggplot(df_subset, aes(x=reorder(Pathway_name, Fraction_DE), y=Fraction_DE)) +
         geom_bar(aes(fill=Padj), stat="identity", width = 0.7) +
@@ -225,7 +231,7 @@ for (file in contrast_files){
         xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
       ggsave(p, filename = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
       ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
-
+      
       # Plotting heatmaps and KEGG pathways for all pathways
       print("Plotting heatmaps...")
       if (nrow(df) <= 100 & nrow(df) > 0) {
@@ -233,7 +239,7 @@ for (file in contrast_files){
         metadata_cond <- as.data.frame(metadata[,conditions])
         metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
         row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
-
+        
         for (i in c(1:nrow(df))){
           pathway <- df[i,]
           gene_list <- unlist(strsplit(pathway$intersection, ","))
@@ -241,17 +247,17 @@ for (file in contrast_files){
           rownames(mat) <- mat$gene_name
           mat$gene_name <- NULL
           mat <- data.matrix(mat)
-
+          
           if (nrow(mat)>1){
             png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
             pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
             dev.off()
-
+            
             pdf(paste(outdir, "/", fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
             pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
             dev.off()
           }
-
+          
           # Plotting pathway view only for kegg pathways
           if (pathway$source == "KEGG"){
             pathway_kegg <- sapply(pathway$term_id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
@@ -267,7 +273,7 @@ for (file in contrast_files){
               entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype="ENSEMBL", multiVals="first")
               
               gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
-
+              
               if (length(entrez_ids)!=length(unique(entrez_ids))) {
                 print(paste0("Skipping pathway: ", pathway_kegg,". This pathway has multiple IDs with same name."))
               } else {
@@ -275,9 +281,9 @@ for (file in contrast_files){
                 
                 gene.data.subset$Ensembl_ID <- NULL
                 pathview(gene.data  = gene.data.subset,
-                        pathway.id = pathway_kegg,
-                        species    = short_organism_name,
-                        out.suffix=paste(fname,sep="_"))
+                         pathway.id = pathway_kegg,
+                         species    = short_organism_name,
+                         out.suffix=paste(fname,sep="_"))
                 mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
                 rm_command <- paste0("rm ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/", "*.xml")
                 system(mv_command)
@@ -300,47 +306,47 @@ for (file in contrast_files){
 # Plotting heatmap for provided gene list
 
 if (!is.null(opt$genelist)){
-
+  
   genelist_path = opt$genelist
-
+  
   genelist_heatmaps_dir <- "heatmap_gene_list"
   dir.create(paste(outdir, genelist_heatmaps_dir, sep="/"))
-
-
+  
+  
   print("Plotting heatmaps...")
   conditions <- grepl("Condition", colnames(metadata))
   condition <- metadata[,conditions]
   metadata_cond <- as.data.frame(condition)
   metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
   row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
-
+  
   gene_list_tab <- read.table(file=genelist_path, sep = "\t", header = F, quote="")
   gene_list_unique_tab <- data.frame(gene_list=unique(gene_list_tab$V1))
-
+  
   norm_counts <- read.table(file = path_norm_counts, header = T, sep = "\t", quote = "")
   norm_counts$gene_name <- toupper(norm_counts$gene_name)
-
+  
   IDs <- norm_counts[,c("Ensembl_ID","gene_name")]
-
+  
   genestoEnsmbl <- merge(x=gene_list_unique_tab, y=IDs, by.x="gene_list", by.y="gene_name", all.x=T)
   gene_list <- genestoEnsmbl$Ensembl_ID
   
   # Omit genes not present in the count table (NAs)
   gene_list <- na.omit(gene_list)
-
+  
   rownames(norm_counts) <- norm_counts$Ensembl_ID
-
+  
   mat <- norm_counts[gene_list, ]
   rownames(mat) <- mat$gene_name
   mat$gene_name <- NULL
   mat$Ensembl_ID <- NULL
   mat <- data.matrix(mat)
-
+  
   if (nrow(mat)>1){
     png(filename = paste(outdir, "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.png", sep=""), width = 2500, height = 3000, res = 300)
     pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
     dev.off()
-
+    
     pdf(paste(outdir, "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""))
     pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
     dev.off()

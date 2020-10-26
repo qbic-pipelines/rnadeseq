@@ -42,7 +42,7 @@ def helpMessage() {
       --batch_effect                Turn on this flag if you wish to consider batch effects. You need to add the batch effect to the linear model too!                
       --quote                       Signed copy of the offer.
       --kegg_blacklist              Txt file with list of pathways (one per line) that should be discarded for the KEGG pathway plotting (e.g. because the xml file in KEGG contains errors).
-
+      --min_DEG_pathway             Integer indicating how many genes should be DE in a pathway for this pathway to be considered enriched
     Other options:
       --outdir                      The output directory where the results will be saved
       --email                       Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits
@@ -129,6 +129,8 @@ Channel.fromPath("${params.report_options}", checkIfExists: true)
 Channel.fromPath("${params.kegg_blacklist}")
             .set { ch_kegg_blacklist_for_pathway }
 
+
+
 ch_fastqc_file = file(params.fastqc)
 
 /*
@@ -157,6 +159,7 @@ summary['Software versions'] = params.versions
 summary['Report options'] = params.report_options
 summary['Multiqc results'] = params.multiqc
 summary['Species'] = params.species
+summary['Min DEG gene'] = params.min_DEG_pathway
 summary['Quote'] = params.quote
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if(workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
@@ -294,7 +297,7 @@ process Pathway_analysis {
     unzip $deseq_output
     pathway_analysis.R --dirContrasts 'differential_gene_expression/DE_genes_tables/' --metadata $metadata \
     --model $model --normCounts 'differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv' \
-    --species $params.species $genelistopt $keggblacklistopt
+    --species $params.species $genelistopt $keggblacklistopt --min_DEG_pathway $params.min_DEG_pathway
     zip -r pathway_analysis.zip pathway_analysis/
     """
 }
@@ -343,7 +346,8 @@ process Report {
     $genelistopt \
     --organism $params.species \
     --log_FC $params.logFCthreshold \
-    $batchopt
+    $batchopt \
+    --min_DEG_pathway $params.min_DEG_pathway
     zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quoteopt
     """
 }
