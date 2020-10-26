@@ -5,6 +5,7 @@
 ### Added
 
 - Bump versions to 1.4.0dev
+- Add parameter "--min_DE_genes"
 
 ## 1.3.2 - Almond Blossoms hotfix II
 
