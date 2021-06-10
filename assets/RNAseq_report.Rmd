@@ -302,8 +302,8 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distrib
 
 The raw count table and normalized count tables are available [here](./differential_gene_expression/gene_counts_tables). 
 The differential expression analysis is performed using the raw gene count table. 
-For PCA analysis and heatmap plotting, the regularized logarithm (rlog) normalized gene counts were employed.
-The vst (variant stabilizing transformation) normalized counts are also provided.
+For PCA analysis and heatmap plotting, the variance stabilized transformed (vst) gene counts were employed.
+The regularized logarithm transformed (rlog) gene counts are also provided.
 
 ## Principal component analysis (PCA) 
 A PCA plot of the rlog normalized gene expression visualizes the clustering of samples according to their gene expression. 
