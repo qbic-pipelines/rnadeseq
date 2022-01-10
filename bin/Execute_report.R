@@ -16,6 +16,7 @@ option_list = list(
   make_option(c("-g", "--organism"), type="character", default=NULL, help="Organism, e.g. Hsapiens."),
   make_option(c("-b", "--batch_effect"), action="store_true", default=FALSE, help="Batch effect correction."),
   make_option(c("-f", "--log_FC"), type="double", default=NULL, help="Log Fold Change threshold to consider a gene DE."),
+  make_option(c("-n", "--nsub_genes"), type="integer", default=NULL, help="subset number of genes for vst."),
   make_option(c("-x", "--revision"), type="character", default=NULL, help="rnadeseq workflow revision", metavar="character")
 )
 
@@ -42,4 +43,5 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 organism = opt$organism,
                                 batch_effect = opt$batch_effect,
                                 log_FC = opt$log_FC,
+                                nsub_genes = opt$nsub_genes,
                                 revision = opt$revision))
