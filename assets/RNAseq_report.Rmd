@@ -24,6 +24,7 @@ params:
   organism: ""
   batch_effect: ""
   log_FC: ""
+  nsub_genes: ""
   revision: ""
 # Author: Silvia Morini, Gisela Gabernet, Simon Heumos
 ---
@@ -58,6 +59,7 @@ report_options <- read_yaml(params$path_report_options)
 design_deseq2 <- paste(readLines(params$path_design), collapse=" ")
 log_FC_text <- as.character(params$log_FC)
 log_FC_num <- as.numeric(params$log_FC)
+nsub_genes_text <-as.character(params$nsub_genes)
 ```
 
 ---
@@ -305,6 +307,7 @@ The raw count table and normalized count tables are available [here](./different
 The differential expression analysis is performed using the raw gene count table. 
 For PCA analysis and heatmap plotting, the regularized logarithm (rlog) normalized gene counts were employed.
 The vst (variant stabilizing transformation) normalized counts are also provided.
+The number of subset genes for the transformation is `r nsub_genes_text`.
 
 ## Principal component analysis (PCA) 
 A PCA plot of the rlog normalized gene expression visualizes the clustering of samples according to their gene expression. 

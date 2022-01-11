@@ -1,5 +1,11 @@
 # qbic-pipelines/rnadeseq: Changelog
 
+## 1.4.1 - dev
+
+### Added
+- Optional parameter "--nsubgenes" to change the number of subset genes for vst
+- Added a line mentioning the --nsubgenes value in the report output. 
+
 ## 1.4.0 - dev
 
 ### Added
