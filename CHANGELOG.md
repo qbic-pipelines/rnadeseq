@@ -1,17 +1,12 @@
 # qbic-pipelines/rnadeseq: Changelog
 
-## 1.4.1 - dev
-
-### Added
-- Optional parameter "--nsubgenes" to change the number of subset genes for vst
-- Added a line mentioning the --nsubgenes value in the report output. 
-
 ## 1.4.0 - dev
 
 ### Added
 
 - Bump versions to 1.4.0dev
 - Add parameter "--min_DE_genes"
+- Add parameter "--nsubgenes"
 
 ## 1.3.2 - Almond Blossoms hotfix II
 
