@@ -50,7 +50,7 @@ option_list = list(
   make_option(c("-p", "--contrasts_pairs"), type="character", default=NULL, help="path to contrasts pairs file", metavar="character"),
   make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
   make_option(c("-t", "--logFCthreshold"), type="integer", default=0, help="Log 2 Fold Change threshold for DE genes", metavar="character"),
-  make_option(c("-n", "--nsubgenes"), type="integer", default=1000, help="subset number of genes for vst", metavar="character"),
+  make_option(c("-n", "--vst_genes_number"), type="integer", default=1000, help="subset number of genes for vst", metavar="character"),
   make_option(c("-b", "--batchEffect"), default=FALSE, action="store_true", help="Whether to consider batch effects in the DESeq2 analysis", metavar="character")
 )
 
@@ -376,7 +376,7 @@ write.table(DE_genes_final_table, "differential_gene_expression/final_gene_table
 # rlog transformation
 rld <- rlog(cds, blind=FALSE)
 # vst transformation
-vsd <- vst(cds, blind=FALSE, nsub = opt$nsubgenes)
+vsd <- vst(cds, blind=FALSE, nsub = opt$vst_genes_number)
 
 # write normalized values to a file
 rld_names <- merge(x=gene_names, y=assay(rld), by.x = "Ensembl_ID", by.y="row.names")

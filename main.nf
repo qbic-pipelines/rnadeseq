@@ -39,7 +39,7 @@ def helpMessage() {
       --relevel                     Tsv indicating list of factors (conditions in the metadata table) and the new level on which to relevel the factor. Check contrasts docs.
       --logFCthreshold              Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed.
       --genelist                    Txt file with list of genes (one per line) of which to plot heatmaps for normalized counts across all samples.
-      --vst_genes_number                   Number (int) of genes to subset for the vst step of DeSeq2. Reduce default if encountering errors with smaller datasets
+      --vst_genes_number            Number (int) of genes to subset for the vst step of DeSeq2. Reduce default if encounter errors with smaller datasets
       --batch_effect                Turn on this flag if you wish to consider batch effects. You need to add the batch effect to the linear model too!                
       --quote                       Signed copy of the offer.
       --kegg_blacklist              Txt file with list of pathways (one per line) that should be discarded for the KEGG pathway plotting (e.g. because the xml file in KEGG contains errors).
@@ -268,7 +268,7 @@ process DESeq2 {
     def batch_effect_opt = params.batch_effect ? "--batchEffect" : ''
     """
     DESeq2.R --counts $gene_counts --metadata $metadata --design $model \
-    --logFCthreshold $params.logFCthreshold --nsubgenes $params.nsubgenes \
+    --logFCthreshold $params.logFCthreshold --vst_genes_number $params.vst_genes_number \
     $relevel_opt $contrast_mat_opt \
     $contrast_list_opt $contrast_pairs_opt $gene_list_opt $batch_effect_opt
     zip -r differential_gene_expression.zip differential_gene_expression
@@ -348,7 +348,7 @@ process Report {
     $genelistopt \
     --organism $params.species \
     --log_FC $params.logFCthreshold \
-    --nsub_genes $params.nsubgenes \
+    --nsub_genes $params.vst_genes_number \
     $batchopt \
     --min_DEG_pathway $params.min_DEG_pathway
     zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quoteopt
