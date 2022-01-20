@@ -307,7 +307,7 @@ The raw count table and normalized count tables are available [here](./different
 The differential expression analysis is performed using the raw gene count table. 
 For PCA analysis and heatmap plotting, the regularized logarithm (rlog) normalized gene counts were employed.
 The vst (variant stabilizing transformation) normalized counts are also provided.
-The number of subset genes for the transformation is `r nsub_genes_text`.
+The number of subset genes for the 'vst' transformation is `r nsub_genes_text`.
 
 ## Principal component analysis (PCA) 
 A PCA plot of the rlog normalized gene expression visualizes the clustering of samples according to their gene expression. 
