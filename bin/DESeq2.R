@@ -159,9 +159,8 @@ write.table(design, file="differential_gene_expression/metadata/linear_model.txt
 
 ################## RUN DESEQ2 ######################################
 
-# Run DESeq function
+# Create DESeq object
 cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
-cds <- DESeq(cds,  parallel = FALSE)
 
 # Apply relevel if provided to DESeq_object
 if (!is.null(opt$relevel)) {
@@ -173,6 +172,9 @@ if (!is.null(opt$relevel)) {
     cds[[paste(relev[1])]] <- relevel(cds[[paste(relev[1])]], paste(relev[2]))
   }
 }
+
+# Run DESeq functions
+cds <- DESeq(cds,  parallel = FALSE)
 
 # SizeFactors(cds) as indicator of library sequencing depth
 write.table(sizeFactors(cds),paste("differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
