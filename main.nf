@@ -1,13 +1,10 @@
 #!/usr/bin/env nextflow
 /*
 ========================================================================================
+    // TODO: Replace all nf-core with qbic-pipelines
     nf-core/rnadeseq
-
-   // TODO do something with the links
 ========================================================================================
-    Github : https://github.com/nf-core/rnadeseq
-    Website: https://nf-co.re/rnadeseq
-    Slack  : https://nfcore.slack.com/channels/rnadeseq
+    Github : https://github.com/qbic-pipelines/rnadeseq
 ----------------------------------------------------------------------------------------
 */
 
