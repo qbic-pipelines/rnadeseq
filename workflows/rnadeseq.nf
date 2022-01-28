@@ -12,7 +12,7 @@ WorkflowRnadeseq.initialise(params, log)
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
 def checkPathParamList = [
-    params.rawcounts, params.metadata, params.model,
+    params.gene_counts, params.metadata, params.model,
     params.project_summary, params.versions,
     ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
@@ -20,7 +20,6 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 //ch_metadata_file_for_deseq2; ch_metadata_file_for_pathway = ch_metadata_file
 //ch_model_for_deseq2_file; ch_model_for_report_file; ch_model_file_for_pathway = ch_model_file
 //ch_genes_for_deseq2_file; ch_genes_for_report_file; ch_genes_for_pathway = ch_genes
-
 
 // Check mandatory parameters
 //TODO: Is Channel and channel the same?
@@ -60,7 +59,7 @@ ch_kegg_blacklist_for_pathway = Channel.fromPath(params.kegg_blacklist)
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { DESEQ2 } from '../modules/local/deseq2'
 
 /*
 ========================================================================================
@@ -80,29 +79,40 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/
 */
 
 // Info required for completion email and summary
-def multiqc_report = []
+//TODO: def multiqc_report = []
 
 workflow RNADESEQ {
 
-    ch_versions = Channel.empty()
 
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
-  //  INPUT_CHECK (
-  //      ch_input
-  //  )
-  //  ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
-    //
-    // MODULE: Run FastQC
-    //
     // TODO: Here, I have to call the modules
+//
+//  MODULE: DE analysis
+//
+    print "YAY???"
+    print "NAY!!!"
+    DESEQ2 (
+        ch_counts_file,
+        ch_metadata_file,
+        ch_model_file,
+        ch_contrast_matrix_for_deseq2,
+        ch_relevel_for_deseq2,
+        ch_contrast_list_for_deseq2,
+        ch_contrast_pairs_for_deseq2,
+        ch_genes
+    )
+    ch_deseq2 = DESEQ2.out.deseq2
+    ch_contrnames = DESEQ2.out.contrnames
+    print "YAY!!!"
+    print ch_deseq2
     // This channel contains the versions of all tools of the current module
 
-    CUSTOM_DUMPSOFTWAREVERSIONS (
-        ch_versions.unique().collectFile(name: 'collated_versions.yml')
-    )
+    // CUSTOM_DUMPSOFTWAREVERSIONS (
+    //     ch_softwareversions_file.unique().collectFile(name: 'collated_versions.yml')
+    // )
 }
 
 
@@ -111,6 +121,7 @@ workflow RNADESEQ {
     COMPLETION EMAIL AND SUMMARY
 ========================================================================================
 */
+//TODO: delete email_on_fail or add it somewhere else to the code with a definition?
 
 workflow.onComplete {
     if (params.email || params.email_on_fail) {

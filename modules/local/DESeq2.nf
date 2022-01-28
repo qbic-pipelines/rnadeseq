@@ -1,4 +1,4 @@
-process DESeq2 {
+process DESEQ2 {
     tag "$samplesheet"
 
     conda (params.enable_conda ? "conda-forge::python=3.8.3" : null)

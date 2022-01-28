@@ -8,10 +8,9 @@
         "mandatory_arguments": {
             "title": "Mandatory arguments",
             "type": "object",
-            "description": "",
-            "default": "",
+            "fa_icon": "fas fa-terminal",
             "properties": {
-                "rawcounts": {
+                "gene_counts": {
                     "type": "string",
                     "description": "Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name."
                 },
@@ -25,6 +24,7 @@
                 },
                 "species": {
                     "type": "string",
+                    "default": "false",
                     "description": "Species name. Format example: Hsapiens."
                 },
                 "project_summary": {
@@ -37,7 +37,7 @@
                 },
                 "report_options": {
                     "type": "string",
-                    "description": "Configuration file containing the section to be present in the report. Also contains any line to be added to the outlook."
+                    "default": "$baseDir/assets/report_options.yml\""
                 }
             },
             "required": [
@@ -47,57 +47,61 @@
                 "species",
                 "project_summary",
                 "versions",
-                "report_options",
-                "profile"
+                "report_options"
             ]
         },
-        "new_group_2": {
-            "title": "New Group 2",
+        "options": {
+            "title": "Options",
             "type": "object",
             "description": "",
             "default": "",
             "properties": {
                 "contrast_matrix": {
                     "type": "string",
+                    "default": "DEFAULT",
                     "description": "Tsv indicating which contrasts to consider, one contrast per column. 1 or 0 for every coefficient of the linear model. Check contrasts docs."
                 },
                 "contrast_list": {
                     "type": "string",
+                    "default": "DEFAULT1",
                     "description": "Tsv indicating list of the contrasts to calculate. 3 columns: factor name, contrast numerator and denominator. Check contrasts docs."
                 },
                 "contrast_pairs": {
                     "type": "string",
+                    "default": "DEFAULT2",
                     "description": "Tsv indicating list of contrast pairs to calculate. 3 columns: contrast name, numerator and denominator. Check contrasts docs."
                 },
                 "relevel": {
                     "type": "string",
+                    "default": "NO_FILE2",
                     "description": "Tsv indicating list of factors (conditions in the metadata table) and the new level on which to relevel the factor. Check contrasts docs."
                 },
                 "logFCthreshold": {
                     "type": "integer",
-                    "description": "Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed.",
-                    "default": 0
+                    "default": 0,
+                    "description": "Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed."
                 },
                 "genelist": {
                     "type": "string",
+                    "default": "NO_FILE",
                     "description": "Txt file with list of genes (one per line) of which to plot heatmaps for normalized counts across all samples."
                 },
                 "batch_effect": {
-                    "type": "boolean",
+                    "type": "string",
+                    "default": "false",
                     "description": "Turn on this flag if you wish to consider batch effects. You need to add the batch effect to the linear model too!"
                 },
                 "quote": {
                     "type": "string",
-                    "description": "Signed copy of the offer.",
-                    "fa_icon": "fas fa-file-signature"
+                    "default": "NO_FILE4",
+                    "description": "Signed copy of the offer."
                 },
                 "kegg_blacklist": {
                     "type": "string",
-                    "description": "Txt file with list of pathways (one per line) that should be discarded for the KEGG pathway plotting (e.g. because the xml file in KEGG contains errors)."
+                    "default": "NO_FILE3"
                 },
                 "min_DEG_pathway": {
                     "type": "integer",
-                    "description": "Integer indicating how many genes should be DE in a pathway for this pathway to be considered enriched",
                     "default": 1
                 }
             }
@@ -105,7 +109,26 @@
         "other_options": {
             "title": "Other options",
             "type": "object",
-            "default": ""
+            "description": "",
+            "default": "",
+            "properties": {
+                "outdir": {
+                    "type": "string",
+                    "description": "The output directory where the results will be saved",
+                    "default": "./results",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "email": {
+                    "type": "string",
+                    "description": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits",
+                    "default": "false"
+                },
+                "help": {
+                    "type": "boolean",
+                    "description": "Display help text.",
+                    "fa_icon": "fas fa-question-circle",
+                }
+            }
         }
     },
     "allOf": [
@@ -113,17 +136,10 @@
             "$ref": "#/definitions/mandatory_arguments"
         },
         {
-            "$ref": "#/definitions/new_group_2"
+            "$ref": "#/definitions/new_group_1"
         },
         {
-            "$ref": "#/definitions/other_options"
+            "$ref": "#/definitions/new_group_2"
         }
-    ],
-    "properties": {
-        "help": {
-            "type": "boolean",
-            "description": "Display help text.",
-            "fa_icon": "fas fa-question-circle"
-        }
-    }
+    ]
 }
