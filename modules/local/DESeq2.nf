@@ -1,5 +1,5 @@
 process DESEQ2 {
-    //TODO: Is publishdir still used? Or do I have to adapt that somehow? rnaseq does not use it
+    //TODO change container
     conda (params.enable_conda ? "conda-forge::python=3.8.3" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'qbicpipelines/rnadeseq:1.3.2' :
@@ -15,7 +15,7 @@ process DESEQ2 {
     path contrast_pairs
     path genelist
 
-    output:             //TODO: Add _for_blabla to deseq2 and contrnames?
+    output:
     path '*.zip'             , emit: deseq2
     path "contrast_names.txt", emit: contrnames
 

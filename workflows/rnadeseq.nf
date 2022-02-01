@@ -23,8 +23,6 @@ if (params.model) { ch_model_file = Channel.fromPath(params.model) } else { exit
 if (params.project_summary) { ch_proj_summary_file = Channel.fromPath(params.project_summary) } else { exit 1, 'Please provide project summary file!' }
 if (params.versions) { ch_softwareversions_file = Channel.fromPath(params.versions) } else { exit 1, 'Please provide software versions file!' }
 
-
-//TODO: Remove _for_blabla??
 // Create channels for optional parameters
 ch_contrast_matrix = Channel.fromPath(params.contrast_matrix)
 ch_contrast_list = Channel.fromPath(params.contrast_list)
@@ -39,17 +37,12 @@ ch_kegg_blacklist = Channel.fromPath(params.kegg_blacklist)
 ========================================================================================
     CONFIG FILES
 ========================================================================================
-*/
-//TODO: Are any configs needed?
-//ch_multiqc_config        = file("$projectDir/assets/multiqc_config.yaml", checkIfExists: true)
-//ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
 
 /*
 ========================================================================================
     IMPORT LOCAL MODULES/SUBWORKFLOWS
 ========================================================================================
 */
-// TODO: Import here the three processes/modules
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
@@ -75,7 +68,6 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/
 */
 
 // Info required for completion email and summary
-//TODO: def multiqc_report = []
 
 workflow RNADESEQ {
 
@@ -84,11 +76,9 @@ workflow RNADESEQ {
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
 
-    // TODO: Here, I have to call the modules
 //
 //  MODULE: DE analysis
 //
-    print "STARTED"
     DESEQ2 (
         ch_counts_file,
         ch_metadata_file,
@@ -100,13 +90,8 @@ workflow RNADESEQ {
         ch_genes
     )
     //TODO: Do I need this part?
-    print "alsikfhliahf"
     ch_deseq2 = DESEQ2.out.deseq2
     ch_contrnames = DESEQ2.out.contrnames
-   // print ch_deseq2
-    print "DE YAY!!!"
-
-
 
 //
 //  MODULE: Pathway analysis
@@ -120,7 +105,6 @@ workflow RNADESEQ {
     )
     //TODO: Do I need this part?
     ch_pathway_analysis = PATHWAY_ANALYSIS.out.pathway_analysis
-    print "PATHWAY YAY!!!"
 
 //
 //  MODULE: RNAseq Report
@@ -134,17 +118,15 @@ workflow RNADESEQ {
         ch_contrnames,
         ch_deseq2,
         ch_genes,
-        ch_pathway_analysis,     //TODO: remove _for_report? YES
+        ch_pathway_analysis,
         ch_quote_file
     )
     //TODO: Do I need this part? Delete? Dont add report to email
     ch_rnaseq_report = REPORT.out.rnaseq_report
-    print "REPORT YAY!!!"
     // This channel contains the versions of all tools of the current module
-    //TODO:
-    // CUSTOM_DUMPSOFTWAREVERSIONS (
-    //     ch_softwareversions_file.unique().collectFile(name: 'collated_versions.yml')
-    // )
+    CUSTOM_DUMPSOFTWAREVERSIONS (
+        ch_softwareversions_file.unique().collectFile(name: 'collated_versions.yml')
+    )
 
 }
 

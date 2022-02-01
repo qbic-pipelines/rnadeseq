@@ -62,7 +62,7 @@ QBiC report for RNAseq analysis.
 **Output directory: `results/report/`**
 
 In this directory the zipped report is contained. This file is ready for upload to the project in the QBiC portal. Once unzipped, this directory contains:
-
+<!-- Here also remove the QC stuff? But then, nothing remains, right? -->
 * `Report.html`
   * QBiC report describing the RNAseq results.
 * `YYYYMMDD_PiName_QXXXX_signed.pdf`

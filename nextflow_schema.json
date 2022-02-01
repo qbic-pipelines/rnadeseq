@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/rnadeseq/master/nextflow_schema.json",
-    "title": "nf-core/rnadeseq pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/qbic-pipelines/rnadeseq/master/nextflow_schema.json",
+    "title": "qbic-pipelines/rnadeseq pipeline parameters",
     "description": "Differential gene expression analysis and pathway analysis of RNAseq data",
     "type": "object",
     "definitions": {

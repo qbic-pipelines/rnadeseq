@@ -1,8 +1,5 @@
 process REPORT {
-    //TODO: Is publishdir still used? Or do I have to adapt that somehow? rnaseq does not use it
-        //TODO change container
-
-
+    //TODO change container???
     conda (params.enable_conda ? "conda-forge::python=3.8.3" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'qbicpipelines/rnadeseq:1.3.2' :
@@ -19,7 +16,7 @@ process REPORT {
     path gprofiler
     path quote
 
-    output:         //TODO: remove _report?
+    output:
     path "*.zip"
     path "RNAseq_report.html", emit: rnaseq_report
 

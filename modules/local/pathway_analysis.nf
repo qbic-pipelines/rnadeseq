@@ -1,7 +1,5 @@
 process PATHWAY_ANALYSIS {
-    //TODO: Is publishdir still used? Or do I have to adapt that somehow? rnaseq does not use it
     //TODO change container
-
     conda (params.enable_conda ? "conda-forge::python=3.8.3" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'qbicpipelines/rnadeseq:1.3.2' :
@@ -14,7 +12,7 @@ process PATHWAY_ANALYSIS {
     path genelist
     path keggblacklist
 
-    output:         //TODO: remove _for_report? YES
+    output:
     path '*.zip', emit: pathway_analysis
 
     script:
