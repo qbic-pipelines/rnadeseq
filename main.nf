@@ -35,8 +35,6 @@ include { RNADESEQ } from './workflows/rnadeseq'
 workflow QBIC_RNADESEQ {
     RNADESEQ ()
 }
-print "RNADESEQ"
-
 /*
 ========================================================================================
     RUN ALL WORKFLOWS

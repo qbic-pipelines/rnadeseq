@@ -1,28 +1,52 @@
-process PATHWAY_ANALYSIS {
+process REPORT {
+    //TODO: Is publishdir still used? Or do I have to adapt that somehow? rnaseq does not use it
+        //TODO change container
+
 
     conda (params.enable_conda ? "conda-forge::python=3.8.3" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/python:3.8.3' :
-        'quay.io/biocontainers/python:3.8.3' }"
+        'qbicpipelines/rnadeseq:1.3.2' :
+        'qbicpipelines/rnadeseq:1.3.2' }"
 
     input:
-    deseq_output
-    metadata
-    model
-    genelist
-    keggblacklist
+    path proj_summary
+    path softwareversions
+    path model
+    path report_options
+    path contrnames
+    path deseq2
+    path genelist
+    path gprofiler
+    path quote
 
-    output:         //TODO: remove _for_report?
-    path '*.zip'       , emit: pathway_analysis_for_report
+    output:         //TODO: remove _report?
+    path "*.zip"
+    path "RNAseq_report.html", emit: rnaseq_report
 
+    //TODO: remove the multiqc stuff
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
-    def keggblacklistopt = keggblacklist.name != 'NO_FILE3' ? "--kegg_blacklist $keggblacklist" : ''
+    def batchopt = params.batch_effect ? "--batch_effect" : ''
+    def quoteopt = quote.name != 'NO_FILE4' ? "$quote" : ''
     """
-    unzip $deseq_output
-    pathway_analysis.R --dirContrasts 'differential_gene_expression/DE_genes_tables/' --metadata $metadata \
-    --model $model --normCounts 'differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv' \
-    --species $params.species $genelistopt $keggblacklistopt --min_DEG_pathway $params.min_DEG_pathway
-    zip -r pathway_analysis.zip pathway_analysis/
+    unzip $deseq2
+    unzip $multiqc
+    unzip $gprofiler
+    mkdir QC
+    mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
+    Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' \
+    --output 'RNAseq_report.html' \
+    --proj_summary $proj_summary \
+    --versions $softwareversions \
+    --model $model \
+    --report_options $report_options \
+    --revision $workflow.revision \
+    --contrasts $contrnames \
+    $genelistopt \
+    --organism $params.species \
+    --log_FC $params.logFCthreshold \
+    $batchopt \
+    --min_DEG_pathway $params.min_DEG_pathway
+    zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quoteopt
     """
 }

@@ -1,19 +1,21 @@
 process PATHWAY_ANALYSIS {
+    //TODO: Is publishdir still used? Or do I have to adapt that somehow? rnaseq does not use it
+    //TODO change container
 
     conda (params.enable_conda ? "conda-forge::python=3.8.3" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/python:3.8.3' :
-        'quay.io/biocontainers/python:3.8.3' }"
+        'qbicpipelines/rnadeseq:1.3.2' :
+        'qbicpipelines/rnadeseq:1.3.2' }"
 
     input:
-    deseq_output
-    metadata
-    model
-    genelist
-    keggblacklist
+    path deseq_output
+    path metadata
+    path model
+    path genelist
+    path keggblacklist
 
-    output:         //TODO: remove _for_report?
-    path '*.zip'       , emit: pathway_analysis_for_report
+    output:         //TODO: remove _for_report? YES
+    path '*.zip', emit: pathway_analysis
 
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
