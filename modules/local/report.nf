@@ -12,6 +12,7 @@ process REPORT {
     path report_options
     path contrnames
     path deseq2
+    path multiqc
     path genelist
     path gprofiler
     path quote

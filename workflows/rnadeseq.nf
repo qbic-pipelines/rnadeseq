@@ -14,6 +14,7 @@ WorkflowRnadeseq.initialise(params, log)
 def checkPathParamList = [
     params.gene_counts, params.metadata, params.model,
     params.project_summary, params.versions,
+    params.multiqc
     ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 // Check mandatory parameters
@@ -22,6 +23,7 @@ if (params.metadata) { ch_metadata_file = Channel.fromPath(params.metadata) } el
 if (params.model) { ch_model_file = Channel.fromPath(params.model) } else { exit 1, 'Please provide linear model file!' }
 if (params.project_summary) { ch_proj_summary_file = Channel.fromPath(params.project_summary) } else { exit 1, 'Please provide project summary file!' }
 if (params.versions) { ch_softwareversions_file = Channel.fromPath(params.versions) } else { exit 1, 'Please provide software versions file!' }
+if (params.multiqc) { ch_multiqc_file = Channel.fromPath(params.multiqc) } else { exit 1, 'Please provide multiqc.zip folder!' }
 
 // Create channels for optional parameters
 ch_contrast_matrix = Channel.fromPath(params.contrast_matrix)
@@ -117,16 +119,16 @@ workflow RNADESEQ {
         ch_report_options_file,
         ch_contrnames,
         ch_deseq2,
+        ch_multiqc_file,
         ch_genes,
         ch_pathway_analysis,
         ch_quote_file
     )
     //TODO: Do I need this part? Delete? Dont add report to email
-    ch_rnaseq_report = REPORT.out.rnaseq_report
     // This channel contains the versions of all tools of the current module
-    CUSTOM_DUMPSOFTWAREVERSIONS (
-        ch_softwareversions_file.unique().collectFile(name: 'collated_versions.yml')
-    )
+//    CUSTOM_DUMPSOFTWAREVERSIONS (
+//        ch_softwareversions_file.unique().collectFile(name: 'collated_versions.yml')
+//    )
 
 }
 
