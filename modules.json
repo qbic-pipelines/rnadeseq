@@ -11,4 +11,4 @@
 }
 
 
-//TODO: Do I have to change the nf-core/modules to qbic-pipelines as well?
+//TODO: Change the nf-core/modules to qbic-pipelines as well?

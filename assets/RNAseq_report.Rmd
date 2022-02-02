@@ -182,7 +182,7 @@ The read sequencing quality was analyzed using `FASTQC`. More detailed informati
 The read mapping and gene assignment statistics, together with other quality control parameters are summarized here.
 
 The table below, extracted from the `MultiQC` report, shows a summary of the bioinformatics analysis quality control.
-<!-- TODO: Should I remove only the fastqc columns and stuff or can this whole part be deleted? -->
+<!-- TODO: Remove MultiQC -->
 ```{r echo=FALSE, results='asis'}
 library(formattable)
 df_DE <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"), header=TRUE, sep="\t")

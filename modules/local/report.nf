@@ -1,5 +1,5 @@
 process REPORT {
-    //TODO change container???
+    //TODO change container?
     conda (params.enable_conda ? "conda-forge::python=3.8.3" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'qbicpipelines/rnadeseq:1.3.2' :
@@ -21,7 +21,7 @@ process REPORT {
     path "*.zip"
     path "RNAseq_report.html", emit: rnaseq_report
 
-    //TODO: remove the multiqc stuff
+    //TODO: remove multiqc
     script:
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def batchopt = params.batch_effect ? "--batch_effect" : ''

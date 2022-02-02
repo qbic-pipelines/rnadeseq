@@ -91,7 +91,6 @@ workflow RNADESEQ {
         ch_contrast_pairs,
         ch_genes
     )
-    //TODO: Do I need this part?
     ch_deseq2 = DESEQ2.out.deseq2
     ch_contrnames = DESEQ2.out.contrnames
 
@@ -105,7 +104,6 @@ workflow RNADESEQ {
         ch_genes,
         ch_kegg_blacklist
     )
-    //TODO: Do I need this part?
     ch_pathway_analysis = PATHWAY_ANALYSIS.out.pathway_analysis
 
 //
@@ -124,7 +122,7 @@ workflow RNADESEQ {
         ch_pathway_analysis,
         ch_quote_file
     )
-    //TODO: Do I need this part? Delete? Dont add report to email
+    //TODO: Enable this:
     // This channel contains the versions of all tools of the current module
 //    CUSTOM_DUMPSOFTWAREVERSIONS (
 //        ch_softwareversions_file.unique().collectFile(name: 'collated_versions.yml')
@@ -137,11 +135,11 @@ workflow RNADESEQ {
     COMPLETION EMAIL AND SUMMARY
 ========================================================================================
 */
-//TODO: delete email_on_fail or add it somewhere else to the code with a definition?
+//TODO: Have a look at email_on_fail
 //Here I have to change the params?
 
 /*
-//TODO: At a later point, remove multiqc and also edit /lib/nfcoretemplate to add deseq report instead of multiqc
+//TODO: Remove multiqc and also edit /lib/nfcoretemplate to add deseq report instead of multiqc
 workflow.onComplete {
     if (params.email || params.email_on_fail) {
         NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
