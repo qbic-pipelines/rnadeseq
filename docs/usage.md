@@ -8,53 +8,53 @@
 * [Introduction](#introduction)
 * [Pre-requisites](#pre-requisites)
 * [Running the pipeline](#running-the-pipeline)
-  * [Updating the pipeline](#updating-the-pipeline)
-  * [Reproducibility](#reproducibility)
+    * [Updating the pipeline](#updating-the-pipeline)
+    * [Reproducibility](#reproducibility)
 * [Mandatory arguments](#Mandatory-arguments)
-  * [`-profile`](#-profile)
-  * [`--rawcounts`](#--rawcounts)
-  * [`--metadata`](#--metadata)
-  * [`--model`](#--model)
-  * [`--species`](#--species)
-  * [`--project_summary`](#--project-summary)
-  * [`--multiqc`](#--multiqc)
-  * [`--versions`](#--versions)
+    * [`-profile`](#-profile)
+    * [`--rawcounts`](#--rawcounts)
+    * [`--metadata`](#--metadata)
+    * [`--model`](#--model)
+    * [`--species`](#--species)
+    * [`--project_summary`](#--project-summary)
+    * [`--multiqc`](#--multiqc)
+    * [`--versions`](#--versions)
 * [Contrasts](#contrasts)
-  * [`default`](#default)
-  * [`--relevel`](#--relevel)
-  * [`--contrast_matrix`](#--contrast_matrix)
-  * [`--contrast_list`](#--contrast_list)
-  * [`--contrast_pairs`](#--contrast_pairs)
+    * [`default`](#default)
+    * [`--relevel`](#--relevel)
+    * [`--contrast_matrix`](#--contrast_matrix)
+    * [`--contrast_list`](#--contrast_list)
+    * [`--contrast_pairs`](#--contrast_pairs)
 * [Optional arguments](#Optional-arguments)
-  * [`--logFCthreshold`](#--logFCthreshold)
-  * [`--genelist`](#--genelist)
-  * [`--batch_effect`](#--batch_effect)
-  * [`--quote`](#--quote)
-  * [`--report_options`](#--report_options)
-  * [`--kegg_blacklist`](#--kegg_blacklist)
-  * [`--min_DEG_pathway`](#--min_DEG_pathway)
+    * [`--logFCthreshold`](#--logFCthreshold)
+    * [`--genelist`](#--genelist)
+    * [`--batch_effect`](#--batch_effect)
+    * [`--quote`](#--quote)
+    * [`--report_options`](#--report_options)
+    * [`--kegg_blacklist`](#--kegg_blacklist)
+    * [`--min_DEG_pathway`](#--min_DEG_pathway)
 * [Special cases](#Special-cases)
-  * [Controlling for batch effects](#Controlling-for-batch-effects)
+    * [Controlling for batch effects](#Controlling-for-batch-effects)
 * [AWS Batch specific parameters](#aws-batch-specific-parameters)
-  * [`--awsqueue`](#--awsqueue)
-  * [`--awsregion`](#--awsregion)
+    * [`--awsqueue`](#--awsqueue)
+    * [`--awsregion`](#--awsregion)
 * [Job resources](#job-resources)
-  * [Automatic resubmission](#automatic-resubmission)
-  * [Custom resource requests](#custom-resource-requests)
+    * [Automatic resubmission](#automatic-resubmission)
+    * [Custom resource requests](#custom-resource-requests)
 * [Other command line parameters](#other-command-line-parameters)
-  * [`--outdir`](#--outdir)
-  * [`--email`](#--email)
-  * [`-name`](#-name)
-  * [`-resume`](#-resume)
-  * [`-c`](#-c)
-  * [`--custom_config_version`](#--custom_config_version)
-  * [`--custom_config_base`](#--custom_config_base)
-  * [`--max_memory`](#--max_memory)
-  * [`--max_time`](#--max_time)
-  * [`--max_cpus`](#--max_cpus)
-  * [`--plaintext_email`](#--plaintext_email)
-  * [`--monochrome_logs`](#--monochrome_logs)
-  * [`--multiqc_config`](#--multiqc_config)
+    * [`--outdir`](#--outdir)
+    * [`--email`](#--email)
+    * [`-name`](#-name)
+    * [`-resume`](#-resume)
+    * [`-c`](#-c)
+    * [`--custom_config_version`](#--custom_config_version)
+    * [`--custom_config_base`](#--custom_config_base)
+    * [`--max_memory`](#--max_memory)
+    * [`--max_time`](#--max_time)
+    * [`--max_cpus`](#--max_cpus)
+    * [`--plaintext_email`](#--plaintext_email)
+    * [`--monochrome_logs`](#--monochrome_logs)
+    * [`--multiqc_config`](#--multiqc_config)
 <!-- TOC END -->
 
 ## Introduction
@@ -153,7 +153,6 @@ Species name. For example: Hsapiens, Mmusculus. To include new species, please o
 ### `--project_summary`
 
 Project summary as downloaded from the portal: User database portlet, Projects tab, select your project and "Download Project Information". Please check first that this information is correct in the project Browser.
-
 
 ### `--versions`
 
@@ -278,13 +277,12 @@ If you have any questions or issues please send us a message on [Slack](https://
 
 <!-- TODO qbic-pipelines: Describe any other command line flags here -->
 
-
 ### `--custom_config_version`
 
 Provide git commit id for custom Institutional configs hosted at `nf-core/configs`. This was implemented for reproducibility purposes. Default is set to `master`.
 
 ```bash
-## Download and use config file with following git commid id
+## Download and use config file with following git commit id
 --custom_config_version d52db660777c4bf36546ddb188ec530c3ada1b96
 ```
 
@@ -332,10 +330,9 @@ Set to receive plain-text e-mails instead of HTML formatted.
 
 Set to disable colourful command line output and live life in monochrome.
 
-
 ## Core Nextflow arguments
 
-> **NB:** These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
+> **NB:** These options are part of Nextflow and use a *single* hyphen (pipeline parameters use a double-hyphen).
 
 ### `-profile`
 
@@ -350,7 +347,7 @@ The pipeline also dynamically loads configurations from [https://github.com/nf-c
 Note that multiple profiles can be loaded, for example: `-profile test,docker` - the order of arguments is important!
 They are loaded in sequence, so later profiles can overwrite earlier profiles.
 
-If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
+If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is *not* recommended.
 
 * `docker`
     * A generic configuration profile to be used with [Docker](https://docker.com/)
@@ -415,7 +412,7 @@ Work dir:
 Tip: you can replicate the issue by changing to the process work dir and entering the command `bash .command.run`
 ```
 
-To bypass this error you would need to find exactly which resources are set by the `STAR_ALIGN` process. The quickest way is to search for `process STAR_ALIGN` in the [nf-core/rnaseq Github repo](https://github.com/nf-core/rnaseq/search?q=process+STAR_ALIGN). We have standardised the structure of Nextflow DSL2 pipelines such that all module files will be present in the `modules/` directory and so based on the search results the file we want is `modules/nf-core/software/star/align/main.nf`. If you click on the link to that file you will notice that there is a `label` directive at the top of the module that is set to [`label process_high`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/modules/nf-core/software/star/align/main.nf#L9). The [Nextflow `label`](https://www.nextflow.io/docs/latest/process.html#label) directive allows us to organise workflow processes in separate groups which can be referenced in a configuration file to select and configure subset of processes having similar computing requirements. The default values for the `process_high` label are set in the pipeline's [`base.config`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L33-L37) which in this case is defined as 72GB. Providing you haven't set any other standard nf-core parameters to __cap__ the [maximum resources](https://nf-co.re/usage/configuration#max-resources) used by the pipeline then we can try and bypass the `STAR_ALIGN` process failure by creating a custom config file that sets at least 72GB of memory, in this case increased to 100GB. The custom config below can then be provided to the pipeline via the [`-c`](#-c) parameter as highlighted in previous sections.
+To bypass this error you would need to find exactly which resources are set by the `STAR_ALIGN` process. The quickest way is to search for `process STAR_ALIGN` in the [nf-core/rnaseq Github repo](https://github.com/nf-core/rnaseq/search?q=process+STAR_ALIGN). We have standardised the structure of Nextflow DSL2 pipelines such that all module files will be present in the `modules/` directory and so based on the search results the file we want is `modules/nf-core/software/star/align/main.nf`. If you click on the link to that file you will notice that there is a `label` directive at the top of the module that is set to [`label process_high`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/modules/nf-core/software/star/align/main.nf#L9). The [Nextflow `label`](https://www.nextflow.io/docs/latest/process.html#label) directive allows us to organise workflow processes in separate groups which can be referenced in a configuration file to select and configure subset of processes having similar computing requirements. The default values for the `process_high` label are set in the pipeline's [`base.config`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L33-L37) which in this case is defined as 72GB. Providing you haven't set any other standard nf-core parameters to **cap** the [maximum resources](https://nf-co.re/usage/configuration#max-resources) used by the pipeline then we can try and bypass the `STAR_ALIGN` process failure by creating a custom config file that sets at least 72GB of memory, in this case increased to 100GB. The custom config below can then be provided to the pipeline via the [`-c`](#-c) parameter as highlighted in previous sections.
 
 ```nextflow
 process {
@@ -429,7 +426,7 @@ process {
 
 ### Updating containers
 
-The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. If for some reason you need to use a different version of a particular tool with the pipeline then you just need to identify the `process` name and override the Nextflow `container` definition for that process using the `withName` declaration. For example, in the [nf-core/viralrecon](https://nf-co.re/viralrecon) pipeline a tool called [Pangolin](https://github.com/cov-lineages/pangolin) has been used during the COVID-19 pandemic to assign lineages to SARS-CoV-2 genome sequenced samples. Given that the lineage assignments change quite frequently it doesn't make sense to re-release the nf-core/viralrecon everytime a new version of Pangolin has been released. However, you can override the default container used by the pipeline by creating a custom config file and passing it as a command-line argument via `-c custom.config`.
+The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. If for some reason you need to use a different version of a particular tool with the pipeline then you just need to identify the `process` name and override the Nextflow `container` definition for that process using the `withName` declaration. For example, in the [nf-core/viralrecon](https://nf-co.re/viralrecon) pipeline a tool called [Pangolin](https://github.com/cov-lineages/pangolin) has been used during the COVID-19 pandemic to assign lineages to SARS-CoV-2 genome sequenced samples. Given that the lineage assignments change quite frequently it doesn't make sense to re-release the nf-core/viralrecon every time a new version of Pangolin has been released. However, you can override the default container used by the pipeline by creating a custom config file and passing it as a command-line argument via `-c custom.config`.
 
 1. Check the default version used by the pipeline in the module file for [Pangolin](https://github.com/nf-core/viralrecon/blob/a85d5969f9025409e3618d6c280ef15ce417df65/modules/nf-core/software/pangolin/main.nf#L14-L19)
 2. Find the latest version of the Biocontainer available on [Quay.io](https://quay.io/repository/biocontainers/pangolin?tag=latest&tab=tags)
