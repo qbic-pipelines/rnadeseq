@@ -25,7 +25,11 @@ lint:
     - .github/workflows/awstest.yml
     - .github/workflows/awsfulltest.yml
     - lib/WorkflowQbic-pipelines/rnadeseq.groovy
-
+  nextflow_config:
+    - params.input
+    - show_hidden_params
+    - manifest.name
+    - manifest.homePage
 
 
 
