@@ -17,6 +17,7 @@ def checkPathParamList = [
     params.multiqc
     ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
+
 // Check mandatory parameters
 if (params.rawcounts) { ch_counts_file = Channel.fromPath(params.rawcounts) } else { exit 1, 'Please provide raw counts file!' }
 if (params.metadata) { ch_metadata_file = Channel.fromPath(params.metadata) } else { exit 1, 'Please provide metadata file!' }
