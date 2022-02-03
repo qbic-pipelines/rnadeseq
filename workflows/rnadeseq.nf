@@ -49,9 +49,6 @@ ch_kegg_blacklist = Channel.fromPath(params.kegg_blacklist)
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { DESEQ2 } from '../modules/local/deseq2'
-include { PATHWAY_ANALYSIS } from '../modules/local/pathway_analysis'
-include { REPORT } from '../modules/local/report'
 
 /*
 ========================================================================================
