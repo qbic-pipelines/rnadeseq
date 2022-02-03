@@ -1,9 +1,5 @@
 process REPORT {
     //TODO change container?
-    conda (params.enable_conda ? "conda-forge::python=3.8.3" : null)
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'qbicpipelines/rnadeseq:1.3.2' :
-        'qbicpipelines/rnadeseq:1.3.2' }"
 
     input:
     path proj_summary
