@@ -47,6 +47,13 @@ ch_kegg_blacklist = Channel.fromPath(params.kegg_blacklist)
 ========================================================================================
 */
 //
+// MODULE: Loaded from modules/local/
+//
+include { DESEQ2 } from '../modules/local/deseq2'
+include { PATHWAY_ANALYSIS } from '../modules/local/pathway_analysis'
+include { REPORT } from '../modules/local/report'
+
+//
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 
