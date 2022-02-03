@@ -5,8 +5,8 @@ LABEL authors="Gisela Gabernet, Alexander Peltzer" \
 
 COPY environment.yml /
 RUN conda env create -f /environment.yml && conda clean -a
-RUN apt-get update -qq &&
-    apt-get install -y zip procps ghostscript
+RUN apt-get update -qq
+RUN apt-get install -y zip procps ghostscript
 
 # Add conda installation dir to PATH
 ENV PATH /opt/conda/envs/qbic-pipelines-rnadeseq-1.4.0dev/bin:$PATH
