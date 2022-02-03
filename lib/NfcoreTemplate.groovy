@@ -90,7 +90,7 @@ class NfcoreTemplate {
                 log.warn "[$workflow.manifest.name] Could not attach MultiQC report to summary email"
             }
         }
-//TODO: delete email_on_fail or add it somewhere else to the code with a definition?
+
         // Check if we are only sending emails on failure
         def email_address = params.email
         if (!params.email && params.email_on_fail && !workflow.success) {

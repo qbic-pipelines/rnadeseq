@@ -131,7 +131,7 @@
                 "help": {
                     "type": "boolean",
                     "description": "Display help text.",
-                    "fa_icon": "fas fa-question-circle",
+                    "fa_icon": "fas fa-question-circle"
                 }
             }
         }
@@ -141,10 +141,10 @@
             "$ref": "#/definitions/mandatory_arguments"
         },
         {
-            "$ref": "#/definitions/new_group_1"
+            "$ref": "#/definitions/options"
         },
         {
-            "$ref": "#/definitions/new_group_2"
+            "$ref": "#/definitions/other_options"
         }
     ]
 }
