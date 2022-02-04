@@ -5,44 +5,44 @@
 <!-- Install Atom plugin markdown-toc-auto for this ToC to auto-update on save -->
 <!-- TOC START min:2 max:3 link:true asterisk:true update:true -->
 
--   [Table of contents](#table-of-contents)
--   [Introduction](#introduction)
--   [Pre-requisites](#pre-requisites)
--   [Running the pipeline](#running-the-pipeline)
-    -   [Updating the pipeline](#updating-the-pipeline)
-    -   [Reproducibility](#reproducibility)
--   [Mandatory arguments](#Mandatory-arguments)
-    -   [`-profile`](#-profile)
-    -   [`--rawcounts`](#--rawcounts)
-    -   [`--metadata`](#--metadata)
-    -   [`--model`](#--model)
-    -   [`--species`](#--species)
-    -   [`--project_summary`](#--project-summary)
-    -   [`--multiqc`](#--multiqc)
-    -   [`--versions`](#--versions)
--   [Contrasts](#contrasts)
-    -   [`default`](#default)
-    -   [`--relevel`](#--relevel)
-    -   [`--contrast_matrix`](#--contrast_matrix)
-    -   [`--contrast_list`](#--contrast_list)
-    -   [`--contrast_pairs`](#--contrast_pairs)
--   [Optional arguments](#Optional-arguments)
-    -   [`--logFCthreshold`](#--logFCthreshold)
-    -   [`--genelist`](#--genelist)
-    -   [`--batch_effect`](#--batch_effect)
-    -   [`--quote`](#--quote)
-    -   [`--report_options`](#--report_options)
-    -   [`--kegg_blacklist`](#--kegg_blacklist)
-    -   [`--min_DEG_pathway`](#--min_DEG_pathway)
--   [Special cases](#Special-cases)
-    -   [Controlling for batch effects](#Controlling-for-batch-effects)
--   [AWS Batch specific parameters](#aws-batch-specific-parameters)
-    -   [`--awsqueue`](#--awsqueue)
-    -   [`--awsregion`](#--awsregion)
--   [Job resources](#job-resources)
-    -   [Automatic resubmission](#automatic-resubmission)
-    -   [Custom resource requests](#custom-resource-requests)
--   [Other command line parameters](#other-command-line-parameters)
+- [Table of contents](#table-of-contents)
+- [Introduction](#introduction)
+- [Pre-requisites](#pre-requisites)
+- [Running the pipeline](#running-the-pipeline)
+    - [Updating the pipeline](#updating-the-pipeline)
+    - [Reproducibility](#reproducibility)
+- [Mandatory arguments](#Mandatory-arguments)
+    - [`-profile`](#-profile)
+    - [`--rawcounts`](#--rawcounts)
+    - [`--metadata`](#--metadata)
+    - [`--model`](#--model)
+    - [`--species`](#--species)
+    - [`--project_summary`](#--project-summary)
+    - [`--multiqc`](#--multiqc)
+    - [`--versions`](#--versions)
+- [Contrasts](#contrasts)
+    - [`default`](#default)
+    - [`--relevel`](#--relevel)
+    - [`--contrast_matrix`](#--contrast_matrix)
+    - [`--contrast_list`](#--contrast_list)
+    - [`--contrast_pairs`](#--contrast_pairs)
+- [Optional arguments](#Optional-arguments)
+    - [`--logFCthreshold`](#--logFCthreshold)
+    - [`--genelist`](#--genelist)
+    - [`--batch_effect`](#--batch_effect)
+    - [`--quote`](#--quote)
+    - [`--report_options`](#--report_options)
+    - [`--kegg_blacklist`](#--kegg_blacklist)
+    - [`--min_DEG_pathway`](#--min_DEG_pathway)
+- [Special cases](#Special-cases)
+    - [Controlling for batch effects](#Controlling-for-batch-effects)
+- [AWS Batch specific parameters](#aws-batch-specific-parameters)
+    - [`--awsqueue`](#--awsqueue)
+    - [`--awsregion`](#--awsregion)
+- [Job resources](#job-resources)
+    - [Automatic resubmission](#automatic-resubmission)
+    - [Custom resource requests](#custom-resource-requests)
+- [Other command line parameters](#other-command-line-parameters)
 _[`--outdir`](#--outdir)
 _ [`--email`](#--email)
 _[`-name`](#-name)
@@ -134,9 +134,9 @@ Raw count table (TSV). Column names must start with the QBiC code. Columns are s
 
 Metadata table is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
 
--   **QBiC Code**: is needed to match metadata with the raw counts.
--   **Secondary Name**, samples will be named with the pattern: QBiC code + Secondary name.
--   **Condition: tag**: a separated column for each of the conditions. The headers of this columns start with "Condition: ". The values of these columns should not contain spaces.
+- **QBiC Code**: is needed to match metadata with the raw counts.
+- **Secondary Name**, samples will be named with the pattern: QBiC code + Secondary name.
+- **Condition: tag**: a separated column for each of the conditions. The headers of this columns start with "Condition: ". The values of these columns should not contain spaces.
 
 ### `--model`
 
@@ -247,14 +247,14 @@ Integer indicating how many genes in a pathway must be differentially expressed 
 
 To control for batch effects follow ALL these steps:
 
--   Include the batch effect in the metadata file in a column with the header `batch`.
--   Your design file needs to additionally include the batch effect in the linear model. E.g.:
+- Include the batch effect in the metadata file in a column with the header `batch`.
+- Your design file needs to additionally include the batch effect in the linear model. E.g.:
 
     ```R
     ~ batch + condition_genotype
     ```
 
--   Use the `--batch_effect` option when running the pipeline to generate an extra PCA plot with the corrected batch effects.
+- Use the `--batch_effect` option when running the pipeline to generate an extra PCA plot with the corrected batch effects.
 
 Then the DESeq2 script calculates the contrasts as usual, the batch effect just needs to be considered during the design definition.
 For more information, please check the [DESeq2 vignette](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).
@@ -349,21 +349,21 @@ They are loaded in sequence, so later profiles can overwrite earlier profiles.
 
 If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
 
--   `docker`
-    -   A generic configuration profile to be used with [Docker](https://docker.com/)
--   `singularity`
-    -   A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
--   `podman`
-    -   A generic configuration profile to be used with [Podman](https://podman.io/)
--   `shifter`
-    -   A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
--   `charliecloud`
-    -   A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
--   `conda`
-    -   A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter or Charliecloud.
--   `test`
-    -   A profile with a complete configuration for automated testing
-    -   Includes links to test data so needs no other parameters
+- `docker`
+    - A generic configuration profile to be used with [Docker](https://docker.com/)
+- `singularity`
+    - A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
+- `podman`
+    - A generic configuration profile to be used with [Podman](https://podman.io/)
+- `shifter`
+    - A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
+- `charliecloud`
+    - A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
+- `conda`
+    - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter or Charliecloud.
+- `test`
+    - A profile with a complete configuration for automated testing
+    - Includes links to test data so needs no other parameters
 
 ### `-resume`
 
