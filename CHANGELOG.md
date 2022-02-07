@@ -6,7 +6,7 @@
 
 - Bump versions to 1.4.0dev
 - Add parameter "--min_DE_genes"
-- Fixed log2FCthreshold issue
+- Fixed `--logFCthreshold` issue [#100](https://github.com/qbic-pipelines/rnadeseq/issues/100)
 
 ## 1.3.2 - Almond Blossoms hotfix II
 
