@@ -9,7 +9,7 @@
 
 ### Fixed
 
-- Fixed `--logFCthreshold` issue [#100](https://github.com/qbic-pipelines/rnadeseq/issues/100)
+- [#100](https://github.com/qbic-pipelines/rnadeseq/issues/100) fixed `--logFCthreshold`
 
 ## 1.3.2 - Almond Blossoms hotfix II
 
