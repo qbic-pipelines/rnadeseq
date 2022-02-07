@@ -6,6 +6,7 @@
 
 - Bump versions to 1.4.0dev
 - Add parameter "--min_DE_genes"
+- Fixed log2FCthreshold issue
 
 ## 1.3.2 - Almond Blossoms hotfix II
 
