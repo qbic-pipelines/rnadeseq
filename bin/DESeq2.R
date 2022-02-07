@@ -219,7 +219,7 @@ if (!is.null(opt$contrasts_matrix)){
     DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
     DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
     # Select only significantly DE
-    DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
+    DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
     DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
     # Save table
     write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
@@ -249,7 +249,7 @@ if (!is.null(opt$contrasts_list)) {
     DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
     DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
     # Select only significantly DE
-    DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
+    DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
     DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
     # Save table
     write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
@@ -283,7 +283,7 @@ if (!is.null(opt$contrasts_pairs)) {
       DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
       DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
       # Select only significantly DE
-      DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
+      DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
       DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
       # Save table
       write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
@@ -311,7 +311,7 @@ if (is.null(opt$contrasts_matrix) & is.null(opt$contrasts_list) & is.null(opt$co
     DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
     DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
     # Select only significantly DE
-    DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
+    DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
     DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
     # Save table
     write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
