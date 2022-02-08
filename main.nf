@@ -153,6 +153,7 @@ summary['Contrast matrix'] = params.contrast_matrix
 summary['Contrast list'] = params.contrast_list
 summary['Contrast pairs'] = params.contrast_pairs
 summary['Relevel'] = params.relevel
+summary['LogFCthreshold'] = params.logFCthreshold
 summary['Gene list'] = params.genelist
 summary['Project summary'] = params.project_summary
 summary['Software versions'] = params.versions
