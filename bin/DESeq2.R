@@ -67,7 +67,7 @@ if (is.null(opt$metadata)){
     print_help(opt_parser)
     stop("Metadata table needs to be provided!")
 } else {
-    etadata_path = opt$metadata
+    metadata_path = opt$metadata
 }
 if (is.null(opt$design)){
     print_help(opt_parser)
