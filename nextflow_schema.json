@@ -192,7 +192,7 @@
     ],
     "properties": {
         "show_hidden_params": {
-            "type": "string",
+            "type": "boolean",
             "default": "false"
         }
     }

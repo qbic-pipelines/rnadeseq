@@ -1,6 +1,6 @@
 FROM continuumio/miniconda:4.6.14
 LABEL authors="Gisela Gabernet, Alexander Peltzer" \
-      description="Docker image containing all requirements for qbic-pipelines/rnadeseq pipeline"
+    description="Docker image containing all requirements for qbic-pipelines/rnadeseq pipeline"
 COPY environment.yml /
 RUN conda env create -f /environment.yml && conda clean -a
 RUN apt-get update -qq && \
