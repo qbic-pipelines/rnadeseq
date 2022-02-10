@@ -37,7 +37,8 @@
                 },
                 "report_options": {
                     "type": "string",
-                    "default": "$baseDir/assets/report_options.yml\""
+                    "default": "$baseDir/assets/report_options.yml\"",
+                    "description": "Configuration file describing the sections that need to be present in the report, text can also be specified that is desired to be added to the outlook section."
                 }
             },
             "required": [
@@ -97,11 +98,13 @@
                 },
                 "kegg_blacklist": {
                     "type": "string",
-                    "default": "NO_FILE3"
+                    "default": "NO_FILE3",
+                    "description": "Text file containing KEGG pathways codes to be excluded from pathway plotting (e.g. because kegg pathways xml contain errors in the KEGG resource)."
                 },
                 "min_DEG_pathway": {
                     "type": "integer",
-                    "default": 1
+                    "default": 1,
+                    "description": "Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1."
                 }
             }
         },
@@ -129,13 +132,11 @@
                 },
                 "plaintext_email": {
                     "type": "boolean",
-                    "default": "false",
                     "description": "Send plain-text email instead of HTML.",
                     "hidden": true
                 },
                 "monochrome_logs": {
                     "type": "boolean",
-                    "default": "false",
                     "description": "Do not use coloured log outputs.",
                     "hidden": true
                 },
@@ -188,5 +189,11 @@
         {
             "$ref": "#/definitions/other_options"
         }
-    ]
+    ],
+    "properties": {
+        "show_hidden_params": {
+            "type": "string",
+            "default": "false"
+        }
+    }
 }
