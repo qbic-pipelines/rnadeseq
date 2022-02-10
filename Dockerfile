@@ -1,5 +1,4 @@
 FROM continuumio/miniconda:4.6.14
-# continuumio/miniconda:4.7.12
 LABEL authors="Gisela Gabernet, Alexander Peltzer" \
       description="Docker image containing all requirements for qbic-pipelines/rnadeseq pipeline"
 COPY environment.yml /
