@@ -134,7 +134,7 @@
                     "hidden": true
                 },
                 "monochrome_logs": {
-                    "type": "string",
+                    "type": "boolean",
                     "default": "false",
                     "description": "Do not use coloured log outputs.",
                     "hidden": true
