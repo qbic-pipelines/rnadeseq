@@ -153,7 +153,7 @@
                 },
                 "custom_config_base": {
                     "type": "string",
-                    "default": "https://raw.githubusercontent.com/nf-core/configs/master",
+                    "default": "https://raw.githubusercontent.com/nf-core/configs/${params.custom_config_version}",
                     "description": "Base directory for Institutional configs.",
                     "hidden": true
                 },
