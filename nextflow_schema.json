@@ -128,7 +128,7 @@
                     "fa_icon": "fas fa-question-circle"
                 },
                 "plaintext_email": {
-                    "type": "string",
+                    "type": "boolean",
                     "default": "false",
                     "description": "Send plain-text email instead of HTML.",
                     "hidden": true
