@@ -102,14 +102,17 @@ workflow RNADESEQ {
 //
 //  MODULE: Pathway analysis
 //
-    PATHWAY_ANALYSIS (
-        ch_deseq2,
-        ch_metadata_file,
-        ch_model_file,
-        ch_genes,
-        ch_kegg_blacklist
-    )
-    ch_pathway_analysis = PATHWAY_ANALYSIS.out.pathway_analysis
+    ch_pathway_analysis = Channel.empty()
+    if (!params.skip_pathway_analysis) {
+        PATHWAY_ANALYSIS (
+            ch_deseq2,
+            ch_metadata_file,
+            ch_model_file,
+            ch_genes,
+            ch_kegg_blacklist
+        )
+        ch_pathway_analysis = PATHWAY_ANALYSIS.out.pathway_analysis
+    }
 
 //
 //  MODULE: RNAseq Report
