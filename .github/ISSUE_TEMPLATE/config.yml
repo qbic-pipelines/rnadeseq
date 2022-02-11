@@ -1,0 +1,9 @@
+contact_links:
+  - name: Join nf-core
+    url: https://nf-co.re/join
+    about: Please join the nf-core community here
+  - name: "Slack #rnadeseq channel"
+    url: https://nfcore.slack.com/channels/rnadeseq
+    about: Discussion about the nf-core/rnadeseq pipeline
+
+    //TODO: Delete this?

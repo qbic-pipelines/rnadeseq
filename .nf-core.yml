@@ -1,0 +1,35 @@
+lint:
+  files_unchanged:
+    - LICENSE
+    - .github/CONTRIBUTING.md
+    - .github/ISSUE_TEMPLATE/bug_report.yml
+    - .github/ISSUE_TEMPLATE/config.yml
+    - .github/ISSUE_TEMPLATE/feature_request.yml
+    - .github/PULL_REQUEST_TEMPLATE.md
+    - .github/workflows/branch.yml
+    - .github/workflows/linting.yml
+    - assets/email_template.html
+    - assets/email_template.txt
+    - assets/sendmail_template.txt
+    - docs/README.md
+    - .gitignore
+
+  files_exist:
+    - assets/nf-core-qbic-pipelines/rnadeseq_logo_light.png
+    - conf/test_full.config
+    - docs/images/nf-core-qbic-pipelines/rnadeseq_logo_light.png
+    - docs/images/nf-core-qbic-pipelines/rnadeseq_logo_dark.png
+    - bin/markdown_to_html.r
+    - .github/workflows/push_dockerhub.yml
+    - assets/multiqc_config.yaml
+    - .github/workflows/awstest.yml
+    - .github/workflows/awsfulltest.yml
+    - lib/WorkflowQbic-pipelines/rnadeseq.groovy
+  nextflow_config:
+    - params.input
+    - show_hidden_params
+    - manifest.name
+    - manifest.homePage
+
+
+
