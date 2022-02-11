@@ -102,7 +102,7 @@ workflow RNADESEQ {
 //
 //  MODULE: Pathway analysis
 //
-    ch_pathway_analysis = Channel.empty()
+    ch_pathway_analysis = Channel.fromPath("FALSE")
     if (!params.skip_pathway_analysis) {
         PATHWAY_ANALYSIS (
             ch_deseq2,
@@ -130,6 +130,7 @@ workflow RNADESEQ {
         ch_pathway_analysis,
         ch_quote_file
     )
+
     //TODO: Enable this:
     // This channel contains the versions of all tools of the current module
 //    CUSTOM_DUMPSOFTWAREVERSIONS (

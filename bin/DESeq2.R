@@ -23,7 +23,7 @@ library(limma)
 graphics.off()
 
 # Load fonts and set plot themes
-theme_set(theme_bw(base_family = "ArialMT") + 
+theme_set(theme_bw(base_family = "ArialMT") +
 theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
 extrafont::font_import()
 extrafont::loadfonts()
@@ -197,7 +197,7 @@ contrast_names <- c()
 if (!is.null(opt$contrasts_matrix)){
   contrasts <- read.table(path_contrasts_matrix, sep="\t", header = T, row.names = 1)
   write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
-  
+
   # Check that contrast matrix is valid
   if(length(coefficients) != nrow(contrasts)){
     stop("Error: Your contrast table has different number of rows than the number of coefficients in the DESeq2 model.")
@@ -270,7 +270,7 @@ if (!is.null(opt$contrasts_pairs)) {
       contname <- cont[0]
       if (!(cont[2] %in% coefficients & cont[3] %in% coefficients)){
         stop(paste0("Provided contrast name is invalid, it needs to be contained in ", coefficients))
-      } 
+      }
       results_DEseq_contrast <- results(cds, contrast=list(cont[1],cont[2]))
       results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
       print("Analyzing contrast:")
@@ -494,13 +494,13 @@ boxplot(log10(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="lo
 boxplot(log2(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log2-Cooks")
 dev.off()
 
-# The function plotDispEsts visualizes DESeqs dispersion estimates: 
+# The function plotDispEsts visualizes DESeqs dispersion estimates:
 pdf("differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.pdf")
 plotDispEsts(cds, ylim = c(1e-5, 1e8))
 dev.off()
 
 # Effects of transformations on the variance
-notAllZero <- (rowSums(counts(cds))>0) 
+notAllZero <- (rowSums(counts(cds))>0)
 pdf("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.pdf")
 par(oma=c(3,3,3,3))
 par(mfrow = c(1, 3))

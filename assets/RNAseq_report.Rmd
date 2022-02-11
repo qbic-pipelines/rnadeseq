@@ -511,7 +511,7 @@ Both KEGG pathways and REACTOME (REAC) pathways are considered.
 Hover over the dots to reveal the pathway names.
 The table below provides more detail on all enriched pathways."))
 ```
-
+<!-- TODO: Adapt code to allow for missing PA, Quitting from lines 516-561 (RNAseq_report.Rmd) -->
 ```{r, eval=report_options$KEGG, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE}
     library(gprofiler2)
     #library(rlist)
