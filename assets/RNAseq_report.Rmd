@@ -25,6 +25,7 @@ params:
     batch_effect: ""
     log_FC: ""
     revision: ""
+    pathway_analysis: ""
 # Author: Silvia Morini, Gisela Gabernet, Simon Heumos
 ---
 
@@ -420,14 +421,11 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     # Set plot theme
     theme_set(theme_bw(base_family = "ArialMT") +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
-
     contrast_files <- list.files(path=paste0(wd, "/differential_gene_expression/DE_genes_tables/"))
-
     table_list <- list()
     for (file in contrast_files){
         #Reading DE genes list
         fname <- tools::file_path_sans_ext(basename(file))
-
         DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
         DE_genes$contrast <- rep(fname, nrow(DE_genes))
         # label: gene_name
@@ -438,7 +436,6 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     DE_all <- ldply(table_list, rbind)
     DE_all$logpval <- -log10(DE_all$padj)
     DE_all$logpval[DE_all$logpval > 16] <- 17
-
     pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
             geom_point(aes(alpha=0.3)) +
             geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
@@ -497,12 +494,11 @@ knitr::include_graphics("./GO/GO_terms_enriched.png")
 
 <!-- In case KEGG analysis was also included; differentiating the cases with and without contrasts -->
 
-```{r pathway_analysis, echo=FALSE, results='asis', eval=report_options$KEGG}
+```{r pathway_analysis, echo=FALSE, results='asis', eval=report_options$KEGG & params$pathway_analysis != ""}
 cat(paste0("***
 # Pathway analysis
 The pathway analysis was performed with the `gProfiler2` tool.
 The pathway analysis results are stored [here](./pathway_analysis), and explained in this section.
-
 ## Enriched pathways
 The plot below summarizes the pathways that were
 found significantly enriched in DE genes for each contrast (padj value < 0.05).
@@ -511,18 +507,16 @@ Both KEGG pathways and REACTOME (REAC) pathways are considered.
 Hover over the dots to reveal the pathway names.
 The table below provides more detail on all enriched pathways."))
 ```
-<!-- TODO: Adapt code to allow for missing PA, Quitting from lines 516-561 (RNAseq_report.Rmd) -->
-```{r, eval=report_options$KEGG, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE}
+
+```{r, eval=report_options$KEGG & params$pathway_analysis != "", out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE}
     library(gprofiler2)
     #library(rlist)
     contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
-
     q_list <- list()
     q_names <- c()
     for (file in contrast_files){
         #Reading DE genes list
         fname <- tools::file_path_sans_ext(basename(file))
-
         DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
         if(nrow(DE_genes) <= 1){
         next
@@ -533,7 +527,6 @@ The table below provides more detail on all enriched pathways."))
     }
     datasources <- c("KEGG","REAC")
     names(q_list) <- q_names
-
     #gost query
     gostres <- gost(query=q_list,
                     organism=tolower(params$organism),
@@ -541,14 +534,11 @@ The table below provides more detail on all enriched pathways."))
                     correction_method="fdr",
                     sources=datasources,
                     user_threshold=0.05)
-
     path_enrich <- as.data.frame(gostres$result)
-
     # Subsetting to pathways with minimum number of DEG
     if(!is.na(as.integer(params$path_min_DEG))) {
         path_enrich <- path_enrich[which(path_enrich$intersection_size>=params$path_min_DEG),]
     }
-
     gostres$result <- path_enrich
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)
@@ -560,7 +550,7 @@ The table below provides more detail on all enriched pathways."))
     }
 ```
 
-```{r, eval=report_options$KEGG, echo=FALSE}
+```{r, eval=report_options$KEGG & params$pathway_analysis != "", echo=FALSE}
 if (nrow(path_enrich) > 0) {
     df_subset <- data.frame(Contrast = path_enrich$query, Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id,
                             DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size,
@@ -574,20 +564,18 @@ if (nrow(path_enrich) > 0) {
 }
 ```
 
-```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=report_options$KEGG}
+```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=report_options$KEGG & params$pathway_analysis != ""}
 cat(paste0("## KEGG pathway maps
 For KEGG pathways, a KEGG pathway map was also generated that can be found in the subfolder named `KEGG_pathways`, for each contrast folder.
-
 \
 "))
 ```
 
-```{r conditional_pathway_maps, echo=FALSE, results='asis', eval=report_options$KEGG}
+```{r conditional_pathway_maps, echo=FALSE, results='asis', eval=report_options$KEGG & params$pathway_analysis != ""}
 cat(paste0("## Pathway heatmaps
 For all considered contrasts, a heatmap of all DE genes that were found in each of the pathways is produced.
 You can find these heatmaps inside the [pathway_analysis](./pathway_analysis) folder, inside the subfolder corresponding to each of the contrasts,
 and the subfolder: `pathway_heatmaps`.
-
 \
 "))
 ```
@@ -637,13 +625,9 @@ Subsequently, adapter trimming was conducted with `Trim Galore `r as.character(v
 control to the reference genome.
 The RNA-seq data quality control was performed with `RSeQC `r as.character(version[version$V1=="RSeQC",2])`` [@wang2012rseqc] and read counting of the features (e.g. genes) with `featureCounts `r as.character(version[version$V1=="featureCounts",2])``[@liao2014featurecounts].
 An aggregation of the quality control for the RNAseq analysis was performed with `MultiQC `r as.character(version[version$V1=="MultiQC",2])`` [^2] [@ewels2016multiqc].
-
 ## Differential gene expression analysis
-
 The differential expression analysis was performed by the use of the `rnadeseq `r as.character(params$revision)`` pipeline [^5]. For differential expression analysis, the raw read count table resulting from `featureCounts` was processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
-
 <!-- If a DEU analysis has also been performed -->
-
 ```{r conditional_DEU, echo=FALSE, results='asis', eval=report_options$DEU}
 # version = packageVersion("DEXSeq")
 # cat(paste("For differential exon usage, the table count produced by `featureCounts` is processed with the R package `DEXSeq v`",version," [@anders2012detecting].", sep=''))
@@ -661,13 +645,9 @@ cat(paste("For pathway analysis, the R packages `gprofiler2 v",version_gprofiler
 ```
 
 Graphs were produced in RStudio with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")`` . Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
-
 ---
-
 ---
-
 # Bibliography
-
 [^1]: https://github.com/nf-core/rnaseq
 [^2]: http://multiqc.info/
 [^3]: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/
