@@ -22,7 +22,7 @@ process REPORT {
     def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def batchopt = params.batch_effect ? "--batch_effect" : ''
     def quoteopt = quote.name != 'NO_FILE4' ? "$quote" : ''
-    def pathwayopt = gprofiler.name == 'FALSE' ? '' : "--pathway_analysis"
+    def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
  //TODO:   def pa_done = gprofiler.name == "FALSE" ? false: "$gprofiler"
     """
     unzip $deseq2
