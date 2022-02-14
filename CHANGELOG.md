@@ -1,11 +1,12 @@
 # qbic-pipelines/rnadeseq: Changelog
 
-## 1.4.0 - dev
+## 2.0.0 - dev
 
 ### Added
 
 - Bump versions to 1.4.0dev
 - Add parameter "--min_DE_genes"
+- Update pipeline to DSL2
 
 ## 1.3.2 - Almond Blossoms hotfix II
 
