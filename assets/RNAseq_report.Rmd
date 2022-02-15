@@ -499,6 +499,7 @@ cat(paste0("***
 # Pathway analysis
 The pathway analysis was performed with the `gProfiler2` tool.
 The pathway analysis results are stored [here](./pathway_analysis), and explained in this section.
+
 ## Enriched pathways
 The plot below summarizes the pathways that were
 found significantly enriched in DE genes for each contrast (padj value < 0.05).
