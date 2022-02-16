@@ -69,7 +69,7 @@ jobs:
       NXF_ANSI_LOG: false
     strategy:
       matrix:
-        config: ['test', 'test_contrast_matrix', 'test_contrast_list', 'test_blacklist']
+        config: ['test', 'test_contrast_matrix', 'test_contrast_list', 'test_blacklist', 'test_no_pathway_analysis']
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@v2
