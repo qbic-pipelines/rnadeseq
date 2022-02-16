@@ -1,31 +1,31 @@
 ---
 output:
-  html_document:
-    toc: true                               # table of contents
-    toc_float: true                         # float the table of contents to the left of the main document content
-    toc_depth: 3                            # header levels 1,2,3
-    theme: default
-    number_sections: true                   # add section numbering to headers
-    df_print: paged                         # tables are printed as an html table with support for pagination over rows and columns
-    css: ./corp-styles.css
-    highlight: pygments
-    pdf_document: true
+    html_document:
+        toc: true                               # table of contents
+        toc_float: true                         # float the table of contents to the left of the main document content
+        toc_depth: 3                            # header levels 1,2,3
+        theme: default
+        number_sections: true                   # add section numbering to headers
+        df_print: paged                         # tables are printed as an html table with support for pagination over rows and columns
+        css: ./corp-styles.css
+        highlight: pygments
+        pdf_document: true
 bibliography: ./references.bibtex
 params:
-  path_proj_summary: ""
-  path_versions: ""
-  path_design: ""
-  path_report_options: ""
-  path_contrasts: ""
-  path_wd: ""
-  path_genelist: ""
-  path_min_DEG: ""
-  path_quote: ""
-  organism: ""
-  batch_effect: ""
-  log_FC: ""
-  revision: ""
-  pathway_analysis: ""
+    path_proj_summary: ""
+    path_versions: ""
+    path_design: ""
+    path_report_options: ""
+    path_contrasts: ""
+    path_wd: ""
+    path_genelist: ""
+    path_min_DEG: ""
+    path_quote: ""
+    organism: ""
+    batch_effect: ""
+    log_FC: ""
+    revision: ""
+    pathway_analysis: ""
 # Author: Silvia Morini, Gisela Gabernet, Simon Heumos
 ---
 
@@ -37,9 +37,9 @@ projectcode = as.character(df$Sub.Project)
 title = as.character(df$Short.Title)
 ## function to split the title
 splitInParts <- function(string, size){
-    pat <- paste0('(?<=.{',size,'})')
-    strsplit(string, pat, perl=TRUE)
- }
+        pat <- paste0('(?<=.{',size,'})')
+        strsplit(string, pat, perl=TRUE)
+    }
 title_split=splitInParts(title, 65)
 PI = as.character(df$Principal.Investigator)
 PI_address = as.character(df$PI.Address)
@@ -129,18 +129,18 @@ QAfile = paste0(wd, "/differential_gene_expression/metadata/metadata.tsv")
 no_RIN = FALSE
 RIN=FALSE
 if(file.exists(QAfile)){
-  df_QA <- read.table(QAfile, header=TRUE, sep="\t", check.names = FALSE)
-  conditions <- grepl(colnames(df_QA),pattern = "Condition")
-  df_QA_cond <- as.data.frame(df_QA[ ,conditions])
-  colnames(df_QA_cond) <- colnames(df_QA)[conditions]
-  df_QA_neat <- df_QA[,c("QBiC Code", "Secondary Name", "Lab ID", "Sample Type")]
-  df_QA_neat <- merge(df_QA_neat, df_QA_cond, by="row.names")
-  df_QA_neat$Row.names <- NULL
-  if ("RIN" %in% colnames(df_QA)){
-    if (any(is.na(df_QA$RIN))){no_RIN <- TRUE} else {RIN <- TRUE; df_QA_neat$RIN <- df_QA$RIN}
-  } else {no_RIN <- TRUE}
+    df_QA <- read.table(QAfile, header=TRUE, sep="\t", check.names = FALSE)
+    conditions <- grepl(colnames(df_QA),pattern = "Condition")
+    df_QA_cond <- as.data.frame(df_QA[ ,conditions])
+    colnames(df_QA_cond) <- colnames(df_QA)[conditions]
+    df_QA_neat <- df_QA[,c("QBiC Code", "Secondary Name", "Lab ID", "Sample Type")]
+    df_QA_neat <- merge(df_QA_neat, df_QA_cond, by="row.names")
+    df_QA_neat$Row.names <- NULL
+    if ("RIN" %in% colnames(df_QA)){
+        if (any(is.na(df_QA$RIN))){no_RIN <- TRUE} else {RIN <- TRUE; df_QA_neat$RIN <- df_QA$RIN}
+    } else {no_RIN <- TRUE}
 } else {
-  no_RIN <- TRUE
+    no_RIN <- TRUE
 }
 ```
 
@@ -208,26 +208,26 @@ table_complete = merge(metadata,df_DE_selected,by="Sample")
 colnames = c("Sample", "Lab ID", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
 #write.table(table_complete,"./qc_summary.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 table_complete %>%
-  mutate(
-    Sample = Sample,
-    LabID = Lab.ID,
-    ReadNumber = color_bar("lightblue")(round((C1/1000000),2)),
-    DuplicateReadsIntercept = ifelse(C2 > 1,
-                                    cell_spec(C2, color="orange", bold=T),
-                                    cell_spec(C2, color="black")),
-    GCcontent = C3,
-    TrimmedReads = C4,
-    MappedReads =  ifelse(C5 > 80,
-                          color_bar("lightblue")(C5),
-                          color_bar("orange")(C5)),
-    AssignedReads = ifelse(C6 > 60,
-                          color_bar("lightblue")(C6),
-                          color_bar("orange")(C6))
-  ) %>%
-  select(1,9:15) %>%
-  kable(escape=F,row.names =F, col.names=colnames) %>%
-  kable_styling("hover") %>%
-  scroll_box(width = "100%", height = "400px")
+    mutate(
+        Sample = Sample,
+        LabID = Lab.ID,
+        ReadNumber = color_bar("lightblue")(round((C1/1000000),2)),
+        DuplicateReadsIntercept = ifelse(C2 > 1,
+                                        cell_spec(C2, color="orange", bold=T),
+                                        cell_spec(C2, color="black")),
+        GCcontent = C3,
+        TrimmedReads = C4,
+        MappedReads =  ifelse(C5 > 80,
+                            color_bar("lightblue")(C5),
+                            color_bar("orange")(C5)),
+        AssignedReads = ifelse(C6 > 60,
+                            color_bar("lightblue")(C6),
+                            color_bar("orange")(C6))
+    ) %>%
+    select(1,9:15) %>%
+    kable(escape=F,row.names =F, col.names=colnames) %>%
+    kable_styling("hover") %>%
+    scroll_box(width = "100%", height = "400px")
 ```
 
 Note: Duplicate intercept (%) is the percentage of duplicate reads for the intercept of a linear model of duplicate reads vs read counts. High numbers of duplicates at low read counts can indicate low library complexity with technical duplication.
@@ -351,7 +351,7 @@ contrnames = df_contr$V1
 
 ```{r contrasts_block, echo=FALSE, results='asis'}
 for (i in 1:length(contrnames)){
-  cat(paste("* ", contrnames[i], "\n"))
+    cat(paste("* ", contrnames[i], "\n"))
 }
 ```
 
@@ -380,12 +380,12 @@ Additional tables for all individual contrasts are provided [here](./differentia
 <!-- Show table here removed as I dont like showing only top 20 genes.
 ```{r}
 df_DE <- read.table(paste0(wd,"/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv"),
-                          header=TRUE, sep="\t")
+                            header=TRUE, sep="\t")
 padj = names(df_DE)[grepl("padj",names(df_DE))]
 df = head(df_DE %>% arrange(df_DE[[tail(padj, n=1)]]),20)
 kable(df, escape=F,row.names =F) %>%
-  kable_styling("hover") %>%
-  scroll_box(width = "100%", height = "400px")
+    kable_styling("hover") %>%
+    scroll_box(width = "100%", height = "400px")
 ```
 -->
 
@@ -397,48 +397,48 @@ Genes were further considered DE with a Log2FC > `r log_FC_text` or < -`r log_FC
 Here, volcano plots for all considered contrasts are shown. Hover over the dots to show the gene names.
 
 ```{r, echo=F, message =F}
-  library(gprofiler2)
-  library(ggplot2)
-  library(plotly)
-  library(plyr)
-  #library(rlist)
+    library(gprofiler2)
+    library(ggplot2)
+    library(plotly)
+    library(plyr)
+    #library(rlist)
 ```
 
 ```{r, out.width="100%", out.height="100%"}
-  # Set plot theme
-  theme_set(theme_bw(base_family = "ArialMT") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
-  contrast_files <- list.files(path=paste0(wd, "/differential_gene_expression/DE_genes_tables/"))
-  table_list <- list()
-  for (file in contrast_files){
-    #Reading DE genes list
-    fname <- tools::file_path_sans_ext(basename(file))
-    DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
-    DE_genes$contrast <- rep(fname, nrow(DE_genes))
-    # label: gene_name
-    # x: log2FoldChange
-    # y: -log10(padj)
-    table_list <- append(table_list, list(DE_genes))
-  }
-  DE_all <- ldply(table_list, rbind)
-  DE_all$logpval <- -log10(DE_all$padj)
-  DE_all$logpval[DE_all$logpval > 16] <- 17
-  pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
-        geom_point(aes(alpha=0.3)) +
-        geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
-        geom_vline(xintercept = log_FC_num, size = 0.2, color = "blue") +
-        geom_vline(xintercept = -log_FC_num, size = 0.2, color = "blue") +
-        scale_y_continuous(limits = c(1, 18)) +
-        scale_x_continuous(limits = c(-5,5), breaks = c(-5:5)) +
-        facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
-        ylab("-log 10 padj") + xlab("Log2 Fold Change") + theme(legend.position = "none") +
-        annotate(geom = "text", x = 4.2, y = 16.2,
-            label = "values above this threshold are capped",
-            size = 2, color = "grey")
-  pg <- ggplotly(pg, tooltip = "text")
-  pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05
-  pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
-  pg %>% layout(margin = list(l = 100, b=100), width=500, height = 400*length(contrast_files))
+    # Set plot theme
+    theme_set(theme_bw(base_family = "ArialMT") +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
+    contrast_files <- list.files(path=paste0(wd, "/differential_gene_expression/DE_genes_tables/"))
+    table_list <- list()
+    for (file in contrast_files){
+        #Reading DE genes list
+        fname <- tools::file_path_sans_ext(basename(file))
+        DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
+        DE_genes$contrast <- rep(fname, nrow(DE_genes))
+        # label: gene_name
+        # x: log2FoldChange
+        # y: -log10(padj)
+        table_list <- append(table_list, list(DE_genes))
+    }
+    DE_all <- ldply(table_list, rbind)
+    DE_all$logpval <- -log10(DE_all$padj)
+    DE_all$logpval[DE_all$logpval > 16] <- 17
+    pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
+            geom_point(aes(alpha=0.3)) +
+            geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
+            geom_vline(xintercept = log_FC_num, size = 0.2, color = "blue") +
+            geom_vline(xintercept = -log_FC_num, size = 0.2, color = "blue") +
+            scale_y_continuous(limits = c(1, 18)) +
+            scale_x_continuous(limits = c(-5,5), breaks = c(-5:5)) +
+            facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
+            ylab("-log 10 padj") + xlab("Log2 Fold Change") + theme(legend.position = "none") +
+            annotate(geom = "text", x = 4.2, y = 16.2,
+                label = "values above this threshold are capped",
+                size = 2, color = "grey")
+    pg <- ggplotly(pg, tooltip = "text")
+    pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05
+    pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
+    pg %>% layout(margin = list(l = 100, b=100), width=500, height = 400*length(contrast_files))
 ```
 
 ## Boxplots of gene normalized counts
@@ -452,8 +452,8 @@ library(DT)
 gene=FALSE
 df_gene <- try(read.table(params$path_genelist))
 if (!inherits(df_gene, 'try-error')){
-  names = rownames(df_gene)
-  gene = TRUE
+    names = rownames(df_gene)
+    gene = TRUE
 }
 ```
 ```{r genes_block, echo=FALSE, results='asis', eval=gene}
@@ -497,55 +497,55 @@ The table below provides more detail on all enriched pathways."))
 ```
 
 ```{r, eval=report_options$KEGG & params$pathway_analysis, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE}
-  library(gprofiler2)
-  #library(rlist)
-  contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
-  q_list <- list()
-  q_names <- c()
-  for (file in contrast_files){
-    #Reading DE genes list
-    fname <- tools::file_path_sans_ext(basename(file))
-    DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
-    if(nrow(DE_genes) <= 1){
-      next
+    library(gprofiler2)
+    #library(rlist)
+    contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
+    q_list <- list()
+    q_names <- c()
+    for (file in contrast_files){
+        #Reading DE genes list
+        fname <- tools::file_path_sans_ext(basename(file))
+        DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
+        if(nrow(DE_genes) <= 1){
+        next
+        }
+        q = as.character(DE_genes$Ensembl_ID)
+        q_list <- append(q_list, list(q))
+        q_names <- append(q_names, fname)
     }
-    q = as.character(DE_genes$Ensembl_ID)
-    q_list <- append(q_list, list(q))
-    q_names <- append(q_names, fname)
-  }
-  datasources <- c("KEGG","REAC")
-  names(q_list) <- q_names
+    datasources <- c("KEGG","REAC")
+    names(q_list) <- q_names
 
-  #gost query
-  gostres <- gost(query=q_list,
-                  organism=tolower(params$organism),
-                  significant=T,
-                  correction_method="fdr",
-                  sources=datasources,
-                  user_threshold=0.05)
+    #gost query
+    gostres <- gost(query=q_list,
+                    organism=tolower(params$organism),
+                    significant=T,
+                    correction_method="fdr",
+                    sources=datasources,
+                    user_threshold=0.05)
 
-  path_enrich <- as.data.frame(gostres$result)
-  if (nrow(path_enrich) > 0){
-    pg2 <- gostplot(gostres, capped=T, interactive=T)
-    pg2
-    pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
-    pg2 %>% layout(margin = list(l = 75, b = 100), width=500, height = 400*length(contrast_files))
-  } else {
-    cat("No enriched pathways were found.")
-  }
+    path_enrich <- as.data.frame(gostres$result)
+    if (nrow(path_enrich) > 0){
+        pg2 <- gostplot(gostres, capped=T, interactive=T)
+        pg2
+        pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
+        pg2 %>% layout(margin = list(l = 75, b = 100), width=500, height = 400*length(contrast_files))
+    } else {
+        cat("No enriched pathways were found.")
+    }
 ```
 
 ```{r, eval=report_options$KEGG & params$pathway_analysis, echo=FALSE}
 if (nrow(path_enrich) > 0) {
-  df_subset <- data.frame(Contrast = path_enrich$query, Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id,
-                          DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size,
-                          Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3),
-                          Padj = formatC(path_enrich$p_value, digits=3))
-  colnames <- c("Contrast", "Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)",
-  "Fraction of DE genes in pathway", "Padj value (pathway enrichment)")
-  kable(df_subset, col.names = colnames) %>%
-    kable_styling("hover") %>%
-    scroll_box(width = "100%", height = "400px")
+    df_subset <- data.frame(Contrast = path_enrich$query, Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id,
+                            DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size,
+                            Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3),
+                            Padj = formatC(path_enrich$p_value, digits=3))
+    colnames <- c("Contrast", "Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)",
+    "Fraction of DE genes in pathway", "Padj value (pathway enrichment)")
+    kable(df_subset, col.names = colnames) %>%
+        kable_styling("hover") %>%
+        scroll_box(width = "100%", height = "400px")
 }
 ```
 
