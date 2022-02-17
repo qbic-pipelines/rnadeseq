@@ -33,7 +33,6 @@ ch_contrast_pairs = Channel.fromPath(params.contrast_pairs)
 ch_relevel = Channel.fromPath(params.relevel)
 ch_quote_file = Channel.fromPath(params.quote)
 ch_genes = Channel.fromPath(params.genelist)
-ch_report_options_file = Channel.fromPath(params.report_options)
 ch_kegg_blacklist = Channel.fromPath(params.kegg_blacklist)
 
 /*
@@ -102,14 +101,17 @@ workflow RNADESEQ {
 //
 //  MODULE: Pathway analysis
 //
-    PATHWAY_ANALYSIS (
-        ch_deseq2,
-        ch_metadata_file,
-        ch_model_file,
-        ch_genes,
-        ch_kegg_blacklist
-    )
-    ch_pathway_analysis = PATHWAY_ANALYSIS.out.pathway_analysis
+    ch_pathway_analysis = Channel.fromPath("FALSE")
+    if (!params.skip_pathway_analysis) {
+        PATHWAY_ANALYSIS (
+            ch_deseq2,
+            ch_metadata_file,
+            ch_model_file,
+            ch_genes,
+            ch_kegg_blacklist
+        )
+        ch_pathway_analysis = PATHWAY_ANALYSIS.out.pathway_analysis
+    }
 
 //
 //  MODULE: RNAseq Report
@@ -119,7 +121,6 @@ workflow RNADESEQ {
         ch_proj_summary_file,
         ch_softwareversions_file,
         ch_model_file,
-        ch_report_options_file,
         ch_contrnames,
         ch_deseq2,
         ch_multiqc_file,
@@ -127,6 +128,7 @@ workflow RNADESEQ {
         ch_pathway_analysis,
         ch_quote_file
     )
+
     //TODO: Enable this:
     // This channel contains the versions of all tools of the current module
 //    CUSTOM_DUMPSOFTWAREVERSIONS (

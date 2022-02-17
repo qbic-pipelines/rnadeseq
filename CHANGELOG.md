@@ -4,9 +4,14 @@
 
 ### Added
 
+- Add parameter "--skip_pathway_analysis"
 - Bump versions to 1.4.0dev
 - Add parameter "--min_DE_genes"
 - Update pipeline to DSL2
+
+### Changed
+
+- Removed assets/report_options.yml
 
 ## 1.3.2 - Almond Blossoms hotfix II
 
