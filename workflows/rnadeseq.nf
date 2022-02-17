@@ -33,7 +33,6 @@ ch_contrast_pairs = Channel.fromPath(params.contrast_pairs)
 ch_relevel = Channel.fromPath(params.relevel)
 ch_quote_file = Channel.fromPath(params.quote)
 ch_genes = Channel.fromPath(params.genelist)
-ch_report_options_file = Channel.fromPath(params.report_options)
 ch_kegg_blacklist = Channel.fromPath(params.kegg_blacklist)
 
 /*
@@ -122,7 +121,6 @@ workflow RNADESEQ {
         ch_proj_summary_file,
         ch_softwareversions_file,
         ch_model_file,
-        ch_report_options_file,
         ch_contrnames,
         ch_deseq2,
         ch_multiqc_file,

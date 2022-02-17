@@ -15,7 +15,6 @@ params:
     path_proj_summary: ""
     path_versions: ""
     path_design: ""
-    path_report_options: ""
     path_contrasts: ""
     path_wd: ""
     path_genelist: ""
@@ -51,11 +50,10 @@ PM_email = as.character(df$Manager.E.Mail)
 description = as.character(df$Description)
 ```
 
-<!-- load report_options.yaml + design.txt -->
+<!-- load design.txt -->
 
 ```{r load_config, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
 library(yaml)
-report_options <- read_yaml(params$path_report_options)
 design_deseq2 <- paste(readLines(params$path_design), collapse=" ")
 log_FC_text <- as.character(params$log_FC)
 log_FC_num <- as.numeric(params$log_FC)
@@ -462,22 +460,6 @@ cat("Plots for the [genes of interest](./differential_gene_expression/metadata/g
 ")
 ```
 
-<!-- In case GO analysis was also included -->
-
-```{r conditional_GO, echo=FALSE, results='asis', eval=report_options$GO}
-version = packageVersion("clusterProfiler")
-cat(paste("***
-## Gene Ontology
-Gene Ontology enrichment analysis was performed using `clusterProfiler v`", version, sep = ""))
-cat(". GO terms that were enriched can be found in the respective table [here](./input/GO). The corresponding plot is shown below and can be found in the same folder:")
-```
-
-<center>
-```{r, echo=F, out.width="2000px", dpi=1200, fig.cap="Enriched GO terms", fig.align='center', eval=report_options$GO}
-knitr::include_graphics("./GO/GO_terms_enriched.png")
-```
-</center>
-
 <!-- In case KEGG analysis was also included; differentiating the cases with and without contrasts -->
 
 ```{r pathway_analysis, echo=FALSE, results='asis', eval=params$pathway_analysis}
@@ -566,30 +548,7 @@ and the subfolder: `pathway_heatmaps`.
 "))
 ```
 
-<!-- If a DEU analysis has also been performed -->
-
-```{r conditional_DEU_results, echo=FALSE, results='asis', eval=report_options$DEU}
-design = report_options$DEXSeq_design
-cat(paste("## Differential Exon Usage
-Analysis of the differential exon usage was performed using DEXSeq. Exons were considered differentially used (DEU) when the adjusted
-p-value was lower than 0.1 (padj < 0.1); the adjusted p-value helps reduce the number of false postives (not real differentially used exons).
-For each gene, the model design in DEXSeq had the formula: ", design, ". The list of all the differentially used exons can be
-found [here](./input/DEXSeq/DEXSeq_results_significant.txt).", sep=""))
-```
-
-```{r conditional_DEU_results2, echo=FALSE, results='asis', eval=report_options$DEU}
-cat("### Fitted Expression Values Visualization
-Plots of the fitted expression values of each exon were generated for a subset of 20 genes among those showing differential exon usage.
-The plots are available in [this folder](`r paste0(wd,/differential_gene_expression/plots/boxplots_example_genes)`);
-in each graph both the experimental conditions are indicated, and the exon that showed significant differential usage is shown in purple.")
-```
-
-
 # Summary and outlook
-
-```{r conditional_outlook_content, echo=FALSE, results='asis', eval=!is.null(report_options$outlook)}
-cat(report_options$outlook)
-```
 \
 The results for all work packages, as described in the quote can be found in this report.
 Further support for this project will be restricted to the results presented in this report.
@@ -619,11 +578,7 @@ An aggregation of the quality control for the RNAseq analysis was performed with
 ## Differential gene expression analysis
 The differential expression analysis was performed by the use of the `rnadeseq `r as.character(params$revision)`` pipeline [^5].
 For differential expression analysis, the raw read count table resulting from `featureCounts` was processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
-<!-- If a DEU analysis has also been performed -->
-```{r conditional_DEU, echo=FALSE, results='asis', eval=report_options$DEU}
-# version = packageVersion("DEXSeq")
-# cat(paste("For differential exon usage, the table count produced by `featureCounts` is processed with the R package `DEXSeq v`",version," [@anders2012detecting].", sep=''))
-```
+
 ```{r conditional_pathway, echo=FALSE, message=FALSE, bootstrap.show.message=FALSE, include=FALSE}
 library(gprofiler2)
 library(AnnotationDbi)

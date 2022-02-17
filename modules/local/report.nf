@@ -5,7 +5,6 @@ process REPORT {
     path proj_summary
     path softwareversions
     path model
-    path report_options
     path contrnames
     path deseq2
     path multiqc
@@ -36,7 +35,6 @@ process REPORT {
     --proj_summary $proj_summary \
     --versions $softwareversions \
     --model $model \
-    --report_options $report_options \
     --revision $workflow.revision \
     --contrasts $contrnames \
     $genelistopt \
