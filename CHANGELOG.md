@@ -1,11 +1,17 @@
 # qbic-pipelines/rnadeseq: Changelog
 
-## 1.4.0 - dev
+## 2.0.0 - dev
 
 ### Added
 
+- Add parameter "--skip_pathway_analysis"
 - Bump versions to 1.4.0dev
 - Add parameter "--min_DE_genes"
+- Update pipeline to DSL2
+
+### Changed
+
+- Removed assets/report_options.yml
 
 ### Fixed
 
