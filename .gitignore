@@ -7,3 +7,6 @@ tests/test_data
 *.pyc
 .Rhistory
 .RData
+testing/
+testing*
+*.pyc
