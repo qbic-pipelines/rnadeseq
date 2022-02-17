@@ -164,13 +164,13 @@ cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design
 
 # Apply relevel if provided to DESeq_object
 if (!is.null(opt$relevel)) {
-  relevel_table <- read.table(path_relevel, sep="\t", header = T, colClasses = "character")
-  write.table(relevel_table, file="differential_gene_expression/metadata/relevel.tsv")
+    relevel_table <- read.table(path_relevel, sep="\t", header = T, colClasses = "character")
+    write.table(relevel_table, file="differential_gene_expression/metadata/relevel.tsv")
 
-  for (i in c(1:nrow(relevel_table))) {
-    relev <- relevel_table[i,]
-    cds[[paste(relev[1])]] <- relevel(cds[[paste(relev[1])]], paste(relev[2]))
-  }
+    for (i in c(1:nrow(relevel_table))) {
+      relev <- relevel_table[i,]
+      cds[[paste(relev[1])]] <- relevel(cds[[paste(relev[1])]], paste(relev[2]))
+    }
 }
 
 # Run DESeq functions
