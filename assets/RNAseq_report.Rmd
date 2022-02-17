@@ -480,7 +480,7 @@ knitr::include_graphics("./GO/GO_terms_enriched.png")
 
 <!-- In case KEGG analysis was also included; differentiating the cases with and without contrasts -->
 
-```{r pathway_analysis, echo=FALSE, results='asis', eval=report_options$KEGG & params$pathway_analysis}
+```{r pathway_analysis, echo=FALSE, results='asis', eval=params$pathway_analysis}
 cat(paste0("***
 # Pathway analysis
 The pathway analysis was performed with the `gProfiler2` tool.
@@ -496,7 +496,7 @@ Hover over the dots to reveal the pathway names.
 The table below provides more detail on all enriched pathways."))
 ```
 
-```{r, eval=report_options$KEGG & params$pathway_analysis, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE}
+```{r, eval=params$pathway_analysis, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE}
     library(gprofiler2)
     #library(rlist)
     contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
@@ -535,7 +535,7 @@ The table below provides more detail on all enriched pathways."))
     }
 ```
 
-```{r, eval=report_options$KEGG & params$pathway_analysis, echo=FALSE}
+```{r, eval=params$pathway_analysis, echo=FALSE}
 if (nrow(path_enrich) > 0) {
     df_subset <- data.frame(Contrast = path_enrich$query, Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id,
                             DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size,
@@ -550,14 +550,14 @@ if (nrow(path_enrich) > 0) {
 ```
 
 
-```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=report_options$KEGG & params$pathway_analysis}
+```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=params$pathway_analysis}
 cat(paste0("## KEGG pathway maps
 For KEGG pathways, a KEGG pathway map was also generated that can be found in the subfolder named `KEGG_pathways`, for each contrast folder.
 \
 "))
 ```
 
-```{r conditional_pathway_maps, echo=FALSE, results='asis', eval=report_options$KEGG & params$pathway_analysis}
+```{r conditional_pathway_maps, echo=FALSE, results='asis', eval=params$pathway_analysis}
 cat(paste0("## Pathway heatmaps
 For all considered contrasts, a heatmap of all DE genes that were found in each of the pathways is produced.
 You can find these heatmaps inside the [pathway_analysis](./pathway_analysis) folder, inside the subfolder corresponding to each of the contrasts,
@@ -629,7 +629,7 @@ library(gprofiler2)
 library(AnnotationDbi)
 ```
 
-```{r conditional_pathway2, echo=FALSE, results='asis', eval=report_options$KEGG & params$pathway_analysis}
+```{r conditional_pathway2, echo=FALSE, results='asis', eval=params$pathway_analysis}
 version_gprofiler2 = packageVersion("gprofiler2")
 version_annotation = packageVersion("AnnotationDbi")
 cat(paste("For pathway analysis, the R packages `gprofiler2 v",version_gprofiler2,"` and `AnnotationDbi v", version_annotation, "` were employed.", sep=''))
