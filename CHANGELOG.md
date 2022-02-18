@@ -13,6 +13,10 @@
 
 - Removed assets/report_options.yml
 
+### Fixed
+
+- [#100](https://github.com/qbic-pipelines/rnadeseq/issues/100) fixed `--logFCthreshold`
+
 ## 1.3.2 - Almond Blossoms hotfix II
 
 ### Added
