@@ -34,6 +34,7 @@
     - [`--report_options`](#--report_options)
     - [`--kegg_blacklist`](#--kegg_blacklist)
     - [`--min_DEG_pathway`](#--min_DEG_pathway)
+    - [`--skip_rlog`](#--skip_rlog)
 - [Special cases](#Special-cases)
     - [Controlling for batch effects](#Controlling-for-batch-effects)
 - [AWS Batch specific parameters](#aws-batch-specific-parameters)
@@ -240,6 +241,10 @@ Text file containing KEGG pathways codes to be excluded from pathway plotting (e
 ### `--min_DEG_pathway`
 
 Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1.
+
+### `--skip_rlog`
+
+Consider using this parameter when the number of input samples is greater than 50. With large input sample sizes the rlog transformation becomes very time consuming. Note: If this flag is used, the pathway analysis will make use of vst transformed counts instead of rlog transformed counts. Check here for more information on [count data transformations](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).
 
 ## Special cases
 
