@@ -164,13 +164,13 @@ cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design
 
 # Apply relevel if provided to DESeq_object
 if (!is.null(opt$relevel)) {
-  relevel_table <- read.table(path_relevel, sep="\t", header = T, colClasses = "character")
-  write.table(relevel_table, file="differential_gene_expression/metadata/relevel.tsv")
+    relevel_table <- read.table(path_relevel, sep="\t", header = T, colClasses = "character")
+    write.table(relevel_table, file="differential_gene_expression/metadata/relevel.tsv")
 
-  for (i in c(1:nrow(relevel_table))) {
-    relev <- relevel_table[i,]
-    cds[[paste(relev[1])]] <- relevel(cds[[paste(relev[1])]], paste(relev[2]))
-  }
+    for (i in c(1:nrow(relevel_table))) {
+        relev <- relevel_table[i,]
+        cds[[paste(relev[1])]] <- relevel(cds[[paste(relev[1])]], paste(relev[2]))
+    }
 }
 
 # Run DESeq functions
@@ -198,7 +198,7 @@ contrast_names <- c()
 if (!is.null(opt$contrasts_matrix)){
   contrasts <- read.table(path_contrasts_matrix, sep="\t", header = T, row.names = 1)
   write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
-  
+
   # Check that contrast matrix is valid
   if(length(coefficients) != nrow(contrasts)){
     stop("Error: Your contrast table has different number of rows than the number of coefficients in the DESeq2 model.")
@@ -271,7 +271,7 @@ if (!is.null(opt$contrasts_pairs)) {
       contname <- cont[0]
       if (!(cont[2] %in% coefficients & cont[3] %in% coefficients)){
         stop(paste0("Provided contrast name is invalid, it needs to be contained in ", coefficients))
-      } 
+      }
       results_DEseq_contrast <- results(cds, contrast=list(cont[1],cont[2]))
       results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
       print("Analyzing contrast:")
