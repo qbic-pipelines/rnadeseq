@@ -159,19 +159,21 @@ write.table(design, file="differential_gene_expression/metadata/linear_model.txt
 
 ################## RUN DESEQ2 ######################################
 
-# Apply relevel if provided to metadata
-if (!is.null(opt$relevel)) {
-    relevel <- read.table(path_relevel, sep="\t", header = T, colClasses = "character")
-    write.table(relevel, file="differential_gene_expression/metadata/relevel.tsv")
+# Create DESeq object
+cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
 
-    for (i in c(1:nrow(relevel))) {
-        relev <- relevel[i,]
-        metadata[,relev[1]] <- relevel(metadata[,relev[1]], relev[2])
+# Apply relevel if provided to DESeq_object
+if (!is.null(opt$relevel)) {
+    relevel_table <- read.table(path_relevel, sep="\t", header = T, colClasses = "character")
+    write.table(relevel_table, file="differential_gene_expression/metadata/relevel.tsv")
+
+    for (i in c(1:nrow(relevel_table))) {
+        relev <- relevel_table[i,]
+        cds[[paste(relev[1])]] <- relevel(cds[[paste(relev[1])]], paste(relev[2]))
     }
 }
 
-# Run DESeq function
-cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
+# Run DESeq functions
 cds <- DESeq(cds,  parallel = FALSE)
 
 # SizeFactors(cds) as indicator of library sequencing depth
@@ -194,69 +196,69 @@ DE_genes_df = data.frame(DE_genes_df = character(nrow(cds)))
 contrast_names <- c()
 
 if (!is.null(opt$contrasts_matrix)){
-    contrasts <- read.table(path_contrasts_matrix, sep="\t", header = T, row.names = 1)
-    write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
+  contrasts <- read.table(path_contrasts_matrix, sep="\t", header = T, row.names = 1)
+  write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
-    # Check that contrast matrix is valid
-    if(length(coefficients) != nrow(contrasts)){
-        stop("Error: Your contrast table has different number of rows than the number of coefficients in the DESeq2 model.")
-    }
+  # Check that contrast matrix is valid
+  if(length(coefficients) != nrow(contrasts)){
+    stop("Error: Your contrast table has different number of rows than the number of coefficients in the DESeq2 model.")
+  }
 
-    ## Contrast calculation for contrast matrix
-    for (i in c(1:ncol(contrasts))) {
-        results_DEseq_contrast <-results(cds, contrast=contrasts[[i]])
+  ## Contrast calculation for contrast matrix
+  for (i in c(1:ncol(contrasts))) {
+    results_DEseq_contrast <-results(cds, contrast=contrasts[[i]])
 
-        contname <- names(contrasts[i])
-        results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
-        print("Analyzing contrast:")
-        print(contname)
-        # Add gene name in table
-        DE_genes_contrast_genename <- results_DEseq_contrast
-        DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
-        DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
-        DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
-        DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
-        # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
-        DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
-        # Save table
-        write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
-        names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
-        # Append to DE genes table for all contrasts
-        DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
-    }
-    contrast_names <- append(contrast_names, colnames(contrasts))
+    contname <- names(contrasts[i])
+    results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
+    print("Analyzing contrast:")
+    print(contname)
+    # Add gene name in table
+    DE_genes_contrast_genename <- results_DEseq_contrast
+    DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
+    DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
+    DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
+    DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+    # Select only significantly DE
+    DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
+    DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
+    # Save table
+    write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
+    # Append to DE genes table for all contrasts
+    DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
+  }
+  contrast_names <- append(contrast_names, colnames(contrasts))
 }
 
 if (!is.null(opt$contrasts_list)) {
-    contrasts <- read.table(path_contrasts_list, sep="\t", header=T, colClasses = "character")
-    write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv")
+  contrasts <- read.table(path_contrasts_list, sep="\t", header=T, colClasses = "character")
+  write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv")
 
-    ## Contrast calculation for contrast list
-    for (i in c(1:nrow(contrasts))) {
-        cont <- as.character(contrasts[i,])
-        contname <- paste0(cont[1], "_", cont[2], "_vs_", cont[3])
-    # TODO: add checks if provided contrast_names and factors are in metadata
-        results_DEseq_contrast <- results(cds, contrast=cont)
-        results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
-        print(contname)
-        # Add gene name in table
-        DE_genes_contrast_genename <- results_DEseq_contrast
-        DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
-        DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
-        DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
-        DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
-        # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
-        DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
-        # Save table
-        write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
-        names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
-        # Append to DE genes table for all contrasts
-        DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
+  ## Contrast calculation for contrast list
+  for (i in c(1:nrow(contrasts))) {
+    cont <- as.character(contrasts[i,])
+    contname <- paste0(cont[1], "_", cont[2], "_vs_", cont[3])
+# TODO: add checks if provided contrast_names and factors are in metadata
+    results_DEseq_contrast <- results(cds, contrast=cont)
+    results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
+    print(contname)
+    # Add gene name in table
+    DE_genes_contrast_genename <- results_DEseq_contrast
+    DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
+    DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
+    DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
+    DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+    # Select only significantly DE
+    DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
+    DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
+    # Save table
+    write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
+    # Append to DE genes table for all contrasts
+    DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
 
-        contrast_names <- append(contrast_names, contname)
-    }
+    contrast_names <- append(contrast_names, contname)
+  }
 }
 
 if (!is.null(opt$contrasts_pairs)) {
@@ -265,58 +267,58 @@ if (!is.null(opt$contrasts_pairs)) {
 
     # Contrast calculation for contrast pairs
     for (i in c(1:nrow(contrasts))) {
-        cont <- as.character(contrasts[i,])
-        contname <- cont[0]
-        if (!(cont[2] %in% coefficients & cont[3] %in% coefficients)){
-            stop(paste0("Provided contrast name is invalid, it needs to be contained in ", coefficients))
-        }
-        results_DEseq_contrast <- results(cds, contrast=list(cont[1],cont[2]))
-        results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
-        print("Analyzing contrast:")
-        print(contname)
-        # Add gene name in table
-        DE_genes_contrast_genename <- results_DEseq_contrast
-        DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
-        DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
-        DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
-        DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
-        # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
-        DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
-        # Save table
-        write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
-        names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
-        # Append to DE genes table for all contrasts
-        DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
+      cont <- as.character(contrasts[i,])
+      contname <- cont[0]
+      if (!(cont[2] %in% coefficients & cont[3] %in% coefficients)){
+        stop(paste0("Provided contrast name is invalid, it needs to be contained in ", coefficients))
+      }
+      results_DEseq_contrast <- results(cds, contrast=list(cont[1],cont[2]))
+      results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
+      print("Analyzing contrast:")
+      print(contname)
+      # Add gene name in table
+      DE_genes_contrast_genename <- results_DEseq_contrast
+      DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
+      DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
+      DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
+      DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+      # Select only significantly DE
+      DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
+      DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
+      # Save table
+      write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+      names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
+      # Append to DE genes table for all contrasts
+      DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
 
-        contrast_names <- append(contrast_names, contname)
+      contrast_names <- append(contrast_names, contname)
     }
 }
 
 # Calculating DE genes for default contrasts (no contrast matrix or list or pairs provided)
 if (is.null(opt$contrasts_matrix) & is.null(opt$contrasts_list) & is.null(opt$contrasts_pairs)) {
-    contrast_names <- coefficients[2:length(coefficients)]
-    for (contname in contrast_names) {
-        results_DEseq_contrast <- results(cds, name=contname)
-        results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
-        print("Analyzing contrast:")
-        print(contname)
+  contrast_names <- coefficients[2:length(coefficients)]
+  for (contname in contrast_names) {
+    results_DEseq_contrast <- results(cds, name=contname)
+    results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
+    print("Analyzing contrast:")
+    print(contname)
 
-        # Adding gene name to table
-        DE_genes_contrast_genename <- results_DEseq_contrast
-        DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
-        DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x ="Ensembl_ID", by.y="Ensembl_ID", all.x=T)
-        DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
-        DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
-        # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & (log2FoldChange > opt$logFCthreshold | log2FoldChange < opt$logFCthreshold))
-        DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
-        # Save table
-        write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
-        names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
-        # Append to DE genes table for all contrasts
-        DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
-    }
+    # Adding gene name to table
+    DE_genes_contrast_genename <- results_DEseq_contrast
+    DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
+    DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x ="Ensembl_ID", by.y="Ensembl_ID", all.x=T)
+    DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
+    DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+    # Select only significantly DE
+    DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
+    DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
+    # Save table
+    write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+    names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
+    # Append to DE genes table for all contrasts
+    DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
+  }
 }
 
 # Write contrast names to file
