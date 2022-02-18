@@ -15,7 +15,7 @@
 
 ### Fixed
 
-- Fixed relevel and added test_relevel.config
+- [#105](https://github.com/qbic-pipelines/rnadeseq/pull/105) Fixed relevel and added test_relevel.config
 
 ## 1.3.2 - Almond Blossoms hotfix II
 
