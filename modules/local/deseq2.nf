@@ -23,7 +23,6 @@ process DESEQ2 {
     def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel $relevel" : ''
     def batch_effect_opt = params.batch_effect ? "--batchEffect" : ''
     def rlog_opt = params.skip_rlog ? '--rlog FALSE' : '--rlog TRUE'
-    print rlog_opt
     """
     DESeq2.R --counts $gene_counts --metadata $metadata --design $model \
     --logFCthreshold $params.logFCthreshold $relevel_opt $contrast_mat_opt \

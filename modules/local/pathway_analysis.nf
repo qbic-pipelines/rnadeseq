@@ -18,7 +18,7 @@ process PATHWAY_ANALYSIS {
     def normInput = params.skip_rlog ? basepath + 'vst_transformed_gene_counts.tsv' : basepath + 'rlog_transformed_gene_counts.tsv'
     """
     unzip $deseq_output
-    pathway_analysis.R --dirContrasts $basepath --metadata $metadata \
+    pathway_analysis.R --dirContrasts 'differential_gene_expression/DE_genes_tables/' --metadata $metadata \
     --model $model --normCounts $normInput \
     --species $params.species $genelistopt $keggblacklistopt --min_DEG_pathway $params.min_DEG_pathway
     zip -r pathway_analysis.zip pathway_analysis/
