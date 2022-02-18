@@ -101,6 +101,8 @@ if(!is.null(opt$genelist)){
     requested_genes_path = opt$genelist
 }
 
+print(paste("--rlog = ", opt$rlog))
+
 ####### LOADING AND PROCESSING COUNT TABLE AND METADATA TABLE #####################################
 
 # Load count table
