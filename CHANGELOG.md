@@ -8,6 +8,7 @@
 - Bump versions to 1.4.0dev
 - Add parameter "--min_DE_genes"
 - Update pipeline to DSL2
+- Add parameter "--skip_rlog"
 
 ### Changed
 
