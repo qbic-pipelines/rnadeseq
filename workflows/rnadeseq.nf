@@ -101,6 +101,7 @@ workflow RNADESEQ {
 //
 //  MODULE: Pathway analysis
 //
+    ch_pathway_analysis = Channel.empty()
     if (!params.skip_pathway_analysis) {
         PATHWAY_ANALYSIS (
             ch_deseq2,
