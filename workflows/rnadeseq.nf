@@ -39,7 +39,6 @@ ch_kegg_blacklist = Channel.fromPath(params.kegg_blacklist)
 ========================================================================================
     CONFIG FILES
 ========================================================================================
-
 /*
 ========================================================================================
     IMPORT LOCAL MODULES/SUBWORKFLOWS
@@ -101,7 +100,7 @@ workflow RNADESEQ {
 //
 //  MODULE: Pathway analysis
 //
-    ch_pathway_analysis = Channel.empty()
+    ch_pathway_analysis = Channel.fromPath("FALSE")
     if (!params.skip_pathway_analysis) {
         PATHWAY_ANALYSIS (
             ch_deseq2,
