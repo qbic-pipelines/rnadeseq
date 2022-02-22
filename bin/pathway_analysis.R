@@ -62,8 +62,8 @@ if(is.null(opt$normCounts)){
 }
 
 # Pathway blacklist append if provided
-if(!is.null(opt$KEGG_blacklist)){
-    KEGG_blacklist <- read.table(file=KEGG_blacklist, sep = "\t", header = F, quote="")
+if(!is.null(opt$kegg_blacklist)){
+    KEGG_blacklist <- read.table(file=opt$kegg_blacklist, sep = "\n", header = FALSE, quote="")
     blacklist_pathways <- append(blacklist_pathways, KEGG_blacklist$V1)
 }
 

@@ -15,7 +15,8 @@
 
 ### Fixed
 
-- [#106](https://github.com/qbic-pipelines/rnadeseq/pull/106) Fixed `--logFCthreshold` bug
+- Fixed `--logFCthreshold` bug
+- Fixed blacklist file not working
 
 ## 1.3.2 - Almond Blossoms hotfix II
 
