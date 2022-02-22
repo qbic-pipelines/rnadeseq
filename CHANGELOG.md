@@ -14,6 +14,11 @@
 
 - Removed assets/report_options.yml
 
+### Fixed
+
+- Fixed `--logFCthreshold` bug
+- Fixed blacklist file not working
+
 ## 1.3.2 - Almond Blossoms hotfix II
 
 ### Added

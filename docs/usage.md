@@ -31,7 +31,6 @@
     - [`--genelist`](#--genelist)
     - [`--batch_effect`](#--batch_effect)
     - [`--quote`](#--quote)
-    - [`--report_options`](#--report_options)
     - [`--kegg_blacklist`](#--kegg_blacklist)
     - [`--min_DEG_pathway`](#--min_DEG_pathway)
     - [`--skip_rlog`](#--skip_rlog)
@@ -88,7 +87,6 @@ nextflow run qbic-pipelines/rnadeseq -r 1.1.0 -profile docker \
 --multiqc 'MultiQC.zip' \
 --quote 'QXXXX_signed_offer.pdf' \
 --versions 'software_versions.csv' \
---report_options 'report_options.yml' \
 --species Hsapiens
 ```
 
@@ -228,11 +226,6 @@ Option needed to account for batch effects in the data. Please check the section
 ### `--quote`
 
 Path to the signed copy of the QBiC offer as pdf, to be included in the report.
-
-### `--report_options`
-
-Configuration file describing the sections that need to be present in the report, text can also be specified that is desired to be added to the outlook section.
-Check here an [example file](https://raw.githubusercontent.com/qbic-pipelines/rnadeseq/dev/testdata/report_options.yml).
 
 ### `--kegg_blacklist`
 
