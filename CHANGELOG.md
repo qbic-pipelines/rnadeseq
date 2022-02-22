@@ -8,6 +8,7 @@
 - Bump versions to 1.4.0dev
 - Add parameter "--min_DE_genes"
 - Update pipeline to DSL2
+- Add parameter "--skip_rlog"
 
 ### Changed
 
@@ -16,6 +17,8 @@
 ### Fixed
 
 - [#105](https://github.com/qbic-pipelines/rnadeseq/pull/105) Fixed relevel and added test_relevel.config
+- Fixed `--logFCthreshold` bug
+- Fixed blacklist file not working
 
 ## 1.3.2 - Almond Blossoms hotfix II
 
