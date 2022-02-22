@@ -13,6 +13,10 @@
 
 - Removed assets/report_options.yml
 
+### Fixed
+
+- Fixed blacklist file not working
+
 ## 1.3.2 - Almond Blossoms hotfix II
 
 ### Added
