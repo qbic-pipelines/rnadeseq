@@ -131,13 +131,25 @@ Raw count table (TSV). Column names must start with the QBiC code. Columns are s
 --rawcounts 'path/to/raw_count_table.tsv'
 ```
 
+```tsv
+Geneid  gene_name   QBICK00001_Sample1  QBICK00002_Sample2
+ENSG00000000003  TSPAN6  150   3000
+ENSG00000000005   TNMD    80  6
+```
+
 ### `--metadata`
 
-Metadata table is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
+Metadata table (TSV) is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
 
 - **QBiC Code**: is needed to match metadata with the raw counts.
 - **Secondary Name**, samples will be named with the pattern: QBiC code + Secondary name.
 - **Condition: tag**: a separated column for each of the conditions. The headers of this columns start with "Condition: ". The values of these columns should not contain spaces.
+
+```tsv
+QBiC Code   Secondary Name  Condition: treatment
+QBICK00001  Sample1 treated
+QBICK00002  Sample2 untreated
+```
 
 ### `--model`
 
@@ -149,7 +161,7 @@ Linear model function to calculate the contrasts (TXT). Variable names should be
 
 ### `--species`
 
-Species name. For example: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
+Species name. Currently the following species are available for pathway analysis: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
 
 ### `--project_summary`
 
