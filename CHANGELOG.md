@@ -16,6 +16,7 @@
 
 ### Fixed
 
+- [#105](https://github.com/qbic-pipelines/rnadeseq/pull/105) Fixed relevel and added test_relevel.config
 - Fixed `--logFCthreshold` bug
 - Fixed blacklist file not working
 
