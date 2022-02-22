@@ -25,7 +25,7 @@ process REPORT {
     """
     unzip $deseq2
     unzip $multiqc
-    if [ "$gprofiler" != "FALSE" ]; then
+    if [ "$pathwayopt" == "--pathway_analysis" ]; then
         unzip $gprofiler
     fi
     mkdir QC
@@ -43,7 +43,7 @@ process REPORT {
     $batchopt \
     --min_DEG_pathway $params.min_DEG_pathway \
     $pathwayopt
-    if [ "$gprofiler" != "FALSE" ]; then
+    if [ "$pathwayopt" == "--pathway_analysis" ]; then
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quoteopt
     else
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ $quoteopt
