@@ -217,6 +217,8 @@ if (!is.null(opt$contrasts_matrix)){
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+        # Save all DE genes (even if not significant) to separate files for the volcano plot
+        write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_allgenes_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         # Select only significantly DE
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
@@ -247,6 +249,8 @@ if (!is.null(opt$contrasts_list)) {
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+        # Save all DE genes (even if not significant) to separate files for the volcano plot
+        write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_allgenes_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         # Select only significantly DE
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
@@ -281,6 +285,8 @@ if (!is.null(opt$contrasts_pairs)) {
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+        # Save all DE genes (even if not significant) to separate files for the volcano plot
+        write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_allgenes_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         # Select only significantly DE
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
@@ -309,6 +315,8 @@ if (is.null(opt$contrasts_matrix) & is.null(opt$contrasts_list) & is.null(opt$co
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x ="Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+        # Save all DE genes (even if not significant) to separate files for the volcano plot
+        write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_allgenes_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         # Select only significantly DE
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
@@ -553,3 +561,4 @@ for (i in resultsNames(cds)[-1]) {
     dev.off()
     rm(res,qs,bins,ratios,use,h1,h2,colori)
 }
+

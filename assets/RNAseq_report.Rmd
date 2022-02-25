@@ -69,11 +69,12 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 <img src="./logo.png" style="position:absolute;top:0px;right:0px;" height="200" width="200" />
 <div class="watermark">QBiC</div>
 
-```{r docSetup, bootstrap.show.code = FALSE, dev = 'png', bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
+```{r docSetup, bootstrap.show.code = FALSE, dev = c('png', 'svg'), bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
 ## knitrBoostrap and device chunk options
 options(warn = -1)                          # suppress warnings and messages
 library(knitr)
-opts_chunk$set(bootstrap.show.code = FALSE, dev = 'png', echo=FALSE)
+#TODO: Check if this works
+opts_chunk$set(bootstrap.show.code = FALSE, dev = c('png', 'svg'), echo=FALSE)
 ```
 
 \
@@ -131,7 +132,7 @@ if(file.exists(QAfile)){
     conditions <- grepl(colnames(df_QA),pattern = "Condition")
     df_QA_cond <- as.data.frame(df_QA[ ,conditions])
     colnames(df_QA_cond) <- colnames(df_QA)[conditions]
-    df_QA_neat <- df_QA[,c("QBiC Code", "Secondary Name", "Lab ID", "Sample Type")]
+    df_QA_neat <- df_QA[,c("QBiC Code", "Secondary Name", "Lab ID")]
     df_QA_neat <- merge(df_QA_neat, df_QA_cond, by="row.names")
     df_QA_neat$Row.names <- NULL
     if ("RIN" %in% colnames(df_QA)){
@@ -409,25 +410,33 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     contrast_files <- list.files(path=paste0(wd, "/differential_gene_expression/DE_genes_tables/"))
     table_list <- list()
     for (file in contrast_files){
-        #Reading DE genes list
-        fname <- tools::file_path_sans_ext(basename(file))
-        DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
-        DE_genes$contrast <- rep(fname, nrow(DE_genes))
-        # label: gene_name
-        # x: log2FoldChange
-        # y: -log10(padj)
-        table_list <- append(table_list, list(DE_genes))
+        if (grepl("allgenes", file, fixed=TRUE))
+        {
+            #Reading DE genes list
+            fname <- tools::file_path_sans_ext(basename(file))
+            DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
+            DE_genes$contrast <- rep(fname, nrow(DE_genes))
+            # label: gene_name
+            # x: log2FoldChange
+            # y: -log10(padj)
+            table_list <- append(table_list, list(DE_genes))
+        }
     }
     DE_all <- ldply(table_list, rbind)
     DE_all$logpval <- -log10(DE_all$padj)
     DE_all$logpval[DE_all$logpval > 16] <- 17
+    pval_threshold <- 0.05  #set here the not logarithmized threshold for the p value (probably 0.05)
+    log2FoldChange_min <- min(DE_all$log2FoldChange)
+    log2FoldChange_max <- max(DE_all$log2FoldChange)
     pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
-            geom_point(aes(alpha=0.3)) +
+            geom_point(aes(alpha=0.3), color=ifelse(abs(DE_all$log2FoldChange) > params$log_FC &  DE_all$logpval > -log10(pval_threshold), "red", "black")) +
             geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
-            geom_vline(xintercept = log_FC_num, size = 0.2, color = "blue") +
-            geom_vline(xintercept = -log_FC_num, size = 0.2, color = "blue") +
+            geom_hline(yintercept = -log10(pval_threshold), size = 0.2, color = "grey") +
+            geom_vline(xintercept = log_FC_num, size = 0.2, color = "grey") +
+            geom_vline(xintercept = -log_FC_num, size = 0.2, color = "grey") +
+            scale_color_identity() +
             scale_y_continuous(limits = c(1, 18)) +
-            scale_x_continuous(limits = c(-5,5), breaks = c(-5:5)) +
+            scale_x_continuous(limits = c(floor(log2FoldChange_min),ceiling(log2FoldChange_max)), breaks = c(floor(log2FoldChange_min):ceiling(log2FoldChange_max))) +
             facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
             ylab("-log 10 padj") + xlab("Log2 Fold Change") + theme(legend.position = "none") +
             annotate(geom = "text", x = 4.2, y = 16.2,
@@ -436,7 +445,7 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     pg <- ggplotly(pg, tooltip = "text")
     pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05
     pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
-    pg %>% layout(margin = list(l = 100, b=100), width=500, height = 400*length(contrast_files))
+    pg %>% layout(margin = list(l = 100, b=100), width=500, height = 400*length(contrast_files[grepl("allgenes", contrast_files, fixed=TRUE)]))
 ```
 
 ## Boxplots of gene normalized counts
@@ -481,6 +490,7 @@ The table below provides more detail on all enriched pathways."))
 ```{r, eval=params$pathway_analysis, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE}
     library(gprofiler2)
     #library(rlist)
+    #TODO: check if here, only the filtered genes are necessary
     contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
     q_list <- list()
     q_names <- c()
