@@ -25,6 +25,7 @@ params:
     log_FC: ""
     revision: ""
     pathway_analysis: ""
+    rlog: ""
 # Author: Silvia Morini, Gisela Gabernet, Simon Heumos
 ---
 
@@ -304,8 +305,12 @@ The differential expression analysis is performed using the raw gene count table
 For PCA analysis and heatmap plotting, the regularized logarithm (rlog) normalized gene counts were employed.
 The vst (variant stabilizing transformation) normalized counts are also provided.
 
+```{r}
+rlog_text <- ifelse(params$rlog, "rlog", "vst")
+```
+
 ## Principal component analysis (PCA)
-A PCA plot of the rlog normalized gene expression visualizes the clustering of samples according to their gene expression.
+A PCA plot of the `r rlog_text` normalized gene expression visualizes the clustering of samples according to their gene expression.
 In this way, the overall effect of experimental conditions and sample grouping, and any batch effects are visualized.
 The original plot can be downloaded [here](./differential_gene_expression/plots/PCA_plot.pdf).
 

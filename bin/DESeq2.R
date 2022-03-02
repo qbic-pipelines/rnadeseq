@@ -460,7 +460,7 @@ dev.off()
 
 
 ############################ PCA PLOTS ########################
-pcaData <- plotPCA(vsd,intgroup=c("combfactor"),ntop = dim(vsd)[1], returnData=TRUE)
+pcaData <- plotPCA(if (opt$rlog) rld else vsd,intgroup=c("combfactor"),ntop = dim(vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
 pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor)) +
     geom_point(size=3) +
@@ -473,8 +473,13 @@ ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg",
 
 ########################### PCA PLOT with batch-corrected data ############
 if(opt$batchEffect){
-    assay(vsd) <- limma::removeBatchEffect(assay(vsd), vsd$batch)
-    pcaData2 <- plotPCA(vsd, intgroup=c("combfactor"), ntop = dim(vsd)[1], returnData=TRUE)
+    if(opt$rlog){
+        assay(rld) <- limma::removeBatchEffect(assay(rld), rld$batch)
+        pcaData2 <- plotPCA(rld, intgroup=c("combfactor"), ntop = dim(rld)[1], returnData=TRUE)
+    } else {
+        assay(vsd) <- limma::removeBatchEffect(assay(vsd), vsd$batch)
+        pcaData2 <- plotPCA(vsd, intgroup=c("combfactor"), ntop = dim(vsd)[1], returnData=TRUE)
+    }
     percentVar <- round(100*attr(pcaData, "percentVar"))
     pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor)) +
                 geom_point(size=3)+
