@@ -15,6 +15,7 @@ library(optparse)
 # Need to load library for your species
 library(org.Mm.eg.db) #Mmusculus
 library(org.Hs.eg.db) #Hsapiens
+library(org.At.tair.db) #Athaliana
 
 # Blacklist pathways: some pathways are corrupted in KEGG and produce errors. Add the pathway here if you have this kind of error:
 blacklist_pathways <- c("mmu05206", "mmu04215", "hsa05206", "mmu04723")
@@ -79,6 +80,10 @@ if(is.null(opt$species)){
     organism <- "mmusculus"
     short_organism_name <- "mmu"
     library <- org.Mm.eg.db
+} else if (tolower(opt$species) == "athaliana") {
+    organism <- "athaliana"
+    short_organism_name <- "tair"
+    library <- org.At.tair.db
 } else {
     stop("Species name is unknown, check for typos or contact responsible person to add your species.")
 }
