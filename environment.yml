@@ -12,6 +12,7 @@ dependencies:
     - bioconda::bioconductor-genomeinfodbdata=1.2.7
     - bioconda::bioconductor-org.hs.eg.db=3.14.0
     - bioconda::bioconductor-org.mm.eg.db=3.14.0
+    - bioconda::bioconductor-org.At.tair.db=3.14.0
     - bioconda::bioconductor-pathview=1.34.0
     - bioconda::bioconductor-vsn=3.62.0
     - conda-forge::pandoc=2.17.1.1
