@@ -400,6 +400,8 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     library(plotly)
     library(plyr)
     #library(rlist)
+    library(webshot)
+    library(htmlwidgets)
 ```
 
 ```{r, out.width="100%", out.height="100%"}
@@ -436,7 +438,32 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     pg <- ggplotly(pg, tooltip = "text")
     pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05
     pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
-    pg %>% layout(margin = list(l = 100, b=100), width=500, height = 400*length(contrast_files))
+     # This adds additional plot export formats to the menubar
+    pdf_exp <- list(
+        name = "Download plot as a pdf",
+        icon = list(
+            path = "fileformats/pdf.svg"
+        ),
+        click = htmlwidgets::JS(
+            "function(pg) {
+                Plotly.downloadImage(pg, {format: 'pdf', filename: 'volcanoplot'});
+            }"
+        )
+    )
+    svg_exp <- list(
+        name = "Download plot as an svg",
+        icon = list(
+            path = "fileformats/svg.svg"
+        ),
+        click = htmlwidgets::JS(
+            "function(pg) {
+                Plotly.downloadImage(pg, {format: 'svg', filename: 'volcanoplot'});
+            }"
+        )
+    )
+    config(pg, modeBarButtonsToAdd = list(pdf_exp, svg_exp), toImageButtonOptions = list(
+      format = "pdf"
+    )) %>% layout(margin = list(l = 100, b=100), width=700, height = 400*length(contrast_files[grepl("allgenes", contrast_files, fixed = T)]))
 ```
 
 ## Boxplots of gene normalized counts
