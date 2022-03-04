@@ -122,6 +122,11 @@ library(kableExtra)
 library(knitr)
 ```
 
+```{r}
+pval_threshold <- 0.05  #set here the non-logarithmized threshold for the p value (probably 0.05)
+pval_text <- as.character(pval_threshold)
+```
+
 ```{r setup, echo=FALSE, message=FALSE}
 # condition: if there is a RIN column in Sample_preparations.tsv, prints a statement and the table with the RIN column;
 # if there is no RIN column, or the column has one or more NAs, print only the metadata sheet.
@@ -360,12 +365,6 @@ for (i in 1:length(contrnames)){
 ```
 
 ## List of differentially expressed genes
-```{r}
-pval_threshold <- 0.05  #set here the non-logarithmized threshold for the p value (probably 0.05)
-pval_text <- as.character(pval_threshold)
-# TODO: Check if DE is padj AND FC or if it is padj OR FC! Need to adapt this in the text for explanation, in the plot and possibly also in some script which creates the list of genes.
-```
-
 The analysis of the differential gene expression was performed using `DESeq2`.
 Genes were considered differentially expressed (DE) when the adjusted p-value was lower than 0.05 (padj < 0.05).
 Genes were further considered differentially expressed (DE) if the log2 Fold Change in expression between the two considered groups was above the threshold of `r log_FC_text` in absolute terms.
