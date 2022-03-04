@@ -9,6 +9,7 @@
 - Add parameter "--min_DE_genes"
 - [#97](https://github.com/qbic-pipelines/rnadeseq/pull/97) Update pipeline to DSL2
 - [#107](https://github.com/qbic-pipelines/rnadeseq/pull/107) Add parameter "--skip_rlog"
+- Added enhanced volcano plots
 
 ### Changed
 
@@ -20,6 +21,7 @@
 - [#105](https://github.com/qbic-pipelines/rnadeseq/pull/105) Fixed relevel and added test_relevel.config
 - [#106](https://github.com/qbic-pipelines/rnadeseq/pull/106) Fixed `--logFCthreshold` bug
 - [#108](https://github.com/qbic-pipelines/rnadeseq/pull/108) Fixed blacklist file not working
+- [#88](https://github.com/qbic-pipelines/rnadeseq/issues/88) Fixed volcano plot axis
 
 ## 1.3.2 - Almond Blossoms hotfix II
 
