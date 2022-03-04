@@ -17,7 +17,8 @@ option_list = list(
     make_option(c("-f", "--log_FC"), type="double", default=NULL, help="Log Fold Change threshold to consider a gene DE."),
     make_option(c("-x", "--revision"), type="character", default=NULL, help="rnadeseq workflow revision", metavar="character"),
     make_option(c("-p", "--min_DEG_pathway"), type="integer", default=NULL, help="min. number of genes DE in a pathway for this pathway to be considered enriched.", metavar="integer"),
-    make_option(c("-a", "--pathway_analysis"), action="store_true", default=FALSE, help="Pathway analysis.")
+    make_option(c("-a", "--pathway_analysis"), action="store_true", default=FALSE, help="Pathway analysis."),
+    make_option(c("-y", "--rlog"), action="store_true", default=FALSE, help="Use rlog instead of vst normalization.")
 )
 
 opt_parser = OptionParser(option_list=option_list)
@@ -44,4 +45,5 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 batch_effect = opt$batch_effect,
                                 log_FC = opt$log_FC,
                                 revision = opt$revision,
-                                pathway_analysis = opt$pathway_analysis))
+                                pathway_analysis = opt$pathway_analysis,
+                                rlog = opt$rlog))
