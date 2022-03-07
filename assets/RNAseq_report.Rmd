@@ -448,8 +448,7 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
             scale_y_continuous(limits = c(1, 18)) +
             scale_x_continuous(breaks = seq(-200, 200, 1)) +
             facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
-            ylab("-log 10 padj") + xlab("Log2 Fold Change") #+
-         #   annotate(geom = "text", x = 0, y = 16.3, label = "values above this threshold are capped\t\tvalues above this threshold are capped\t\tvalues above this threshold are capped", size = 3, color = "grey")
+            ylab("-log 10 padj") + xlab("Log2 Fold Change")
     pg <- ggplotly(pg, tooltip = "text")
     pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05
     pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
