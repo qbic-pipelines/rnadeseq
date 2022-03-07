@@ -101,7 +101,7 @@
                     "description": "Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1."
                 },
                 "skip_pathway_analysis": {
-                    "type": "string",
+                    "type": "boolean",
                     "default": "false",
                     "description": "Turn on this flag if you wish to skip pathway analysis."
                 },
