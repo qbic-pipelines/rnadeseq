@@ -511,14 +511,54 @@ boxplot(log10(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="lo
 boxplot(log2(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log2-Cooks")
 dev.off()
 
+png("differential_gene_expression/plots/further_diagnostics_plots/Cooks-distances.png")
+par(mar=c(10,3,3,3))
+par( mfrow = c(1,2))
+boxplot(log10(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log10-Cooks")
+boxplot(log2(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log2-Cooks")
+dev.off()
+
+svg("differential_gene_expression/plots/further_diagnostics_plots/Cooks-distances.svg")
+par(mar=c(10,3,3,3))
+par( mfrow = c(1,2))
+boxplot(log10(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log10-Cooks")
+boxplot(log2(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log2-Cooks")
+dev.off()
+
 # The function plotDispEsts visualizes DESeqs dispersion estimates:
 pdf("differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.pdf")
+plotDispEsts(cds, ylim = c(1e-5, 1e8))
+dev.off()
+
+png("differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.png")
+plotDispEsts(cds, ylim = c(1e-5, 1e8))
+dev.off()
+
+svg("differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.svg")
 plotDispEsts(cds, ylim = c(1e-5, 1e8))
 dev.off()
 
 # Effects of transformations on the variance
 notAllZero <- (rowSums(counts(cds))>0)
 pdf("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.pdf")
+par(oma=c(3,3,3,3))
+par(mfrow = c(1, 3))
+meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
+meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = "sd rlog transformed count data")
+meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd ", if (opt$rlog) "rld" else "vsd" ," transformed count data"))
+dev.off()
+
+notAllZero <- (rowSums(counts(cds))>0)
+png("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.png")
+par(oma=c(3,3,3,3))
+par(mfrow = c(1, 3))
+meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
+meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = "sd rlog transformed count data")
+meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd ", if (opt$rlog) "rld" else "vsd" ," transformed count data"))
+dev.off()
+
+notAllZero <- (rowSums(counts(cds))>0)
+svg("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.svg")
 par(oma=c(3,3,3,3))
 par(mfrow = c(1, 3))
 meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
@@ -533,6 +573,12 @@ for (i in resultsNames(cds)[-1]) {
     pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_",i,".pdf",sep=""))
     plotMA(res,ylim = c(-4, 4))
     dev.off()
+    png(paste("differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_",i,".png",sep=""))
+    plotMA(res,ylim = c(-4, 4))
+    dev.off()
+    svg(paste("differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_",i,".svg",sep=""))
+    plotMA(res,ylim = c(-4, 4))
+    dev.off()
     # multiple hyptothesis testing
     qs <- c( 0, quantile(results(cds)$baseMean[res$baseMean > 0], 0:4/4 ))
     bins <- cut(res$baseMean, qs )
@@ -544,8 +590,28 @@ for (i in resultsNames(cds)[-1]) {
     pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_",i,".pdf",sep=""))
     barplot(ratios, xlab="mean normalized count", ylab="ratio of small p values")
     dev.off()
+    png(paste("differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_",i,".png",sep=""))
+    barplot(ratios, xlab="mean normalized count", ylab="ratio of small p values")
+    dev.off()
+    svg(paste("differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_",i,".svg",sep=""))
+    barplot(ratios, xlab="mean normalized count", ylab="ratio of small p values")
+    dev.off()
     # plot number of rejections
     pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_",i,".pdf",sep=""))
+    plot(metadata(res)$filterNumRej,
+        type="b", ylab="number of rejections",
+        xlab="quantiles of filter")
+    lines(metadata(res)$lo.fit, col="red")
+    abline(v=metadata(res)$filterTheta)
+    dev.off()
+    png(paste("differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_",i,".png",sep=""))
+    plot(metadata(res)$filterNumRej,
+        type="b", ylab="number of rejections",
+        xlab="quantiles of filter")
+    lines(metadata(res)$lo.fit, col="red")
+    abline(v=metadata(res)$filterTheta)
+    dev.off()
+    svg(paste("differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_",i,".svg",sep=""))
     plot(metadata(res)$filterNumRej,
         type="b", ylab="number of rejections",
         xlab="quantiles of filter")
@@ -559,6 +625,20 @@ for (i in resultsNames(cds)[-1]) {
     h2 <- hist(res$pvalue[use], breaks=0:50/50, plot=FALSE)
     colori <- c('do not pass'="khaki", 'pass'="powderblue")
     pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values",i,".pdf",sep=""))
+    barplot(height = rbind(h1$density, h2$density), beside = FALSE,
+            col = colori, space = 0, main = "", xlab="p value",ylab="frequency")
+    text(x = c(0, length(h1$counts)), y = 0, label = paste(c(0,1)),
+        adj = c(0.5,1.7), xpd=NA)
+    legend("topleft", fill=rev(colori), legend=rev(names(colori)))
+    dev.off()
+    png(paste("differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values",i,".png",sep=""))
+    barplot(height = rbind(h1$density, h2$density), beside = FALSE,
+            col = colori, space = 0, main = "", xlab="p value",ylab="frequency")
+    text(x = c(0, length(h1$counts)), y = 0, label = paste(c(0,1)),
+        adj = c(0.5,1.7), xpd=NA)
+    legend("topleft", fill=rev(colori), legend=rev(names(colori)))
+    dev.off()
+    svg(paste("differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values",i,".svg",sep=""))
     barplot(height = rbind(h1$density, h2$density), beside = FALSE,
             col = colori, space = 0, main = "", xlab="p value",ylab="frequency")
     text(x = c(0, length(h1$counts)), y = 0, label = paste(c(0,1)),
