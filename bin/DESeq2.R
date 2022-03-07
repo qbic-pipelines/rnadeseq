@@ -418,6 +418,7 @@ for (i in random_DE_genes_plot){
                 axis.text.x = element_text(angle=45, vjust=1,hjust=1))
     ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".svg",sep=""), width=10, height=5, plot=plot)
     ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".png",sep=""), width=10, height=5, plot=plot)
+    ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".pdf",sep=""), width=10, height=5, plot=plot)
 }
 
 # make boxplots of interesting genes in gene list

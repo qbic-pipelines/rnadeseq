@@ -179,6 +179,9 @@ for (file in contrast_files){
         ggsave(pg, filename = paste0(outdir, "/", fname, "_gost_pathway_enrichment_plot.png"),
             device="png",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
+        ggsave(pg, filename = paste0(outdir, "/", fname, "_gost_pathway_enrichment_plot.svg"),
+            device="svg",
+            height=10, width=15, units="cm", dpi=300, limitsize=F)
     }
 
     # Remove parents column to be able to save the table in tsv format
@@ -231,6 +234,7 @@ for (file in contrast_files){
             xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
         ggsave(p, filename = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
         ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+        ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.svg"), device = "svg", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
 
         # Plotting heatmaps and KEGG pathways for all pathways
         print("Plotting heatmaps...")
@@ -254,6 +258,10 @@ for (file in contrast_files){
                 dev.off()
 
                 pdf(paste(outdir, "/", fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
+                pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+                dev.off()
+
+                svg(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".svg", sep=""), width = 2500, height = 3000, res = 300)
                 pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
                 dev.off()
             }
@@ -284,7 +292,7 @@ for (file in contrast_files){
                             pathway.id = pathway_kegg,
                             species    = short_organism_name,
                             out.suffix=paste(fname,sep="_"))
-                    mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
+                    mv_command <- paste0("mv *.png *.svg *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
                     rm_command <- paste0("rm ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/", "*.xml")
                     system(mv_command)
                 }
@@ -348,6 +356,10 @@ if (!is.null(opt$genelist)){
         dev.off()
 
         pdf(paste(outdir, "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""))
+        pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
+        dev.off()
+
+        svg(filename = paste(outdir, "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.svg", sep=""), width = 2500, height = 3000, res = 300)
         pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
         dev.off()
     }
