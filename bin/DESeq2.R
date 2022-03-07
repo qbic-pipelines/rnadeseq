@@ -447,6 +447,7 @@ if (!is.null(opt$genelist)){
                 axis.text.x = element_text(angle=45, vjust=1,hjust=1))
         ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".svg",sep=""), width=10, height=5, plot=plot)
         ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".png",sep=""), width=10, height=5, plot=plot)
+        ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".pdf",sep=""), width=10, height=5, plot=plot)
     }
 }
 
@@ -466,6 +467,9 @@ svg("differential_gene_expression/plots/Heatmaps_of_distances.svg")
 pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=10)
 dev.off()
 
+png("differential_gene_expression/plots/Heatmaps_of_distances.png")
+pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=10)
+dev.off()
 
 ############################ PCA PLOTS ########################
 pcaData <- plotPCA(if (opt$rlog) rld else vsd,intgroup=c("combfactor"),ntop = dim(if (opt$rlog) rld else vsd)[1], returnData=TRUE)
@@ -478,6 +482,7 @@ pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor)) +
     coord_fixed()
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg", device = "svg", dpi = 150)
+ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.png", device = "png", dpi = 150)
 
 ########################### PCA PLOT with batch-corrected data ############
 if(opt$batchEffect){
@@ -492,6 +497,7 @@ if(opt$batchEffect){
                 coord_fixed()
     ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.pdf", device = "pdf", dpi=300)
     ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.svg", device = "svg", dpi = 150)
+    ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.png", device = "png", dpi = 150)
 }
 
 
