@@ -130,16 +130,17 @@ if(file.exists(QAfile)){
     df_QA <- read.table(QAfile, header=TRUE, sep="\t", check.names = FALSE)
     conditions <- grepl(colnames(df_QA),pattern = "Condition")
     df_QA_cond <- as.data.frame(df_QA[ ,conditions])
-    colnames(df_QA_cond) <- colnames(df_QA)[conditions]
-    df_QA_neat <- df_QA[,c("QBiC Code", "Secondary Name", "Lab ID", "Sample Type")]
+    colnames(df_QA_cond) <- colnames(df_QA)[conditions] 
+    df_QA_neat <- df_QA[,c("QBiC Code", "Secondary Name", "Sample Type")]
+    if ("Lab ID" %in% colnames(df_QA)){
+            df_QA_neat[,c("Lab ID")] <- df_QA[,c("Lab ID")]}
+        } 
     df_QA_neat <- merge(df_QA_neat, df_QA_cond, by="row.names")
     df_QA_neat$Row.names <- NULL
     if ("RIN" %in% colnames(df_QA)){
         if (any(is.na(df_QA$RIN))){no_RIN <- TRUE} else {RIN <- TRUE; df_QA_neat$RIN <- df_QA$RIN}
     } else {no_RIN <- TRUE}
-} else {
-    no_RIN <- TRUE
-}
+
 ```
 
 ```{r RIN_block, echo=FALSE, results='asis', eval=RIN}

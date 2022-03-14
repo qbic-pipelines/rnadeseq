@@ -15,6 +15,7 @@ library(optparse)
 # Need to load library for your species
 library(org.Mm.eg.db) #Mmusculus
 library(org.Hs.eg.db) #Hsapiens
+library(org.At.tair.db) #Athaliana
 
 # Blacklist pathways: some pathways are corrupted in KEGG and produce errors. Add the pathway here if you have this kind of error:
 blacklist_pathways <- c("mmu05206", "mmu04215", "hsa05206", "mmu04723")
@@ -79,6 +80,10 @@ if(is.null(opt$species)){
     organism <- "mmusculus"
     short_organism_name <- "mmu"
     library <- org.Mm.eg.db
+} else if (tolower(opt$species) == "athaliana") {
+    organism <- "athaliana"
+    short_organism_name <- "ath" #has to be compatible with KEGG short name (https://www.genome.jp/kegg-bin/find_org_www?mode=abbr&obj=bfind1.dbkey)
+    library <- org.At.tair.db
 } else {
     stop("Species name is unknown, check for typos or contact responsible person to add your species.")
 }
@@ -244,6 +249,10 @@ for (file in contrast_files){
             pathway <- df[i,]
             gene_list <- unlist(strsplit(pathway$intersection, ","))
             mat <- norm_counts[gene_list, ]
+            #check if gene names are unique (e.g. TAIR database has multiple names PYRD for different geneIDs)
+            #if (length(mat$gene_name)!=length(unique(mat$gene_name))) {
+            mat$gene_name <- with(mat, make.unique(as.character(gene_name)))
+            #}
             rownames(mat) <- mat$gene_name
             mat$gene_name <- NULL
             mat <- data.matrix(mat)
@@ -270,8 +279,12 @@ for (file in contrast_files){
                 gene.data = DE_genes
                 gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
 
-                entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype="ENSEMBL", multiVals="first")
+                if (short_organism_name=='ath'){
+                    entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype="TAIR", multiVals="first")
 
+                } else{
+                    entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype="ENSEMBL", multiVals="first")
+                }
                 gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
 
                 if (length(entrez_ids)!=length(unique(entrez_ids))) {
