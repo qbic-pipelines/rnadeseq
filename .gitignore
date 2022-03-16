@@ -10,5 +10,5 @@ tests/test_data
 testing/
 testing*
 *.pyc
-deseq_dev.sh
+*.sh
 .gitignore

@@ -249,10 +249,8 @@ for (file in contrast_files){
             pathway <- df[i,]
             gene_list <- unlist(strsplit(pathway$intersection, ","))
             mat <- norm_counts[gene_list, ]
-            #check if gene names are unique (e.g. TAIR database has multiple names PYRD for different geneIDs)
-            #if (length(mat$gene_name)!=length(unique(mat$gene_name))) {
+            #Turn gene names unique, in case there are duplicates (e.g. TAIR database has multiple names PYRD for different geneIDs)
             mat$gene_name <- with(mat, make.unique(as.character(gene_name)))
-            #}
             rownames(mat) <- mat$gene_name
             mat$gene_name <- NULL
             mat <- data.matrix(mat)
