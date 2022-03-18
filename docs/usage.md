@@ -24,7 +24,7 @@
     - [`--relevel`](#--relevel)
     - [`--contrast_matrix`](#--contrast_matrix)
     - [`--contrast_list`](#--contrast_list)
-    - [`--contrast_pairs``](#--contrast_pairs)
+    - [`--contrast_pairs`](#--contrast_pairs)
   - [Optional arguments](#optional-arguments)
     - [`--logFCthreshold`](#--logfcthreshold)
     - [`--genelist`](#--genelist)
