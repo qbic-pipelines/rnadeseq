@@ -39,7 +39,12 @@
   - [Job resources](#job-resources)
     - [Automatic resubmission](#automatic-resubmission)
     - [Custom resource requests](#custom-resource-requests)
-  - [Other command line parameters](#other-command-line-parameters)
+- [Other command line parameters](#other-command-line-parameters)
+    - [`--outdir`](#--outdir)
+    - [`--email`](#--email)
+    - [`-name`](#-name)
+    - [`-resume`](#-resume)
+    - [`-c`](#-c)
     - [`--custom_config_version`](#--custom_config_version)
     - [`--custom_config_base`](#--custom_config_base)
     - [`--max_memory`](#--max_memory)
@@ -47,28 +52,7 @@
     - [`--max_cpus`](#--max_cpus)
     - [`--plaintext_email`](#--plaintext_email)
     - [`--monochrome_logs`](#--monochrome_logs)
-  - [Core Nextflow arguments](#core-nextflow-arguments)
-    - [`-profile`](#-profile)
-    - [`-resume`](#-resume)
-    - [`-c`](#-c)
-  - [Custom configuration](#custom-configuration)
-    - [Resource requests](#resource-requests)
-    - [Updating containers](#updating-containers)
-    - [nf-core/configs](#nf-coreconfigs)
-  - [Running in the background](#running-in-the-background)
-  - [Nextflow memory requirements](#nextflow-memory-requirements)
-_[`--outdir`](#--outdir)
-_ [`--email`](#--email)
-_[`-name`](#-name)
-_ [`-resume`](#-resume)
-_[`-c`](#-c)
-_ [`--custom_config_version`](#--custom_config_version)
-_[`--custom_config_base`](#--custom_config_base)
-_ [`--max_memory`](#--max_memory)
-_[`--max_time`](#--max_time)
-_ [`--max_cpus`](#--max_cpus)
-_[`--plaintext_email`](#--plaintext_email)
-_ [`--monochrome_logs`](#--monochrome_logs) \* [`--multiqc_config`](#--multiqc_config)
+    - [`--multiqc_config`](#--multiqc_config)
 <!-- TOC END -->
 
 ## Introduction
@@ -143,13 +127,25 @@ Raw count table (TSV). Column names must start with the QBiC code. Columns are s
 --rawcounts 'path/to/raw_count_table.tsv'
 ```
 
+```tsv
+Geneid  gene_name   QBICK00001_Sample1  QBICK00002_Sample2
+ENSG00000000003  TSPAN6  150   3000
+ENSG00000000005   TNMD    80  6
+```
+
 ### `--metadata`
 
-Metadata table is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
+Metadata table (TSV) is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
 
 - **QBiC Code**: is needed to match metadata with the raw counts.
 - **Secondary Name**, samples will be named with the pattern: QBiC code + Secondary name.
 - **Condition: tag**: a separated column for each of the conditions. The headers of this columns start with "Condition: ". The values of these columns should not contain spaces.
+
+```tsv
+QBiC Code   Secondary Name  Condition: treatment
+QBICK00001  Sample1 treated
+QBICK00002  Sample2 untreated
+```
 
 ### `--model`
 
@@ -161,7 +157,7 @@ Linear model function to calculate the contrasts (TXT). Variable names should be
 
 ### `--species`
 
-Species name. For example: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
+Species name. Currently the following species are available for pathway analysis: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
 
 ### `--project_summary`
 
@@ -213,7 +209,7 @@ condition_genotype  KO  WT
 
 ```
 
-### `--contrast_pairs``
+### `--contrast_pairs`
 
 Table in tsv format indicating pairs of contrasts to consider. This is used to calculate interaction effects between contrasts. Each row corresponds to an interaction effect. The first column indicates the desired contrast name, the second column the first contrast in the numerator and the third column the contrast in the denominator, of the interaction.
 
