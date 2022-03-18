@@ -1,12 +1,25 @@
 # qbic-pipelines/rnadeseq: Changelog
 
-## 1.4.0 - dev
+## 2.0.0 - dev
 
 ### Added
 
+- Add parameter "--skip_pathway_analysis"
 - Bump versions to 1.4.0dev
 - Add parameter "--min_DE_genes"
+- Update pipeline to DSL2
+- Add parameter "--skip_rlog"
 - Add parameter "--nsubgenes"
+
+### Changed
+
+- Removed assets/report_options.yml
+
+### Fixed
+
+- [#105](https://github.com/qbic-pipelines/rnadeseq/pull/105) Fixed relevel and added test_relevel.config
+- Fixed `--logFCthreshold` bug
+- Fixed blacklist file not working
 
 ## 1.3.2 - Almond Blossoms hotfix II
 

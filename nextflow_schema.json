@@ -1,0 +1,202 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/qbic-pipelines/rnadeseq/master/nextflow_schema.json",
+    "title": "qbic-pipelines/rnadeseq pipeline parameters",
+    "description": "Differential gene expression analysis and pathway analysis of RNAseq data",
+    "type": "object",
+    "definitions": {
+        "mandatory_arguments": {
+            "title": "Mandatory arguments",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "properties": {
+                "gene_counts": {
+                    "type": "string",
+                    "description": "Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name."
+                },
+                "metadata": {
+                    "type": "string",
+                    "description": "Metadata table (TSV). Rows are samples and columns contain sample grouping."
+                },
+                "model": {
+                    "type": "string",
+                    "description": "Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file."
+                },
+                "species": {
+                    "type": "string",
+                    "default": "false",
+                    "description": "Species name. Format example: Hsapiens."
+                },
+                "project_summary": {
+                    "type": "string",
+                    "description": "Project summary file downloaded from the qPortal."
+                },
+                "multiqc": {
+                    "type": "string",
+                    "description": "multiqc.zip folder containing the multiQC plots and report."
+                }
+            },
+            "required": [
+                "metadata",
+                "model",
+                "species",
+                "project_summary",
+                "multiqc"
+            ]
+        },
+        "options": {
+            "title": "Options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "contrast_matrix": {
+                    "type": "string",
+                    "default": "DEFAULT",
+                    "description": "Tsv indicating which contrasts to consider, one contrast per column. 1 or 0 for every coefficient of the linear model. Check contrasts docs."
+                },
+                "contrast_list": {
+                    "type": "string",
+                    "default": "DEFAULT1",
+                    "description": "Tsv indicating list of the contrasts to calculate. 3 columns: factor name, contrast numerator and denominator. Check contrasts docs."
+                },
+                "contrast_pairs": {
+                    "type": "string",
+                    "default": "DEFAULT2",
+                    "description": "Tsv indicating list of contrast pairs to calculate. 3 columns: contrast name, numerator and denominator. Check contrasts docs."
+                },
+                "relevel": {
+                    "type": "string",
+                    "default": "NO_FILE2",
+                    "description": "Tsv indicating list of factors (conditions in the metadata table) and the new level on which to relevel the factor. Check contrasts docs."
+                },
+                "logFCthreshold": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed."
+                },
+                "genelist": {
+                    "type": "string",
+                    "default": "NO_FILE",
+                    "description": "Txt file with list of genes (one per line) of which to plot heatmaps for normalized counts across all samples."
+                },
+                "batch_effect": {
+                    "type": "string",
+                    "default": "false",
+                    "description": "Turn on this flag if you wish to consider batch effects. You need to add the batch effect to the linear model too!"
+                },
+                "quote": {
+                    "type": "string",
+                    "default": "NO_FILE4",
+                    "description": "Signed copy of the offer."
+                },
+                "kegg_blacklist": {
+                    "type": "string",
+                    "default": "NO_FILE3",
+                    "description": "Text file containing KEGG pathways codes to be excluded from pathway plotting (e.g. because kegg pathways xml contain errors in the KEGG resource)."
+                },
+                "min_DEG_pathway": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1."
+                },
+                "skip_pathway_analysis": {
+                    "type": "string",
+                    "default": "false",
+                    "description": "Turn on this flag if you wish to skip pathway analysis."
+                },
+                "skip_rlog": {
+                    "type": "boolean",
+                    "default": "false",
+                    "description": "Use this flag to skip rlog transformation (recommended when >50 samples)"
+                }
+            }
+        },
+        "other_options": {
+            "title": "Other options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "outdir": {
+                    "type": "string",
+                    "description": "The output directory where the results will be saved",
+                    "default": "./results",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "email": {
+                    "type": "string",
+                    "description": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits",
+                    "default": "false"
+                },
+                "help": {
+                    "type": "boolean",
+                    "description": "Display help text.",
+                    "fa_icon": "fas fa-question-circle"
+                },
+                "plaintext_email": {
+                    "type": "boolean",
+                    "description": "Send plain-text email instead of HTML.",
+                    "hidden": true
+                },
+                "monochrome_logs": {
+                    "type": "boolean",
+                    "description": "Do not use coloured log outputs.",
+                    "hidden": true
+                },
+                "tracedir": {
+                    "type": "string",
+                    "default": "./results/pipeline_info",
+                    "description": "Directory to keep pipeline Nextflow logs and reports.",
+                    "hidden": true
+                },
+                "custom_config_version": {
+                    "type": "string",
+                    "default": "master",
+                    "description": "Git commit id for Institutional configs.",
+                    "hidden": true
+                },
+                "custom_config_base": {
+                    "type": "string",
+                    "default": "https://raw.githubusercontent.com/nf-core/configs/${params.custom_config_version}",
+                    "description": "Base directory for Institutional configs.",
+                    "hidden": true
+                },
+                "config_profile_description": {
+                    "type": "string",
+                    "default": "false",
+                    "description": "Institutional config description.",
+                    "hidden": true
+                },
+                "config_profile_contact": {
+                    "type": "string",
+                    "default": "false",
+                    "description": "Institutional config contact information.",
+                    "hidden": true
+                },
+                "config_profile_url": {
+                    "type": "string",
+                    "default": "false",
+                    "description": "Institutional config URL link.",
+                    "hidden": true
+                }
+            }
+        }
+    },
+    "allOf": [
+        {
+            "$ref": "#/definitions/mandatory_arguments"
+        },
+        {
+            "$ref": "#/definitions/options"
+        },
+        {
+            "$ref": "#/definitions/other_options"
+        }
+    ],
+    "properties": {
+        "show_hidden_params": {
+            "type": "boolean"
+        }
+    }
+}
