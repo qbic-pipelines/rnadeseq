@@ -105,10 +105,10 @@
                     "default": "false",
                     "description": "Turn on this flag if you wish to skip pathway analysis."
                 },
-                "skip_rlog": {
+                "use_rlog": {
                     "type": "boolean",
-                    "default": "false",
-                    "description": "Use this flag to skip rlog transformation (recommended when >50 samples)"
+                    "default": "true",
+                    "description": "Set this flag to true to use rlog transformation (recommended when >50 samples; if false, will use vst)"
                 }
             }
         },

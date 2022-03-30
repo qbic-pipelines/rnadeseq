@@ -22,7 +22,7 @@ process DESEQ2 {
     def contrast_pairs_opt = contrast_pairs.name != 'DEFAULT2' ? "--contrasts_pairs $contrast_pairs" : ''
     def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel $relevel" : ''
     def batch_effect_opt = params.batch_effect ? "--batchEffect" : ''
-    def rlog_opt = params.skip_rlog ? '--rlog FALSE' : '--rlog TRUE'
+    def rlog_opt = params.use_rlog ? '--rlog TRUE' : '--rlog FALSE'
     """
     DESeq2.R --counts $gene_counts --metadata $metadata --design $model \
     --logFCthreshold $params.logFCthreshold $relevel_opt $contrast_mat_opt \
