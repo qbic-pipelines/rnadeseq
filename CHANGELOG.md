@@ -9,7 +9,9 @@
 - Add parameter "--min_DE_genes"
 - [#97](https://github.com/qbic-pipelines/rnadeseq/pull/97) Update pipeline to DSL2
 - [#107](https://github.com/qbic-pipelines/rnadeseq/pull/107) Add parameter "--skip_rlog"
-- Added enhanced volcano plots
+- [#111]((https://github.com/qbic-pipelines/rnadeseq/pull/111) Added enhanced volcano plots
+- [#93](https://github.com/qbic-pipelines/rnadeseq/pull/93/) Add parameter "--nsubgenes"
+
 
 ### Changed
 
