@@ -87,6 +87,7 @@ jobs:
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test,docker --outdir ./results
+          wget -qO- get.nextflow.io | bash
+          sudo mv nextflow /usr/local/bin/
 
 #
