@@ -26,7 +26,7 @@ params:
     nsub_genes: ""
     revision: ""
     pathway_analysis: ""
-
+    rlog: ""
 # Author: Silvia Morini, Gisela Gabernet, Simon Heumos
 ---
 
@@ -59,7 +59,6 @@ library(yaml)
 design_deseq2 <- paste(readLines(params$path_design), collapse=" ")
 log_FC_text <- as.character(params$log_FC)
 log_FC_num <- as.numeric(params$log_FC)
-nsub_genes_text <-as.character(params$nsub_genes)
 ```
 
 ---
@@ -298,18 +297,23 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distrib
 </center>
 \
 
+```{r}
+rlog_text <- ifelse(params$rlog, "rlog", "vst")
+rlog_long_text <- ifelse(params$rlog, "regularized logarithm (rlog)", "variant stabilizing transformation (vst)")
+nsub_genes_text <- ifelse(params$rlog, "", paste("The number of subset genes for the 'vst' transformation is", as.character(params$nsub_genes), "."))
+```
+
 # Gene expression data
 
 ## Raw and normalized count tables
 
 The raw count table and normalized count tables are available [here](./differential_gene_expression/gene_counts_tables).
 The differential expression analysis is performed using the raw gene count table.
-For PCA analysis and heatmap plotting, the regularized logarithm (rlog) normalized gene counts were employed.
-The vst (variant stabilizing transformation) normalized counts are also provided.
-The number of subset genes for the 'vst' transformation is `r nsub_genes_text`.
+For PCA analysis and heatmap plotting, the `r rlog_long_text` normalized gene counts were employed.
+`r nsub_genes_text`
 
 ## Principal component analysis (PCA)
-A PCA plot of the rlog normalized gene expression visualizes the clustering of samples according to their gene expression.
+A PCA plot of the `r rlog_text` normalized gene expression visualizes the clustering of samples according to their gene expression.
 In this way, the overall effect of experimental conditions and sample grouping, and any batch effects are visualized.
 The original plot can be downloaded [here](./differential_gene_expression/plots/PCA_plot.pdf).
 
