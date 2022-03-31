@@ -4,21 +4,25 @@
 
 ### Added
 
-- Add parameter "--skip_pathway_analysis"
+- [#104](https://github.com/qbic-pipelines/rnadeseq/pull/104) Add parameter "--skip_pathway_analysis"
 - Bump versions to 1.4.0dev
 - Add parameter "--min_DE_genes"
-- Update pipeline to DSL2
-- Add parameter "--skip_rlog"
+- [#97](https://github.com/qbic-pipelines/rnadeseq/pull/97) Update pipeline to DSL2
+- [#107](https://github.com/qbic-pipelines/rnadeseq/pull/107) Add parameter "--skip_rlog"
+- [#111](https://github.com/qbic-pipelines/rnadeseq/pull/111) Added enhanced volcano plots
+- [#93](https://github.com/qbic-pipelines/rnadeseq/pull/93/) Add parameter "--nsubgenes"
 
 ### Changed
 
 - Removed assets/report_options.yml
+- [#110](https://github.com/qbic-pipelines/rnadeseq/pull/110) Changed report to use rlog normalization by default, vst is used if --skip_rlog is enabled
 
 ### Fixed
 
 - [#105](https://github.com/qbic-pipelines/rnadeseq/pull/105) Fixed relevel and added test_relevel.config
-- Fixed `--logFCthreshold` bug
-- Fixed blacklist file not working
+- [#106](https://github.com/qbic-pipelines/rnadeseq/pull/106) Fixed `--logFCthreshold` bug
+- [#108](https://github.com/qbic-pipelines/rnadeseq/pull/108) Fixed blacklist file not working
+- [#88](https://github.com/qbic-pipelines/rnadeseq/issues/88) Fixed volcano plot axis
 
 ## 1.3.2 - Almond Blossoms hotfix II
 

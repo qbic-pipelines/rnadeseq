@@ -100,15 +100,20 @@
                     "default": 1,
                     "description": "Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1."
                 },
+                "vst_genes_number": {
+                    "type": "integer",
+                    "default": 1000,
+                    "description": "Integer indicating how many genes to subset to during vst transformation (when using rlog, will ignore this number). Default: 1000."
+                },
                 "skip_pathway_analysis": {
-                    "type": "string",
+                    "type": "boolean",
                     "default": "false",
                     "description": "Turn on this flag if you wish to skip pathway analysis."
                 },
-                "skip_rlog": {
+                "use_vst": {
                     "type": "boolean",
                     "default": "false",
-                    "description": "Use this flag to skip rlog transformation (recommended when >50 samples)"
+                    "description": "Set this flag to true to use vst transformation (recommended when >50 samples; if false, will use rlog)"
                 }
             }
         },

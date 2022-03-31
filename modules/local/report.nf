@@ -22,6 +22,7 @@ process REPORT {
     def batchopt = params.batch_effect ? "--batch_effect" : ''
     def quoteopt = quote.name != 'NO_FILE4' ? "$quote" : ''
     def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
+    def rlogopt = params.use_vst ? '' : "--rlog"
     """
     unzip $deseq2
     unzip $multiqc
@@ -42,7 +43,8 @@ process REPORT {
     --log_FC $params.logFCthreshold \
     $batchopt \
     --min_DEG_pathway $params.min_DEG_pathway \
-    $pathwayopt
+    $pathwayopt \
+    $rlogopt
     if [ "$pathwayopt" == "--pathway_analysis" ]; then
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quoteopt
     else

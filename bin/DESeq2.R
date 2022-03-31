@@ -51,6 +51,7 @@ option_list = list(
     make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
     make_option(c("-t", "--logFCthreshold"), type="integer", default=0, help="Log 2 Fold Change threshold for DE genes", metavar="character"),
     make_option(c("-g", "--rlog"), type="logical", default=TRUE, help="if TRUE, perform rlog transformation", metavar="character"),
+    make_option(c("-n", "--vst_genes_number"), type="integer", default=1000, help="subset number of genes for vst", metavar="character"),
     make_option(c("-b", "--batchEffect"), default=FALSE, action="store_true", help="Whether to consider batch effects in the DESeq2 analysis", metavar="character")
 )
 
@@ -217,6 +218,8 @@ if (!is.null(opt$contrasts_matrix)){
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+        # Save all DE genes (even if not significant) to separate files for the volcano plot
+        write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_allgenes_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         # Select only significantly DE
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
@@ -231,7 +234,7 @@ if (!is.null(opt$contrasts_matrix)){
 
 if (!is.null(opt$contrasts_list)) {
     contrasts <- read.table(path_contrasts_list, sep="\t", header=T, colClasses = "character")
-    write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv")
+    write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv", quote=F)
 
     ## Contrast calculation for contrast list
     for (i in c(1:nrow(contrasts))) {
@@ -247,6 +250,8 @@ if (!is.null(opt$contrasts_list)) {
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+        # Save all DE genes (even if not significant) to separate files for the volcano plot
+        write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_allgenes_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         # Select only significantly DE
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
@@ -281,6 +286,8 @@ if (!is.null(opt$contrasts_pairs)) {
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+        # Save all DE genes (even if not significant) to separate files for the volcano plot
+        write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_allgenes_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         # Select only significantly DE
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
@@ -309,6 +316,8 @@ if (is.null(opt$contrasts_matrix) & is.null(opt$contrasts_list) & is.null(opt$co
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x ="Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+        # Save all DE genes (even if not significant) to separate files for the volcano plot
+        write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_allgenes_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         # Select only significantly DE
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > opt$logFCthreshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
@@ -373,20 +382,24 @@ DE_genes_final_table = DE_genes_final_table[order(DE_genes_final_table[,"Ensembl
 write.table(DE_genes_final_table, "differential_gene_expression/final_gene_table/final_DE_gene_list.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 
 ############################## TRANSFORMED AND NORMALIZED COUNTS ###################
-# rlog transformation
 if (opt$rlog){
+    # rlog transformation
     rld <- rlog(cds, blind=FALSE)
     rld_names <- merge(x=gene_names, y=assay(rld), by.x = "Ensembl_ID", by.y="row.names")
     write.table(rld_names, "differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  qmethod = c("escape", "double"))
+} else {
+    # vst transformation
+    vsd <- vst(cds, blind=FALSE)
+    vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
+    write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 }
 
 # vst transformation
-vsd <- vst(cds, blind=FALSE)
+vsd <- vst(cds, blind=FALSE, nsub = opt$vst_genes_number)
 
 # write normalized values to a file
 vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
 write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
-
 
 ############### BOXPLOTS GENE EXPRESSION PER CONDITION ##########################
 # extract ID for genes to plot, make 20 plots:
@@ -445,7 +458,7 @@ if (!is.null(opt$genelist)){
 
 ##################  SAMPLE DISTANCES HEATMAP ##################
 # Sample distances
-sampleDists <- dist(t(assay(vsd)))
+sampleDists <- dist(t(assay(if (opt$rlog) rld else vsd)))
 sampleDistMatrix <- as.matrix(sampleDists)
 colours = colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
 
@@ -460,7 +473,7 @@ dev.off()
 
 
 ############################ PCA PLOTS ########################
-pcaData <- plotPCA(vsd,intgroup=c("combfactor"),ntop = dim(vsd)[1], returnData=TRUE)
+pcaData <- plotPCA(if (opt$rlog) rld else vsd,intgroup=c("combfactor"),ntop = dim(if (opt$rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
 pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor)) +
     geom_point(size=3) +
@@ -473,8 +486,8 @@ ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg",
 
 ########################### PCA PLOT with batch-corrected data ############
 if(opt$batchEffect){
-    assay(vsd) <- limma::removeBatchEffect(assay(vsd), vsd$batch)
-    pcaData2 <- plotPCA(vsd, intgroup=c("combfactor"), ntop = dim(vsd)[1], returnData=TRUE)
+    assay(if (opt$rlog) rld else vsd) <- limma::removeBatchEffect(assay(if (opt$rlog) rld else vsd), (if (opt$rlog) rld else vsd)$batch)
+    pcaData2 <- plotPCA(if (opt$rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (opt$rlog) rld else vsd)[1], returnData=TRUE)
     percentVar <- round(100*attr(pcaData, "percentVar"))
     pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor)) +
                 geom_point(size=3)+
@@ -508,8 +521,8 @@ pdf("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_tra
 par(oma=c(3,3,3,3))
 par(mfrow = c(1, 3))
 meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
-if (opt$rlog){ meanSdPlot(assay(rld[notAllZero,]),ylab  = "sd rlog transformed count data") }
-meanSdPlot(assay(vsd[notAllZero,]),ylab  = "sd vst transformed count data")
+meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = "sd rlog transformed count data")
+meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd ", if (opt$rlog) "rld" else "vsd" ," transformed count data"))
 dev.off()
 
 # Further diagnostics plots
@@ -553,3 +566,4 @@ for (i in resultsNames(cds)[-1]) {
     dev.off()
     rm(res,qs,bins,ratios,use,h1,h2,colori)
 }
+

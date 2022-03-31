@@ -5,56 +5,54 @@
 <!-- Install Atom plugin markdown-toc-auto for this ToC to auto-update on save -->
 <!-- TOC START min:2 max:3 link:true asterisk:true update:true -->
 
-- [Table of contents](#table-of-contents)
-- [Introduction](#introduction)
-- [Pre-requisites](#pre-requisites)
-- [Running the pipeline](#running-the-pipeline)
-    - [Updating the pipeline](#updating-the-pipeline)
-    - [Reproducibility](#reproducibility)
-- [Mandatory arguments](#Mandatory-arguments)
-    - [`-profile`](#-profile)
-    - [`--rawcounts`](#--rawcounts)
-    - [`--metadata`](#--metadata)
-    - [`--model`](#--model)
-    - [`--species`](#--species)
-    - [`--project_summary`](#--project-summary)
-    - [`--multiqc`](#--multiqc)
-    - [`--versions`](#--versions)
-- [Contrasts](#contrasts)
-    - [`default`](#default)
-    - [`--relevel`](#--relevel)
-    - [`--contrast_matrix`](#--contrast_matrix)
-    - [`--contrast_list`](#--contrast_list)
-    - [`--contrast_pairs`](#--contrast_pairs)
-- [Optional arguments](#Optional-arguments)
-    - [`--logFCthreshold`](#--logFCthreshold)
-    - [`--genelist`](#--genelist)
-    - [`--batch_effect`](#--batch_effect)
-    - [`--quote`](#--quote)
-    - [`--kegg_blacklist`](#--kegg_blacklist)
-    - [`--min_DEG_pathway`](#--min_DEG_pathway)
-    - [`--skip_rlog`](#--skip_rlog)
-- [Special cases](#Special-cases)
-    - [Controlling for batch effects](#Controlling-for-batch-effects)
-- [AWS Batch specific parameters](#aws-batch-specific-parameters)
-    - [`--awsqueue`](#--awsqueue)
-    - [`--awsregion`](#--awsregion)
-- [Job resources](#job-resources)
-    - [Automatic resubmission](#automatic-resubmission)
-    - [Custom resource requests](#custom-resource-requests)
-- [Other command line parameters](#other-command-line-parameters)
-_[`--outdir`](#--outdir)
-_ [`--email`](#--email)
-_[`-name`](#-name)
-_ [`-resume`](#-resume)
-_[`-c`](#-c)
-_ [`--custom_config_version`](#--custom_config_version)
-_[`--custom_config_base`](#--custom_config_base)
-_ [`--max_memory`](#--max_memory)
-_[`--max_time`](#--max_time)
-_ [`--max_cpus`](#--max_cpus)
-_[`--plaintext_email`](#--plaintext_email)
-_ [`--monochrome_logs`](#--monochrome_logs) \* [`--multiqc_config`](#--multiqc_config)
+- [qbic-pipelines/rnadeseq: Usage](#qbic-pipelinesrnadeseq-usage)
+    - [Table of contents](#table-of-contents)
+    - [Introduction](#introduction)
+    - [Pre-requisites](#pre-requisites)
+    - [Running the pipeline](#running-the-pipeline)
+        - [Updating the pipeline](#updating-the-pipeline)
+        - [Reproducibility](#reproducibility)
+    - [Mandatory arguments](#mandatory-arguments)
+        - [`--rawcounts`](#--rawcounts)
+        - [`--metadata`](#--metadata)
+        - [`--model`](#--model)
+        - [`--species`](#--species)
+        - [`--project_summary`](#--project_summary)
+        - [`--versions`](#--versions)
+    - [Contrasts](#contrasts)
+        - [Default](#default)
+        - [`--relevel`](#--relevel)
+        - [`--contrast_matrix`](#--contrast_matrix)
+        - [`--contrast_list`](#--contrast_list)
+        - [`--contrast_pairs`](#--contrast_pairs)
+    - [Optional arguments](#optional-arguments)
+        - [`--logFCthreshold`](#--logfcthreshold)
+        - [`--genelist`](#--genelist)
+        - [`--batch_effect`](#--batch_effect)
+        - [`--quote`](#--quote)
+        - [`--kegg_blacklist`](#--kegg_blacklist)
+        - [`--min_DEG_pathway`](#--min_deg_pathway)
+        - [`--skip_rlog`](#--skip_rlog)
+        - [`--vst_genes_number`](#--vst_genes_number)
+    - [Special cases](#special-cases)
+        - [Controlling for batch effects](#controlling-for-batch-effects)
+    - [Job resources](#job-resources)
+        - [Automatic resubmission](#automatic-resubmission)
+        - [Custom resource requests](#custom-resource-requests)
+    - [Other command line parameters](#other-command-line-parameters)
+        - [`--outdir`](#--outdir)
+        - [`--email`](#--email)
+        - [`-name`](#-name)
+        - [`-resume`](#-resume)
+        - [`-c`](#-c)
+        - [`--custom_config_version`](#--custom_config_version)
+        - [`--custom_config_base`](#--custom_config_base)
+        - [`--max_memory`](#--max_memory)
+        - [`--max_time`](#--max_time)
+        - [`--max_cpus`](#--max_cpus)
+        - [`--plaintext_email`](#--plaintext_email)
+        - [`--monochrome_logs`](#--monochrome_logs)
+        - [`--multiqc_config`](#--multiqc_config)
 <!-- TOC END -->
 
 ## Introduction
@@ -129,13 +127,25 @@ Raw count table (TSV). Column names must start with the QBiC code. Columns are s
 --rawcounts 'path/to/raw_count_table.tsv'
 ```
 
+```tsv
+Geneid  gene_name   QBICK00001_Sample1  QBICK00002_Sample2
+ENSG00000000003  TSPAN6  150   3000
+ENSG00000000005   TNMD    80  6
+```
+
 ### `--metadata`
 
-Metadata table is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
+Metadata table (TSV) is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
 
 - **QBiC Code**: is needed to match metadata with the raw counts.
 - **Secondary Name**, samples will be named with the pattern: QBiC code + Secondary name.
 - **Condition: tag**: a separated column for each of the conditions. The headers of this columns start with "Condition: ". The values of these columns should not contain spaces.
+
+```tsv
+QBiC Code   Secondary Name  Condition: treatment
+QBICK00001  Sample1 treated
+QBICK00002  Sample2 untreated
+```
 
 ### `--model`
 
@@ -147,7 +157,7 @@ Linear model function to calculate the contrasts (TXT). Variable names should be
 
 ### `--species`
 
-Species name. For example: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
+Species name. Currently the following species are available for pathway analysis: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
 
 ### `--project_summary`
 
@@ -199,7 +209,7 @@ condition_genotype  KO  WT
 
 ```
 
-### `--contrast_pairs``
+### `--contrast_pairs`
 
 Table in tsv format indicating pairs of contrasts to consider. This is used to calculate interaction effects between contrasts. Each row corresponds to an interaction effect. The first column indicates the desired contrast name, the second column the first contrast in the numerator and the third column the contrast in the denominator, of the interaction.
 
@@ -238,6 +248,10 @@ Integer indicating how many genes in a pathway must be differentially expressed 
 ### `--skip_rlog`
 
 Consider using this parameter when the number of input samples is greater than 50. With large input sample sizes the rlog transformation becomes very time consuming. Note: If this flag is used, the pathway analysis will make use of vst transformed counts instead of rlog transformed counts. Check here for more information on [count data transformations](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#count-data-transformations).
+
+### `--vst_genes_number`
+
+Consider using this parameter for small dataset and low number of genes, e.g. with small rnaseq data. The default `vst` function for varianceStabilizingTransformation in DESeq2 is 1000, which triggers an error with small dataset. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here [DESeq2 vst function error](https://www.biostars.org/p/456209/).
 
 ## Special cases
 
