@@ -373,19 +373,18 @@ DE_genes_final_table = DE_genes_final_table[order(DE_genes_final_table[,"Ensembl
 write.table(DE_genes_final_table, "differential_gene_expression/final_gene_table/final_DE_gene_list.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 
 ############################## TRANSFORMED AND NORMALIZED COUNTS ###################
-# rlog transformation
 if (opt$rlog){
+    # rlog transformation
     rld <- rlog(cds, blind=FALSE)
     rld_names <- merge(x=gene_names, y=assay(rld), by.x = "Ensembl_ID", by.y="row.names")
     write.table(rld_names, "differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  qmethod = c("escape", "double"))
+} else {
+    # vst transformation
+    vsd <- vst(cds, blind=FALSE)
+    vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
+    write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 }
 
-# vst transformation
-vsd <- vst(cds, blind=FALSE)
-
-# write normalized values to a file
-vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
-write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
 
 ############### BOXPLOTS GENE EXPRESSION PER CONDITION ##########################
@@ -445,7 +444,7 @@ if (!is.null(opt$genelist)){
 
 ##################  SAMPLE DISTANCES HEATMAP ##################
 # Sample distances
-sampleDists <- dist(t(assay(vsd)))
+sampleDists <- dist(t(assay(if (opt$rlog) rld else vsd)))
 sampleDistMatrix <- as.matrix(sampleDists)
 colours = colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
 
@@ -460,7 +459,7 @@ dev.off()
 
 
 ############################ PCA PLOTS ########################
-pcaData <- plotPCA(vsd,intgroup=c("combfactor"),ntop = dim(vsd)[1], returnData=TRUE)
+pcaData <- plotPCA(if (opt$rlog) rld else vsd,intgroup=c("combfactor"),ntop = dim(if (opt$rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
 pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor)) +
     geom_point(size=3) +
@@ -473,8 +472,8 @@ ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg",
 
 ########################### PCA PLOT with batch-corrected data ############
 if(opt$batchEffect){
-    assay(vsd) <- limma::removeBatchEffect(assay(vsd), vsd$batch)
-    pcaData2 <- plotPCA(vsd, intgroup=c("combfactor"), ntop = dim(vsd)[1], returnData=TRUE)
+    assay(if (opt$rlog) rld else vsd) <- limma::removeBatchEffect(assay(if (opt$rlog) rld else vsd), (if (opt$rlog) rld else vsd)$batch)
+    pcaData2 <- plotPCA(if (opt$rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (opt$rlog) rld else vsd)[1], returnData=TRUE)
     percentVar <- round(100*attr(pcaData, "percentVar"))
     pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor)) +
                 geom_point(size=3)+
@@ -508,8 +507,8 @@ pdf("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_tra
 par(oma=c(3,3,3,3))
 par(mfrow = c(1, 3))
 meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
-if (opt$rlog){ meanSdPlot(assay(rld[notAllZero,]),ylab  = "sd rlog transformed count data") }
-meanSdPlot(assay(vsd[notAllZero,]),ylab  = "sd vst transformed count data")
+meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = "sd rlog transformed count data")
+meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd ", if (opt$rlog) "rld" else "vsd" ," transformed count data"))
 dev.off()
 
 # Further diagnostics plots
