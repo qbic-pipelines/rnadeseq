@@ -45,7 +45,7 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 organism = opt$organism,
                                 batch_effect = opt$batch_effect,
                                 log_FC = opt$log_FC,
-                                nsub_genes = opt$nsub_genes,                     
+                                nsub_genes = opt$nsub_genes,
                                 revision = opt$revision,
                                 pathway_analysis = opt$pathway_analysis,
                                 rlog = opt$rlog))
