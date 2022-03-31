@@ -434,7 +434,6 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
             table_list <- append(table_list, list(DE_genes))
         }
     }
-    #limits = c(floor(log2FoldChange_min), ceiling(log2FoldChange_max)), breaks = c(floor(log2FoldChange_min):ceiling(log2FoldChange_max))
     DE_all <- ldply(table_list, rbind)
     DE_all$logpval <- -log10(DE_all$padj)
     DE_all$logpval[DE_all$logpval > 16] <- 17
