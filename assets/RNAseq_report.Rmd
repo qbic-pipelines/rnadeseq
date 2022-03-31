@@ -23,6 +23,7 @@ params:
     organism: ""
     batch_effect: ""
     log_FC: ""
+    nsub_genes: ""
     revision: ""
     pathway_analysis: ""
     rlog: ""
@@ -299,6 +300,7 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distrib
 ```{r}
 rlog_text <- ifelse(params$rlog, "rlog", "vst")
 rlog_long_text <- ifelse(params$rlog, "regularized logarithm (rlog)", "variant stabilizing transformation (vst)")
+nsub_genes_text <- ifelse(params$rlog, "", paste("The number of subset genes for the 'vst' transformation is", as.character(params$nsub_genes), "."))
 ```
 
 # Gene expression data
@@ -308,6 +310,7 @@ rlog_long_text <- ifelse(params$rlog, "regularized logarithm (rlog)", "variant s
 The raw count table and normalized count tables are available [here](./differential_gene_expression/gene_counts_tables).
 The differential expression analysis is performed using the raw gene count table.
 For PCA analysis and heatmap plotting, the `r rlog_long_text` normalized gene counts were employed.
+`r nsub_genes_text`
 
 ## Principal component analysis (PCA)
 A PCA plot of the `r rlog_text` normalized gene expression visualizes the clustering of samples according to their gene expression.

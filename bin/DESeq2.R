@@ -51,6 +51,7 @@ option_list = list(
     make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
     make_option(c("-t", "--logFCthreshold"), type="integer", default=0, help="Log 2 Fold Change threshold for DE genes", metavar="character"),
     make_option(c("-g", "--rlog"), type="logical", default=TRUE, help="if TRUE, perform rlog transformation", metavar="character"),
+    make_option(c("-n", "--vst_genes_number"), type="integer", default=1000, help="subset number of genes for vst", metavar="character"),
     make_option(c("-b", "--batchEffect"), default=FALSE, action="store_true", help="Whether to consider batch effects in the DESeq2 analysis", metavar="character")
 )
 
@@ -385,7 +386,12 @@ if (opt$rlog){
     write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 }
 
+# vst transformation
+vsd <- vst(cds, blind=FALSE, nsub = opt$vst_genes_number)
 
+# write normalized values to a file
+vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
+write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
 ############### BOXPLOTS GENE EXPRESSION PER CONDITION ##########################
 # extract ID for genes to plot, make 20 plots:
