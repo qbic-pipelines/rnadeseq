@@ -9,7 +9,6 @@ Please use the pre-filled template to save time.
 However, don't be put off by this template - other more general issues and suggestions are welcome!
 Contributions to the code are even more welcome ;)
 
-
 ## Contribution workflow
 
 If you'd like to write some code for qbic-pipelines/rnadeseq, the standard workflow is as follows:

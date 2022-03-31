@@ -65,11 +65,11 @@ jobs:
     name: Test workflow parameters
     runs-on: ubuntu-latest
     env:
-      NXF_VER: '21.10.3'
+      NXF_VER: "21.10.3"
       NXF_ANSI_LOG: false
     strategy:
       matrix:
-        config: ['test', 'test_contrast_matrix', 'test_contrast_list', 'test_blacklist', 'test_skip_pathway_analysis']
+        config: ["test", "test_contrast_matrix", "test_contrast_list", "test_blacklist", "test_skip_pathway_analysis"]
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@v2

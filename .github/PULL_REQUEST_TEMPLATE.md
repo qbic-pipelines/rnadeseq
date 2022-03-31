@@ -12,6 +12,7 @@ Learn more about contributing: [CONTRIBUTING.md](https://github.com/qbic-pipelin
 -->
 
 ## PR checklist
+
 //TODO: Change nf-core? In "If necessary, also...", this does not make much sense, maybe just delete?
 
 - [ ] This comment contains a description of changes (with reason).

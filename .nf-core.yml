@@ -31,6 +31,4 @@ lint:
     - manifest.name
     - manifest.homePage
 
-
-
 repository_type: pipeline
