@@ -1,7 +1,7 @@
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================================================================
     VALIDATE INPUTS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================================================================
 */
 
 def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
@@ -12,14 +12,14 @@ WorkflowRnadeseq.initialise(params, log)
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
 def checkPathParamList = [
-    params.gene_counts, params.metadata, params.model,
+    params.metadata, params.model,
     params.project_summary, params.versions,
     params.multiqc
     ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-if (params.rawcounts) { ch_counts_file = Channel.fromPath(params.rawcounts) } else { exit 1, 'Please provide raw counts file!' }
+if (params.gene_counts) { ch_counts_path = Channel.fromPath(params.gene_counts) } else { exit 1, 'Please provide input file/dir!' }
 if (params.metadata) { ch_metadata_file = Channel.fromPath(params.metadata) } else { exit 1, 'Please provide metadata file!' }
 if (params.model) { ch_model_file = Channel.fromPath(params.model) } else { exit 1, 'Please provide linear model file!' }
 if (params.project_summary) { ch_proj_summary_file = Channel.fromPath(params.project_summary) } else { exit 1, 'Please provide project summary file!' }
@@ -27,6 +27,7 @@ if (params.versions) { ch_softwareversions_file = Channel.fromPath(params.versio
 if (params.multiqc) { ch_multiqc_file = Channel.fromPath(params.multiqc) } else { exit 1, 'Please provide multiqc.zip folder!' }
 
 // Create channels for optional parameters
+if (params.input_type in ["rawcounts", "salmon", "rsem"]) { ch_input_type = Channel.from(params.input_type) } else { exit 1, 'Wrong input type ' + params.input_type + ', must be one of "rawcounts", "salmon", "rsem"!' }
 ch_contrast_matrix = Channel.fromPath(params.contrast_matrix)
 ch_contrast_list = Channel.fromPath(params.contrast_list)
 ch_contrast_pairs = Channel.fromPath(params.contrast_pairs)
@@ -34,15 +35,23 @@ ch_relevel = Channel.fromPath(params.relevel)
 ch_quote_file = Channel.fromPath(params.quote)
 ch_genes = Channel.fromPath(params.genelist)
 ch_kegg_blacklist = Channel.fromPath(params.kegg_blacklist)
+ch_organism = Channel.from(params.organism)
+ch_keytype = Channel.from(params.keytype)
+print "asjliahsfd"
+print params.gtf
+print "jjj"
+if (params.input_type in ["rsem", "salmon"]) { ch_gtf = Channel.fromPath(params.gtf) } else { ch_gtf = Channel.fromPath("FALSE") }
+if (!params.skip_pathway_analysis) { ch_library = Channel.from(params.library) } else { ch_library = Channel.from("FALSE") }
+print "afafaf"
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================================================================
     CONFIG FILES
 ========================================================================================
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================================================================
     IMPORT LOCAL MODULES/SUBWORKFLOWS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================================================================
 */
 //
 // MODULE: Loaded from modules/local/
@@ -56,9 +65,9 @@ include { REPORT } from '../modules/local/report'
 //
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================================================================
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================================================================
 */
 
 //
@@ -67,13 +76,12 @@ include { REPORT } from '../modules/local/report'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================================================================
     RUN MAIN WORKFLOW
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================================================================
 */
 
 // Info required for completion email and summary
-
 workflow RNADESEQ {
 
 
@@ -83,16 +91,17 @@ workflow RNADESEQ {
 
 //
 //  MODULE: DE analysis
-//
     DESEQ2 (
-        ch_counts_file,
+        ch_counts_path,
         ch_metadata_file,
         ch_model_file,
         ch_contrast_matrix,
         ch_relevel,
         ch_contrast_list,
         ch_contrast_pairs,
-        ch_genes
+        ch_genes,
+        ch_input_type,
+        ch_gtf
     )
     ch_deseq2 = DESEQ2.out.deseq2
     ch_contrnames = DESEQ2.out.contrnames
@@ -107,7 +116,10 @@ workflow RNADESEQ {
             ch_metadata_file,
             ch_model_file,
             ch_genes,
-            ch_kegg_blacklist
+            ch_kegg_blacklist,
+            ch_organism,
+            ch_library,
+            ch_keytype
         )
         ch_pathway_analysis = PATHWAY_ANALYSIS.out.pathway_analysis
     }
@@ -137,9 +149,9 @@ workflow RNADESEQ {
 }
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================================================================
     COMPLETION EMAIL AND SUMMARY
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================================================================
 */
 //TODO: Have a look at email_on_fail
 //Here I have to change the params?
@@ -154,7 +166,7 @@ workflow.onComplete {
 }
 */
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================================================================
     THE END
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================================================================
 */
