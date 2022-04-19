@@ -518,6 +518,7 @@ The table below provides more detail on all enriched pathways."))
     names(q_list) <- q_names
 
     #gost query
+    write(paste(q_list, params$organism), file="/home/owacker/git/rnadeseq/gnihi")
     gostres <- gost(query=q_list,
                     organism=tolower(params$organism),
                     significant=T,

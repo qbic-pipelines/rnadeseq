@@ -39,6 +39,7 @@ ch_organism = Channel.from(params.organism)
 ch_keytype = Channel.from(params.keytype)
 print "asjliahsfd"
 print params.gtf
+print params.organism
 print "jjj"
 if (params.input_type in ["rsem", "salmon"]) { ch_gtf = Channel.fromPath(params.gtf) } else { ch_gtf = Channel.fromPath("FALSE") }
 if (!params.skip_pathway_analysis) { ch_library = Channel.from(params.library) } else { ch_library = Channel.from("FALSE") }

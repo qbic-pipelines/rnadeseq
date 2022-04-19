@@ -39,7 +39,7 @@ process REPORT {
     --revision $workflow.revision \
     --contrasts $contrnames \
     $genelistopt \
-    --organism $params.species \
+    --organism $params.organism \
     --log_FC $params.logFCthreshold \
     $batchopt \
     --min_DEG_pathway $params.min_DEG_pathway \
