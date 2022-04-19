@@ -17,15 +17,23 @@ library(optparse)
 library(svglite)
 library(extrafont)
 library(limma)
+library(dplyr)
+
+library(tximeta)
+library(tximport)
+library(SummarizedExperiment)
+library(impute)
 
 # clean up graphs
 graphics.off()
+
 
 # Load fonts and set plot themes
 theme_set(theme_bw(base_family = "ArialMT") +
 theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
 extrafont::font_import()
 extrafont::loadfonts()
+
 
 # create directories needed
 ifelse(!dir.exists("differential_gene_expression"), dir.create("differential_gene_expression"), FALSE)
@@ -38,6 +46,7 @@ dir.create("differential_gene_expression/gene_counts_tables")
 dir.create("differential_gene_expression/DE_genes_tables")
 dir.create("differential_gene_expression/final_gene_table")
 
+
 # check input data path
 # provide these files as arguments:
 option_list = list(
@@ -45,18 +54,24 @@ option_list = list(
     make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
     make_option(c("-d", "--design"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
     make_option(c("-x", "--contrasts_matrix"), type="character", default=NULL, help="path to contrasts matrix file", metavar="character"),
+    make_option(c("-f", "--gtf"), type="character", default=NULL, help="path to gtf table if using salmon input", metavar="character"),
     make_option(c("-r", "--relevel"), type="character", default=NULL, help="path to factor relevel file", metavar="character"),
     make_option(c("-k", "--contrasts_list"), type="character", default=NULL, help="path to contrasts list file", metavar="character"),
     make_option(c("-p", "--contrasts_pairs"), type="character", default=NULL, help="path to contrasts pairs file", metavar="character"),
     make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
     make_option(c("-t", "--logFCthreshold"), type="integer", default=0, help="Log 2 Fold Change threshold for DE genes", metavar="character"),
+    make_option(c("-y", "--inputType"), type="character", default="rawcounts", help="Which type of input data is provided; must be one of [rawcounts, rsem, salmon]", metavar="character"),
     make_option(c("-g", "--rlog"), type="logical", default=TRUE, help="if TRUE, perform rlog transformation", metavar="character"),
-    make_option(c("-n", "--vst_genes_number"), type="integer", default=1000, help="subset number of genes for vst", metavar="character"),
     make_option(c("-b", "--batchEffect"), default=FALSE, action="store_true", help="Whether to consider batch effects in the DESeq2 analysis", metavar="character")
 )
-
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
+if (!(opt$inputType %in% c("rawcounts", "rsem", "salmon"))){
+    stop(paste0("Wrong input type ", opt$inputType, ", must be one of [rawcounts, rsem, salmon]!"))
+}
+if (opt$inputType %in% c("rsem", "salmon") && is.null(opt$gtf)){
+    stop(paste0("For input type salmon, gtf file needs to be provided!"))
+}
 
 # Validate and read input
 if (is.null(opt$counts)){
@@ -77,52 +92,38 @@ if (is.null(opt$design)){
 } else {
     path_design = opt$design
 }
-if(!is.null(opt$relevel)){
+if (!is.null(opt$relevel)){
     path_relevel = opt$relevel
 }
-if(!is.null(opt$contrasts_matrix)){
-    if(!is.null(opt$contrasts_list) & !is.null(opt$contrasts_pairs)) {
+if (!is.null(opt$contrasts_matrix)){
+    if (!is.null(opt$contrasts_list) & !is.null(opt$contrasts_pairs)) {
         stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
     }
     path_contrasts_matrix = opt$contrasts_matrix
 }
-if(!is.null(opt$contrasts_list)){
-    if(!is.null(opt$contrasts_matrix) & !is.null(opt$contrasts_pairs)) {
+if (!is.null(opt$contrasts_list)){
+    if (!is.null(opt$contrasts_matrix) & !is.null(opt$contrasts_pairs)) {
         stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
     }
     path_contrasts_list = opt$contrasts_list
 }
-if(!is.null(opt$contrasts_pairs)){
-    if(!is.null(opt$contrasts_matrix) & !is.null(opt$contrasts_list)) {
+if (!is.null(opt$contrasts_pairs)){
+    if (!is.null(opt$contrasts_matrix) & !is.null(opt$contrasts_list)) {
         stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
     }
     path_contrasts_pairs = opt$contrasts_pairs
 }
-if(!is.null(opt$genelist)){
+if (!is.null(opt$genelist)){
     requested_genes_path = opt$genelist
 }
 
+
+
 ####### LOADING AND PROCESSING COUNT TABLE AND METADATA TABLE #####################################
-
-# Load count table
-count.table <- read.table(path_count_table,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
-count.table$Ensembl_ID <- row.names(count.table)
-drop <- c("Ensembl_ID","gene_name")
-gene_names <- count.table[,drop]
-
-# Reduce sample names to QBiC codes in count table
-names(count.table) <- substr(names(count.table), 1, 10)
-count.table <- count.table[ , !(names(count.table) %in% drop)]
-
-# Remove lines with "__" from HTSeq, not needed for featureCounts (will not harm here)
-count.table <- count.table[!grepl("^__",row.names(count.table)),]
-# Do some hard filtering for genes with 0 expression
-count.table = count.table[rowSums(count.table)>0,]
-
 # Load metadata: sample preparations tsv file from qPortal
 metadata <- read.table(metadata_path, sep="\t", header=TRUE,na.strings =c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
+dataIDs <- metadata$data.ID
 system(paste("mv ",metadata_path," differential_gene_expression/metadata/metadata.tsv",sep=""))
-
 # Make sure metadata is factor where needed
 names(metadata) = gsub("Condition..","condition_",names(metadata))
 conditions = names(metadata)[grepl("condition_",names(metadata))]
@@ -130,27 +131,45 @@ for (i in conditions) {
     metadata[,i] = as.factor(metadata[,i])
 }
 
-# Need to order columns in count.table
-count.table <- count.table[, order(names(count.table))]
+# Load count table
+if (opt$inputType == "rawcounts"){
+    count.table <- read.table(path_count_table,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
+    count.table$Ensembl_ID <- row.names(count.table)
+    drop <- c("Ensembl_ID","gene_name")
+    gene_names <- count.table[,drop]
+    # Reduce sample names to QBiC codes in count table
+    names(count.table) <- substr(names(count.table), 1, 10)
+    count.table <- count.table[ , !(names(count.table) %in% drop)]
 
-print("Count table column headers are:")
-print(names(count.table))
-print("Metadata table row names are:")
-print(row.names(metadata))
-print("If count table headers do not exactly match the metadata table row names the pipeline will stop.")
+    # Remove lines with "__" from HTSeq, not needed for featureCounts (will not harm here)
+    count.table <- count.table[!grepl("^__",row.names(count.table)),]
+    # Do some hard filtering for genes with 0 expression
+    count.table = count.table[rowSums(count.table)>0,]
+    # Need to order columns in count.table
+    count.table <- count.table[, order(names(count.table))]
 
-# check metadata and count table sorting, (correspond to QBiC codes): if not in the same order stop
-stopifnot(identical(names(count.table),row.names(metadata)))
+    print("Count table column headers are:")
+    print(names(count.table))
+    print("Metadata table row names are:")
+    print(row.names(metadata))
+
+    print("If count table headers do not exactly match the metadata table row names the pipeline will stop.")
+
+    # check metadata and count table sorting, (correspond to QBiC codes): if not in the same order stop
+    stopifnot(identical(names(count.table),row.names(metadata)))
+}
 
 # process secondary names and change row names in metadata
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name)
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
 metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
-names(count.table) = metadata$sampleName
+if (opt$inputType == "rawcounts"){
+    names(count.table) = metadata$sampleName
+}
 row.names(metadata) = metadata$sampleName
-
-stopifnot(identical(names(count.table),row.names(metadata)))
-
+if (opt$inputType == "rawcounts"){
+    stopifnot(identical(names(count.table),row.names(metadata)))
+}
 # to get all possible pairwise comparisons, make a combined factor
 conditions <- grepl(colnames(metadata),pattern = "condition_")
 metadata$combfactor <- apply(as.data.frame(metadata[ ,conditions]),1,paste, collapse = "_")
@@ -160,8 +179,7 @@ design <- read.csv(path_design, sep="\t", header = F)
 write.table(design, file="differential_gene_expression/metadata/linear_model.txt", sep="\t", quote=F, col.names = F, row.names = F)
 
 ################## RUN DESEQ2 ######################################
-
-# Apply relevel if provided to metadata
+#Apply relevel if provided to metadata
 if (!is.null(opt$relevel)) {
     relevel_table <- read.table(path_relevel, sep="\t", header = T, colClasses = "character")
     write.table(relevel_table, file="differential_gene_expression/metadata/relevel.tsv")
@@ -173,19 +191,67 @@ if (!is.null(opt$relevel)) {
 }
 
 # Run DESeq function
-cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
-cds <- DESeq(cds,  parallel = FALSE)
+if (opt$inputType == "rawcounts") {
+    cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
+    cds <- DESeq(cds,  parallel = FALSE)
+} else if (opt$inputType %in% c("rsem", "salmon")) {
+    ## Create a dataframe which consists of both the gene id and the transcript name
+    gtf <- rtracklayer::import(opt$gtf)
+    gtf <- as.data.frame(gtf, header=T)
+    tx2gene_gtf <- gtf[c("transcript_id", "gene_id")]
+    tx2gene_gtf <- distinct(tx2gene_gtf)
+    tx2gene_gtf[] <- lapply(tx2gene_gtf, function(x) gsub("\\.\\d+", "", x))
+
+    colnames(tx2gene_gtf) <- c("transcript_id", "gene_id") #, "TXID"
+    gene_names <- gtf[c("gene_id", "gene_name")]
+    colnames(gene_names) <- c("Ensembl_ID", "gene_name")
+    gene_names <- distinct(gene_names)
+    rownames(gene_names) <- gene_names[,1]
+
+    if (opt$inputType == "rsem") {
+        files <- file.path(gsub("/$", "", path_count_table), paste0(dataIDs, ".genes.results"))
+        all(file.exists(files))
+        #Extract condition columns and other info for tximeta
+        condition_names <- unlist(strsplit(design[,1], split = " "))
+        condition_names <- grep("condition", condition_names, value=T)
+        sampleconditions <- data.frame(metadata[,condition_names])
+        colnames(sampleconditions) <- condition_names
+        coldata <- data.frame(files = files, names= dataIDs, sampleconditions)
+        coldata$combfactor <- metadata$combfactor
+        rownames(coldata) <- NULL
+
+        #Do tximeta, this is necessary to run DESeq on rsem
+        se <- tximeta(coldata, type="rsem", txIn=FALSE, txOut=FALSE, skipMeta=TRUE)
+        assays(se)$length[ assays(se)$length == 0] <- NA # set these as missing
+        #Impute lengths for the 0-length values:
+        length_imp <- impute.knn(assays(se)$length)
+        assays(se)$length <- length_imp$data
+        #dds from SummarizedExperiment <se>, then run DESeq
+        cds <- DESeqDataSet(se, design = as.formula(eval(parse(text=as.character(design[[1]])))))
+        cds <- DESeq(cds)
+    } else if (opt$inputType == "salmon") {
+        files <- file.path(gsub("/$", "", path_count_table), dataIDs, "quant.sf")
+        all(file.exists(files))
+        ## Import all of the samples information and transform the identifiers
+        txi.salmon <- tximport(files, type = "salmon", tx2gene = tx2gene_gtf, ignoreTxVersion = T)
+        # Run cds with tximport depending on whether rsem or salmon was used
+        cds <- DESeqDataSetFromTximport(txi=txi.salmon, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
+        cds <- DESeq(cds)
+    }
+} else {
+    stop("Input type must be one of [rawcounts, rsem, salmon]!")
+}
 
 # SizeFactors(cds) as indicator of library sequencing depth
 write.table(sizeFactors(cds),paste("differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
 
 # Write cds assay table to file
 write.table(counts(cds, normalized=T), paste("differential_gene_expression/gene_counts_tables/deseq2_table.tsv", sep=""), append=F, quote = F, sep = "\t", eol = "\n", na = "NA", dec = ".", row.names = T, col.names = T, qmethod = c("escape", "double"))
-
-# Write raw counts to file
-count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
-write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
-
+if (opt$inputType == "rawcounts"){
+    # Write raw counts to file
+    count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
+    write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
+}
 # Contrasts coefficient table write in metadata
 coefficients <- resultsNames(cds)
 coef_tab <- data.frame(coef=coefficients)
@@ -200,7 +266,7 @@ if (!is.null(opt$contrasts_matrix)){
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
     # Check that contrast matrix is valid
-    if(length(coefficients) != nrow(contrasts)){
+    if (length(coefficients) != nrow(contrasts)){
         stop("Error: Your contrast table has different number of rows than the number of coefficients in the DESeq2 model.")
     }
 
@@ -375,6 +441,7 @@ stopifnot(identical(dim(DE_genes_final_table)[1],dim(assay(cds))[1]))
 # Calculate outcome --> if gene is DE in any contrast, annotate as DE
 DE_genes_final_table$outcome = ifelse(grepl("1",DE_genes_final_table$contrast_vector),"DE","not_DE")
 DE_genes_final_table = merge(x=DE_genes_final_table, y=gene_names, by.x="Ensembl_ID", by.y="Ensembl_ID", all.x = T)
+
 DE_genes_final_table = DE_genes_final_table[,c(dim(DE_genes_final_table)[2],1:dim(DE_genes_final_table)[2]-1)]
 DE_genes_final_table = DE_genes_final_table[order(DE_genes_final_table[,"Ensembl_ID"]),]
 
@@ -394,12 +461,7 @@ if (opt$rlog){
     write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 }
 
-# vst transformation
-vsd <- vst(cds, blind=FALSE, nsub = opt$vst_genes_number)
 
-# write normalized values to a file
-vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
-write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
 ############### BOXPLOTS GENE EXPRESSION PER CONDITION ##########################
 # extract ID for genes to plot, make 20 plots:
@@ -424,6 +486,7 @@ for (i in random_DE_genes_plot){
                 axis.text.x = element_text(angle=45, vjust=1,hjust=1))
     ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".svg",sep=""), width=10, height=5, plot=plot)
     ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".png",sep=""), width=10, height=5, plot=plot)
+    ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".pdf",sep=""), width=10, height=5, plot=plot)
 }
 
 # make boxplots of interesting genes in gene list
@@ -441,6 +504,7 @@ if (!is.null(opt$genelist)){
     requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
     requested_genes_plot_gene_name <- requested_genes_plot$gene_name
 
+
     for (i in c(1:length(requested_genes_plot_Ensembl))){
         boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE, normalized = T)
         boxplot_counts$variable = row.names(boxplot_counts)
@@ -452,9 +516,9 @@ if (!is.null(opt$genelist)){
                 axis.text.x = element_text(angle=45, vjust=1,hjust=1))
         ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".svg",sep=""), width=10, height=5, plot=plot)
         ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".png",sep=""), width=10, height=5, plot=plot)
+        ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".pdf",sep=""), width=10, height=5, plot=plot)
     }
 }
-
 
 ##################  SAMPLE DISTANCES HEATMAP ##################
 # Sample distances
@@ -471,6 +535,9 @@ svg("differential_gene_expression/plots/Heatmaps_of_distances.svg")
 pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=10)
 dev.off()
 
+png("differential_gene_expression/plots/Heatmaps_of_distances.png")
+pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=10)
+dev.off()
 
 ############################ PCA PLOTS ########################
 pcaData <- plotPCA(if (opt$rlog) rld else vsd,intgroup=c("combfactor"),ntop = dim(if (opt$rlog) rld else vsd)[1], returnData=TRUE)
@@ -483,6 +550,7 @@ pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor)) +
     coord_fixed()
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg", device = "svg", dpi = 150)
+ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.png", device = "png", dpi = 150)
 
 ########################### PCA PLOT with batch-corrected data ############
 if(opt$batchEffect){
@@ -497,6 +565,7 @@ if(opt$batchEffect){
                 coord_fixed()
     ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.pdf", device = "pdf", dpi=300)
     ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.svg", device = "svg", dpi = 150)
+    ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.png", device = "png", dpi = 150)
 }
 
 
@@ -510,14 +579,54 @@ boxplot(log10(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="lo
 boxplot(log2(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log2-Cooks")
 dev.off()
 
+png("differential_gene_expression/plots/further_diagnostics_plots/Cooks-distances.png")
+par(mar=c(10,3,3,3))
+par( mfrow = c(1,2))
+boxplot(log10(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log10-Cooks")
+boxplot(log2(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log2-Cooks")
+dev.off()
+
+svg("differential_gene_expression/plots/further_diagnostics_plots/Cooks-distances.svg")
+par(mar=c(10,3,3,3))
+par( mfrow = c(1,2))
+boxplot(log10(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log10-Cooks")
+boxplot(log2(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log2-Cooks")
+dev.off()
+
 # The function plotDispEsts visualizes DESeqs dispersion estimates:
 pdf("differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.pdf")
+plotDispEsts(cds, ylim = c(1e-5, 1e8))
+dev.off()
+
+png("differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.png")
+plotDispEsts(cds, ylim = c(1e-5, 1e8))
+dev.off()
+
+svg("differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.svg")
 plotDispEsts(cds, ylim = c(1e-5, 1e8))
 dev.off()
 
 # Effects of transformations on the variance
 notAllZero <- (rowSums(counts(cds))>0)
 pdf("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.pdf")
+par(oma=c(3,3,3,3))
+par(mfrow = c(1, 3))
+meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
+meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = "sd rlog transformed count data")
+meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd ", if (opt$rlog) "rld" else "vsd" ," transformed count data"))
+dev.off()
+
+notAllZero <- (rowSums(counts(cds))>0)
+png("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.png")
+par(oma=c(3,3,3,3))
+par(mfrow = c(1, 3))
+meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
+meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = "sd rlog transformed count data")
+meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd ", if (opt$rlog) "rld" else "vsd" ," transformed count data"))
+dev.off()
+
+notAllZero <- (rowSums(counts(cds))>0)
+svg("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.svg")
 par(oma=c(3,3,3,3))
 par(mfrow = c(1, 3))
 meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
@@ -532,6 +641,12 @@ for (i in resultsNames(cds)[-1]) {
     pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_",i,".pdf",sep=""))
     plotMA(res,ylim = c(-4, 4))
     dev.off()
+    png(paste("differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_",i,".png",sep=""))
+    plotMA(res,ylim = c(-4, 4))
+    dev.off()
+    svg(paste("differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_",i,".svg",sep=""))
+    plotMA(res,ylim = c(-4, 4))
+    dev.off()
     # multiple hyptothesis testing
     qs <- c( 0, quantile(results(cds)$baseMean[res$baseMean > 0], 0:4/4 ))
     bins <- cut(res$baseMean, qs )
@@ -543,8 +658,28 @@ for (i in resultsNames(cds)[-1]) {
     pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_",i,".pdf",sep=""))
     barplot(ratios, xlab="mean normalized count", ylab="ratio of small p values")
     dev.off()
+    png(paste("differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_",i,".png",sep=""))
+    barplot(ratios, xlab="mean normalized count", ylab="ratio of small p values")
+    dev.off()
+    svg(paste("differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_",i,".svg",sep=""))
+    barplot(ratios, xlab="mean normalized count", ylab="ratio of small p values")
+    dev.off()
     # plot number of rejections
     pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_",i,".pdf",sep=""))
+    plot(metadata(res)$filterNumRej,
+        type="b", ylab="number of rejections",
+        xlab="quantiles of filter")
+    lines(metadata(res)$lo.fit, col="red")
+    abline(v=metadata(res)$filterTheta)
+    dev.off()
+    png(paste("differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_",i,".png",sep=""))
+    plot(metadata(res)$filterNumRej,
+        type="b", ylab="number of rejections",
+        xlab="quantiles of filter")
+    lines(metadata(res)$lo.fit, col="red")
+    abline(v=metadata(res)$filterTheta)
+    dev.off()
+    svg(paste("differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_",i,".svg",sep=""))
     plot(metadata(res)$filterNumRej,
         type="b", ylab="number of rejections",
         xlab="quantiles of filter")
@@ -558,6 +693,20 @@ for (i in resultsNames(cds)[-1]) {
     h2 <- hist(res$pvalue[use], breaks=0:50/50, plot=FALSE)
     colori <- c('do not pass'="khaki", 'pass'="powderblue")
     pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values",i,".pdf",sep=""))
+    barplot(height = rbind(h1$density, h2$density), beside = FALSE,
+            col = colori, space = 0, main = "", xlab="p value",ylab="frequency")
+    text(x = c(0, length(h1$counts)), y = 0, label = paste(c(0,1)),
+        adj = c(0.5,1.7), xpd=NA)
+    legend("topleft", fill=rev(colori), legend=rev(names(colori)))
+    dev.off()
+    png(paste("differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values",i,".png",sep=""))
+    barplot(height = rbind(h1$density, h2$density), beside = FALSE,
+            col = colori, space = 0, main = "", xlab="p value",ylab="frequency")
+    text(x = c(0, length(h1$counts)), y = 0, label = paste(c(0,1)),
+        adj = c(0.5,1.7), xpd=NA)
+    legend("topleft", fill=rev(colori), legend=rev(names(colori)))
+    dev.off()
+    svg(paste("differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values",i,".svg",sep=""))
     barplot(height = rbind(h1$density, h2$density), beside = FALSE,
             col = colori, space = 0, main = "", xlab="p value",ylab="frequency")
     text(x = c(0, length(h1$counts)), y = 0, label = paste(c(0,1)),
