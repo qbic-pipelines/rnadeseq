@@ -60,16 +60,16 @@ option_list = list(
     make_option(c("-p", "--contrasts_pairs"), type="character", default=NULL, help="path to contrasts pairs file", metavar="character"),
     make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
     make_option(c("-t", "--logFCthreshold"), type="integer", default=0, help="Log 2 Fold Change threshold for DE genes", metavar="character"),
-    make_option(c("-y", "--inputType"), type="character", default="rawcounts", help="Which type of input data is provided; must be one of [rawcounts, rsem, salmon]", metavar="character"),
+    make_option(c("-y", "--input_type"), type="character", default="rawcounts", help="Which type of input data is provided; must be one of [rawcounts, rsem, salmon]", metavar="character"),
     make_option(c("-g", "--rlog"), type="logical", default=TRUE, help="if TRUE, perform rlog transformation", metavar="character"),
     make_option(c("-b", "--batchEffect"), default=FALSE, action="store_true", help="Whether to consider batch effects in the DESeq2 analysis", metavar="character")
 )
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
-if (!(opt$inputType %in% c("rawcounts", "rsem", "salmon"))){
-    stop(paste0("Wrong input type ", opt$inputType, ", must be one of [rawcounts, rsem, salmon]!"))
+if (!(opt$input_type %in% c("rawcounts", "rsem", "salmon"))){
+    stop(paste0("Wrong input type ", opt$input_type, ", must be one of [rawcounts, rsem, salmon]!"))
 }
-if (opt$inputType %in% c("rsem", "salmon") && is.null(opt$gtf)){
+if (opt$input_type %in% c("rsem", "salmon") && is.null(opt$gtf)){
     stop(paste0("For input type salmon, gtf file needs to be provided!"))
 }
 
@@ -122,7 +122,7 @@ if (!is.null(opt$genelist)){
 ####### LOADING AND PROCESSING COUNT TABLE AND METADATA TABLE #####################################
 # Load metadata: sample preparations tsv file from qPortal
 metadata <- read.table(metadata_path, sep="\t", header=TRUE,na.strings =c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
-dataIDs <- metadata$data.ID
+dataIDs <- metadata$Data.ID
 system(paste("mv ",metadata_path," differential_gene_expression/metadata/metadata.tsv",sep=""))
 # Make sure metadata is factor where needed
 names(metadata) = gsub("Condition..","condition_",names(metadata))
@@ -132,7 +132,7 @@ for (i in conditions) {
 }
 
 # Load count table
-if (opt$inputType == "rawcounts"){
+if (opt$input_type == "rawcounts"){
     count.table <- read.table(path_count_table,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
     count.table$Ensembl_ID <- row.names(count.table)
     drop <- c("Ensembl_ID","gene_name")
@@ -163,11 +163,11 @@ if (opt$inputType == "rawcounts"){
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name)
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
 metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
-if (opt$inputType == "rawcounts"){
+if (opt$input_type == "rawcounts"){
     names(count.table) = metadata$sampleName
 }
 row.names(metadata) = metadata$sampleName
-if (opt$inputType == "rawcounts"){
+if (opt$input_type == "rawcounts"){
     stopifnot(identical(names(count.table),row.names(metadata)))
 }
 # to get all possible pairwise comparisons, make a combined factor
@@ -191,10 +191,10 @@ if (!is.null(opt$relevel)) {
 }
 
 # Run DESeq function
-if (opt$inputType == "rawcounts") {
+if (opt$input_type == "rawcounts") {
     cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
     cds <- DESeq(cds,  parallel = FALSE)
-} else if (opt$inputType %in% c("rsem", "salmon")) {
+} else if (opt$input_type %in% c("rsem", "salmon")) {
     ## Create a dataframe which consists of both the gene id and the transcript name
     gtf <- rtracklayer::import(opt$gtf)
     gtf <- as.data.frame(gtf, header=T)
@@ -208,7 +208,7 @@ if (opt$inputType == "rawcounts") {
     gene_names <- distinct(gene_names)
     rownames(gene_names) <- gene_names[,1]
 
-    if (opt$inputType == "rsem") {
+    if (opt$input_type == "rsem") {
         files <- file.path(gsub("/$", "", path_count_table), paste0(dataIDs, ".genes.results"))
         all(file.exists(files))
         #Extract condition columns and other info for tximeta
@@ -216,6 +216,11 @@ if (opt$inputType == "rawcounts") {
         condition_names <- grep("condition", condition_names, value=T)
         sampleconditions <- data.frame(metadata[,condition_names])
         colnames(sampleconditions) <- condition_names
+        capture.output(files, file="/home/owacker/git/rnadeseq/gnihi", append=F)
+        write("ids", file="/home/owacker/git/rnadeseq/gnihi", append=T)
+        capture.output(dataIDs, file="/home/owacker/git/rnadeseq/gnihi", append=T)
+        write("conds", file="/home/owacker/git/rnadeseq/gnihi", append=T)
+        capture.output(sampleconditions, file="/home/owacker/git/rnadeseq/gnihi", append=T)
         coldata <- data.frame(files = files, names= dataIDs, sampleconditions)
         coldata$combfactor <- metadata$combfactor
         rownames(coldata) <- NULL
@@ -229,14 +234,25 @@ if (opt$inputType == "rawcounts") {
         #dds from SummarizedExperiment <se>, then run DESeq
         cds <- DESeqDataSet(se, design = as.formula(eval(parse(text=as.character(design[[1]])))))
         cds <- DESeq(cds)
-    } else if (opt$inputType == "salmon") {
+    } else if (opt$input_type == "salmon") {
         files <- file.path(gsub("/$", "", path_count_table), dataIDs, "quant.sf")
         all(file.exists(files))
         ## Import all of the samples information and transform the identifiers
         txi.salmon <- tximport(files, type = "salmon", tx2gene = tx2gene_gtf, ignoreTxVersion = T)
         # Run cds with tximport depending on whether rsem or salmon was used
-        cds <- DESeqDataSetFromTximport(txi=txi.salmon, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
+                #Extract condition columns and other info for tximeta
+        condition_names <- unlist(strsplit(design[,1], split = " "))
+        condition_names <- grep("condition", condition_names, value=T)
+        sampleconditions <- data.frame(metadata[,condition_names])
+        colnames(sampleconditions) <- condition_names
+        coldata <- data.frame(files = files, names= dataIDs, sampleconditions)
+        coldata$combfactor <- metadata$combfactor
+        capture.output(dataIDs, file="/home/owacker/git/rnadeseq/salmon_cds")
+        rownames(coldata) <- dataIDs
+        cds <- DESeqDataSetFromTximport(txi=txi.salmon, colData =coldata, design = eval(parse(text=as.character(design[[1]]))))
         cds <- DESeq(cds)
+        capture.output(cds, file="/home/owacker/git/rnadeseq/salmon_cds")
+
     }
 } else {
     stop("Input type must be one of [rawcounts, rsem, salmon]!")
@@ -247,7 +263,7 @@ write.table(sizeFactors(cds),paste("differential_gene_expression/gene_counts_tab
 
 # Write cds assay table to file
 write.table(counts(cds, normalized=T), paste("differential_gene_expression/gene_counts_tables/deseq2_table.tsv", sep=""), append=F, quote = F, sep = "\t", eol = "\n", na = "NA", dec = ".", row.names = T, col.names = T, qmethod = c("escape", "double"))
-if (opt$inputType == "rawcounts"){
+if (opt$input_type == "rawcounts"){
     # Write raw counts to file
     count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
     write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))

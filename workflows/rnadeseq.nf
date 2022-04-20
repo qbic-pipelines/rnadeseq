@@ -118,6 +118,7 @@ workflow RNADESEQ {
             ch_model_file,
             ch_genes,
             ch_kegg_blacklist,
+            ch_input_type,
             ch_organism,
             ch_library,
             ch_keytype

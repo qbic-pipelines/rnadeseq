@@ -27,7 +27,7 @@ process DESEQ2 {
     def rlog_opt = params.use_vst ? '--rlog FALSE' : '--rlog TRUE'
     """
     DESeq2.R --counts $gene_counts --metadata $metadata --gtf $gtf --design $model \
-    --logFCthreshold $params.logFCthreshold --inputType $input_type $relevel_opt $contrast_mat_opt \
+    --logFCthreshold $params.logFCthreshold --input_type $input_type $relevel_opt $contrast_mat_opt \
     $contrast_list_opt $contrast_pairs_opt $gene_list_opt $batch_effect_opt $rlog_opt
     zip -r differential_gene_expression.zip differential_gene_expression
     """

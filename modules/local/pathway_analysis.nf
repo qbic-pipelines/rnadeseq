@@ -6,6 +6,7 @@ process PATHWAY_ANALYSIS {
     path model
     path genelist
     path keggblacklist
+    val input_type
     val organism
     val library
     val keytype
@@ -19,12 +20,11 @@ process PATHWAY_ANALYSIS {
     def basepath = 'differential_gene_expression/gene_counts_tables/'
     def normInput = params.use_vst ? basepath + 'vst_transformed_gene_counts.tsv' : basepath + 'rlog_transformed_gene_counts.tsv'
     """
-    echo "alkslashf" > /home/owacker/git/rnadeseq/dumdidum
     unzip $deseq_output
     pathway_analysis.R --dirContrasts 'differential_gene_expression/DE_genes_tables/' --metadata $metadata \
     --model $model --normCounts $normInput \
     --species $organism --species_library $library --keytype $keytype \
-    $genelistopt $keggblacklistopt --min_DEG_pathway $params.min_DEG_pathway
+    $genelistopt $keggblacklistopt --input_type $input_type --min_DEG_pathway $params.min_DEG_pathway
     zip -r pathway_analysis.zip pathway_analysis/
     """
 }

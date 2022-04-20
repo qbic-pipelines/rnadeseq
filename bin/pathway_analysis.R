@@ -33,6 +33,7 @@ option_list = list(
     make_option(c("-k", "--keytype"), type="character", default=NULL, help="Keytype. Example format: TAIR (varies greatly depending on library!)", metavar="character"),
     make_option(c("-g", "--genelist"), type="character", default=NULL, help="Path to gene list for heatmap plot.", metavar="character"),
     make_option(c("-b", "--kegg_blacklist"), type="character", default=NULL, help="Path to KEGG pathway blacklist.", metavar="character"),
+    make_option(c("-y", "--input_type"), type="character", default="rawcounts", help="Which type of input data is provided; must be one of [rawcounts, rsem, salmon]", metavar="character"),
     make_option(c("-p", "--min_DEG_pathway"), type="character", default=1, help="Min. number of genes DE in a pathway for this pathway to be in tables.", metavar="integer")
     )
 
@@ -222,7 +223,6 @@ for (file in contrast_files){
             write.table(df_subset,
                         file = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"),
                         sep="\t", quote = F, col.names = T, row.names = F)
-
             # Enriched pathways horizontal barplots of padj values
             p <- ggplot(df_subset, aes(x=reorder(Pathway_name, Fraction_DE), y=Fraction_DE)) +
                 geom_bar(aes(fill=Padj), stat="identity", width = 0.7) +
@@ -240,7 +240,7 @@ for (file in contrast_files){
             if (nrow(df) <= 100 & nrow(df) > 0) {
                 conditions <- grepl("Condition", colnames(metadata))
                 metadata_cond <- as.data.frame(metadata[,conditions])
-                metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
+                metadata_name <- metadata[,c(ifelse(opt$input_type == "rawcounts", "QBiC.Code", "Data.ID"), "Secondary.Name")]
                 row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
                 for (i in c(1:nrow(df))){
@@ -251,9 +251,14 @@ for (file in contrast_files){
                 mat$gene_name <- NULL
                 mat <- data.matrix(mat)
 
+
                 if (nrow(mat)>1){
                     png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
+                    capture.output(mat, file="/home/owacker/git/rnadeseq/mat", append=F)
+                    capture.output(metadata_cond, file="/home/owacker/git/rnadeseq/cond", append=F)
                     pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+                    capture.output("aaaaaa1", file="/home/owacker/git/rnadeseq/padj", append=T)
+
                     dev.off()
 
                     pdf(paste(outdir, "/", fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
@@ -321,7 +326,7 @@ if (!is.null(opt$genelist)){
     conditions <- grepl("Condition", colnames(metadata))
     condition <- metadata[,conditions]
     metadata_cond <- as.data.frame(condition)
-    metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
+    metadata_name <- metadata[,c(ifelse(opt$input_type == "rawcounts", "QBiC.Code", "Data.ID"), "Secondary.Name")]
     row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
     gene_list_tab <- read.table(file=genelist_path, sep = "\t", header = F, quote="")
@@ -348,11 +353,15 @@ if (!is.null(opt$genelist)){
 
     if (nrow(mat)>1){
         png(filename = paste(outdir, "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.png", sep=""), width = 2500, height = 3000, res = 300)
+        capture.output(mat, file="/home/owacker/git/rnadeseq/padj", append=T)
         pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
+        capture.output("aaaaaa3", file="/home/owacker/git/rnadeseq/padj", append=T)
         dev.off()
 
         pdf(paste(outdir, "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""))
+        capture.output(mat, file="/home/owacker/git/rnadeseq/padj", append=T)
         pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
+        capture.output("aaaaaa4", file="/home/owacker/git/rnadeseq/padj", append=T)
         dev.off()
     }
 }
