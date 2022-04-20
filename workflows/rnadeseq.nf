@@ -26,6 +26,14 @@ if (params.project_summary) { ch_proj_summary_file = Channel.fromPath(params.pro
 if (params.versions) { ch_softwareversions_file = Channel.fromPath(params.versions) } else { exit 1, 'Please provide software versions file!' }
 if (params.multiqc) { ch_multiqc_file = Channel.fromPath(params.multiqc) } else { exit 1, 'Please provide multiqc.zip folder!' }
 
+if (!params.genome && (!params.gene_counts || !params.library || !params.gtf || !params.keytype)) { exit 1, 'Please provide either genome parameter or parameters for organism, library, gtf and keytype!' }
+if (!params.organism) { params.organism = WorkflowMain.getGenomeAttribute(params, 'organism') }
+if (!params.library) { params.library = WorkflowMain.getGenomeAttribute(params, 'library') }
+//if (!params.gtf) { params.gtf = WorkflowMain.getGenomeAttribute(params, 'gtf') }
+if (!params.keytype) { params.keytype = WorkflowMain.getGenomeAttribute(params, 'keytype') }
+
+
+
 // Create channels for optional parameters
 if (params.input_type in ["rawcounts", "salmon", "rsem"]) { ch_input_type = Channel.from(params.input_type) } else { exit 1, 'Wrong input type ' + params.input_type + ', must be one of "rawcounts", "salmon", "rsem"!' }
 ch_contrast_matrix = Channel.fromPath(params.contrast_matrix)
@@ -34,16 +42,54 @@ ch_contrast_pairs = Channel.fromPath(params.contrast_pairs)
 ch_relevel = Channel.fromPath(params.relevel)
 ch_quote_file = Channel.fromPath(params.quote)
 ch_genes = Channel.fromPath(params.genelist)
+
+if (params.organism) {
+    ch_organism = Channel.from(params.organism)
+} else {
+    ch_organism = Channel.from(WorkflowMain.getGenomeAttribute(params, 'organism'))
+}
+
+print "alishd"
+print ch_organism.getProperties().toString()
+ch_organism.view()
+//ch_organism.subscribe { println "value: $it" }
+print "ls"
+if (!params.skip_pathway_analysis) {
+    if (params.library) {
+        ch_library = Channel.from(params.library)
+    } else {
+        ch_library = Channel.from(WorkflowMain.getGenomeAttribute(params, 'library'))
+    }
+    if (params.keytype) {
+        ch_keytype = Channel.from(params.keytype)
+    } else {
+        ch_keytype = Channel.from(WorkflowMain.getGenomeAttribute(params, 'keytype'))
+    }
+}
+if (params.input_type in ["rsem", "salmon"]) {
+    if (params.gtf) {
+        ch_gtf = Channel.fromPath(params.gtf)
+    } else {
+        ch_gtf = Channel.fromPath(WorkflowMain.getGenomeAttribute(params, 'gtf'))
+    }
+} else {
+    ch_gtf = Channel.fromPath("FALSE")
+}
+
+print "haha"
 ch_kegg_blacklist = Channel.fromPath(params.kegg_blacklist)
-ch_organism = Channel.from(params.organism)
-ch_keytype = Channel.from(params.keytype)
-print "asjliahsfd"
+print "hahaa"
+//ch_organism = Channel.from(params.organism)
+print "hahaaa"
+//ch_keytype = Channel.from(params.keytype)
+print "hahaaaa"
+//params.gtf = "ksksks"
 print params.gtf
-print params.organism
-print "jjj"
-if (params.input_type in ["rsem", "salmon"]) { ch_gtf = Channel.fromPath(params.gtf) } else { ch_gtf = Channel.fromPath("FALSE") }
-if (!params.skip_pathway_analysis) { ch_library = Channel.from(params.library) } else { ch_library = Channel.from("FALSE") }
-print "afafaf"
+print WorkflowMain.getGenomeAttribute(params, 'gtf')
+print "hääääää"
+//if (params.input_type in ["rsem", "salmon"]) { ch_gtf = Channel.fromPath(params.gtf) } else { ch_gtf = Channel.fromPath("FALSE") }
+print "hahaaaaa"
+//if (!params.skip_pathway_analysis) { ch_library = Channel.from(params.library) } else { ch_library = Channel.from("FALSE") }
 
 /*
 ========================================================================================
@@ -139,7 +185,8 @@ workflow RNADESEQ {
         ch_multiqc_file,
         ch_genes,
         ch_pathway_analysis,
-        ch_quote_file
+        ch_quote_file,
+        ch_organism
     )
 
     //TODO: Enable this:

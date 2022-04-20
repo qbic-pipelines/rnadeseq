@@ -11,6 +11,7 @@ process REPORT {
     path genelist
     path gprofiler
     path quote
+    val organism
 
     output:
     path "*.zip"
@@ -39,7 +40,7 @@ process REPORT {
     --revision $workflow.revision \
     --contrasts $contrnames \
     $genelistopt \
-    --organism $params.organism \
+    --organism $organism \
     --log_FC $params.logFCthreshold \
     $batchopt \
     --min_DEG_pathway $params.min_DEG_pathway \

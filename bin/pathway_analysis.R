@@ -69,7 +69,7 @@ if(!is.null(opt$kegg_blacklist)){
     KEGG_blacklist <- read.table(file=opt$kegg_blacklist, sep = "\n", header = FALSE, quote="")
     blacklist_pathways <- append(blacklist_pathways, KEGG_blacklist$V1)
 }
-
+'
 # Need to provide short and long names and libraries for your species
 if(is.null(opt$species)){
     print_help(opt_parser)
@@ -85,9 +85,19 @@ if(is.null(opt$species)){
 } else {
     stop("Species name is unknown, check for typos or contact responsible person to add your species.")
 }
+'
+organism <- tolower(opt$species)
+short_organism_name <- substr(organism,1,3)
+species_dir <- tempdir()
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install(opt$species_library, lib=species_dir)
+library(opt$species_library, lib.loc=species_dir, character.only=T)
+library <- get(opt$species_library)
 
 # Default to 1 for the nb of genes DE in a pathway
-    min_DEG_pathway <- as.integer(opt$min_DEG_pathway)
+min_DEG_pathway <- as.integer(opt$min_DEG_pathway)
 # Contrast files
 contrast_files <- list.files(path=opt$dirContrasts)
 path_contrasts <- opt$dirContrasts
@@ -254,11 +264,7 @@ for (file in contrast_files){
 
                 if (nrow(mat)>1){
                     png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
-                    capture.output(mat, file="/home/owacker/git/rnadeseq/mat", append=F)
-                    capture.output(metadata_cond, file="/home/owacker/git/rnadeseq/cond", append=F)
                     pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
-                    capture.output("aaaaaa1", file="/home/owacker/git/rnadeseq/padj", append=T)
-
                     dev.off()
 
                     pdf(paste(outdir, "/", fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
@@ -353,15 +359,11 @@ if (!is.null(opt$genelist)){
 
     if (nrow(mat)>1){
         png(filename = paste(outdir, "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.png", sep=""), width = 2500, height = 3000, res = 300)
-        capture.output(mat, file="/home/owacker/git/rnadeseq/padj", append=T)
         pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
-        capture.output("aaaaaa3", file="/home/owacker/git/rnadeseq/padj", append=T)
         dev.off()
 
         pdf(paste(outdir, "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""))
-        capture.output(mat, file="/home/owacker/git/rnadeseq/padj", append=T)
         pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
-        capture.output("aaaaaa4", file="/home/owacker/git/rnadeseq/padj", append=T)
         dev.off()
     }
 }

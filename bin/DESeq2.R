@@ -46,7 +46,6 @@ dir.create("differential_gene_expression/gene_counts_tables")
 dir.create("differential_gene_expression/DE_genes_tables")
 dir.create("differential_gene_expression/final_gene_table")
 
-
 # check input data path
 # provide these files as arguments:
 option_list = list(
@@ -163,13 +162,12 @@ if (opt$input_type == "rawcounts"){
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name)
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
 metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
-if (opt$input_type == "rawcounts"){
-    names(count.table) = metadata$sampleName
-}
 row.names(metadata) = metadata$sampleName
 if (opt$input_type == "rawcounts"){
+    names(count.table) = metadata$sampleName
     stopifnot(identical(names(count.table),row.names(metadata)))
 }
+
 # to get all possible pairwise comparisons, make a combined factor
 conditions <- grepl(colnames(metadata),pattern = "condition_")
 metadata$combfactor <- apply(as.data.frame(metadata[ ,conditions]),1,paste, collapse = "_")
@@ -196,7 +194,9 @@ if (opt$input_type == "rawcounts") {
     cds <- DESeq(cds,  parallel = FALSE)
 } else if (opt$input_type %in% c("rsem", "salmon")) {
     ## Create a dataframe which consists of both the gene id and the transcript name
+    write(opt$gtf, file="/home/owacker/git/rnadeseq/lulu")
     gtf <- rtracklayer::import(opt$gtf)
+    write(opt$gtf, file="/home/owacker/git/rnadeseq/lulu", append=T)
     gtf <- as.data.frame(gtf, header=T)
     tx2gene_gtf <- gtf[c("transcript_id", "gene_id")]
     tx2gene_gtf <- distinct(tx2gene_gtf)
@@ -216,11 +216,6 @@ if (opt$input_type == "rawcounts") {
         condition_names <- grep("condition", condition_names, value=T)
         sampleconditions <- data.frame(metadata[,condition_names])
         colnames(sampleconditions) <- condition_names
-        capture.output(files, file="/home/owacker/git/rnadeseq/gnihi", append=F)
-        write("ids", file="/home/owacker/git/rnadeseq/gnihi", append=T)
-        capture.output(dataIDs, file="/home/owacker/git/rnadeseq/gnihi", append=T)
-        write("conds", file="/home/owacker/git/rnadeseq/gnihi", append=T)
-        capture.output(sampleconditions, file="/home/owacker/git/rnadeseq/gnihi", append=T)
         coldata <- data.frame(files = files, names= dataIDs, sampleconditions)
         coldata$combfactor <- metadata$combfactor
         rownames(coldata) <- NULL
@@ -247,12 +242,9 @@ if (opt$input_type == "rawcounts") {
         colnames(sampleconditions) <- condition_names
         coldata <- data.frame(files = files, names= dataIDs, sampleconditions)
         coldata$combfactor <- metadata$combfactor
-        capture.output(dataIDs, file="/home/owacker/git/rnadeseq/salmon_cds")
         rownames(coldata) <- dataIDs
         cds <- DESeqDataSetFromTximport(txi=txi.salmon, colData =coldata, design = eval(parse(text=as.character(design[[1]]))))
         cds <- DESeq(cds)
-        capture.output(cds, file="/home/owacker/git/rnadeseq/salmon_cds")
-
     }
 } else {
     stop("Input type must be one of [rawcounts, rsem, salmon]!")
@@ -636,6 +628,7 @@ notAllZero <- (rowSums(counts(cds))>0)
 png("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.png")
 par(oma=c(3,3,3,3))
 par(mfrow = c(1, 3))
+#Should this be done for salmon and rsem as well?
 meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
 meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = "sd rlog transformed count data")
 meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd ", if (opt$rlog) "rld" else "vsd" ," transformed count data"))
