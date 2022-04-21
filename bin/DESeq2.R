@@ -202,7 +202,6 @@ if (opt$input_type == "rawcounts") {
     tx2gene_gtf <- distinct(tx2gene_gtf)
     tx2gene_gtf[] <- lapply(tx2gene_gtf, function(x) gsub("\\.\\d+", "", x))
     colnames(tx2gene_gtf) <- c("transcript_id", "gene_id") #, "TXID"
-    write.table(tx2gene_gtf, file="/home/owacker/git/rnadeseq/tx2gene_gtf")
     gene_names <- gtf[c("gene_id", "gene_name")]
     colnames(gene_names) <- c("Ensembl_ID", "gene_name")
     gene_names <- distinct(gene_names)
