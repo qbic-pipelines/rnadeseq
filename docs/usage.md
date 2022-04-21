@@ -230,7 +230,6 @@ GTF file to be used for DESeq if input is rsem or salmon, not necessary for rawc
 
 Which organism name to use for pathway analysis, e.g. hsapiens, not necessary if --skip_pathway_analysis = true.
 
-
 ### `--library`
 
 Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --skip_pathway_analysis = true.
