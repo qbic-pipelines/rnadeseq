@@ -29,7 +29,7 @@ if (params.multiqc) { ch_multiqc_file = Channel.fromPath(params.multiqc) } else 
 if (!params.genome && (!params.gene_counts || !params.library || !params.gtf || !params.keytype)) { exit 1, 'Please provide either genome parameter or parameters for organism, library, gtf and keytype!' }
 if (!params.organism) { params.organism = WorkflowMain.getGenomeAttribute(params, 'organism') }
 if (!params.library) { params.library = WorkflowMain.getGenomeAttribute(params, 'library') }
-//if (!params.gtf) { params.gtf = WorkflowMain.getGenomeAttribute(params, 'gtf') }
+if (!params.gtf) { params.gtf = WorkflowMain.getGenomeAttribute(params, 'gtf') }
 if (!params.keytype) { params.keytype = WorkflowMain.getGenomeAttribute(params, 'keytype') }
 
 
@@ -43,18 +43,17 @@ ch_relevel = Channel.fromPath(params.relevel)
 ch_quote_file = Channel.fromPath(params.quote)
 ch_genes = Channel.fromPath(params.genelist)
 
-if (params.organism) {
-    ch_organism = Channel.from(params.organism)
-} else {
-    ch_organism = Channel.from(WorkflowMain.getGenomeAttribute(params, 'organism'))
-}
+
 
 print "alishd"
-print ch_organism.getProperties().toString()
-ch_organism.view()
 //ch_organism.subscribe { println "value: $it" }
 print "ls"
 if (!params.skip_pathway_analysis) {
+    if (params.organism) {
+    ch_organism = Channel.from(params.organism)
+    } else {
+        ch_organism = Channel.from(WorkflowMain.getGenomeAttribute(params, 'organism'))
+    }
     if (params.library) {
         ch_library = Channel.from(params.library)
     } else {

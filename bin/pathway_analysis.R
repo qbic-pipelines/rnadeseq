@@ -69,23 +69,7 @@ if(!is.null(opt$kegg_blacklist)){
     KEGG_blacklist <- read.table(file=opt$kegg_blacklist, sep = "\n", header = FALSE, quote="")
     blacklist_pathways <- append(blacklist_pathways, KEGG_blacklist$V1)
 }
-'
-# Need to provide short and long names and libraries for your species
-if(is.null(opt$species)){
-    print_help(opt_parser)
-    stop("Species needs to be provided")
-} else if (tolower(opt$species) == "hsapiens") {
-    organism <- "hsapiens"
-    short_organism_name <- "hsa"
-    library <- org.Hs.eg.db
-} else if (tolower(opt$species) == "mmusculus") {
-    organism <- "mmusculus"
-    short_organism_name <- "mmu"
-    library <- org.Mm.eg.db
-} else {
-    stop("Species name is unknown, check for typos or contact responsible person to add your species.")
-}
-'
+
 organism <- tolower(opt$species)
 short_organism_name <- substr(organism,1,3)
 species_dir <- tempdir()
@@ -261,7 +245,6 @@ for (file in contrast_files){
                 mat$gene_name <- NULL
                 mat <- data.matrix(mat)
 
-
                 if (nrow(mat)>1){
                     png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
                     pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
@@ -284,7 +267,7 @@ for (file in contrast_files){
                     gene.data = DE_genes
                     gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
 
-                    entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype="ENSEMBL", multiVals="first")
+                    entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=opt$keytype, multiVals="first")
 
                     gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
 

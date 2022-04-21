@@ -53,7 +53,7 @@ option_list = list(
     make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
     make_option(c("-d", "--design"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
     make_option(c("-x", "--contrasts_matrix"), type="character", default=NULL, help="path to contrasts matrix file", metavar="character"),
-    make_option(c("-f", "--gtf"), type="character", default=NULL, help="path to gtf table if using salmon input", metavar="character"),
+    make_option(c("-f", "--gtf"), type="character", default=NULL, help="path to gtf table if using salmon/rsem input", metavar="character"),
     make_option(c("-r", "--relevel"), type="character", default=NULL, help="path to factor relevel file", metavar="character"),
     make_option(c("-k", "--contrasts_list"), type="character", default=NULL, help="path to contrasts list file", metavar="character"),
     make_option(c("-p", "--contrasts_pairs"), type="character", default=NULL, help="path to contrasts pairs file", metavar="character"),
@@ -121,6 +121,7 @@ if (!is.null(opt$genelist)){
 ####### LOADING AND PROCESSING COUNT TABLE AND METADATA TABLE #####################################
 # Load metadata: sample preparations tsv file from qPortal
 metadata <- read.table(metadata_path, sep="\t", header=TRUE,na.strings =c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
+# TODO: Is this fine, or should I use another column? Sample names maybe?
 dataIDs <- metadata$Data.ID
 system(paste("mv ",metadata_path," differential_gene_expression/metadata/metadata.tsv",sep=""))
 # Make sure metadata is factor where needed
@@ -194,15 +195,14 @@ if (opt$input_type == "rawcounts") {
     cds <- DESeq(cds,  parallel = FALSE)
 } else if (opt$input_type %in% c("rsem", "salmon")) {
     ## Create a dataframe which consists of both the gene id and the transcript name
-    write(opt$gtf, file="/home/owacker/git/rnadeseq/lulu")
     gtf <- rtracklayer::import(opt$gtf)
-    write(opt$gtf, file="/home/owacker/git/rnadeseq/lulu", append=T)
     gtf <- as.data.frame(gtf, header=T)
+    # TODO: For some gtf files, transcript_id does not work!!
     tx2gene_gtf <- gtf[c("transcript_id", "gene_id")]
     tx2gene_gtf <- distinct(tx2gene_gtf)
     tx2gene_gtf[] <- lapply(tx2gene_gtf, function(x) gsub("\\.\\d+", "", x))
-
     colnames(tx2gene_gtf) <- c("transcript_id", "gene_id") #, "TXID"
+    write.table(tx2gene_gtf, file="/home/owacker/git/rnadeseq/tx2gene_gtf")
     gene_names <- gtf[c("gene_id", "gene_name")]
     colnames(gene_names) <- c("Ensembl_ID", "gene_name")
     gene_names <- distinct(gene_names)
