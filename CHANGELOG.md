@@ -15,7 +15,6 @@
 
 ### Changed
 
-- [#113](https://github.com/qbic-pipelines/rnadeseq/pull/113) Made metadata Lab ID and Sample Type optional
 - Removed assets/report_options.yml
 - [#110](https://github.com/qbic-pipelines/rnadeseq/pull/110) Changed report to use rlog normalization by default, vst is used if --skip_rlog is enabled
 
