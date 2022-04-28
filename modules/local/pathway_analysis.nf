@@ -6,10 +6,6 @@ process PATHWAY_ANALYSIS {
     path model
     path genelist
     path keggblacklist
-    val input_type
-    val organism
-    val library
-    val keytype
 
     output:
     path '*.zip', emit: pathway_analysis
@@ -23,8 +19,8 @@ process PATHWAY_ANALYSIS {
     unzip $deseq_output
     pathway_analysis.R --dirContrasts 'differential_gene_expression/DE_genes_tables/' --metadata $metadata \
     --model $model --normCounts $normInput \
-    --species $organism --species_library $library --keytype $keytype \
-    $genelistopt $keggblacklistopt --input_type $input_type --min_DEG_pathway $params.min_DEG_pathway
+    --species $params.organism --species_library $params.library --keytype $params.keytype \
+    $genelistopt $keggblacklistopt --input_type $params.input_type --min_DEG_pathway $params.min_DEG_pathway
     zip -r pathway_analysis.zip pathway_analysis/
     """
 }

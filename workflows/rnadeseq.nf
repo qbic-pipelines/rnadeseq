@@ -19,76 +19,32 @@ def checkPathParamList = [
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
+if (!(params.input_type in ["rawcounts", "salmon", "rsem"])) { exit 1, 'Wrong input type ' + params.input_type + ', must be one of "rawcounts", "salmon", "rsem"!' }
 if (params.gene_counts) { ch_counts_path = Channel.fromPath(params.gene_counts) } else { exit 1, 'Please provide input file/dir!' }
 if (params.metadata) { ch_metadata_file = Channel.fromPath(params.metadata) } else { exit 1, 'Please provide metadata file!' }
 if (params.model) { ch_model_file = Channel.fromPath(params.model) } else { exit 1, 'Please provide linear model file!' }
 if (params.project_summary) { ch_proj_summary_file = Channel.fromPath(params.project_summary) } else { exit 1, 'Please provide project summary file!' }
 if (params.versions) { ch_softwareversions_file = Channel.fromPath(params.versions) } else { exit 1, 'Please provide software versions file!' }
 if (params.multiqc) { ch_multiqc_file = Channel.fromPath(params.multiqc) } else { exit 1, 'Please provide multiqc.zip folder!' }
-
 if (!params.genome && (!params.gene_counts || !params.library || !params.gtf || !params.keytype)) { exit 1, 'Please provide either genome parameter or parameters for organism, library, gtf and keytype!' }
-if (!params.organism) { params.organism = WorkflowMain.getGenomeAttribute(params, 'organism') }
-if (!params.library) { params.library = WorkflowMain.getGenomeAttribute(params, 'library') }
-if (!params.gtf) { params.gtf = WorkflowMain.getGenomeAttribute(params, 'gtf') }
-if (!params.keytype) { params.keytype = WorkflowMain.getGenomeAttribute(params, 'keytype') }
-
-
+if (!params.skip_pathway_analysis) {
+    if (!params.organism) { params.organism = WorkflowMain.getGenomeAttribute(params, 'organism') }
+    if (!params.library) { params.library = WorkflowMain.getGenomeAttribute(params, 'library') }
+    if (!params.gtf) { params.gtf = WorkflowMain.getGenomeAttribute(params, 'gtf') }
+    if (!params.keytype) { params.keytype = WorkflowMain.getGenomeAttribute(params, 'keytype') }
+}
+if (params.input_type in ["rsem", "salmon"]) {
+    if (params.gtf) { ch_gtf = Channel.fromPath(params.gtf) } else { ch_gtf = Channel.fromPath(WorkflowMain.getGenomeAttribute(params, 'gtf')) }
+} else { ch_gtf = Channel.fromPath("FALSE") }
 
 // Create channels for optional parameters
-if (params.input_type in ["rawcounts", "salmon", "rsem"]) { ch_input_type = Channel.from(params.input_type) } else { exit 1, 'Wrong input type ' + params.input_type + ', must be one of "rawcounts", "salmon", "rsem"!' }
 ch_contrast_matrix = Channel.fromPath(params.contrast_matrix)
 ch_contrast_list = Channel.fromPath(params.contrast_list)
 ch_contrast_pairs = Channel.fromPath(params.contrast_pairs)
 ch_relevel = Channel.fromPath(params.relevel)
 ch_quote_file = Channel.fromPath(params.quote)
 ch_genes = Channel.fromPath(params.genelist)
-
-
-
-print "alishd"
-//ch_organism.subscribe { println "value: $it" }
-print "ls"
-if (!params.skip_pathway_analysis) {
-    if (params.organism) {
-    ch_organism = Channel.from(params.organism)
-    } else {
-        ch_organism = Channel.from(WorkflowMain.getGenomeAttribute(params, 'organism'))
-    }
-    if (params.library) {
-        ch_library = Channel.from(params.library)
-    } else {
-        ch_library = Channel.from(WorkflowMain.getGenomeAttribute(params, 'library'))
-    }
-    if (params.keytype) {
-        ch_keytype = Channel.from(params.keytype)
-    } else {
-        ch_keytype = Channel.from(WorkflowMain.getGenomeAttribute(params, 'keytype'))
-    }
-}
-if (params.input_type in ["rsem", "salmon"]) {
-    if (params.gtf) {
-        ch_gtf = Channel.fromPath(params.gtf)
-    } else {
-        ch_gtf = Channel.fromPath(WorkflowMain.getGenomeAttribute(params, 'gtf'))
-    }
-} else {
-    ch_gtf = Channel.fromPath("FALSE")
-}
-
-print "haha"
 ch_kegg_blacklist = Channel.fromPath(params.kegg_blacklist)
-print "hahaa"
-//ch_organism = Channel.from(params.organism)
-print "hahaaa"
-//ch_keytype = Channel.from(params.keytype)
-print "hahaaaa"
-//params.gtf = "ksksks"
-print params.gtf
-print WorkflowMain.getGenomeAttribute(params, 'gtf')
-print "hääääää"
-//if (params.input_type in ["rsem", "salmon"]) { ch_gtf = Channel.fromPath(params.gtf) } else { ch_gtf = Channel.fromPath("FALSE") }
-print "hahaaaaa"
-//if (!params.skip_pathway_analysis) { ch_library = Channel.from(params.library) } else { ch_library = Channel.from("FALSE") }
 
 /*
 ========================================================================================
@@ -146,7 +102,6 @@ workflow RNADESEQ {
         ch_contrast_list,
         ch_contrast_pairs,
         ch_genes,
-        ch_input_type,
         ch_gtf
     )
     ch_deseq2 = DESEQ2.out.deseq2
@@ -162,11 +117,7 @@ workflow RNADESEQ {
             ch_metadata_file,
             ch_model_file,
             ch_genes,
-            ch_kegg_blacklist,
-            ch_input_type,
-            ch_organism,
-            ch_library,
-            ch_keytype
+            ch_kegg_blacklist
         )
         ch_pathway_analysis = PATHWAY_ANALYSIS.out.pathway_analysis
     }
@@ -184,8 +135,7 @@ workflow RNADESEQ {
         ch_multiqc_file,
         ch_genes,
         ch_pathway_analysis,
-        ch_quote_file,
-        ch_organism
+        ch_quote_file
     )
 
     //TODO: Enable this:

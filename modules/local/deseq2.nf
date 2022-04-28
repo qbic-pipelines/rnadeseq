@@ -10,7 +10,6 @@ process DESEQ2 {
     path contrast_list
     path contrast_pairs
     path genelist
-    val input_type
     path gtf
 
     output:
@@ -26,8 +25,8 @@ process DESEQ2 {
     def batch_effect_opt = params.batch_effect ? "--batchEffect" : ''
     def rlog_opt = params.use_vst ? '--rlog FALSE' : '--rlog TRUE'
     """
-    DESeq2.R --counts $gene_counts --metadata $metadata --gtf $gtf --design $model \
-    --logFCthreshold $params.logFCthreshold --input_type $input_type $relevel_opt $contrast_mat_opt \
+    DESeq2.R --input_type $params.input_type --counts $gene_counts --metadata $metadata --gtf $gtf --design $model \
+    --logFCthreshold $params.logFCthreshold $relevel_opt $contrast_mat_opt \
     $contrast_list_opt $contrast_pairs_opt $gene_list_opt $batch_effect_opt $rlog_opt
     zip -r differential_gene_expression.zip differential_gene_expression
     """

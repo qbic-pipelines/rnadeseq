@@ -13,7 +13,7 @@ library(AnnotationDbi)
 library(optparse)
 
 # Need to load library for your species
-library(org.Mm.eg.db) #Mmusculus
+library(org.Mm.eg.db) #Mmusculus TODO: Delete these from container? If fast!
 library(org.Hs.eg.db) #Hsapiens
 
 # Blacklist pathways: some pathways are corrupted in KEGG and produce errors. Add the pathway here if you have this kind of error:
@@ -76,7 +76,7 @@ species_dir <- tempdir()
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-BiocManager::install(opt$species_library, lib=species_dir)
+BiocManager::install(opt$species_library, lib=species_dir, version="3.14")
 library(opt$species_library, lib.loc=species_dir, character.only=T)
 library <- get(opt$species_library)
 
@@ -234,7 +234,7 @@ for (file in contrast_files){
             if (nrow(df) <= 100 & nrow(df) > 0) {
                 conditions <- grepl("Condition", colnames(metadata))
                 metadata_cond <- as.data.frame(metadata[,conditions])
-                metadata_name <- metadata[,c(ifelse(opt$input_type == "rawcounts", "QBiC.Code", "Data.ID"), "Secondary.Name")]
+                metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
                 row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
                 for (i in c(1:nrow(df))){
@@ -249,7 +249,6 @@ for (file in contrast_files){
                     png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
                     pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
                     dev.off()
-
                     pdf(paste(outdir, "/", fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
                     pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
                     dev.off()
@@ -315,7 +314,7 @@ if (!is.null(opt$genelist)){
     conditions <- grepl("Condition", colnames(metadata))
     condition <- metadata[,conditions]
     metadata_cond <- as.data.frame(condition)
-    metadata_name <- metadata[,c(ifelse(opt$input_type == "rawcounts", "QBiC.Code", "Data.ID"), "Secondary.Name")]
+    metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
     row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
     gene_list_tab <- read.table(file=genelist_path, sep = "\t", header = F, quote="")

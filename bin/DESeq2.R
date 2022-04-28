@@ -49,6 +49,7 @@ dir.create("differential_gene_expression/final_gene_table")
 # check input data path
 # provide these files as arguments:
 option_list = list(
+    make_option(c("-y", "--input_type"), type="character", default="rawcounts", help="Which type of input data is provided; must be one of [rawcounts, rsem, salmon]", metavar="character"),
     make_option(c("-c", "--counts"), type="character", default=NULL, help="path to raw count table", metavar="character"),
     make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
     make_option(c("-d", "--design"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
@@ -59,7 +60,6 @@ option_list = list(
     make_option(c("-p", "--contrasts_pairs"), type="character", default=NULL, help="path to contrasts pairs file", metavar="character"),
     make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
     make_option(c("-t", "--logFCthreshold"), type="integer", default=0, help="Log 2 Fold Change threshold for DE genes", metavar="character"),
-    make_option(c("-y", "--input_type"), type="character", default="rawcounts", help="Which type of input data is provided; must be one of [rawcounts, rsem, salmon]", metavar="character"),
     make_option(c("-g", "--rlog"), type="logical", default=TRUE, help="if TRUE, perform rlog transformation", metavar="character"),
     make_option(c("-b", "--batchEffect"), default=FALSE, action="store_true", help="Whether to consider batch effects in the DESeq2 analysis", metavar="character")
 )
@@ -121,9 +121,9 @@ if (!is.null(opt$genelist)){
 ####### LOADING AND PROCESSING COUNT TABLE AND METADATA TABLE #####################################
 # Load metadata: sample preparations tsv file from qPortal
 metadata <- read.table(metadata_path, sep="\t", header=TRUE,na.strings =c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
-# TODO: Is this fine, or should I use another column? Sample names maybe?
-dataIDs <- metadata$Data.ID
 system(paste("mv ",metadata_path," differential_gene_expression/metadata/metadata.tsv",sep=""))
+# TODO: Is this fine, or should I use another column? Sample names maybe?
+qbicCodes <- rownames(metadata)
 # Make sure metadata is factor where needed
 names(metadata) = gsub("Condition..","condition_",names(metadata))
 conditions = names(metadata)[grepl("condition_",names(metadata))]
@@ -208,14 +208,16 @@ if (opt$input_type == "rawcounts") {
     rownames(gene_names) <- gene_names[,1]
 
     if (opt$input_type == "rsem") {
-        files <- file.path(gsub("/$", "", path_count_table), paste0(dataIDs, ".genes.results"))
-        all(file.exists(files))
+        files <- file.path(gsub("/$", "", path_count_table), paste0(qbicCodes, ".genes.results"))
+        if (!(all(file.exists(files)))) {
+            stop("DESeq2.R could not find all of the specified .genes.results files!")
+        }
         #Extract condition columns and other info for tximeta
         condition_names <- unlist(strsplit(design[,1], split = " "))
         condition_names <- grep("condition", condition_names, value=T)
         sampleconditions <- data.frame(metadata[,condition_names])
         colnames(sampleconditions) <- condition_names
-        coldata <- data.frame(files = files, names= dataIDs, sampleconditions)
+        coldata <- data.frame(files = files, names= qbicCodes, sampleconditions)
         coldata$combfactor <- metadata$combfactor
         rownames(coldata) <- NULL
 
@@ -229,8 +231,10 @@ if (opt$input_type == "rawcounts") {
         cds <- DESeqDataSet(se, design = as.formula(eval(parse(text=as.character(design[[1]])))))
         cds <- DESeq(cds)
     } else if (opt$input_type == "salmon") {
-        files <- file.path(gsub("/$", "", path_count_table), dataIDs, "quant.sf")
-        all(file.exists(files))
+        files <- file.path(gsub("/$", "", path_count_table), qbicCodes, "quant.sf")
+        if (!(all(file.exists(files)))) {
+            stop("DESeq2.R could not find all of the specified quant.sf files!")
+        }
         ## Import all of the samples information and transform the identifiers
         txi.salmon <- tximport(files, type = "salmon", tx2gene = tx2gene_gtf, ignoreTxVersion = T)
         # Run cds with tximport depending on whether rsem or salmon was used
@@ -239,9 +243,9 @@ if (opt$input_type == "rawcounts") {
         condition_names <- grep("condition", condition_names, value=T)
         sampleconditions <- data.frame(metadata[,condition_names])
         colnames(sampleconditions) <- condition_names
-        coldata <- data.frame(files = files, names= dataIDs, sampleconditions)
+        coldata <- data.frame(files = files, names= qbicCodes, sampleconditions)
         coldata$combfactor <- metadata$combfactor
-        rownames(coldata) <- dataIDs
+        rownames(coldata) <- qbicCodes
         cds <- DESeqDataSetFromTximport(txi=txi.salmon, colData =coldata, design = eval(parse(text=as.character(design[[1]]))))
         cds <- DESeq(cds)
     }
@@ -512,7 +516,7 @@ if (!is.null(opt$genelist)){
     requested_genes_plot_gene_name <- requested_genes_plot$gene_name
 
 
-    for (i in c(1:length(requested_genes_plot_Ensembl))){
+    for (i in seq_along(requested_genes_plot_Ensembl)) {
         boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE, normalized = T)
         boxplot_counts$variable = row.names(boxplot_counts)
         plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
