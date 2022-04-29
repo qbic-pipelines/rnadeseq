@@ -147,7 +147,6 @@ if(file.exists(QAfile)){
     #add "Lab ID" only if present in metadata.tsv
     if ("Lab ID" %in% colnames(df_QA)){
             df_QA_neat[,c("Lab ID")] <- df_QA[,c("Lab ID")]}
-        }
     df_QA_neat <- merge(df_QA_neat, df_QA_cond, by="row.names")
     df_QA_neat$Row.names <- NULL
     if ("RIN" %in% colnames(df_QA)){
