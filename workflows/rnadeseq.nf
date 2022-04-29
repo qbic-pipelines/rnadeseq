@@ -44,7 +44,6 @@ ch_contrast_pairs = Channel.fromPath(params.contrast_pairs)
 ch_relevel = Channel.fromPath(params.relevel)
 ch_quote_file = Channel.fromPath(params.quote)
 ch_genes = Channel.fromPath(params.genelist)
-ch_kegg_blacklist = Channel.fromPath(params.kegg_blacklist)
 
 /*
 ========================================================================================
@@ -116,8 +115,7 @@ workflow RNADESEQ {
             ch_deseq2,
             ch_metadata_file,
             ch_model_file,
-            ch_genes,
-            ch_kegg_blacklist
+            ch_genes
         )
         ch_pathway_analysis = PATHWAY_ANALYSIS.out.pathway_analysis
     }

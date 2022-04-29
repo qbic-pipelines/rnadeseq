@@ -16,9 +16,6 @@ library(optparse)
 library(org.Mm.eg.db) #Mmusculus TODO: Delete these from container? If fast!
 library(org.Hs.eg.db) #Hsapiens
 
-# Blacklist pathways: some pathways are corrupted in KEGG and produce errors. Add the pathway here if you have this kind of error:
-blacklist_pathways <- c("mmu05206", "mmu04215", "hsa05206", "mmu04723")
-
 # ------------------
 # Reading parameters
 # ------------------
@@ -32,7 +29,6 @@ option_list = list(
     make_option(c("-l", "--species_library"), type="character", default=NULL, help="Library name. Example format: org.At.tair.db", metavar="character"),
     make_option(c("-k", "--keytype"), type="character", default=NULL, help="Keytype. Example format: TAIR (varies greatly depending on library!)", metavar="character"),
     make_option(c("-g", "--genelist"), type="character", default=NULL, help="Path to gene list for heatmap plot.", metavar="character"),
-    make_option(c("-b", "--kegg_blacklist"), type="character", default=NULL, help="Path to KEGG pathway blacklist.", metavar="character"),
     make_option(c("-y", "--input_type"), type="character", default="rawcounts", help="Which type of input data is provided; must be one of [rawcounts, rsem, salmon]", metavar="character"),
     make_option(c("-p", "--min_DEG_pathway"), type="character", default=1, help="Min. number of genes DE in a pathway for this pathway to be in tables.", metavar="integer")
     )
@@ -62,12 +58,6 @@ if(is.null(opt$normCounts)){
     stop("Normalized counts file needs to be provided")
 } else {
     path_norm_counts = opt$normCounts
-}
-
-# Pathway blacklist append if provided
-if(!is.null(opt$kegg_blacklist)){
-    KEGG_blacklist <- read.table(file=opt$kegg_blacklist, sep = "\n", header = FALSE, quote="")
-    blacklist_pathways <- append(blacklist_pathways, KEGG_blacklist$V1)
 }
 
 organism <- tolower(opt$species)
@@ -257,34 +247,35 @@ for (file in contrast_files){
                 # Plotting pathway view only for kegg pathways
                 if (pathway$source == "KEGG"){
                     pathway_kegg <- sapply(pathway$term_id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
+                    # Try plotting pathways, ignore pathways graphs containing errors as pathview crashes if plotting them.
+                    tryCatch({
+                        print(paste0("Plotting pathway: ", pathway_kegg))
+                        gene.data = DE_genes
+                        gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
 
-                    # Avoid KEGG pathways in blacklist. This pathway graphs contain errors and pathview crashes if plotting them.
-                    if (pathway_kegg %in% blacklist_pathways) {
-                    print(paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database."))
-                    } else {
-                    print(paste0("Plotting pathway: ", pathway_kegg))
-                    gene.data = DE_genes
-                    gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
+                        entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=opt$keytype, multiVals="first")
 
-                    entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=opt$keytype, multiVals="first")
+                        gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
 
-                    gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
-
-                    if (length(entrez_ids)!=length(unique(entrez_ids))) {
-                        print(paste0("Skipping pathway: ", pathway_kegg,". This pathway has multiple IDs with same name."))
-                    } else {
-                        row.names(gene.data.subset) <- entrez_ids[!is.na(entrez_ids)]
-
-                        gene.data.subset$Ensembl_ID <- NULL
-                        pathview(gene.data  = gene.data.subset,
-                                pathway.id = pathway_kegg,
-                                species    = short_organism_name,
-                                out.suffix=paste(fname,sep="_"))
-                        mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
-                        rm_command <- paste0("rm ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/", "*.xml")
-                        system(mv_command)
-                    }
-                    }
+                        if (length(entrez_ids)!=length(unique(entrez_ids))) {
+                            print(paste0("Skipping pathway: ", pathway_kegg,". This pathway has multiple IDs with same name."))
+                        } else {
+                            row.names(gene.data.subset) <- entrez_ids[!is.na(entrez_ids)]
+                            gene.data.subset$Ensembl_ID <- NULL
+                            pathview(gene.data  = gene.data.subset,
+                                    pathway.id = pathway_kegg,
+                                    species    = short_organism_name,
+                                    out.suffix=paste(fname,sep="_"))
+                            mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
+                            rm_command <- paste0("rm ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/", "*.xml")
+                            system(mv_command)
+                        }
+                        print_string <- paste0("Plotting pathway: ", pathway_kegg)
+                    }, error = function(e) {
+                        print_string <- paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database.")
+                    }, finally = {
+                        print(print_string)
+                    })
                 }
                 }
             }
