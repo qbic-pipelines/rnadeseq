@@ -6,54 +6,54 @@
 <!-- TOC START min:2 max:3 link:true asterisk:true update:true -->
 
 - [qbic-pipelines/rnadeseq: Usage](#qbic-pipelinesrnadeseq-usage)
-    - [Table of contents](#table-of-contents)
-    - [Introduction](#introduction)
-    - [Pre-requisites](#pre-requisites)
-    - [Running the pipeline](#running-the-pipeline)
-        - [Updating the pipeline](#updating-the-pipeline)
-        - [Reproducibility](#reproducibility)
-    - [Mandatory arguments](#mandatory-arguments)
-        - [`--rawcounts`](#--rawcounts)
-        - [`--metadata`](#--metadata)
-        - [`--model`](#--model)
-        - [`--species`](#--species)
-        - [`--project_summary`](#--project_summary)
-        - [`--versions`](#--versions)
-    - [Contrasts](#contrasts)
-        - [Default](#default)
-        - [`--relevel`](#--relevel)
-        - [`--contrast_matrix`](#--contrast_matrix)
-        - [`--contrast_list`](#--contrast_list)
-        - [`--contrast_pairs`](#--contrast_pairs)
-    - [Optional arguments](#optional-arguments)
-        - [`--logFCthreshold`](#--logfcthreshold)
-        - [`--genelist`](#--genelist)
-        - [`--batch_effect`](#--batch_effect)
-        - [`--quote`](#--quote)
-        - [`--kegg_blacklist`](#--kegg_blacklist)
-        - [`--min_DEG_pathway`](#--min_deg_pathway)
-        - [`--skip_rlog`](#--skip_rlog)
-        - [`--vst_genes_number`](#--vst_genes_number)
-    - [Special cases](#special-cases)
-        - [Controlling for batch effects](#controlling-for-batch-effects)
-    - [Job resources](#job-resources)
-        - [Automatic resubmission](#automatic-resubmission)
-        - [Custom resource requests](#custom-resource-requests)
-    - [Other command line parameters](#other-command-line-parameters)
-        - [`--outdir`](#--outdir)
-        - [`--email`](#--email)
-        - [`-name`](#-name)
-        - [`-resume`](#-resume)
-        - [`-c`](#-c)
-        - [`--custom_config_version`](#--custom_config_version)
-        - [`--custom_config_base`](#--custom_config_base)
-        - [`--max_memory`](#--max_memory)
-        - [`--max_time`](#--max_time)
-        - [`--max_cpus`](#--max_cpus)
-        - [`--plaintext_email`](#--plaintext_email)
-        - [`--monochrome_logs`](#--monochrome_logs)
-        - [`--multiqc_config`](#--multiqc_config)
-<!-- TOC END -->
+- [Table of contents](#table-of-contents)
+- [Introduction](#introduction)
+- [Pre-requisites](#pre-requisites)
+- [Running the pipeline](#running-the-pipeline)
+  - [Updating the pipeline](#updating-the-pipeline)
+  - [Reproducibility](#reproducibility)
+- [Mandatory arguments](#mandatory-arguments)
+  - [`--rawcounts`](#--rawcounts)
+  - [`--metadata`](#--metadata)
+  - [`--model`](#--model)
+  - [`--species`](#--species)
+  - [`--project_summary`](#--project_summary)
+  - [`--versions`](#--versions)
+- [Contrasts](#contrasts)
+  - [Default](#default)
+  - [`--relevel`](#--relevel)
+  - [`--contrast_matrix`](#--contrast_matrix)
+  - [`--contrast_list`](#--contrast_list)
+  - [`--contrast_pairs`](#--contrast_pairs)
+- [Optional arguments](#optional-arguments)
+  - [`--logFCthreshold`](#--logfcthreshold)
+  - [`--genelist`](#--genelist)
+  - [`--batch_effect`](#--batch_effect)
+  - [`--quote`](#--quote)
+  - [`--kegg_blacklist`](#--kegg_blacklist)
+  - [`--min_DEG_pathway`](#--min_deg_pathway)
+  - [`--skip_rlog`](#--skip_rlog)
+  - [`--vst_genes_number`](#--vst_genes_number)
+- [Special cases](#special-cases)
+  - [Controlling for batch effects](#controlling-for-batch-effects)
+- [Job resources](#job-resources)
+  - [Automatic resubmission](#automatic-resubmission)
+  - [Custom resource requests](#custom-resource-requests)
+- [Other command line parameters](#other-command-line-parameters)
+  - [`--outdir`](#--outdir)
+  - [`--email`](#--email)
+  - [`-name`](#-name)
+  - [`-resume`](#-resume)
+  - [`-c`](#-c)
+  - [`--custom_config_version`](#--custom_config_version)
+  - [`--custom_config_base`](#--custom_config_base)
+  - [`--max_memory`](#--max_memory)
+  - [`--max_time`](#--max_time)
+  - [`--max_cpus`](#--max_cpus)
+  - [`--plaintext_email`](#--plaintext_email)
+  - [`--monochrome_logs`](#--monochrome_logs)
+  - [`--multiqc_config`](#--multiqc_config)
+  <!-- TOC END -->
 
 ## Introduction
 
@@ -262,9 +262,9 @@ To control for batch effects follow ALL these steps:
 - Include the batch effect in the metadata file in a column with the header `batch`.
 - Your design file needs to additionally include the batch effect in the linear model. E.g.:
 
-    ```R
-    ~ batch + condition_genotype
-    ```
+  ```R
+  ~ batch + condition_genotype
+  ```
 
 - Use the `--batch_effect` option when running the pipeline to generate an extra PCA plot with the corrected batch effects.
 
@@ -362,24 +362,24 @@ They are loaded in sequence, so later profiles can overwrite earlier profiles.
 If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
 
 - `docker`
-    - A generic configuration profile to be used with [Docker](https://docker.com/)
+  - A generic configuration profile to be used with [Docker](https://docker.com/)
 - `singularity`
-    - A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
+  - A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
 - `podman`
-    - A generic configuration profile to be used with [Podman](https://podman.io/)
+  - A generic configuration profile to be used with [Podman](https://podman.io/)
 - `shifter`
-    - A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
+  - A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
 - `charliecloud`
-    - A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
+  - A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
 - `conda`
-    - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter or Charliecloud.
+  - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter or Charliecloud.
 - `test`
-    - A profile with a complete configuration for automated testing
-    - Includes links to test data so needs no other parameters
+  - A profile with a complete configuration for automated testing
+  - Includes links to test data so needs no other parameters
 
 ### `-resume`
 
-Specify this when restarting a pipeline. Nextflow will used cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously.
+Specify this when restarting a pipeline. Nextflow will use cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously. For input to be considered the same, not only the names must be identical but the files' contents as well. For more info about this parameter, see [this blog post](https://www.nextflow.io/blog/2019/demystifying-nextflow-resume.html).
 
 You can also supply a run name to resume a specific run: `-resume [run-name]`. Use the `nextflow log` command to show previous run names.
 
@@ -396,11 +396,11 @@ Whilst the default requirements set within the pipeline will hopefully work for 
 For example, if the nf-core/rnaseq pipeline is failing after multiple re-submissions of the `STAR_ALIGN` process due to an exit code of `137` this would indicate that there is an out of memory issue:
 
 ```console
-[62/149eb0] NOTE: Process `RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137) -- Execution is retried (1)
-Error executing process > 'RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)'
+[62/149eb0] NOTE: Process `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137) -- Execution is retried (1)
+Error executing process > 'NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)'
 
 Caused by:
-    Process `RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137)
+    Process `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137)
 
 Command executed:
     STAR \
@@ -428,13 +428,15 @@ To bypass this error you would need to find exactly which resources are set by t
 
 ```nextflow
 process {
-    withName: STAR_ALIGN {
+    withName: 'NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN' {
         memory = 100.GB
     }
 }
 ```
 
-> **NB:** We specify just the process name i.e. `STAR_ALIGN` in the config file and not the full task name string that is printed to screen in the error message or on the terminal whilst the pipeline is running i.e. `RNASEQ:ALIGN_STAR:STAR_ALIGN`. You may get a warning suggesting that the process selector isn't recognised but you can ignore that if the process name has been specified correctly. This is something that needs to be fixed upstream in core Nextflow.
+> **NB:** We specify the full process name i.e. `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN` in the config file because this takes priority over the short name (`STAR_ALIGN`) and allows existing configuration using the full process name to be correctly overridden.
+>
+> If you get a warning suggesting that the process selector isn't recognised check that the process name has been specified correctly.
 
 ### Updating containers
 
@@ -444,35 +446,35 @@ The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementatio
 2. Find the latest version of the Biocontainer available on [Quay.io](https://quay.io/repository/biocontainers/pangolin?tag=latest&tab=tags)
 3. Create the custom config accordingly:
 
-    - For Docker:
+   - For Docker:
 
-        ```nextflow
-        process {
-            withName: PANGOLIN {
-                container = 'quay.io/biocontainers/pangolin:3.0.5--pyhdfd78af_0'
-            }
-        }
-        ```
+   ```nextflow
+   process {
+       withName: PANGOLIN {
+           container = 'quay.io/biocontainers/pangolin:3.0.5--pyhdfd78af_0'
+       }
+   }
+   ```
 
-    - For Singularity:
+   - For Singularity:
 
-        ```nextflow
-        process {
-            withName: PANGOLIN {
-                container = 'https://depot.galaxyproject.org/singularity/pangolin:3.0.5--pyhdfd78af_0'
-            }
-        }
-        ```
+   ```nextflow
+   process {
+       withName: PANGOLIN {
+           container = 'https://depot.galaxyproject.org/singularity/pangolin:3.0.5--pyhdfd78af_0'
+       }
+   }
+   ```
 
-    - For Conda:
+   - For Conda:
 
-        ```nextflow
-        process {
-            withName: PANGOLIN {
-                conda = 'bioconda::pangolin=3.0.5'
-            }
-        }
-        ```
+   ```nextflow
+   process {
+       withName: PANGOLIN {
+           conda = 'bioconda::pangolin=3.0.5'
+       }
+   }
+   ```
 
 > **NB:** If you wish to periodically update individual tool-specific results (e.g. Pangolin) generated by the pipeline then you must ensure to keep the `work/` directory otherwise the `-resume` ability of the pipeline will be compromised and it will restart from scratch.
 
