@@ -5,8 +5,65 @@
 <!-- Install Atom plugin markdown-toc-auto for this ToC to auto-update on save -->
 <!-- TOC START min:2 max:3 link:true asterisk:true update:true -->
 
-- [qbic-pipelines/rnadeseq: Usage](#qbic-pipelinesrnadeseq-usage) - [Table of contents](#table-of-contents) - [Introduction](#introduction) - [Pre-requisites](#pre-requisites) - [Running the pipeline](#running-the-pipeline) - [Updating the pipeline](#updating-the-pipeline) - [Reproducibility](#reproducibility) - [Mandatory arguments](#mandatory-arguments) - [`--gene_counts`](#--gene_counts) - [`--input_type`](#--input_type) - [`--metadata`](#--metadata) - [`--model`](#--model) - [`--species`](#--species) - [`--project_summary`](#--project_summary) - [`--versions`](#--versions) - [Contrasts](#contrasts) - [Default](#default) - [`--relevel`](#--relevel) - [`--contrast_matrix`](#--contrast_matrix) - [`--contrast_list`](#--contrast_list) - [`--contrast_pairs`](#--contrast_pairs) - [Optional arguments](#optional-arguments) - [`--logFCthreshold`](#--logfcthreshold) - [`--genelist`](#--genelist) - [`--batch_effect`](#--batch_effect) - [`--quote`](#--quote) - [`--min_DEG_pathway`](#--min_deg_pathway) - [`--use_vst`](#--use_vst) - [`--vst_genes_number`](#--vst_genes_number) - [`--skip_pathway_analysis`](#--skip_pathway_analysis) - [`--input_type`](#--input_type) - [Reference genome options](#reference-genome-options) - [`--genome`](#--genome) - - [`--gtf`](#--gtf) - - [`--organism`](#--organism) - - [`--library`](#--library) - [`--keytype`](#--keytype) - [`--igenomes_base`](#--igenomes_base) - [`--igenomes_ignore`](#--igenomes_ignore) - [Special cases](#special-cases) - [Controlling for batch effects](#controlling-for-batch-effects) - [Job resources](#job-resources) - [Automatic resubmission](#automatic-resubmission) - [Custom resource requests](#custom-resource-requests) - [Other command line parameters](#other-command-line-parameters) - [`--outdir`](#--outdir) - [`--email`](#--email) - [`-name`](#-name) - [`-resume`](#-resume) - [`-c`](#-c) - [`--custom_config_version`](#--custom_config_version) - [`--custom_config_base`](#--custom_config_base) - [`--max_memory`](#--max_memory) - [`--max_time`](#--max_time) - [`--max_cpus`](#--max_cpus) - [`--plaintext_email`](#--plaintext_email) - [`--monochrome_logs`](#--monochrome_logs) - [`--multiqc_config`](#--multiqc_config)
-<!-- TOC END -->
+- [qbic-pipelines/rnadeseq: Usage](#qbic-pipelinesrnadeseq-usage)
+- [Table of contents](#table-of-contents)
+- [Introduction](#introduction)
+- [Pre-requisites](#pre-requisites)
+- [Running the pipeline](#running-the-pipeline)
+  - [Updating the pipeline](#updating-the-pipeline)
+  - [Reproducibility](#reproducibility)
+- [Mandatory arguments](#mandatory-arguments)
+  - [`--gene_counts`](#--gene_counts)
+  - [`--input_type`](#--input_type)
+  - [`--metadata`](#--metadata)
+  - [`--model`](#--model)
+  - [`--species`](#--species)
+  - [`--project_summary`](#--project_summary)
+  - [`--versions`](#--versions)
+- [Contrasts](#contrasts)
+  - [Default](#default)
+  - [`--relevel`](#--relevel)
+  - [`--contrast_matrix`](#--contrast_matrix)
+  - [`--contrast_list`](#--contrast_list)
+  - [`--contrast_pairs`](#--contrast_pairs)
+- [Optional arguments](#optional-arguments)
+  - [`--logFCthreshold`](#--logfcthreshold)
+  - [`--genelist`](#--genelist)
+  - [`--batch_effect`](#--batch_effect)
+  - [`--quote`](#--quote)
+  - [`--min_DEG_pathway`](#--min_deg_pathway)
+  - [`--use_vst`](#--use_vst)
+  - [`--vst_genes_number`](#--vst_genes_number)
+  - [`--skip_pathway_analysis`](#--skip_pathway_analysis)
+  - [`--input_type`](#--input_type)
+- [Reference genome options](#reference-genome-options)
+  - [`--genome`](#--genome)
+  - [`--gtf`](#--gtf)
+  - [`--organism`](#--organism)
+  - [`--library`](#--library)
+  - [`--keytype`](#--keytype)
+  - [`--igenomes_base`](#--igenomes_base)
+  - [`--igenomes_ignore`](#--igenomes_ignore)
+- [Special cases](#special-cases)
+  - [Controlling for batch effects](#controlling-for-batch-effects)
+- [Job resources](#job-resources)
+  - [Automatic resubmission](#automatic-resubmission)
+  - [Custom resource requests](#custom-resource-requests)
+- [Other command line parameters](#other-command-line-parameters)
+  - [`--outdir`](#--outdir)
+  - [`--email`](#--email)
+  - [`-name`](#-name)
+  - [`-resume`](#-resume)
+  - [`-c`](#-c)
+  - [`--custom_config_version`](#--custom_config_version)
+  - [`--custom_config_base`](#--custom_config_base)
+  - [`--max_memory`](#--max_memory)
+  - [`--max_time`](#--max_time)
+  - [`--max_cpus`](#--max_cpus)
+  - [`--plaintext_email`](#--plaintext_email)
+  - [`--monochrome_logs`](#--monochrome_logs)
+  - [`--multiqc_config`](#--multiqc_config)
+  <!-- TOC END -->
 
 ## Introduction
 
@@ -191,6 +248,10 @@ Option needed to account for batch effects in the data. Please check the section
 ### `--quote`
 
 Path to the signed copy of the QBiC offer as pdf, to be included in the report.
+
+### `--kegg_blacklist`
+
+Text file containing KEGG pathways codes to be excluded from pathway plotting (e.g. because kegg pathways xml contain errors in the KEGG resource).
 
 ### `--min_DEG_pathway`
 
