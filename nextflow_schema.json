@@ -79,11 +79,6 @@
                     "default": "NO_FILE4",
                     "description": "Signed copy of the offer."
                 },
-                "kegg_blacklist": {
-                    "type": "string",
-                    "default": "NO_FILE3",
-                    "description": "Text file containing KEGG pathways codes to be excluded from pathway plotting (e.g. because kegg pathways xml contain errors in the KEGG resource)."
-                },
                 "min_DEG_pathway": {
                     "type": "integer",
                     "default": 1,
