@@ -62,12 +62,10 @@ log_FC_num <- as.numeric(params$log_FC)
 ```
 
 ---
-
 title: "`r projectcode` - Project Report"
 subtitle: "`r sapply(title_split, paste, collapse=" <br> ")`"
 author: "`r PM`, Bioinformatics Research Scientist"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
-
 ---
 
 <img src="./logo.png" style="position:absolute;top:0px;right:0px;" height="200" width="200" />
