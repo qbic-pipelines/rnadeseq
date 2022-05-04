@@ -250,7 +250,7 @@ if (opt$input_type == "rawcounts") {
         cds <- DESeq(cds)
     }
 } else {
-    stop("Input type must be one of [rawcounts, rsem, salmon]!")
+    stop("Input type must be one of [featurecounts, rsem, salmon]!")
 }
 
 # SizeFactors(cds) as indicator of library sequencing depth
