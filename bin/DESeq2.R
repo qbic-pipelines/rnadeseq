@@ -73,7 +73,7 @@ if (opt$input_type %in% c("rsem", "salmon") && is.null(opt$gtf)){
 }
 
 # Validate and read input
-if (is.null(opt$counts)){
+if (is.null(opt$gene_counts)){
     print_help(opt_parser)
     stop("Counts table needs to be provided!")
 } else {
