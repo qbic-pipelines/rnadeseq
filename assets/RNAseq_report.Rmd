@@ -552,9 +552,7 @@ if (nrow(path_enrich) > 0) {
     Padj = formatC(path_enrich$p_value, digits=3))
     colnames <- c("Contrast", "Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)",
     "Fraction of DE genes in pathway", "Padj value (pathway enrichment)")
-    kable(df_subset, col.names = colnames) %>%
-        kable_styling("hover") %>%
-        scroll_box(width = "100%", height = "400px")
+    DT::datatable(df_subset, options = list(scrollX  = "100%", scrollY = "400px", pageLength = -1, dom = 'ft'))
 }
 ```
 
