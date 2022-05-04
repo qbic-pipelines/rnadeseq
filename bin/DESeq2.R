@@ -50,7 +50,7 @@ dir.create("differential_gene_expression/final_gene_table")
 # provide these files as arguments:
 option_list = list(
     make_option(c("-y", "--input_type"), type="character", default="rawcounts", help="Which type of input data is provided; must be one of [rawcounts, rsem, salmon]", metavar="character"),
-    make_option(c("-c", "--counts"), type="character", default=NULL, help="path to raw count table", metavar="character"),
+    make_option(c("-c", "--gene_counts"), type="character", default=NULL, help="path to raw count table", metavar="character"),
     make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
     make_option(c("-d", "--design"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
     make_option(c("-x", "--contrasts_matrix"), type="character", default=NULL, help="path to contrasts matrix file", metavar="character"),
