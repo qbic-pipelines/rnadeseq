@@ -89,7 +89,7 @@ if (is.null(opt$design)){
     print_help(opt_parser)
     stop("Linear model design file needs to be provided!")
 } else {
-    path_design = opt$design
+    path_design = opt$model
 }
 if (!is.null(opt$relevel)){
     path_relevel = opt$relevel
