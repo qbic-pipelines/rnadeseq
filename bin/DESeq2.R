@@ -52,7 +52,7 @@ option_list = list(
     make_option(c("-y", "--input_type"), type="character", default="rawcounts", help="Which type of input data is provided; must be one of [rawcounts, rsem, salmon]", metavar="character"),
     make_option(c("-c", "--gene_counts"), type="character", default=NULL, help="path to raw count table", metavar="character"),
     make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
-    make_option(c("-d", "--design"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
+    make_option(c("-d", "--model"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
     make_option(c("-x", "--contrasts_matrix"), type="character", default=NULL, help="path to contrasts matrix file", metavar="character"),
     make_option(c("-f", "--gtf"), type="character", default=NULL, help="path to gtf table if using salmon/rsem input", metavar="character"),
     make_option(c("-r", "--relevel"), type="character", default=NULL, help="path to factor relevel file", metavar="character"),
