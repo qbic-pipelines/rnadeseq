@@ -17,7 +17,7 @@ library(optparse)
 library(svglite)
 library(extrafont)
 library(limma)
-library(dplyr)
+invisible( lapply(c("svglite", "extrafont", "limma" ...), library, character.only=T))
 
 library(tximeta)
 library(tximport)
