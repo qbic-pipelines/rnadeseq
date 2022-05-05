@@ -29,7 +29,6 @@ option_list = list(
     make_option(c("-l", "--species_library"), type="character", default=NULL, help="Library name. Example format: org.At.tair.db", metavar="character"),
     make_option(c("-k", "--keytype"), type="character", default=NULL, help="Keytype. Example format: TAIR (varies greatly depending on library!)", metavar="character"),
     make_option(c("-g", "--genelist"), type="character", default=NULL, help="Path to gene list for heatmap plot.", metavar="character"),
-    make_option(c("-y", "--input_type"), type="character", default="rawcounts", help="Which type of input data is provided; must be one of [rawcounts, rsem, salmon]", metavar="character"),
     make_option(c("-p", "--min_DEG_pathway"), type="character", default=1, help="Min. number of genes DE in a pathway for this pathway to be in tables.", metavar="integer")
     )
 

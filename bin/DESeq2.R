@@ -85,7 +85,7 @@ if (is.null(opt$metadata)){
 } else {
     metadata_path = opt$metadata
 }
-if (is.null(opt$design)){
+if (is.null(opt$model)){
     print_help(opt_parser)
     stop("Linear model design file needs to be provided!")
 } else {
@@ -221,7 +221,8 @@ if (opt$input_type == "rawcounts") {
         coldata$combfactor <- metadata$combfactor
         rownames(coldata) <- NULL
 
-        #Do tximeta, this is necessary to run DESeq on rsem
+        #Do tximeta, this is necessary to run DESeq on rsem (imports the rsem output
+        #and modifies them as they are not integers and can not directly be used for cds)
         se <- tximeta(coldata, type="rsem", txIn=FALSE, txOut=FALSE, skipMeta=TRUE)
         assays(se)$length[ assays(se)$length == 0] <- NA # set these as missing
         #Impute lengths for the 0-length values:
@@ -235,6 +236,8 @@ if (opt$input_type == "rawcounts") {
         if (!(all(file.exists(files)))) {
             stop("DESeq2.R could not find all of the specified quant.sf files!")
         }
+        #The following steps are necessary for the processing of salmon output as the files do
+        # not contain integer counts and can therefore not be directly used for cds
         ## Import all of the samples information and transform the identifiers
         txi.salmon <- tximport(files, type = "salmon", tx2gene = tx2gene_gtf, ignoreTxVersion = T)
         # Run cds with tximport depending on whether rsem or salmon was used

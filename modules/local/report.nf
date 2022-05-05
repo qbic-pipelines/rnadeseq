@@ -43,6 +43,7 @@ process REPORT {
     --log_FC $params.logFCthreshold \
     $batchopt \
     --min_DEG_pathway $params.min_DEG_pathway \
+    --species_library $params.library \
     $pathwayopt \
     $rlogopt
     if [ "$pathwayopt" == "--pathway_analysis" ]; then
