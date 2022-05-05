@@ -14,20 +14,20 @@ env:
 
 jobs:
   test:
-    name: Run workflow tests
+    name: Run pipeline with test data
     # Only run on push if this is the nf-core dev branch (merged PRs)
-    if: ${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'nf-core/rnadeseq') }}
+    if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'nf-core/rnadeseq') }}"
     runs-on: ubuntu-latest
     strategy:
       matrix:
         # Nextflow versions
         include:
           # Test pipeline minimum Nextflow version
-          - NXF_VER: '21.10.3'
-            NXF_EDGE: ''
+          - NXF_VER: "21.10.3"
+            NXF_EDGE: ""
           # Test latest edge release of Nextflow
-          - NXF_VER: ''
-            NXF_EDGE: '1'
+          - NXF_VER: ""
+            NXF_EDGE: "1"
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@v2
@@ -65,11 +65,11 @@ jobs:
     name: Test workflow parameters
     runs-on: ubuntu-latest
     env:
-      NXF_VER: '21.10.3'
+      NXF_VER: "21.10.3"
       NXF_ANSI_LOG: false
     strategy:
       matrix:
-        config: ['test', 'test_contrast_matrix', 'test_contrast_list', 'test_blacklist', 'test_skip_pathway_analysis']
+        config: ["test", "test_contrast_matrix", "test_contrast_list", "test_skip_pathway_analysis"]
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@v2
@@ -87,13 +87,5 @@ jobs:
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
-          docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:dev
-
-      - name: Install Nextflow
-        run: |
           wget -qO- get.nextflow.io | bash
           sudo mv nextflow /usr/local/bin/
-
-      - name: Run pipeline with various parameters
-        run: nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.config }},docker

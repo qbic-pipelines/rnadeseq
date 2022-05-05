@@ -1,0 +1,9 @@
+QBiC Code	Secondary Name	Lab ID	Sample Type	Source	Source Name(s)	Source Lab ID(s)	Extract Code(s)	Condition: cellline
+QDESQ081AU	Sample1	1_EV1_PBS_1H	RNA	Mus musculus 1 ; Control ; 1H	1_EV1_PBS_1H	QBICK001AM ; Control ; 1H	1_EV1_PBS_1H	GM12878
+QDESQ082A4	Sample2	3_EV2_PBS_1H	RNA	Mus musculus 2 ; Control ; 1H	3_EV2_PBS_1H	QDESQ082A4 ; Control ; 1H	3_EV2_PBS_1H	GM12878
+QDESQ083AC	Sample3	5_EV3_PBS_1H	RNA	Mus musculus 3 ; Control ; 1H	5_EV3_PBS_1H	QDESQ083AC ; Control ; 1H	5_EV3_PBS_1H	K562
+QDESQ084AK	Sample4	13_EV1_PBS_16H	RNA	Mus musculus 4 ; Control ; 16H	13_EV1_PBS_16H	QDESQ084AK ; Control ; 16H	13_EV1_PBS_16H	K562
+QDESQ085AS	Sample5	15_EV2_PBS_16H	RNA	Mus musculus 5 ; Control ; 16H	15_EV2_PBS_16H	QDESQ085AS ; Control ; 16H	15_EV2_PBS_16H	MCF7
+QDESQ086A2	Sample6	17_EV3_PBS_16H	RNA	Mus musculus 6 ; Control ; 16H	17_EV3_PBS_16H	QDESQ086A2 ; Control ; 16H	17_EV3_PBS_16H	MCF7
+QDESQ087AA	Sample7	2_EV1_Treated_1H	RNA	Mus musculus 7 ; Treated ; 1H	2_EV1_Treated_1H	QDESQ087AA ; Treated ; 1H	2_EV1_Treated_1H	H1
+QDESQ088AI	Sample8	4_EV2_Treated_1H	RNA	Mus musculus 8 ; Treated ; 1H	4_EV2_Treated_1H	QDESQ088AI ; Treated ; 1H	4_EV2_Treated_1H	H1

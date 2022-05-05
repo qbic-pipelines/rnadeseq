@@ -5,57 +5,65 @@
 <!-- Install Atom plugin markdown-toc-auto for this ToC to auto-update on save -->
 <!-- TOC START min:2 max:3 link:true asterisk:true update:true -->
 
+- [qbic-pipelines/rnadeseq: Usage](#qbic-pipelinesrnadeseq-usage)
 - [Table of contents](#table-of-contents)
 - [Introduction](#introduction)
 - [Pre-requisites](#pre-requisites)
 - [Running the pipeline](#running-the-pipeline)
-    - [Updating the pipeline](#updating-the-pipeline)
-    - [Reproducibility](#reproducibility)
-- [Mandatory arguments](#Mandatory-arguments)
-    - [`-profile`](#-profile)
-    - [`--rawcounts`](#--rawcounts)
-    - [`--metadata`](#--metadata)
-    - [`--model`](#--model)
-    - [`--species`](#--species)
-    - [`--project_summary`](#--project-summary)
-    - [`--multiqc`](#--multiqc)
-    - [`--versions`](#--versions)
+  - [Updating the pipeline](#updating-the-pipeline)
+  - [Reproducibility](#reproducibility)
+- [Mandatory arguments](#mandatory-arguments)
+  - [`--gene_counts`](#--gene_counts)
+  - [`--input_type`](#--input_type)
+  - [`--metadata`](#--metadata)
+  - [`--model`](#--model)
+  - [`--species`](#--species)
+  - [`--project_summary`](#--project_summary)
+  - [`--versions`](#--versions)
 - [Contrasts](#contrasts)
-    - [`default`](#default)
-    - [`--relevel`](#--relevel)
-    - [`--contrast_matrix`](#--contrast_matrix)
-    - [`--contrast_list`](#--contrast_list)
-    - [`--contrast_pairs`](#--contrast_pairs)
-- [Optional arguments](#Optional-arguments)
-    - [`--logFCthreshold`](#--logFCthreshold)
-    - [`--genelist`](#--genelist)
-    - [`--batch_effect`](#--batch_effect)
-    - [`--quote`](#--quote)
-    - [`--kegg_blacklist`](#--kegg_blacklist)
-    - [`--min_DEG_pathway`](#--min_DEG_pathway)
-    - [`--skip_rlog`](#--skip_rlog)
-- [Special cases](#Special-cases)
-    - [Controlling for batch effects](#Controlling-for-batch-effects)
-- [AWS Batch specific parameters](#aws-batch-specific-parameters)
-    - [`--awsqueue`](#--awsqueue)
-    - [`--awsregion`](#--awsregion)
+  - [Default](#default)
+  - [`--relevel`](#--relevel)
+  - [`--contrast_matrix`](#--contrast_matrix)
+  - [`--contrast_list`](#--contrast_list)
+  - [`--contrast_pairs`](#--contrast_pairs)
+- [Optional arguments](#optional-arguments)
+  - [`--logFCthreshold`](#--logfcthreshold)
+  - [`--genelist`](#--genelist)
+  - [`--batch_effect`](#--batch_effect)
+  - [`--quote`](#--quote)
+  - [`--min_DEG_pathway`](#--min_deg_pathway)
+  - [`--use_vst`](#--use_vst)
+  - [`--vst_genes_number`](#--vst_genes_number)
+  - [`--skip_pathway_analysis`](#--skip_pathway_analysis)
+  - [`--input_type`](#--input_type)
+- [Reference genome options](#reference-genome-options)
+  - [`--genome`](#--genome)
+  - [`--gtf`](#--gtf)
+  - [`--organism`](#--organism)
+  - [`--library`](#--library)
+  - [`--keytype`](#--keytype)
+  - [`--igenomes_base`](#--igenomes_base)
+  - [`--igenomes_ignore`](#--igenomes_ignore)
+- [Special cases](#special-cases)
+  - [Controlling for batch effects](#controlling-for-batch-effects)
 - [Job resources](#job-resources)
-    - [Automatic resubmission](#automatic-resubmission)
-    - [Custom resource requests](#custom-resource-requests)
+  - [Automatic resubmission](#automatic-resubmission)
+  - [Custom resource requests](#custom-resource-requests)
 - [Other command line parameters](#other-command-line-parameters)
-_[`--outdir`](#--outdir)
-_ [`--email`](#--email)
-_[`-name`](#-name)
-_ [`-resume`](#-resume)
-_[`-c`](#-c)
-_ [`--custom_config_version`](#--custom_config_version)
-_[`--custom_config_base`](#--custom_config_base)
-_ [`--max_memory`](#--max_memory)
-_[`--max_time`](#--max_time)
-_ [`--max_cpus`](#--max_cpus)
-_[`--plaintext_email`](#--plaintext_email)
-_ [`--monochrome_logs`](#--monochrome_logs) \* [`--multiqc_config`](#--multiqc_config)
-<!-- TOC END -->
+  - [`--outdir`](#--outdir)
+  - [`--email`](#--email)
+  - [`-name`](#-name)
+  - [`-resume`](#-resume)
+  - [`-c`](#-c)
+  - [`--custom_config_version`](#--custom_config_version)
+  - [`--custom_config_base`](#--custom_config_base)
+  - [`--max_memory`](#--max_memory)
+  - [`--max_time`](#--max_time)
+  - [`--max_cpus`](#--max_cpus)
+  - [`--plaintext_email`](#--plaintext_email)
+  - [`--monochrome_logs`](#--monochrome_logs)
+  - [`--multiqc_config`](#--multiqc_config)
+  <!-- TOC END -->
 
 ## Introduction
 
@@ -79,7 +87,7 @@ The typical command for running the pipeline is as follows:
 
 ```bash
 nextflow run qbic-pipelines/rnadeseq -r 1.1.0 -profile docker \
---rawcounts 'merged_gene_counts.txt' \
+--gene_counts 'merged_gene_counts.txt' \
 --metadata 'QXXXX_sample_preparations.tsv' \
 --model 'linear_model.txt' \
 --contrast_matrix 'contrasts.tsv' \
@@ -87,7 +95,7 @@ nextflow run qbic-pipelines/rnadeseq -r 1.1.0 -profile docker \
 --multiqc 'MultiQC.zip' \
 --quote 'QXXXX_signed_offer.pdf' \
 --versions 'software_versions.csv' \
---species Hsapiens
+--genome GRCh37
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -121,21 +129,35 @@ This version number will be logged in reports when you run the pipeline, so that
 
 <!-- TODO qbic-pipelines: Document required command line parameters -->
 
-### `--rawcounts`
+### `--gene_counts`
 
-Raw count table (TSV). Column names must start with the QBiC code. Columns are samples and rows are genes. For example:
+Gene counts. Can be a raw count table (TSV), column names must start with the QBiC code, columns are samples and rows are genes; OR a folder containing rsem output files (folder/sampleXXX.genes.results) OR a folder containing subfolders with salmon output (folder/sampleXXX/quant.sf). For rsem and salmon, the --metadata file must contain an additional "Data ID" column providing the name of each sample (which must correspond to the respective folder/file name), and the --input_type parameter must be set to 'rsem' or 'salmon'.
+For example:
 
 ```bash
---rawcounts 'path/to/raw_count_table.tsv'
+--gene_counts 'path/to/raw_count_table.tsv'
+```
+
+```tsv
+Geneid  gene_name   QBICK00001_Sample1  QBICK00002_Sample2
+ENSG00000000003  TSPAN6  150   3000
+ENSG00000000005   TNMD    80  6
 ```
 
 ### `--metadata`
 
-Metadata table is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
+Metadata table (TSV) is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
 
 - **QBiC Code**: is needed to match metadata with the raw counts.
 - **Secondary Name**, samples will be named with the pattern: QBiC code + Secondary name.
 - **Condition: tag**: a separated column for each of the conditions. The headers of this columns start with "Condition: ". The values of these columns should not contain spaces.
+- **Data ID**: is needed to match metadata with the rsem or salmon files (not necessary for rawcounts).
+
+```tsv
+QBiC Code   Secondary Name  Condition: treatment
+QBICK00001  Sample1 treated
+QBICK00002  Sample2 untreated
+```
 
 ### `--model`
 
@@ -147,7 +169,7 @@ Linear model function to calculate the contrasts (TXT). Variable names should be
 
 ### `--species`
 
-Species name. For example: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
+Species name. Currently the following species are available for pathway analysis: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
 
 ### `--project_summary`
 
@@ -199,7 +221,7 @@ condition_genotype  KO  WT
 
 ```
 
-### `--contrast_pairs``
+### `--contrast_pairs`
 
 Table in tsv format indicating pairs of contrasts to consider. This is used to calculate interaction effects between contrasts. Each row corresponds to an interaction effect. The first column indicates the desired contrast name, the second column the first contrast in the numerator and the third column the contrast in the denominator, of the interaction.
 
@@ -227,17 +249,47 @@ Option needed to account for batch effects in the data. Please check the section
 
 Path to the signed copy of the QBiC offer as pdf, to be included in the report.
 
-### `--kegg_blacklist`
-
-Text file containing KEGG pathways codes to be excluded from pathway plotting (e.g. because kegg pathways xml contain errors in the KEGG resource).
-
 ### `--min_DEG_pathway`
 
 Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1.
 
-### `--skip_rlog`
+### `--use_vst`
 
 Consider using this parameter when the number of input samples is greater than 50. With large input sample sizes the rlog transformation becomes very time consuming. Note: If this flag is used, the pathway analysis will make use of vst transformed counts instead of rlog transformed counts. Check here for more information on [count data transformations](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#count-data-transformations).
+
+### `--vst_genes_number`
+
+Consider using this parameter for small dataset and low number of genes, e.g. with small rnaseq data. The default `vst` function for varianceStabilizingTransformation in DESeq2 is 1000, which triggers an error with small dataset. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here [DESeq2 vst function error](https://www.biostars.org/p/456209/).
+
+### `--skip_pathway_analysis`
+
+Set this flag to 'true' to skip pathway analysis and only run differential gene expression and report generation.
+
+### `--input_type`
+
+This tells the pipeline which type of input dataset is provided. Must be one of 'rawcounts', 'rsem', 'salmon', default: rawcounts.
+
+## Reference genome options
+
+### `--genome`
+
+Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available. When running the pipeline with rsem or salmon and/or with pathway analysis, this parameter is required unless you separately provide the parameters --gtf (if rsem/salmon), --organism, --library and --keytype (these three if pathway analysis). If your target genome has not been fully implemented (i.e. the entries for library, organism and keytype are missing), please open a new issue (https://github.com/qbic-pipelines/rnadeseq/issues).
+
+### `--gtf`
+
+GTF file to be used for DESeq if input is rsem or salmon, not necessary for rawcounts.
+
+### `--organism`
+
+Which organism name to use for pathway analysis, e.g. hsapiens, not necessary if --skip_pathway_analysis = true.
+
+### `--library`
+
+Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --skip_pathway_analysis = true.
+
+### `--keytype`
+
+Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if --skip_pathway_analysis = true.
 
 ## Special cases
 
@@ -248,9 +300,9 @@ To control for batch effects follow ALL these steps:
 - Include the batch effect in the metadata file in a column with the header `batch`.
 - Your design file needs to additionally include the batch effect in the linear model. E.g.:
 
-    ```R
-    ~ batch + condition_genotype
-    ```
+  ```R
+  ~ batch + condition_genotype
+  ```
 
 - Use the `--batch_effect` option when running the pipeline to generate an extra PCA plot with the corrected batch effects.
 
@@ -348,24 +400,24 @@ They are loaded in sequence, so later profiles can overwrite earlier profiles.
 If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
 
 - `docker`
-    - A generic configuration profile to be used with [Docker](https://docker.com/)
+  - A generic configuration profile to be used with [Docker](https://docker.com/)
 - `singularity`
-    - A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
+  - A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
 - `podman`
-    - A generic configuration profile to be used with [Podman](https://podman.io/)
+  - A generic configuration profile to be used with [Podman](https://podman.io/)
 - `shifter`
-    - A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
+  - A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
 - `charliecloud`
-    - A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
+  - A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
 - `conda`
-    - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter or Charliecloud.
+  - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter or Charliecloud.
 - `test`
-    - A profile with a complete configuration for automated testing
-    - Includes links to test data so needs no other parameters
+  - A profile with a complete configuration for automated testing
+  - Includes links to test data so needs no other parameters
 
 ### `-resume`
 
-Specify this when restarting a pipeline. Nextflow will used cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously.
+Specify this when restarting a pipeline. Nextflow will use cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously. For input to be considered the same, not only the names must be identical but the files' contents as well. For more info about this parameter, see [this blog post](https://www.nextflow.io/blog/2019/demystifying-nextflow-resume.html).
 
 You can also supply a run name to resume a specific run: `-resume [run-name]`. Use the `nextflow log` command to show previous run names.
 
@@ -382,11 +434,11 @@ Whilst the default requirements set within the pipeline will hopefully work for 
 For example, if the nf-core/rnaseq pipeline is failing after multiple re-submissions of the `STAR_ALIGN` process due to an exit code of `137` this would indicate that there is an out of memory issue:
 
 ```console
-[62/149eb0] NOTE: Process `RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137) -- Execution is retried (1)
-Error executing process > 'RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)'
+[62/149eb0] NOTE: Process `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137) -- Execution is retried (1)
+Error executing process > 'NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)'
 
 Caused by:
-    Process `RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137)
+    Process `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137)
 
 Command executed:
     STAR \
@@ -414,13 +466,15 @@ To bypass this error you would need to find exactly which resources are set by t
 
 ```nextflow
 process {
-    withName: STAR_ALIGN {
+    withName: 'NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN' {
         memory = 100.GB
     }
 }
 ```
 
-> **NB:** We specify just the process name i.e. `STAR_ALIGN` in the config file and not the full task name string that is printed to screen in the error message or on the terminal whilst the pipeline is running i.e. `RNASEQ:ALIGN_STAR:STAR_ALIGN`. You may get a warning suggesting that the process selector isn't recognised but you can ignore that if the process name has been specified correctly. This is something that needs to be fixed upstream in core Nextflow.
+> **NB:** We specify the full process name i.e. `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN` in the config file because this takes priority over the short name (`STAR_ALIGN`) and allows existing configuration using the full process name to be correctly overridden.
+>
+> If you get a warning suggesting that the process selector isn't recognised check that the process name has been specified correctly.
 
 ### Updating containers
 
@@ -430,35 +484,35 @@ The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementatio
 2. Find the latest version of the Biocontainer available on [Quay.io](https://quay.io/repository/biocontainers/pangolin?tag=latest&tab=tags)
 3. Create the custom config accordingly:
 
-    - For Docker:
+   - For Docker:
 
-        ```nextflow
-        process {
-            withName: PANGOLIN {
-                container = 'quay.io/biocontainers/pangolin:3.0.5--pyhdfd78af_0'
-            }
-        }
-        ```
+   ```nextflow
+   process {
+       withName: PANGOLIN {
+           container = 'quay.io/biocontainers/pangolin:3.0.5--pyhdfd78af_0'
+       }
+   }
+   ```
 
-    - For Singularity:
+   - For Singularity:
 
-        ```nextflow
-        process {
-            withName: PANGOLIN {
-                container = 'https://depot.galaxyproject.org/singularity/pangolin:3.0.5--pyhdfd78af_0'
-            }
-        }
-        ```
+   ```nextflow
+   process {
+       withName: PANGOLIN {
+           container = 'https://depot.galaxyproject.org/singularity/pangolin:3.0.5--pyhdfd78af_0'
+       }
+   }
+   ```
 
-    - For Conda:
+   - For Conda:
 
-        ```nextflow
-        process {
-            withName: PANGOLIN {
-                conda = 'bioconda::pangolin=3.0.5'
-            }
-        }
-        ```
+   ```nextflow
+   process {
+       withName: PANGOLIN {
+           conda = 'bioconda::pangolin=3.0.5'
+       }
+   }
+   ```
 
 > **NB:** If you wish to periodically update individual tool-specific results (e.g. Pangolin) generated by the pipeline then you must ensure to keep the `work/` directory otherwise the `-resume` ability of the pipeline will be compromised and it will restart from scratch.
 

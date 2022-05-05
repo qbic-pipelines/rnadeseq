@@ -10,6 +10,7 @@ process DESEQ2 {
     path contrast_list
     path contrast_pairs
     path genelist
+    path gtf
 
     output:
     path '*.zip'             , emit: deseq2
@@ -22,9 +23,9 @@ process DESEQ2 {
     def contrast_pairs_opt = contrast_pairs.name != 'DEFAULT2' ? "--contrasts_pairs $contrast_pairs" : ''
     def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel $relevel" : ''
     def batch_effect_opt = params.batch_effect ? "--batchEffect" : ''
-    def rlog_opt = params.skip_rlog ? '--rlog FALSE' : '--rlog TRUE'
+    def rlog_opt = params.use_vst ? '--rlog FALSE' : '--rlog TRUE'
     """
-    DESeq2.R --counts $gene_counts --metadata $metadata --design $model \
+    DESeq2.R --input_type $params.input_type --gene_counts $gene_counts --metadata $metadata --gtf $gtf --model $model \
     --logFCthreshold $params.logFCthreshold $relevel_opt $contrast_mat_opt \
     $contrast_list_opt $contrast_pairs_opt $gene_list_opt $batch_effect_opt $rlog_opt
     zip -r differential_gene_expression.zip differential_gene_expression

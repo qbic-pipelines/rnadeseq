@@ -22,11 +22,6 @@
                     "type": "string",
                     "description": "Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file."
                 },
-                "species": {
-                    "type": "string",
-                    "default": "false",
-                    "description": "Species name. Format example: Hsapiens."
-                },
                 "project_summary": {
                     "type": "string",
                     "description": "Project summary file downloaded from the qPortal."
@@ -36,13 +31,7 @@
                     "description": "multiqc.zip folder containing the multiQC plots and report."
                 }
             },
-            "required": [
-                "metadata",
-                "model",
-                "species",
-                "project_summary",
-                "multiqc"
-            ]
+            "required": ["metadata", "model", "project_summary", "multiqc"]
         },
         "options": {
             "title": "Options",
@@ -90,25 +79,25 @@
                     "default": "NO_FILE4",
                     "description": "Signed copy of the offer."
                 },
-                "kegg_blacklist": {
-                    "type": "string",
-                    "default": "NO_FILE3",
-                    "description": "Text file containing KEGG pathways codes to be excluded from pathway plotting (e.g. because kegg pathways xml contain errors in the KEGG resource)."
-                },
                 "min_DEG_pathway": {
                     "type": "integer",
                     "default": 1,
                     "description": "Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1."
                 },
+                "vst_genes_number": {
+                    "type": "integer",
+                    "default": 1000,
+                    "description": "Integer indicating how many genes to subset to during vst transformation (when using rlog, will ignore this number). Default: 1000."
+                },
                 "skip_pathway_analysis": {
                     "type": "boolean",
-                    "default": "false",
+                    "default": false,
                     "description": "Turn on this flag if you wish to skip pathway analysis."
                 },
-                "skip_rlog": {
+                "use_vst": {
                     "type": "boolean",
-                    "default": "false",
-                    "description": "Use this flag to skip rlog transformation (recommended when >50 samples)"
+                    "default": false,
+                    "description": "Set this flag to true to use vst transformation (recommended when >50 samples; if false, will use rlog)"
                 }
             }
         },
@@ -148,6 +137,15 @@
                     "type": "string",
                     "default": "./results/pipeline_info",
                     "description": "Directory to keep pipeline Nextflow logs and reports.",
+                    "hidden": true
+                },
+                "publish_dir_mode": {
+                    "type": "string",
+                    "default": "copy",
+                    "description": "Method used to save pipeline results to output directory.",
+                    "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
+                    "fa_icon": "fas fa-copy",
+                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
                     "hidden": true
                 },
                 "custom_config_version": {
@@ -197,6 +195,38 @@
     "properties": {
         "show_hidden_params": {
             "type": "boolean"
+        },
+        "input_type": {
+            "type": "string",
+            "default": "rawcounts"
+        },
+        "genome": {
+            "type": "string",
+            "default": null
+        },
+        "gtf": {
+            "type": "string",
+            "default": null
+        },
+        "organism": {
+            "type": "string",
+            "default": null
+        },
+        "library": {
+            "type": "string",
+            "default": null
+        },
+        "keytype": {
+            "type": "string",
+            "default": null
+        },
+        "igenomes_base": {
+            "type": "string",
+            "default": "s3://ngi-igenomes/igenomes"
+        },
+        "igenomes_ignore": {
+            "type": "boolean",
+            "default": false
         }
     }
 }

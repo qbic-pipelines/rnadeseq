@@ -17,15 +17,23 @@ library(optparse)
 library(svglite)
 library(extrafont)
 library(limma)
+library(dplyr)
+
+library(tximeta)
+library(tximport)
+library(SummarizedExperiment)
+library(impute)
 
 # clean up graphs
 graphics.off()
+
 
 # Load fonts and set plot themes
 theme_set(theme_bw(base_family = "ArialMT") +
 theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
 extrafont::font_import()
 extrafont::loadfonts()
+
 
 # create directories needed
 ifelse(!dir.exists("differential_gene_expression"), dir.create("differential_gene_expression"), FALSE)
@@ -41,10 +49,12 @@ dir.create("differential_gene_expression/final_gene_table")
 # check input data path
 # provide these files as arguments:
 option_list = list(
-    make_option(c("-c", "--counts"), type="character", default=NULL, help="path to raw count table", metavar="character"),
+    make_option(c("-y", "--input_type"), type="character", default="rawcounts", help="Which type of input data is provided; must be one of [rawcounts, rsem, salmon]", metavar="character"),
+    make_option(c("-c", "--gene_counts"), type="character", default=NULL, help="path to raw count table", metavar="character"),
     make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
-    make_option(c("-d", "--design"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
+    make_option(c("-d", "--model"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
     make_option(c("-x", "--contrasts_matrix"), type="character", default=NULL, help="path to contrasts matrix file", metavar="character"),
+    make_option(c("-f", "--gtf"), type="character", default=NULL, help="path to gtf table if using salmon/rsem input", metavar="character"),
     make_option(c("-r", "--relevel"), type="character", default=NULL, help="path to factor relevel file", metavar="character"),
     make_option(c("-k", "--contrasts_list"), type="character", default=NULL, help="path to contrasts list file", metavar="character"),
     make_option(c("-p", "--contrasts_pairs"), type="character", default=NULL, help="path to contrasts pairs file", metavar="character"),
@@ -53,16 +63,21 @@ option_list = list(
     make_option(c("-g", "--rlog"), type="logical", default=TRUE, help="if TRUE, perform rlog transformation", metavar="character"),
     make_option(c("-b", "--batchEffect"), default=FALSE, action="store_true", help="Whether to consider batch effects in the DESeq2 analysis", metavar="character")
 )
-
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
+if (!(opt$input_type %in% c("rawcounts", "rsem", "salmon"))){
+    stop(paste0("Wrong input type ", opt$input_type, ", must be one of [rawcounts, rsem, salmon]!"))
+}
+if (opt$input_type %in% c("rsem", "salmon") && is.null(opt$gtf)){
+    stop(paste0("For input type salmon, gtf file needs to be provided!"))
+}
 
 # Validate and read input
-if (is.null(opt$counts)){
+if (is.null(opt$gene_counts)){
     print_help(opt_parser)
     stop("Counts table needs to be provided!")
 } else {
-    path_count_table = opt$counts
+    path_count_table = opt$gene_counts
 }
 if (is.null(opt$metadata)){
     print_help(opt_parser)
@@ -70,58 +85,45 @@ if (is.null(opt$metadata)){
 } else {
     metadata_path = opt$metadata
 }
-if (is.null(opt$design)){
+if (is.null(opt$model)){
     print_help(opt_parser)
     stop("Linear model design file needs to be provided!")
 } else {
-    path_design = opt$design
+    path_design = opt$model
 }
-if(!is.null(opt$relevel)){
+if (!is.null(opt$relevel)){
     path_relevel = opt$relevel
 }
-if(!is.null(opt$contrasts_matrix)){
-    if(!is.null(opt$contrasts_list) & !is.null(opt$contrasts_pairs)) {
+if (!is.null(opt$contrasts_matrix)){
+    if (!is.null(opt$contrasts_list) & !is.null(opt$contrasts_pairs)) {
         stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
     }
     path_contrasts_matrix = opt$contrasts_matrix
 }
-if(!is.null(opt$contrasts_list)){
-    if(!is.null(opt$contrasts_matrix) & !is.null(opt$contrasts_pairs)) {
+if (!is.null(opt$contrasts_list)){
+    if (!is.null(opt$contrasts_matrix) & !is.null(opt$contrasts_pairs)) {
         stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
     }
     path_contrasts_list = opt$contrasts_list
 }
-if(!is.null(opt$contrasts_pairs)){
-    if(!is.null(opt$contrasts_matrix) & !is.null(opt$contrasts_list)) {
+if (!is.null(opt$contrasts_pairs)){
+    if (!is.null(opt$contrasts_matrix) & !is.null(opt$contrasts_list)) {
         stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
     }
     path_contrasts_pairs = opt$contrasts_pairs
 }
-if(!is.null(opt$genelist)){
+if (!is.null(opt$genelist)){
     requested_genes_path = opt$genelist
 }
 
+
+
 ####### LOADING AND PROCESSING COUNT TABLE AND METADATA TABLE #####################################
-
-# Load count table
-count.table <- read.table(path_count_table,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
-count.table$Ensembl_ID <- row.names(count.table)
-drop <- c("Ensembl_ID","gene_name")
-gene_names <- count.table[,drop]
-
-# Reduce sample names to QBiC codes in count table
-names(count.table) <- substr(names(count.table), 1, 10)
-count.table <- count.table[ , !(names(count.table) %in% drop)]
-
-# Remove lines with "__" from HTSeq, not needed for featureCounts (will not harm here)
-count.table <- count.table[!grepl("^__",row.names(count.table)),]
-# Do some hard filtering for genes with 0 expression
-count.table = count.table[rowSums(count.table)>0,]
-
 # Load metadata: sample preparations tsv file from qPortal
 metadata <- read.table(metadata_path, sep="\t", header=TRUE,na.strings =c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
 system(paste("mv ",metadata_path," differential_gene_expression/metadata/metadata.tsv",sep=""))
-
+# TODO: Is this fine, or should I use another column? Sample names maybe?
+qbicCodes <- rownames(metadata)
 # Make sure metadata is factor where needed
 names(metadata) = gsub("Condition..","condition_",names(metadata))
 conditions = names(metadata)[grepl("condition_",names(metadata))]
@@ -129,26 +131,43 @@ for (i in conditions) {
     metadata[,i] = as.factor(metadata[,i])
 }
 
-# Need to order columns in count.table
-count.table <- count.table[, order(names(count.table))]
+# Load count table
+if (opt$input_type == "rawcounts"){
+    count.table <- read.table(path_count_table,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
+    count.table$Ensembl_ID <- row.names(count.table)
+    drop <- c("Ensembl_ID","gene_name")
+    gene_names <- count.table[,drop]
+    # Reduce sample names to QBiC codes in count table
+    names(count.table) <- substr(names(count.table), 1, 10)
+    count.table <- count.table[ , !(names(count.table) %in% drop)]
 
-print("Count table column headers are:")
-print(names(count.table))
-print("Metadata table row names are:")
-print(row.names(metadata))
-print("If count table headers do not exactly match the metadata table row names the pipeline will stop.")
+    # Remove lines with "__" from HTSeq, not needed for featureCounts (will not harm here)
+    count.table <- count.table[!grepl("^__",row.names(count.table)),]
+    # Do some hard filtering for genes with 0 expression
+    count.table = count.table[rowSums(count.table)>0,]
+    # Need to order columns in count.table
+    count.table <- count.table[, order(names(count.table))]
 
-# check metadata and count table sorting, (correspond to QBiC codes): if not in the same order stop
-stopifnot(identical(names(count.table),row.names(metadata)))
+    print("Count table column headers are:")
+    print(names(count.table))
+    print("Metadata table row names are:")
+    print(row.names(metadata))
+
+    print("If count table headers do not exactly match the metadata table row names the pipeline will stop.")
+
+    # check metadata and count table sorting, (correspond to QBiC codes): if not in the same order stop
+    stopifnot(identical(names(count.table),row.names(metadata)))
+}
 
 # process secondary names and change row names in metadata
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name)
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
 metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
-names(count.table) = metadata$sampleName
 row.names(metadata) = metadata$sampleName
-
-stopifnot(identical(names(count.table),row.names(metadata)))
+if (opt$input_type == "rawcounts"){
+    names(count.table) = metadata$sampleName
+    stopifnot(identical(names(count.table),row.names(metadata)))
+}
 
 # to get all possible pairwise comparisons, make a combined factor
 conditions <- grepl(colnames(metadata),pattern = "condition_")
@@ -159,8 +178,7 @@ design <- read.csv(path_design, sep="\t", header = F)
 write.table(design, file="differential_gene_expression/metadata/linear_model.txt", sep="\t", quote=F, col.names = F, row.names = F)
 
 ################## RUN DESEQ2 ######################################
-
-# Apply relevel if provided to metadata
+#Apply relevel if provided to metadata
 if (!is.null(opt$relevel)) {
     relevel_table <- read.table(path_relevel, sep="\t", header = T, colClasses = "character")
     write.table(relevel_table, file="differential_gene_expression/metadata/relevel.tsv")
@@ -172,19 +190,82 @@ if (!is.null(opt$relevel)) {
 }
 
 # Run DESeq function
-cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
-cds <- DESeq(cds,  parallel = FALSE)
+if (opt$input_type == "rawcounts") {
+    cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
+    cds <- DESeq(cds,  parallel = FALSE)
+} else if (opt$input_type %in% c("rsem", "salmon")) {
+    ## Create a dataframe which consists of both the gene id and the transcript name
+    gtf <- rtracklayer::import(opt$gtf)
+    gtf <- as.data.frame(gtf, header=T)
+    # TODO: For some gtf files, transcript_id does not work!!
+    tx2gene_gtf <- gtf[c("transcript_id", "gene_id")]
+    tx2gene_gtf <- distinct(tx2gene_gtf)
+    tx2gene_gtf[] <- lapply(tx2gene_gtf, function(x) gsub("\\.\\d+", "", x))
+    colnames(tx2gene_gtf) <- c("transcript_id", "gene_id") #, "TXID"
+    gene_names <- gtf[c("gene_id", "gene_name")]
+    colnames(gene_names) <- c("Ensembl_ID", "gene_name")
+    gene_names <- distinct(gene_names)
+    rownames(gene_names) <- gene_names[,1]
+
+    if (opt$input_type == "rsem") {
+        files <- file.path(gsub("/$", "", path_count_table), paste0(qbicCodes, ".genes.results"))
+        if (!(all(file.exists(files)))) {
+            stop("DESeq2.R could not find all of the specified .genes.results files!")
+        }
+        #Extract condition columns and other info for tximeta
+        condition_names <- unlist(strsplit(design[,1], split = " "))
+        condition_names <- grep("condition", condition_names, value=T)
+        sampleconditions <- data.frame(metadata[,condition_names])
+        colnames(sampleconditions) <- condition_names
+        coldata <- data.frame(files = files, names= qbicCodes, sampleconditions)
+        coldata$combfactor <- metadata$combfactor
+        rownames(coldata) <- NULL
+
+        #Do tximeta, this is necessary to run DESeq on rsem (imports the rsem output
+        #and modifies them as they are not integers and can not directly be used for cds)
+        se <- tximeta(coldata, type="rsem", txIn=FALSE, txOut=FALSE, skipMeta=TRUE)
+        assays(se)$length[ assays(se)$length == 0] <- NA # set these as missing
+        #Impute lengths for the 0-length values:
+        length_imp <- impute.knn(assays(se)$length)
+        assays(se)$length <- length_imp$data
+        #dds from SummarizedExperiment <se>, then run DESeq
+        cds <- DESeqDataSet(se, design = as.formula(eval(parse(text=as.character(design[[1]])))))
+        cds <- DESeq(cds)
+    } else if (opt$input_type == "salmon") {
+        files <- file.path(gsub("/$", "", path_count_table), qbicCodes, "quant.sf")
+        if (!(all(file.exists(files)))) {
+            stop("DESeq2.R could not find all of the specified quant.sf files!")
+        }
+        #The following steps are necessary for the processing of salmon output as the files do
+        # not contain integer counts and can therefore not be directly used for cds
+        ## Import all of the samples information and transform the identifiers
+        txi.salmon <- tximport(files, type = "salmon", tx2gene = tx2gene_gtf, ignoreTxVersion = T)
+        # Run cds with tximport depending on whether rsem or salmon was used
+                #Extract condition columns and other info for tximeta
+        condition_names <- unlist(strsplit(design[,1], split = " "))
+        condition_names <- grep("condition", condition_names, value=T)
+        sampleconditions <- data.frame(metadata[,condition_names])
+        colnames(sampleconditions) <- condition_names
+        coldata <- data.frame(files = files, names= qbicCodes, sampleconditions)
+        coldata$combfactor <- metadata$combfactor
+        rownames(coldata) <- qbicCodes
+        cds <- DESeqDataSetFromTximport(txi=txi.salmon, colData =coldata, design = eval(parse(text=as.character(design[[1]]))))
+        cds <- DESeq(cds)
+    }
+} else {
+    stop("Input type must be one of [featurecounts, rsem, salmon]!")
+}
 
 # SizeFactors(cds) as indicator of library sequencing depth
 write.table(sizeFactors(cds),paste("differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
 
 # Write cds assay table to file
 write.table(counts(cds, normalized=T), paste("differential_gene_expression/gene_counts_tables/deseq2_table.tsv", sep=""), append=F, quote = F, sep = "\t", eol = "\n", na = "NA", dec = ".", row.names = T, col.names = T, qmethod = c("escape", "double"))
-
-# Write raw counts to file
-count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
-write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
-
+if (opt$input_type == "rawcounts"){
+    # Write raw counts to file
+    count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
+    write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
+}
 # Contrasts coefficient table write in metadata
 coefficients <- resultsNames(cds)
 coef_tab <- data.frame(coef=coefficients)
@@ -199,7 +280,7 @@ if (!is.null(opt$contrasts_matrix)){
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
     # Check that contrast matrix is valid
-    if(length(coefficients) != nrow(contrasts)){
+    if (length(coefficients) != nrow(contrasts)){
         stop("Error: Your contrast table has different number of rows than the number of coefficients in the DESeq2 model.")
     }
 
@@ -374,6 +455,7 @@ stopifnot(identical(dim(DE_genes_final_table)[1],dim(assay(cds))[1]))
 # Calculate outcome --> if gene is DE in any contrast, annotate as DE
 DE_genes_final_table$outcome = ifelse(grepl("1",DE_genes_final_table$contrast_vector),"DE","not_DE")
 DE_genes_final_table = merge(x=DE_genes_final_table, y=gene_names, by.x="Ensembl_ID", by.y="Ensembl_ID", all.x = T)
+
 DE_genes_final_table = DE_genes_final_table[,c(dim(DE_genes_final_table)[2],1:dim(DE_genes_final_table)[2]-1)]
 DE_genes_final_table = DE_genes_final_table[order(DE_genes_final_table[,"Ensembl_ID"]),]
 
@@ -436,7 +518,8 @@ if (!is.null(opt$genelist)){
     requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
     requested_genes_plot_gene_name <- requested_genes_plot$gene_name
 
-    for (i in c(1:length(requested_genes_plot_Ensembl))){
+
+    for (i in seq_along(requested_genes_plot_Ensembl)) {
         boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE, normalized = T)
         boxplot_counts$variable = row.names(boxplot_counts)
         plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
@@ -450,7 +533,6 @@ if (!is.null(opt$genelist)){
         ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".pdf",sep=""), width=10, height=5, plot=plot)
     }
 }
-
 
 ##################  SAMPLE DISTANCES HEATMAP ##################
 # Sample distances

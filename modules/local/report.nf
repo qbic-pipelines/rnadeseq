@@ -22,7 +22,7 @@ process REPORT {
     def batchopt = params.batch_effect ? "--batch_effect" : ''
     def quoteopt = quote.name != 'NO_FILE4' ? "$quote" : ''
     def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
-    def rlogopt = params.skip_rlog ? '' : "--rlog"
+    def rlogopt = params.use_vst ? '' : "--rlog"
     """
     unzip $deseq2
     unzip $multiqc
@@ -39,10 +39,11 @@ process REPORT {
     --revision $workflow.revision \
     --contrasts $contrnames \
     $genelistopt \
-    --organism $params.species \
+    --organism $params.organism \
     --log_FC $params.logFCthreshold \
     $batchopt \
     --min_DEG_pathway $params.min_DEG_pathway \
+    --species_library $params.library \
     $pathwayopt \
     $rlogopt
     if [ "$pathwayopt" == "--pathway_analysis" ]; then

@@ -10,22 +10,40 @@
 nextflow.enable.dsl = 2
 
 /*
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     GENOME PARAMETER VALUES
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+//Either genome needs to be set or the parameters gtf (for rsem/salmon) and organism, library and keytype
+//(for pathway analysis) have to be provided separately
+//-->gtf is necessary for rsem and salmon
+if (params.input_type in ["rsem", "salmon"]) {
+    if (!params.genome && !params.gtf) { exit 1, 'Please provide either genome or gtf file!' }
+    else if (!params.gtf) { params.gtf = WorkflowMain.getGenomeAttribute(params, 'gtf') }
+}
+//-->organism, library and keytype are necessary for pathway analysis
+if (!params.skip_pathway_analysis) {
+    if (!params.genome && !params.organism) { exit 1, 'Please provide either genome or organism!' }
+    else if (!params.organism) {params.organism = WorkflowMain.getGenomeAttribute(params, 'organism') }
+    if (!params.genome && !params.library) { exit 1, 'Please provide either genome or library!' }
+    else if (!params.library) { params.library = WorkflowMain.getGenomeAttribute(params, 'library') }
+    if (!params.genome && !params.keytype) { exit 1, 'Please provide either genome or keytype!' }
+    else if (!params.keytype) { params.keytype = WorkflowMain.getGenomeAttribute(params, 'keytype') }
+}
+
 /*
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     VALIDATE & PRINT PARAMETER SUMMARY
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 WorkflowMain.initialise(workflow, params, log)
 /*
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NAMED WORKFLOW FOR PIPELINE
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
 
 include { RNADESEQ } from './workflows/rnadeseq'
 //
@@ -35,9 +53,9 @@ workflow QBIC_RNADESEQ {
     RNADESEQ ()
 }
 /*
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN ALL WORKFLOWS
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 //
@@ -49,7 +67,7 @@ workflow {
 }
 
 /*
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     THE END
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
