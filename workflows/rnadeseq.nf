@@ -20,22 +20,16 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 
 // Check mandatory parameters
 if (!(params.input_type in ["rawcounts", "salmon", "rsem"])) { exit 1, 'Wrong input type ' + params.input_type + ', must be one of "rawcounts", "salmon", "rsem"!' }
+
 if (params.gene_counts) { ch_counts_path = Channel.fromPath(params.gene_counts) } else { exit 1, 'Please provide input file/dir!' }
 if (params.metadata) { ch_metadata_file = Channel.fromPath(params.metadata) } else { exit 1, 'Please provide metadata file!' }
 if (params.model) { ch_model_file = Channel.fromPath(params.model) } else { exit 1, 'Please provide linear model file!' }
 if (params.project_summary) { ch_proj_summary_file = Channel.fromPath(params.project_summary) } else { exit 1, 'Please provide project summary file!' }
 if (params.versions) { ch_softwareversions_file = Channel.fromPath(params.versions) } else { exit 1, 'Please provide software versions file!' }
 if (params.multiqc) { ch_multiqc_file = Channel.fromPath(params.multiqc) } else { exit 1, 'Please provide multiqc.zip folder!' }
-if (!params.genome && (!params.gene_counts || !params.library || !params.gtf || !params.keytype)) { exit 1, 'Please provide either genome parameter or parameters for organism, library, gtf and keytype!' }
-if (!params.skip_pathway_analysis) {
-    if (!params.organism) { params.organism = WorkflowMain.getGenomeAttribute(params, 'organism') }
-    if (!params.library) { params.library = WorkflowMain.getGenomeAttribute(params, 'library') }
-    if (!params.gtf) { params.gtf = WorkflowMain.getGenomeAttribute(params, 'gtf') }
-    if (!params.keytype) { params.keytype = WorkflowMain.getGenomeAttribute(params, 'keytype') }
-}
-if (params.input_type in ["rsem", "salmon"]) {
-    if (params.gtf) { ch_gtf = Channel.fromPath(params.gtf) } else { ch_gtf = Channel.fromPath(WorkflowMain.getGenomeAttribute(params, 'gtf')) }
-} else { ch_gtf = Channel.fromPath("FALSE") }
+
+// Create channel for genome parameter gtf (the other genome params are not files)
+if (params.input_type in ["rsem", "salmon"]) { ch_gtf = Channel.fromPath(params.gtf) } else { ch_gtf = Channel.fromPath("FALSE") }
 
 // Create channels for optional parameters
 ch_contrast_matrix = Channel.fromPath(params.contrast_matrix)

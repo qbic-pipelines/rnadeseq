@@ -249,10 +249,6 @@ Option needed to account for batch effects in the data. Please check the section
 
 Path to the signed copy of the QBiC offer as pdf, to be included in the report.
 
-### `--kegg_blacklist`
-
-Text file containing KEGG pathways codes to be excluded from pathway plotting (e.g. because kegg pathways xml contain errors in the KEGG resource).
-
 ### `--min_DEG_pathway`
 
 Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1.

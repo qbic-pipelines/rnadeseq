@@ -18,7 +18,7 @@ process PATHWAY_ANALYSIS {
     pathway_analysis.R --dirContrasts 'differential_gene_expression/DE_genes_tables/' --metadata $metadata \
     --model $model --normCounts $normInput \
     --species $params.organism --species_library $params.library --keytype $params.keytype \
-    $genelistopt --input_type $params.input_type --min_DEG_pathway $params.min_DEG_pathway
+    $genelistopt --min_DEG_pathway $params.min_DEG_pathway
     zip -r pathway_analysis.zip pathway_analysis/
     """
 }

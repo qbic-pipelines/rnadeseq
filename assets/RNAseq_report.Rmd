@@ -21,12 +21,14 @@ params:
     path_min_DEG: ""
     path_quote: ""
     organism: ""
+    species_library: ""
     batch_effect: ""
     log_FC: ""
     nsub_genes: ""
     revision: ""
     pathway_analysis: ""
     rlog: ""
+
 # Author: Silvia Morini, Gisela Gabernet, Simon Heumos
 ---
 
@@ -138,7 +140,14 @@ if(file.exists(QAfile)){
     conditions <- grepl(colnames(df_QA),pattern = "Condition")
     df_QA_cond <- as.data.frame(df_QA[ ,conditions])
     colnames(df_QA_cond) <- colnames(df_QA)[conditions]
-    df_QA_neat <- df_QA[,c("QBiC Code", "Secondary Name", "Lab ID")]
+    df_QA_neat <- df_QA[,c("QBiC Code", "Secondary Name")]
+    #add "Sample Type" only if present in metadata.tsv
+    if ("Sample Type" %in% colnames(df_QA)) {
+            df_QA_neat[,c("Sample Type")] <- df_QA[,c("Sample Type")]
+    }
+    #add "Lab ID" only if present in metadata.tsv
+    if ("Lab ID" %in% colnames(df_QA)){
+            df_QA_neat[,c("Lab ID")] <- df_QA[,c("Lab ID")]}
     df_QA_neat <- merge(df_QA_neat, df_QA_cond, by="row.names")
     df_QA_neat$Row.names <- NULL
     if ("RIN" %in% colnames(df_QA)){
@@ -608,7 +617,9 @@ library(AnnotationDbi)
 ```{r conditional_pathway2, echo=FALSE, results='asis', eval=params$pathway_analysis}
 version_gprofiler2 = packageVersion("gprofiler2")
 version_annotation = packageVersion("AnnotationDbi")
-cat(paste("For pathway analysis, the R packages `gprofiler2 v",version_gprofiler2,"` and `AnnotationDbi v", version_annotation, "` were employed.", sep=''))
+name_species       = params$species_library
+version_species    = packageVersion(name_species)
+cat(paste("For pathway analysis, the R packages `gprofiler2 v",version_gprofiler2,"`, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed.", sep=''))
 ```
 
 Graphs were produced in RStudio with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")`` . Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
