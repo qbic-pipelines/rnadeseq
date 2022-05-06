@@ -147,7 +147,7 @@ if (opt$input_type == "featurecounts"){
     # Need to order columns in count.table
     count.table <- count.table[, order(names(count.table))]
 
-   # Count table column headers and metadata table row names must match in the same order
+    # Count table column headers and metadata table row names must match in the same order
     if ( !identical( names(count.table), row.names(metadata))) {
         print("Count table column headers are:")
         print(names(count.table))
