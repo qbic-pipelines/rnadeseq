@@ -4,17 +4,19 @@
 # Author: Gisela Gabernet
 # QBiC 2019; MIT License
 
-library(gprofiler2)
-library(ggplot2)
-library(reshape2)
-library(pheatmap)
-library(pathview)
-library(AnnotationDbi)
-library(optparse)
+invisible( lapply(c(
+"gprofiler2",
+"ggplot2",
+"reshape2",
+"pheatmap",
+"pathview",
+"AnnotationDbi",
+"optparse",
+"org.Mm.eg.db",
+"org.Hs.eg.db"
+), library, character.only=T))
+# Need to load library for your species! Or provide as parameter to biocmanager
 
-# Need to load library for your species
-library(org.Mm.eg.db) #Mmusculus TODO: Delete these from container? If fast!
-library(org.Hs.eg.db) #Hsapiens
 
 # ------------------
 # Reading parameters

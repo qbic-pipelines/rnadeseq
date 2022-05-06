@@ -4,25 +4,25 @@
 # Author: Gisela Gabernet, Stefan Czemmel
 # QBiC 2019; MIT License
 
-library(RColorBrewer)
-library(reshape2)
-library(genefilter)
-library(DESeq2)
-library(ggplot2)
-library(plyr)
-library(vsn)
-library(gplots)
-library(pheatmap)
-library(optparse)
-library(svglite)
-library(extrafont)
-library(limma)
-invisible( lapply(c("svglite", "extrafont", "limma" ...), library, character.only=T))
-
-library(tximeta)
-library(tximport)
-library(SummarizedExperiment)
-library(impute)
+invisible( lapply(c(
+"RColorBrewer",
+"reshape2",
+"genefilter",
+"DESeq2",
+"ggplot2",
+"plyr",
+"vsn",
+"gplots",
+"pheatmap",
+"optparse",
+"svglite",
+"extrafont",
+"limma",
+"tximeta",
+"tximport",
+"SummarizedExperiment",
+"impute"
+), library, character.only=T))
 
 # clean up graphs
 graphics.off()
@@ -49,7 +49,7 @@ dir.create("differential_gene_expression/final_gene_table")
 # check input data path
 # provide these files as arguments:
 option_list = list(
-    make_option(c("-y", "--input_type"), type="character", default="rawcounts", help="Which type of input data is provided; must be one of [rawcounts, rsem, salmon]", metavar="character"),
+    make_option(c("-y", "--input_type"), type="character", default="featurecounts", help="Which type of input data is provided; must be one of [featurecounts, rsem, salmon]", metavar="character"),
     make_option(c("-c", "--gene_counts"), type="character", default=NULL, help="path to raw count table", metavar="character"),
     make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
     make_option(c("-d", "--model"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
@@ -65,8 +65,8 @@ option_list = list(
 )
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
-if (!(opt$input_type %in% c("rawcounts", "rsem", "salmon"))){
-    stop(paste0("Wrong input type ", opt$input_type, ", must be one of [rawcounts, rsem, salmon]!"))
+if (!(opt$input_type %in% c("featurecounts", "rsem", "salmon"))){
+    stop(paste0("Wrong input type ", opt$input_type, ", must be one of [featurecounts, rsem, salmon]!"))
 }
 if (opt$input_type %in% c("rsem", "salmon") && is.null(opt$gtf)){
     stop(paste0("For input type salmon, gtf file needs to be provided!\nIf using igenomes, please check that the entry for your genome contains a gtf file and otherwise provide one with `--gtf`."))
@@ -77,7 +77,7 @@ if (is.null(opt$gene_counts)){
     print_help(opt_parser)
     stop("Counts table needs to be provided!")
 } else {
-    path_count_table = opt$gene_counts
+    path_gene_counts = opt$gene_counts
 }
 if (is.null(opt$metadata)){
     print_help(opt_parser)
@@ -132,8 +132,8 @@ for (i in conditions) {
 }
 
 # Load count table
-if (opt$input_type == "rawcounts"){
-    count.table <- read.table(path_count_table,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
+if (opt$input_type == "featurecounts"){
+    count.table <- read.table(path_gene_counts,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
     count.table$Ensembl_ID <- row.names(count.table)
     drop <- c("Ensembl_ID","gene_name")
     gene_names <- count.table[,drop]
@@ -156,7 +156,7 @@ if (opt$input_type == "rawcounts"){
         print(row.names(metadata))
         stop("Count table headers do not exactly match the metadata table sample names!")
     }
-   
+
 }
 
 # process secondary names and change row names in metadata
@@ -164,7 +164,7 @@ metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name)
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
 metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
 row.names(metadata) = metadata$sampleName
-if (opt$input_type == "rawcounts"){
+if (opt$input_type == "featurecounts"){
     names(count.table) = metadata$sampleName
     stopifnot(identical(names(count.table),row.names(metadata)))
 }
@@ -213,7 +213,7 @@ if (opt$input_type == "featurecounts") {
     if (opt$input_type == "rsem") {
         #rsem saves output into one file per sample in an output folder
         #-->the sample name is in the file name
-        files <- file.path(gsub("/$", "", path_count_table), paste0(qbicCodes, ".genes.results"))
+        files <- file.path(gsub("/$", "", path_gene_counts), paste0(qbicCodes, ".genes.results"))
         if (!(all(file.exists(files)))) {
             stop("DESeq2.R could not find all of the specified .genes.results files!")
         }
@@ -239,7 +239,7 @@ if (opt$input_type == "featurecounts") {
     } else if (opt$input_type == "salmon") {
         #salmon saves output to one file per sample, each file is contained in a subfolder of the output folder
         #-->the sample name is in the subfolder name, NOT in the file name
-        files <- file.path(gsub("/$", "", path_count_table), qbicCodes, "quant.sf")
+        files <- file.path(gsub("/$", "", path_gene_counts), qbicCodes, "quant.sf")
         if (!(all(file.exists(files)))) {
             stop("DESeq2.R could not find all of the specified quant.sf files!")
         }
@@ -268,12 +268,16 @@ write.table(sizeFactors(cds),paste("differential_gene_expression/gene_counts_tab
 
 # Write cds assay table to file
 write.table(counts(cds, normalized=T), paste("differential_gene_expression/gene_counts_tables/deseq2_table.tsv", sep=""), append=F, quote = F, sep = "\t", eol = "\n", na = "NA", dec = ".", row.names = T, col.names = T, qmethod = c("escape", "double"))
-if (opt$input_type == "rawcounts"){
+if (opt$input_type == "featurecounts"){
     # Write raw counts to file
     count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
     write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 }
-else if (opt$input_type == "rawcounts")
+else if (opt$input_type %in% c("rsem", "salmon")) {
+    # Else copy raw count sample files/folders
+    system("mkdir differential_gene_expression/gene_counts_tables/raw_gene_counts/")
+    system(paste0("cp -r ",path_gene_counts,"/* differential_gene_expression/gene_counts_tables/raw_gene_counts/"))
+}
 # Contrasts coefficient table write in metadata
 coefficients <- resultsNames(cds)
 coef_tab <- data.frame(coef=coefficients)
