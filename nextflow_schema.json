@@ -198,7 +198,7 @@
         },
         "input_type": {
             "type": "string",
-            "default": "rawcounts"
+            "default": "featurecounts"
         },
         "genome": {
             "type": "string",

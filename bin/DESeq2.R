@@ -1,9 +1,8 @@
 #!/usr/bin/env Rscript
-
+#options(error=traceback)
 # Differential expression analysis from raw read count table using DESeq2
 # Author: Gisela Gabernet, Stefan Czemmel
 # QBiC 2019; MIT License
-
 invisible( lapply(c(
 "RColorBrewer",
 "reshape2",
@@ -262,7 +261,6 @@ if (opt$input_type == "featurecounts") {
 } else {
     stop("Input type must be one of [featurecounts, rsem, salmon]!")
 }
-
 # SizeFactors(cds) as indicator of library sequencing depth
 write.table(sizeFactors(cds),paste("differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
 
@@ -273,11 +271,12 @@ if (opt$input_type == "featurecounts"){
     count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
     write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 }
-else if (opt$input_type %in% c("rsem", "salmon")) {
+if (opt$input_type %in% c("rsem", "salmon")) {
     # Else copy raw count sample files/folders
     system("mkdir differential_gene_expression/gene_counts_tables/raw_gene_counts/")
     system(paste0("cp -r ",path_gene_counts,"/* differential_gene_expression/gene_counts_tables/raw_gene_counts/"))
 }
+
 # Contrasts coefficient table write in metadata
 coefficients <- resultsNames(cds)
 coef_tab <- data.frame(coef=coefficients)

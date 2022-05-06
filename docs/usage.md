@@ -151,7 +151,7 @@ Metadata table (TSV) is the "Sample_preparations_sheet.tsv" that can be directly
 - **QBiC Code**: is needed to match metadata with the raw counts.
 - **Secondary Name**, samples will be named with the pattern: QBiC code + Secondary name.
 - **Condition: tag**: a separated column for each of the conditions. The headers of this columns start with "Condition: ". The values of these columns should not contain spaces.
-- **Data ID**: is needed to match metadata with the rsem or salmon files (not necessary for rawcounts).
+- **Data ID**: is needed to match metadata with the rsem or salmon files (not necessary for featurecounts).
 
 ```tsv
 QBiC Code   Secondary Name  Condition: treatment
@@ -259,7 +259,7 @@ Consider using this parameter when the number of input samples is greater than 5
 
 ### `--vst_genes_number`
 
-Consider using this parameter for small dataset and low number of genes, e.g. with small rnaseq data. The default `vst` function for varianceStabilizingTransformation in DESeq2 is 1000, which triggers an error with small dataset. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here [DESeq2 vst function error](https://www.biostars.org/p/456209/).
+This is ignored if --use_vst is set to false. If using the vst transformation, consider using this parameter for small dataset and low number of genes, e.g. with small rnaseq data. The default `vst` function for varianceStabilizingTransformation in DESeq2 is 1000, which triggers an error with small dataset. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here [DESeq2 vst function error](https://www.biostars.org/p/456209/).
 
 ### `--skip_pathway_analysis`
 
@@ -267,7 +267,7 @@ Set this flag to 'true' to skip pathway analysis and only run differential gene 
 
 ### `--input_type`
 
-This tells the pipeline which type of input dataset is provided. Must be one of 'rawcounts', 'rsem', 'salmon', default: rawcounts.
+This tells the pipeline which type of input dataset is provided. Must be one of 'featurecounts', 'rsem', 'salmon', default: featurecounts.
 
 ## Reference genome options
 
@@ -277,7 +277,7 @@ Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for whi
 
 ### `--gtf`
 
-GTF file to be used for DESeq if input is rsem or salmon, not necessary for rawcounts.
+GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts.
 
 ### `--organism`
 
