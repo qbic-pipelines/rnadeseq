@@ -200,6 +200,9 @@ if (opt$input_type == "rawcounts") {
     # TODO: For some gtf files, transcript_id does not work!!
     tx2gene_gtf <- gtf[c("transcript_id", "gene_id")]
     tx2gene_gtf <- distinct(tx2gene_gtf)
+    # As the tximport parameter ignoreTxVersion=T does not reliably work (I think it only ignores the version
+    #in the input files, not in the gtf), this removes decimals from the transcript_id values,
+    #e.g. transcript_id "AT1G01010.1" --> transcript_id "AT1G01010"
     tx2gene_gtf[] <- lapply(tx2gene_gtf, function(x) gsub("\\.\\d+", "", x))
     colnames(tx2gene_gtf) <- c("transcript_id", "gene_id") #, "TXID"
     gene_names <- gtf[c("gene_id", "gene_name")]
@@ -208,6 +211,8 @@ if (opt$input_type == "rawcounts") {
     rownames(gene_names) <- gene_names[,1]
 
     if (opt$input_type == "rsem") {
+        #rsem saves output into one file per sample in an output folder
+        #-->the sample name is in the file name
         files <- file.path(gsub("/$", "", path_count_table), paste0(qbicCodes, ".genes.results"))
         if (!(all(file.exists(files)))) {
             stop("DESeq2.R could not find all of the specified .genes.results files!")
@@ -232,6 +237,8 @@ if (opt$input_type == "rawcounts") {
         cds <- DESeqDataSet(se, design = as.formula(eval(parse(text=as.character(design[[1]])))))
         cds <- DESeq(cds)
     } else if (opt$input_type == "salmon") {
+        #salmon saves output to one file per sample, each file is contained in a subfolder of the output folder
+        #-->the sample name is in the subfolder name, NOT in the file name
         files <- file.path(gsub("/$", "", path_count_table), qbicCodes, "quant.sf")
         if (!(all(file.exists(files)))) {
             stop("DESeq2.R could not find all of the specified quant.sf files!")
@@ -266,6 +273,7 @@ if (opt$input_type == "rawcounts"){
     count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
     write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 }
+else if (opt$input_type == "rawcounts")
 # Contrasts coefficient table write in metadata
 coefficients <- resultsNames(cds)
 coef_tab <- data.frame(coef=coefficients)
