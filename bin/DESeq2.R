@@ -190,7 +190,7 @@ if (!is.null(opt$relevel)) {
 }
 
 # Run DESeq function
-if (opt$input_type == "rawcounts") {
+if (opt$input_type == "featurecounts") {
     cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
     cds <- DESeq(cds,  parallel = FALSE)
 } else if (opt$input_type %in% c("rsem", "salmon")) {
