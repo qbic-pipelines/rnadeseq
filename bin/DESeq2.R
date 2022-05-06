@@ -17,7 +17,7 @@ library(optparse)
 library(svglite)
 library(extrafont)
 library(limma)
-library(dplyr)
+invisible( lapply(c("svglite", "extrafont", "limma" ...), library, character.only=T))
 
 library(tximeta)
 library(tximport)
@@ -69,7 +69,7 @@ if (!(opt$input_type %in% c("rawcounts", "rsem", "salmon"))){
     stop(paste0("Wrong input type ", opt$input_type, ", must be one of [rawcounts, rsem, salmon]!"))
 }
 if (opt$input_type %in% c("rsem", "salmon") && is.null(opt$gtf)){
-    stop(paste0("For input type salmon, gtf file needs to be provided!"))
+    stop(paste0("For input type salmon, gtf file needs to be provided!\nIf using igenomes, please check that the entry for your genome contains a gtf file and otherwise provide one with `--gtf`."))
 }
 
 # Validate and read input
@@ -148,15 +148,15 @@ if (opt$input_type == "rawcounts"){
     # Need to order columns in count.table
     count.table <- count.table[, order(names(count.table))]
 
-    print("Count table column headers are:")
-    print(names(count.table))
-    print("Metadata table row names are:")
-    print(row.names(metadata))
-
-    print("If count table headers do not exactly match the metadata table row names the pipeline will stop.")
-
-    # check metadata and count table sorting, (correspond to QBiC codes): if not in the same order stop
-    stopifnot(identical(names(count.table),row.names(metadata)))
+   # Count table column headers and metadata table row names must match in the same order
+    if ( !identical( names(count.table), row.names(metadata))) {
+        print("Count table column headers are:")
+        print(names(count.table))
+        print("Metadata table row names are:")
+        print(row.names(metadata))
+        stop("Count table headers do not exactly match the metadata table sample names!")
+    }
+   
 }
 
 # process secondary names and change row names in metadata
@@ -190,7 +190,7 @@ if (!is.null(opt$relevel)) {
 }
 
 # Run DESeq function
-if (opt$input_type == "rawcounts") {
+if (opt$input_type == "featurecounts") {
     cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
     cds <- DESeq(cds,  parallel = FALSE)
 } else if (opt$input_type %in% c("rsem", "salmon")) {
