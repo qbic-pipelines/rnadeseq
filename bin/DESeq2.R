@@ -148,15 +148,15 @@ if (opt$input_type == "rawcounts"){
     # Need to order columns in count.table
     count.table <- count.table[, order(names(count.table))]
 
-    print("Count table column headers are:")
-    print(names(count.table))
-    print("Metadata table row names are:")
-    print(row.names(metadata))
-
-    print("If count table headers do not exactly match the metadata table row names the pipeline will stop.")
-
-    # check metadata and count table sorting, (correspond to QBiC codes): if not in the same order stop
-    stopifnot(identical(names(count.table),row.names(metadata)))
+   # Count table column headers and metadata table row names must match in the same order
+    if ( !identical( names(count.table), row.names(metadata))) {
+        print("Count table column headers are:")
+        print(names(count.table))
+        print("Metadata table row names are:")
+        print(row.names(metadata))
+        stop("Count table headers do not exactly match the metadata table sample names!")
+    }
+   
 }
 
 # process secondary names and change row names in metadata
