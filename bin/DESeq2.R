@@ -69,7 +69,7 @@ if (!(opt$input_type %in% c("rawcounts", "rsem", "salmon"))){
     stop(paste0("Wrong input type ", opt$input_type, ", must be one of [rawcounts, rsem, salmon]!"))
 }
 if (opt$input_type %in% c("rsem", "salmon") && is.null(opt$gtf)){
-    stop(paste0("For input type salmon, gtf file needs to be provided!"))
+    stop(paste0("For input type salmon, gtf file needs to be provided!\nIf using igenomes, please check that the entry for your genome contains a gtf file and otherwise provide one with `--gtf`."))
 }
 
 # Validate and read input
