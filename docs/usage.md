@@ -289,7 +289,7 @@ Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not n
 
 ### `--keytype`
 
-Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if --skip_pathway_analysis = true.
+Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if `--skip_pathway_analysis = true`.
 
 ## Special cases
 
