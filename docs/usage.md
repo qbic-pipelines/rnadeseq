@@ -281,7 +281,7 @@ GTF file to be used for DESeq if input is rsem or salmon, not necessary for feat
 
 ### `--organism`
 
-Which organism name to use for pathway analysis, e.g. hsapiens, not necessary if --skip_pathway_analysis = true.
+Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--skip_pathway_analysis = true`.
 
 ### `--library`
 
