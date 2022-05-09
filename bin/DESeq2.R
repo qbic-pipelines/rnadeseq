@@ -1,5 +1,4 @@
 #!/usr/bin/env Rscript
-#options(error=traceback)
 # Differential expression analysis from raw read count table using DESeq2
 # Author: Gisela Gabernet, Stefan Czemmel
 # QBiC 2019; MIT License
