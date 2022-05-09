@@ -273,7 +273,7 @@ This tells the pipeline which type of input dataset is provided. Must be one of 
 
 ### `--genome`
 
-Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available. When running the pipeline with rsem or salmon and/or with pathway analysis, this parameter is required unless you separately provide the parameters --gtf (if rsem/salmon), --organism, --library and --keytype (these three if pathway analysis). If your target genome has not been fully implemented (i.e. the entries for library, organism and keytype are missing), please open a new issue (https://github.com/qbic-pipelines/rnadeseq/issues).
+Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available. When running the pipeline with rsem or salmon and/or with pathway analysis, this parameter is required unless you separately provide the parameters `--gtf` (if rsem/salmon), `--organism`, `--library` and `--keytype` (these three if pathway analysis). If your target genome has not been fully implemented (i.e. the entries for library, organism and keytype are missing), please open a new issue (https://github.com/qbic-pipelines/rnadeseq/issues).
 
 ### `--gtf`
 
