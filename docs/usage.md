@@ -131,7 +131,7 @@ This version number will be logged in reports when you run the pipeline, so that
 
 ### `--gene_counts`
 
-Gene counts. Can be a raw count table (TSV), column names must start with the QBiC code, columns are samples and rows are genes; OR a folder containing rsem output files (folder/sampleXXX.genes.results) OR a folder containing subfolders with salmon output (folder/sampleXXX/quant.sf). For rsem and salmon, the --metadata file must contain an additional "Data ID" column providing the name of each sample (which must correspond to the respective folder/file name), and the --input_type parameter must be set to 'rsem' or 'salmon'.
+Gene counts. Can be a raw count table (TSV), column names must start with the QBiC code, columns are samples and rows are genes; OR a folder containing rsem output files (folder/sampleXXX.genes.results) OR a folder containing subfolders with salmon output (folder/sampleXXX/quant.sf). For rsem and salmon, the --metadata file "QBiC Code" column must provide the name of each sample (i.e. the respective folder/file name), and the --input_type parameter must be set to 'rsem' or 'salmon'.
 For example:
 
 ```bash
@@ -151,7 +151,6 @@ Metadata table (TSV) is the "Sample_preparations_sheet.tsv" that can be directly
 - **QBiC Code**: is needed to match metadata with the raw counts.
 - **Secondary Name**, samples will be named with the pattern: QBiC code + Secondary name.
 - **Condition: tag**: a separated column for each of the conditions. The headers of this columns start with "Condition: ". The values of these columns should not contain spaces.
-- **Data ID**: is needed to match metadata with the rsem or salmon files (not necessary for featurecounts).
 
 ```tsv
 QBiC Code   Secondary Name  Condition: treatment

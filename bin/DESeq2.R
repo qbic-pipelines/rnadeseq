@@ -8,6 +8,7 @@ invisible( lapply(c(
 "genefilter",
 "DESeq2",
 "ggplot2",
+"dplyr",
 "plyr",
 "vsn",
 "gplots",

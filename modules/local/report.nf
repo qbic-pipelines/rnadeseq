@@ -36,7 +36,7 @@ process REPORT {
     --proj_summary $proj_summary \
     --versions $softwareversions \
     --model $model \
-    --revision $workflow.revision \
+    --revision $workflow.manifest.version \
     --contrasts $contrnames \
     $genelistopt \
     --organism $params.organism \
