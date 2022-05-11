@@ -13,7 +13,8 @@
   - [Updating the pipeline](#updating-the-pipeline)
   - [Reproducibility](#reproducibility)
 - [Mandatory arguments](#mandatory-arguments)
-  - [`--rawcounts`](#--rawcounts)
+  - [`--gene_counts`](#--gene_counts)
+  - [`--input_type`](#--input_type)
   - [`--metadata`](#--metadata)
   - [`--model`](#--model)
   - [`--species`](#--species)
@@ -30,10 +31,19 @@
   - [`--genelist`](#--genelist)
   - [`--batch_effect`](#--batch_effect)
   - [`--quote`](#--quote)
-  - [`--kegg_blacklist`](#--kegg_blacklist)
   - [`--min_DEG_pathway`](#--min_deg_pathway)
-  - [`--skip_rlog`](#--skip_rlog)
+  - [`--use_vst`](#--use_vst)
   - [`--vst_genes_number`](#--vst_genes_number)
+  - [`--skip_pathway_analysis`](#--skip_pathway_analysis)
+  - [`--input_type`](#--input_type)
+- [Reference genome options](#reference-genome-options)
+  - [`--genome`](#--genome)
+  - [`--gtf`](#--gtf)
+  - [`--organism`](#--organism)
+  - [`--library`](#--library)
+  - [`--keytype`](#--keytype)
+  - [`--igenomes_base`](#--igenomes_base)
+  - [`--igenomes_ignore`](#--igenomes_ignore)
 - [Special cases](#special-cases)
   - [Controlling for batch effects](#controlling-for-batch-effects)
 - [Job resources](#job-resources)
@@ -77,7 +87,7 @@ The typical command for running the pipeline is as follows:
 
 ```bash
 nextflow run qbic-pipelines/rnadeseq -r 1.1.0 -profile docker \
---rawcounts 'merged_gene_counts.txt' \
+--gene_counts 'merged_gene_counts.txt' \
 --metadata 'QXXXX_sample_preparations.tsv' \
 --model 'linear_model.txt' \
 --contrast_matrix 'contrasts.tsv' \
@@ -85,7 +95,7 @@ nextflow run qbic-pipelines/rnadeseq -r 1.1.0 -profile docker \
 --multiqc 'MultiQC.zip' \
 --quote 'QXXXX_signed_offer.pdf' \
 --versions 'software_versions.csv' \
---species Hsapiens
+--genome GRCh37
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -119,12 +129,13 @@ This version number will be logged in reports when you run the pipeline, so that
 
 <!-- TODO qbic-pipelines: Document required command line parameters -->
 
-### `--rawcounts`
+### `--gene_counts`
 
-Raw count table (TSV). Column names must start with the QBiC code. Columns are samples and rows are genes. For example:
+Gene counts. Can be a raw count table (TSV), column names must start with the QBiC code, columns are samples and rows are genes; OR a folder containing rsem output files (folder/sampleXXX.genes.results) OR a folder containing subfolders with salmon output (folder/sampleXXX/quant.sf). For rsem and salmon, the --metadata file "QBiC Code" column must provide the name of each sample (i.e. the respective folder/file name), and the --input_type parameter must be set to 'rsem' or 'salmon'.
+For example:
 
 ```bash
---rawcounts 'path/to/raw_count_table.tsv'
+--gene_counts 'path/to/raw_count_table.tsv'
 ```
 
 ```tsv
@@ -237,21 +248,47 @@ Option needed to account for batch effects in the data. Please check the section
 
 Path to the signed copy of the QBiC offer as pdf, to be included in the report.
 
-### `--kegg_blacklist`
-
-Text file containing KEGG pathways codes to be excluded from pathway plotting (e.g. because kegg pathways xml contain errors in the KEGG resource).
-
 ### `--min_DEG_pathway`
 
 Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1.
 
-### `--skip_rlog`
+### `--use_vst`
 
 Consider using this parameter when the number of input samples is greater than 50. With large input sample sizes the rlog transformation becomes very time consuming. Note: If this flag is used, the pathway analysis will make use of vst transformed counts instead of rlog transformed counts. Check here for more information on [count data transformations](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#count-data-transformations).
 
 ### `--vst_genes_number`
 
-Consider using this parameter for small dataset and low number of genes, e.g. with small rnaseq data. The default `vst` function for varianceStabilizingTransformation in DESeq2 is 1000, which triggers an error with small dataset. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here [DESeq2 vst function error](https://www.biostars.org/p/456209/).
+This is ignored if --use_vst is set to false. If using the vst transformation, consider using this parameter for small dataset and low number of genes, e.g. with small rnaseq data. The default `vst` function for varianceStabilizingTransformation in DESeq2 is 1000, which triggers an error with small dataset. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here [DESeq2 vst function error](https://www.biostars.org/p/456209/).
+
+### `--skip_pathway_analysis`
+
+Set this flag to 'true' to skip pathway analysis and only run differential gene expression and report generation.
+
+### `--input_type`
+
+This tells the pipeline which type of input dataset is provided. Must be one of 'featurecounts', 'rsem', 'salmon', default: featurecounts.
+
+## Reference genome options
+
+### `--genome`
+
+Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available. When running the pipeline with rsem or salmon and/or with pathway analysis, this parameter is required unless you separately provide the parameters `--gtf` (if rsem/salmon), `--organism`, `--library` and `--keytype` (these three if pathway analysis). If your target genome has not been fully implemented (i.e. the entries for library, organism and keytype are missing), please open a new issue (https://github.com/qbic-pipelines/rnadeseq/issues).
+
+### `--gtf`
+
+GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts.
+
+### `--organism`
+
+Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--skip_pathway_analysis = true`.
+
+### `--library`
+
+Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --skip_pathway_analysis = true.
+
+### `--keytype`
+
+Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if `--skip_pathway_analysis = true`.
 
 ## Special cases
 

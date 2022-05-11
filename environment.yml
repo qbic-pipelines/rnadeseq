@@ -14,6 +14,11 @@ dependencies:
   - bioconda::bioconductor-org.mm.eg.db=3.14.0
   - bioconda::bioconductor-pathview=1.34.0
   - bioconda::bioconductor-vsn=3.62.0
+  - bioconda::bioconductor-tximeta=1.12.0
+  - bioconda::bioconductor-tximport=1.22.0
+  - bioconda::bioconductor-impute=1.68.0
+  - bioconda::bioconductor-summarizedexperiment=1.24.0
+  - bioconda::bioconductor-rtracklayer=1.54.0
   - conda-forge::pandoc=2.17.1.1
   - conda-forge::r-base=4.1.2
   - conda-forge::r-dplyr=1.0.7

@@ -21,12 +21,14 @@ params:
     path_min_DEG: ""
     path_quote: ""
     organism: ""
+    species_library: ""
     batch_effect: ""
     log_FC: ""
     nsub_genes: ""
     revision: ""
     pathway_analysis: ""
     rlog: ""
+
 # Author: Silvia Morini, Gisela Gabernet, Simon Heumos
 ---
 
@@ -144,9 +146,6 @@ if(file.exists(QAfile)){
     if ("Sample Type" %in% colnames(df_QA)) {
             df_QA_neat[,c("Sample Type")] <- df_QA[,c("Sample Type")]
     }
-    #add "Lab ID" only if present in metadata.tsv
-    if ("Lab ID" %in% colnames(df_QA)){
-            df_QA_neat[,c("Lab ID")] <- df_QA[,c("Lab ID")]}
     df_QA_neat <- merge(df_QA_neat, df_QA_cond, by="row.names")
     df_QA_neat$Row.names <- NULL
     if ("RIN" %in% colnames(df_QA)){
@@ -214,16 +213,16 @@ df_DE_selected$Sample <- substr(df_DE_selected$Sample, 1, 10)
 colnames(df_DE_selected) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
 n_rows = nrow(df_DE_selected)
 metadata <- read.table((paste0(wd, "/differential_gene_expression/metadata/metadata.tsv")), header=TRUE, sep="\t")
-metadata = metadata[,c("QBiC.Code", "Lab.ID")]
-metadata$Sample = metadata$QBiC.Code
-metadata$QBiC.Code = NULL
+metadata = metadata[,c("QBiC.Code")]
+#the following makes metadata a df again (in R, when extracting only 1 column from a df, it becomes a list)
+metadata <- data.frame(matrix(unlist(metadata)))
+colnames(metadata) <- c("Sample")
 table_complete = merge(metadata,df_DE_selected,by="Sample")
-colnames = c("Sample", "Lab ID", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
-#write.table(table_complete,"./qc_summary.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
+colnames = c("Sample", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
+colnames(table_complete) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
 table_complete %>%
     mutate(
         Sample = Sample,
-        LabID = Lab.ID,
         ReadNumber = color_bar("lightblue")(round((C1/1000000),2)),
         DuplicateReadsIntercept = ifelse(C2 > 1,
                                         cell_spec(C2, color="orange", bold=T),
@@ -237,8 +236,8 @@ table_complete %>%
                             color_bar("lightblue")(C6),
                             color_bar("orange")(C6))
     ) %>%
-    select(1,9:15) %>%
-    kable(escape=F,row.names =F, col.names=colnames) %>%
+    select(1,8:13) %>%
+    kable(escape=F,row.names=F, col.names=colnames) %>%
     kable_styling("hover") %>%
     scroll_box(width = "100%", height = "400px")
 ```
@@ -546,9 +545,9 @@ The table below provides more detail on all enriched pathways."))
 ```{r, eval=params$pathway_analysis, echo=FALSE}
 if (nrow(path_enrich) > 0) {
     df_subset <- data.frame(Contrast = path_enrich$query, Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id,
-                            DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size,
-                            Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3),
-                            Padj = formatC(path_enrich$p_value, digits=3))
+    DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size,
+    Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3),
+    Padj = formatC(path_enrich$p_value, digits=3))
     colnames <- c("Contrast", "Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)",
     "Fraction of DE genes in pathway", "Padj value (pathway enrichment)")
     kable(df_subset, col.names = colnames) %>%
@@ -613,7 +612,9 @@ library(AnnotationDbi)
 ```{r conditional_pathway2, echo=FALSE, results='asis', eval=params$pathway_analysis}
 version_gprofiler2 = packageVersion("gprofiler2")
 version_annotation = packageVersion("AnnotationDbi")
-cat(paste("For pathway analysis, the R packages `gprofiler2 v",version_gprofiler2,"` and `AnnotationDbi v", version_annotation, "` were employed.", sep=''))
+name_species       = params$species_library
+version_species    = packageVersion(name_species)
+cat(paste("For pathway analysis, the R packages `gprofiler2 v",version_gprofiler2,"`, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed.", sep=''))
 ```
 
 Graphs were produced in RStudio with ``r R.version.string`` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")``.

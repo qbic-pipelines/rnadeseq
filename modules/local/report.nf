@@ -36,13 +36,14 @@ process REPORT {
     --proj_summary $proj_summary \
     --versions $softwareversions \
     --model $model \
-    --revision $workflow.revision \
+    --revision $workflow.manifest.version \
     --contrasts $contrnames \
     $genelistopt \
-    --organism $params.species \
+    --organism $params.organism \
     --log_FC $params.logFCthreshold \
     $batchopt \
     --min_DEG_pathway $params.min_DEG_pathway \
+    --species_library $params.library \
     $pathwayopt \
     $rlogopt
     if [ "$pathwayopt" == "--pathway_analysis" ]; then
