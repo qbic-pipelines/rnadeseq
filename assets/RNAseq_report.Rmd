@@ -1,12 +1,12 @@
 ---
 output:
     html_document:
-        toc: true                               # table of contents
-        toc_float: true                         # float the table of contents to the left of the main document content
-        toc_depth: 3                            # header levels 1,2,3
+        toc: true # table of contents
+        toc_float: true # float the table of contents to the left of the main document content
+        toc_depth: 3 # header levels 1,2,3
         theme: default
-        number_sections: true                   # add section numbering to headers
-        df_print: paged                         # tables are printed as an html table with support for pagination over rows and columns
+        number_sections: true # add section numbering to headers
+        df_print: paged # tables are printed as an html table with support for pagination over rows and columns
         css: ./corp-styles.css
         highlight: pygments
         pdf_document: true
@@ -88,7 +88,7 @@ opts_chunk$set(bootstrap.show.code = FALSE, dev = c('png'), echo=FALSE)
 
 **Project Members:**
 
-***`r PI`***
+**_`r PI`_**
 
 `r PI_email`
 
@@ -102,20 +102,19 @@ opts_chunk$set(bootstrap.show.code = FALSE, dev = c('png'), echo=FALSE)
 \
 **QBiC contacts:**
 
-***`r PM`***
+**_`r PM`_**
 
 `r PM_email`
 
 Auf der Morgenstelle 10, 72076 Tuebingen
 
-***
-***
+---
+
+---
 
 # Introduction and aims
 
 `r description`
-
-
 
 # Sample metadata
 
@@ -178,9 +177,7 @@ found [here](./differential_gene_expression/metadata/metadata.tsv).
 \
 ")
 if ("RIN" %in% colnames(df_QA_neat)){df_QA_neat$RIN <- NULL}
-kable(df_QA_neat) %>%
-    kable_styling("hover") %>%
-    scroll_box(width = "100%", height = "400px")
+DT::datatable(df_QA_neat, options = list(scrollX  = "100%", scrollY = "400px", pageLength = -1, dom = 'ft'))
 ```
 
 # Read mapping and assignment
@@ -188,7 +185,6 @@ kable(df_QA_neat) %>%
 In order to analyze the gene counts per sample, the sequencing reads need to be mapped to the reference genome, and assigned to genes or other genomic regions.
 Here, the read mapping and gene assignment statistics are summarized, among other read processing quality control parameters.
 The read sequencing quality was analyzed using `FASTQC`. More detailed information is available in the `MultiQC` report of all samples available [here](./QC/multiqc_report.html).
-
 
 ## Summary statistics
 
@@ -251,6 +247,7 @@ Note: Duplicate intercept (%) is the percentage of duplicate reads for the inter
 The read mapping statistics to the reference genome for each sample are shown below. Typical values for a good mapping lie at >80% uniquely mapped reads.
 
 ### Percentages {-}
+
 <center>
 ```{r, echo=F, out.width="160%", dpi=1800, fig.cap="STAR: Mapping Statistics", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg"))
@@ -258,6 +255,7 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plo
 </center>
 
 ### Number of reads {-}
+
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="STAR: Mapping Statistics", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1.svg"))
@@ -266,16 +264,18 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plo
 \
 
 ## Read assignment statistics {.tabset}
+
 The statistics of read assignment to genes are shown below. Most reads should be assigned. Interpretation of the different assignment types:
 
-* **Assigned:** The reads could properly be assigned to a gene or feature. \
-* **Unassigned Ambiguity:** The reads could not be assigned to any gene because of its ambiguous character.
-This can be the case when e.g. a read maps
-to two different genes at the same time making the assignment ambiguous. \
-* **Unassigned MultiMapping:** The reads could not be assigned to any gene because they map to several distinct locations on the reference genome. \
-* **Unassigned NoFeatures:** The reads could not be assigned to any gene because their mapping position in the reference genome is not annotated.
+-   **Assigned:** The reads could properly be assigned to a gene or feature. \
+-   **Unassigned Ambiguity:** The reads could not be assigned to any gene because of its ambiguous character.
+    This can be the case when e.g. a read maps
+    to two different genes at the same time making the assignment ambiguous. \
+-   **Unassigned MultiMapping:** The reads could not be assigned to any gene because they map to several distinct locations on the reference genome. \
+-   **Unassigned NoFeatures:** The reads could not be assigned to any gene because their mapping position in the reference genome is not annotated.
 
 ### Percentages {-}
+
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1_pc.svg"))
@@ -283,6 +283,7 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assi
 </center>
 
 ### Number of reads {-}
+
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1.svg"))
@@ -291,10 +292,12 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assi
 \
 
 ## Read feature distribution {.tabset}
+
 The read distribution of mapped reads over different genomic features (CDS exon, 5'UTR exon, 3' UTR exon, Intron, Intergenic regions) is shown below.
 In RNAseq experiments, the majority of the reads should be assigned to CDS exons.
 
 ### Percentages {-}
+
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="RSeQC: Read Distribution", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1_pc.svg"))
@@ -302,6 +305,7 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distrib
 </center>
 
 ### Number of reads {-}
+
 <center>
 ```{r, echo=F, out.width="160%", dpi=1200, fig.cap="RSeQC: Read Distribution", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1.svg"))
@@ -325,6 +329,7 @@ For PCA analysis and heatmap plotting, the `r rlog_long_text` normalized gene co
 `r nsub_genes_text`
 
 ## Principal component analysis (PCA)
+
 A PCA plot of the `r rlog_text` normalized gene expression visualizes the clustering of samples according to their gene expression.
 In this way, the overall effect of experimental conditions and sample grouping, and any batch effects are visualized.
 The original plot can be downloaded [here](./differential_gene_expression/plots/PCA_plot.pdf).
@@ -347,6 +352,7 @@ knitr::include_graphics(paste0(wd,"/differential_gene_expression/plots/PCA_batch
 ```
 
 ## Sample distance heatmap
+
 A sample distance heatmap was generated from the distances of the normalized expression values for all samples.
 
 This visualizes how similar the samples are to each other according to gene expression.
@@ -360,7 +366,7 @@ knitr::include_graphics(paste0(wd,"/differential_gene_expression/plots/Heatmaps_
 # Differential expression analysis
 
 To perform differential gene expression analysis, the gene expression data between two sample groups is compared.
-These comparisons are called *contrasts*. For this analysis, the following contrasts or comparisons were made:
+These comparisons are called _contrasts_. For this analysis, the following contrasts or comparisons were made:
 
 ```{r contrasts, echo=FALSE, message=FALSE, bootstrap.show.message=FALSE, include=FALSE}
 df_contr <- read.table(params$path_contrasts, header=FALSE, sep="\t")
@@ -374,6 +380,7 @@ for (i in 1:length(contrnames)){
 ```
 
 ## List of differentially expressed genes
+
 The analysis of the differential gene expression was performed using `DESeq2`.
 Genes were considered differentially expressed (DE) when the adjusted p-value was lower than 0.05 (padj < 0.05).
 Genes were further considered differentially expressed (DE) if the log2 Fold Change in expression between the two considered groups was above the threshold of `r log_FC_text` in absolute terms.
@@ -478,6 +485,7 @@ if (!inherits(df_gene, 'try-error')){
     gene = TRUE
 }
 ```
+
 ```{r genes_block, echo=FALSE, results='asis', eval=gene}
 cat("Plots for the [genes of interest](./differential_gene_expression/metadata/gene_list.txt) can be found [here](./differential_gene_expression/plots/boxplots_requested_genes/).
 \
@@ -550,12 +558,9 @@ if (nrow(path_enrich) > 0) {
     Padj = formatC(path_enrich$p_value, digits=3))
     colnames <- c("Contrast", "Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)",
     "Fraction of DE genes in pathway", "Padj value (pathway enrichment)")
-    kable(df_subset, col.names = colnames) %>%
-        kable_styling("hover") %>%
-        scroll_box(width = "100%", height = "400px")
+    DT::datatable(df_subset, options = list(scrollX  = "100%", scrollY = "400px", pageLength = -1, dom = 'ft'))
 }
 ```
-
 
 ```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=params$pathway_analysis}
 cat(paste0("## KEGG pathway maps
@@ -574,11 +579,11 @@ and the subfolder: `pathway_heatmaps`.
 ```
 
 # Summary and outlook
+
 \
 The results for all work packages, as described in the quote can be found in this report.
 Further support for this project will be restricted to the results presented in this report.
 For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.
-
 
 ```{r, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
 # Import the .csv file output by the rna-seq Nextflow pipeline
@@ -590,19 +595,16 @@ version <- read.csv(file = params$path_versions, sep="\t", header = FALSE)
 # Computational methods
 
 ## RNAseq data analysis
-The Nextflow-based nf-core pipeline `rnaseq `r as.character(version[version$V1=="nf-core/rnaseq",2])`` [^1] was used for the RNAseq Bioinfomatics analysis.
-`FASTQC `r as.character(version[version$V1=="FASTQC",2])`` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
-Subsequently, adapter trimming was conducted with `Trim Galore `r as.character(version[version$V1=="Trim Galore!",2])`` [^4] [@krueger2012trim].
-`STAR v`r substring(as.character(version[version$V1=="STAR",2]), 7, )`` [@Dobin2013] aligner was used to map the reads that passed the quality
+
+The Nextflow-based nf-core pipeline `rnaseq `r as.character(version[version$V1=="nf-core/rnaseq",2])`` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC `r as.character(version[version$V1=="FASTQC",2])`` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
+Subsequently, adapter trimming was conducted with `Trim Galore `r as.character(version[version$V1=="Trim Galore!",2])`` [^4] [@krueger2012trim]. `STAR v`r substring(as.character(version[version$V1=="STAR",2]), 7, )`` [@Dobin2013] aligner was used to map the reads that passed the quality
 control to the reference genome.
-The RNA-seq data quality control was performed with `RSeQC `r as.character(version[version$V1=="RSeQC",2])`` [@wang2012rseqc] and
-read counting of the features (e.g. genes) with `featureCounts `r as.character(version[version$V1=="featureCounts",2])``[@liao2014featurecounts].
+The RNA-seq data quality control was performed with `RSeQC `r as.character(version[version$V1=="RSeQC",2])`` [@wang2012rseqc] and read counting of the features (e.g. genes) with `featureCounts `r as.character(version[version$V1=="featureCounts",2])``[@liao2014featurecounts].
 An aggregation of the quality control for the RNAseq analysis was performed with `MultiQC `r as.character(version[version$V1=="MultiQC",2])`` [^2] [@ewels2016multiqc].
 
-
 ## Differential gene expression analysis
-The differential expression analysis was performed by the use of the `rnadeseq `r as.character(params$revision)`` pipeline [^5].
-For differential expression analysis, the raw read count table resulting from `featureCounts` was processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
+
+The differential expression analysis was performed by the use of the `rnadeseq `r as.character(params$revision)`` pipeline [^5]. For differential expression analysis, the raw read count table resulting from `featureCounts` was processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
 
 ```{r conditional_pathway, echo=FALSE, message=FALSE, bootstrap.show.message=FALSE, include=FALSE}
 library(gprofiler2)
@@ -617,14 +619,14 @@ version_species    = packageVersion(name_species)
 cat(paste("For pathway analysis, the R packages `gprofiler2 v",version_gprofiler2,"`, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed.", sep=''))
 ```
 
-Graphs were produced in RStudio with ``r R.version.string`` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")``.
-Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown")``, with the `knitr v`r packageVersion("knitr")``
-and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
+Graphs were produced in RStudio with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")`` . Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
 
-***
-***
+---
+
+---
 
 # Bibliography
+
 [^1]: https://github.com/nf-core/rnaseq
 [^2]: http://multiqc.info/
 [^3]: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/
