@@ -12,7 +12,7 @@
             "properties": {
                 "gene_counts": {
                     "type": "string",
-                    "description": "Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name."
+                    "description": "If input_type = featurecounts: Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name. If input_type = rsem or input_type = salmon: Path to rsem/salmon output folder."
                 },
                 "metadata": {
                     "type": "string",
@@ -199,7 +199,7 @@
         "input_type": {
             "type": "string",
             "default": "featurecounts",
-            "description": "Institutional config URL link."
+            "description": "Which type of input is provided, one of featurecounts, rsem, salmon"
         },
         "genome": {
             "type": "string",
