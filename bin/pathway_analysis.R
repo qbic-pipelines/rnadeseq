@@ -179,25 +179,6 @@ for (file in contrast_files){
                     file = paste0(outdir, "/", fname, "/", fname, "_pathway_enrichment_results.tsv"),
                     sep="\t", quote = F, col.names = T, row.names = F)
 
-        # Enriched pathways horizontal barplots of padj values
-        p <- ggplot(df_subset, aes(x=reorder(Pathway_name, Fraction_DE), y=Fraction_DE)) +
-            geom_bar(aes(fill=Padj), stat="identity", width = 0.7) +
-            geom_text(aes(label=paste0(df_subset$DE_genes, "/", df_subset$Pathway_size)), vjust=0.4, hjust=-0.5, size=3) +
-            coord_flip() +
-            scale_y_continuous(limits = c(0.00, 1.00)) +
-            scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
-            ggtitle("Enriched pathways") +
-            xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
-        ggsave(p, filename = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
-        ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
-        ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.svg"), device = "svg", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
-        # TODO debugging summary table
-        # Collecting summary variables
-        # contrast <- append(contrast, fname)
-        # number_DE_genes <- append(number_DE_genes, length(DE_genes$Ensembl_ID))
-        # number_enriched_pathways <- append(number_enriched_pathways, summary(as.factor(pathway_gostres_table$source)))
-        # list_DE_genes <- append(list_DE_genes, DE_genes$Ensembl_ID)
-        # list_enriched_pathways <- append(list_enriched_pathways, pathway_gostres_table$term_id)
 
         # Printing summary variables
         print("------------------------------------")
@@ -232,14 +213,6 @@ for (file in contrast_files){
             ggsave(p, filename = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
             ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
 
-                pdf(paste(outdir, "/", fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
-                pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
-                dev.off()
-                #TODO check if svg works
-                svg(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".svg", sep=""), width = 2500, height = 3000, res = 300)
-                pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
-                dev.off()
-            }
             # Plotting heatmaps and KEGG pathways for all pathways
             print("Plotting heatmaps...")
             if (nrow(df) <= 100 & nrow(df) > 0) {
@@ -278,14 +251,6 @@ for (file in contrast_files){
 
                         gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
 
-                    gene.data.subset$Ensembl_ID <- NULL
-                    pathview(gene.data  = gene.data.subset,
-                            pathway.id = pathway_kegg,
-                            species    = short_organism_name,
-                            out.suffix=paste(fname,sep="_"))
-                    mv_command <- paste0("mv *.png *.svg *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
-                    rm_command <- paste0("rm ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/", "*.xml")
-                    system(mv_command)
                         if (length(entrez_ids)!=length(unique(entrez_ids))) {
                             print(paste0("Skipping pathway: ", pathway_kegg,". This pathway has multiple IDs with same name."))
                         } else {
@@ -365,10 +330,6 @@ if (!is.null(opt$genelist)){
         dev.off()
 
         pdf(paste(outdir, "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""))
-        pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
-        dev.off()
-
-        svg(filename = paste(outdir, "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.svg", sep=""), width = 2500, height = 3000, res = 300)
         pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
         dev.off()
     }
