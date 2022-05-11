@@ -1,28 +1,27 @@
 #!/usr/bin/env Rscript
-
 # Differential expression analysis from raw read count table using DESeq2
 # Author: Gisela Gabernet, Stefan Czemmel
 # QBiC 2019; MIT License
-
-library(RColorBrewer)
-library(reshape2)
-library(genefilter)
-library(DESeq2)
-library(ggplot2)
-library(plyr)
-library(vsn)
-library(gplots)
-library(pheatmap)
-library(optparse)
-library(svglite)
-library(extrafont)
-library(limma)
-library(dplyr)
-
-library(tximeta)
-library(tximport)
-library(SummarizedExperiment)
-library(impute)
+invisible( lapply(c(
+"RColorBrewer",
+"reshape2",
+"genefilter",
+"DESeq2",
+"ggplot2",
+"dplyr",
+"plyr",
+"vsn",
+"gplots",
+"pheatmap",
+"optparse",
+"svglite",
+"extrafont",
+"limma",
+"tximeta",
+"tximport",
+"SummarizedExperiment",
+"impute"
+), library, character.only=T))
 
 # clean up graphs
 graphics.off()
@@ -49,7 +48,7 @@ dir.create("differential_gene_expression/final_gene_table")
 # check input data path
 # provide these files as arguments:
 option_list = list(
-    make_option(c("-y", "--input_type"), type="character", default="rawcounts", help="Which type of input data is provided; must be one of [rawcounts, rsem, salmon]", metavar="character"),
+    make_option(c("-y", "--input_type"), type="character", default="featurecounts", help="Which type of input data is provided; must be one of [featurecounts, rsem, salmon]", metavar="character"),
     make_option(c("-c", "--gene_counts"), type="character", default=NULL, help="path to raw count table", metavar="character"),
     make_option(c("-m", "--metadata"), type="character", default=NULL, help="path to metadata table", metavar="character"),
     make_option(c("-d", "--model"), type="character", default=NULL, help="path to linear model design file", metavar="character"),
@@ -65,11 +64,11 @@ option_list = list(
 )
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
-if (!(opt$input_type %in% c("rawcounts", "rsem", "salmon"))){
-    stop(paste0("Wrong input type ", opt$input_type, ", must be one of [rawcounts, rsem, salmon]!"))
+if (!(opt$input_type %in% c("featurecounts", "rsem", "salmon"))){
+    stop(paste0("Wrong input type ", opt$input_type, ", must be one of [featurecounts, rsem, salmon]!"))
 }
 if (opt$input_type %in% c("rsem", "salmon") && is.null(opt$gtf)){
-    stop(paste0("For input type salmon, gtf file needs to be provided!"))
+    stop(paste0("For input type salmon, gtf file needs to be provided!\nIf using igenomes, please check that the entry for your genome contains a gtf file and otherwise provide one with `--gtf`."))
 }
 
 # Validate and read input
@@ -77,7 +76,7 @@ if (is.null(opt$gene_counts)){
     print_help(opt_parser)
     stop("Counts table needs to be provided!")
 } else {
-    path_count_table = opt$gene_counts
+    path_gene_counts = opt$gene_counts
 }
 if (is.null(opt$metadata)){
     print_help(opt_parser)
@@ -132,8 +131,8 @@ for (i in conditions) {
 }
 
 # Load count table
-if (opt$input_type == "rawcounts"){
-    count.table <- read.table(path_count_table,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
+if (opt$input_type == "featurecounts"){
+    count.table <- read.table(path_gene_counts,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
     count.table$Ensembl_ID <- row.names(count.table)
     drop <- c("Ensembl_ID","gene_name")
     gene_names <- count.table[,drop]
@@ -148,15 +147,15 @@ if (opt$input_type == "rawcounts"){
     # Need to order columns in count.table
     count.table <- count.table[, order(names(count.table))]
 
-    print("Count table column headers are:")
-    print(names(count.table))
-    print("Metadata table row names are:")
-    print(row.names(metadata))
+    # Count table column headers and metadata table row names must match in the same order
+    if ( !identical( names(count.table), row.names(metadata))) {
+        print("Count table column headers are:")
+        print(names(count.table))
+        print("Metadata table row names are:")
+        print(row.names(metadata))
+        stop("Count table headers do not exactly match the metadata table sample names!")
+    }
 
-    print("If count table headers do not exactly match the metadata table row names the pipeline will stop.")
-
-    # check metadata and count table sorting, (correspond to QBiC codes): if not in the same order stop
-    stopifnot(identical(names(count.table),row.names(metadata)))
 }
 
 # process secondary names and change row names in metadata
@@ -164,7 +163,7 @@ metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name)
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
 metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
 row.names(metadata) = metadata$sampleName
-if (opt$input_type == "rawcounts"){
+if (opt$input_type == "featurecounts"){
     names(count.table) = metadata$sampleName
     stopifnot(identical(names(count.table),row.names(metadata)))
 }
@@ -190,7 +189,7 @@ if (!is.null(opt$relevel)) {
 }
 
 # Run DESeq function
-if (opt$input_type == "rawcounts") {
+if (opt$input_type == "featurecounts") {
     cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
     cds <- DESeq(cds,  parallel = FALSE)
 } else if (opt$input_type %in% c("rsem", "salmon")) {
@@ -200,6 +199,9 @@ if (opt$input_type == "rawcounts") {
     # TODO: For some gtf files, transcript_id does not work!!
     tx2gene_gtf <- gtf[c("transcript_id", "gene_id")]
     tx2gene_gtf <- distinct(tx2gene_gtf)
+    # As the tximport parameter ignoreTxVersion=T does not reliably work (I think it only ignores the version
+    #in the input files, not in the gtf), this removes decimals from the transcript_id values,
+    #e.g. transcript_id "AT1G01010.1" --> transcript_id "AT1G01010"
     tx2gene_gtf[] <- lapply(tx2gene_gtf, function(x) gsub("\\.\\d+", "", x))
     colnames(tx2gene_gtf) <- c("transcript_id", "gene_id") #, "TXID"
     gene_names <- gtf[c("gene_id", "gene_name")]
@@ -208,7 +210,9 @@ if (opt$input_type == "rawcounts") {
     rownames(gene_names) <- gene_names[,1]
 
     if (opt$input_type == "rsem") {
-        files <- file.path(gsub("/$", "", path_count_table), paste0(qbicCodes, ".genes.results"))
+        #rsem saves output into one file per sample in an output folder
+        #-->the sample name is in the file name
+        files <- file.path(gsub("/$", "", path_gene_counts), paste0(qbicCodes, ".genes.results"))
         if (!(all(file.exists(files)))) {
             stop("DESeq2.R could not find all of the specified .genes.results files!")
         }
@@ -232,7 +236,9 @@ if (opt$input_type == "rawcounts") {
         cds <- DESeqDataSet(se, design = as.formula(eval(parse(text=as.character(design[[1]])))))
         cds <- DESeq(cds)
     } else if (opt$input_type == "salmon") {
-        files <- file.path(gsub("/$", "", path_count_table), qbicCodes, "quant.sf")
+        #salmon saves output to one file per sample, each file is contained in a subfolder of the output folder
+        #-->the sample name is in the subfolder name, NOT in the file name
+        files <- file.path(gsub("/$", "", path_gene_counts), qbicCodes, "quant.sf")
         if (!(all(file.exists(files)))) {
             stop("DESeq2.R could not find all of the specified quant.sf files!")
         }
@@ -255,17 +261,22 @@ if (opt$input_type == "rawcounts") {
 } else {
     stop("Input type must be one of [featurecounts, rsem, salmon]!")
 }
-
 # SizeFactors(cds) as indicator of library sequencing depth
 write.table(sizeFactors(cds),paste("differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
 
 # Write cds assay table to file
 write.table(counts(cds, normalized=T), paste("differential_gene_expression/gene_counts_tables/deseq2_table.tsv", sep=""), append=F, quote = F, sep = "\t", eol = "\n", na = "NA", dec = ".", row.names = T, col.names = T, qmethod = c("escape", "double"))
-if (opt$input_type == "rawcounts"){
+if (opt$input_type == "featurecounts"){
     # Write raw counts to file
     count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
     write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 }
+if (opt$input_type %in% c("rsem", "salmon")) {
+    # Else copy raw count sample files/folders
+    system("mkdir differential_gene_expression/gene_counts_tables/raw_gene_counts/")
+    system(paste0("cp -r ",path_gene_counts,"/* differential_gene_expression/gene_counts_tables/raw_gene_counts/"))
+}
+
 # Contrasts coefficient table write in metadata
 coefficients <- resultsNames(cds)
 coef_tab <- data.frame(coef=coefficients)

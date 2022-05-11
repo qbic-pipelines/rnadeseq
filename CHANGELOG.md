@@ -4,7 +4,7 @@
 
 ### Added
 
-- [#118](https://github.com/qbic-pipelines/rnadeseq/pull/118) Add parameter "--input_type" (and change --rawcounts to --gene_counts) to process rawcounts, rsem and salmon output from the new rnaseq; add igenomes.config to process different species
+- [#118](https://github.com/qbic-pipelines/rnadeseq/pull/118) Add parameter "--input_type" (and change --rawcounts to --gene_counts) to process featurecounts, rsem and salmon output from the new rnaseq; add igenomes.config to process different species
 - [#104](https://github.com/qbic-pipelines/rnadeseq/pull/104) Add parameter "--skip_pathway_analysis"
 - Bump versions to 1.4.0dev
 - Add parameter "--min_DE_genes"

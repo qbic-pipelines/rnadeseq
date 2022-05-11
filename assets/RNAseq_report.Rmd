@@ -145,9 +145,6 @@ if(file.exists(QAfile)){
     if ("Sample Type" %in% colnames(df_QA)) {
             df_QA_neat[,c("Sample Type")] <- df_QA[,c("Sample Type")]
     }
-    #add "Lab ID" only if present in metadata.tsv
-    if ("Lab ID" %in% colnames(df_QA)){
-            df_QA_neat[,c("Lab ID")] <- df_QA[,c("Lab ID")]}
     df_QA_neat <- merge(df_QA_neat, df_QA_cond, by="row.names")
     df_QA_neat$Row.names <- NULL
     if ("RIN" %in% colnames(df_QA)){
@@ -212,16 +209,15 @@ df_DE_selected$Sample <- substr(df_DE_selected$Sample, 1, 10)
 colnames(df_DE_selected) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
 n_rows = nrow(df_DE_selected)
 metadata <- read.table((paste0(wd, "/differential_gene_expression/metadata/metadata.tsv")), header=TRUE, sep="\t")
-metadata = metadata[,c("QBiC.Code", "Lab.ID")]
-metadata$Sample = metadata$QBiC.Code
-metadata$QBiC.Code = NULL
+metadata = metadata[,c("QBiC.Code")]
+metadata <- data.frame(matrix(unlist(metadata)))
+colnames(metadata) <- c("Sample")
 table_complete = merge(metadata,df_DE_selected,by="Sample")
-colnames = c("Sample", "Lab ID", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
-#write.table(table_complete,"./qc_summary.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
+colnames = c("Sample", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
+colnames(table_complete) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
 table_complete %>%
     mutate(
         Sample = Sample,
-        LabID = Lab.ID,
         ReadNumber = color_bar("lightblue")(round((C1/1000000),2)),
         DuplicateReadsIntercept = ifelse(C2 > 1,
                                         cell_spec(C2, color="orange", bold=T),
@@ -235,8 +231,8 @@ table_complete %>%
                             color_bar("lightblue")(C6),
                             color_bar("orange")(C6))
     ) %>%
-    select(1,9:15) %>%
-    kable(escape=F,row.names =F, col.names=colnames) %>%
+    select(1,8:13) %>%
+    kable(escape=F,row.names=F, col.names=colnames) %>%
     kable_styling("hover") %>%
     scroll_box(width = "100%", height = "400px")
 ```
