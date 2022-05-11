@@ -12,7 +12,7 @@
             "properties": {
                 "gene_counts": {
                     "type": "string",
-                    "description": "Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name."
+                    "description": "If input_type = featurecounts: Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name. If input_type = rsem or input_type = salmon: Path to rsem/salmon output folder."
                 },
                 "metadata": {
                     "type": "string",
@@ -31,7 +31,7 @@
                     "description": "multiqc.zip folder containing the multiQC plots and report."
                 }
             },
-            "required": ["metadata", "model", "project_summary", "multiqc"]
+            "required": ["metadata", "model", "project_summary", "multiqc", "gene_counts"]
         },
         "options": {
             "title": "Options",
@@ -198,27 +198,33 @@
         },
         "input_type": {
             "type": "string",
-            "default": "rawcounts"
+            "default": "featurecounts",
+            "description": "Which type of input is provided, one of featurecounts, rsem, salmon"
         },
         "genome": {
             "type": "string",
-            "default": null
+            "default": null,
+            "description": "Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available."
         },
         "gtf": {
             "type": "string",
-            "default": null
+            "default": null,
+            "description": "Not necessary if genome is set. GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts."
         },
         "organism": {
             "type": "string",
-            "default": null
+            "default": null,
+            "description": "Not necessary if genome is set. Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--skip_pathway_analysis = true`."
         },
         "library": {
             "type": "string",
-            "default": null
+            "default": null,
+            "description": "Not necessary if genome is set. Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --skip_pathway_analysis = true."
         },
         "keytype": {
             "type": "string",
-            "default": null
+            "default": null,
+            "description": "Not necessary if genome is set. Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if --skip_pathway_analysis = true."
         },
         "igenomes_base": {
             "type": "string",

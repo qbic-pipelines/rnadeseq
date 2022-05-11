@@ -131,7 +131,7 @@ This version number will be logged in reports when you run the pipeline, so that
 
 ### `--gene_counts`
 
-Gene counts. Can be a raw count table (TSV), column names must start with the QBiC code, columns are samples and rows are genes; OR a folder containing rsem output files (folder/sampleXXX.genes.results) OR a folder containing subfolders with salmon output (folder/sampleXXX/quant.sf). For rsem and salmon, the --metadata file must contain an additional "Data ID" column providing the name of each sample (which must correspond to the respective folder/file name), and the --input_type parameter must be set to 'rsem' or 'salmon'.
+Gene counts. Can be a raw count table (TSV), column names must start with the QBiC code, columns are samples and rows are genes; OR a folder containing rsem output files (folder/sampleXXX.genes.results) OR a folder containing subfolders with salmon output (folder/sampleXXX/quant.sf). For rsem and salmon, the --metadata file "QBiC Code" column must provide the name of each sample (i.e. the respective folder/file name), and the --input_type parameter must be set to 'rsem' or 'salmon'.
 For example:
 
 ```bash
@@ -151,7 +151,6 @@ Metadata table (TSV) is the "Sample_preparations_sheet.tsv" that can be directly
 - **QBiC Code**: is needed to match metadata with the raw counts.
 - **Secondary Name**, samples will be named with the pattern: QBiC code + Secondary name.
 - **Condition: tag**: a separated column for each of the conditions. The headers of this columns start with "Condition: ". The values of these columns should not contain spaces.
-- **Data ID**: is needed to match metadata with the rsem or salmon files (not necessary for rawcounts).
 
 ```tsv
 QBiC Code   Secondary Name  Condition: treatment
@@ -259,7 +258,7 @@ Consider using this parameter when the number of input samples is greater than 5
 
 ### `--vst_genes_number`
 
-Consider using this parameter for small dataset and low number of genes, e.g. with small rnaseq data. The default `vst` function for varianceStabilizingTransformation in DESeq2 is 1000, which triggers an error with small dataset. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here [DESeq2 vst function error](https://www.biostars.org/p/456209/).
+This is ignored if --use_vst is set to false. If using the vst transformation, consider using this parameter for small dataset and low number of genes, e.g. with small rnaseq data. The default `vst` function for varianceStabilizingTransformation in DESeq2 is 1000, which triggers an error with small dataset. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here [DESeq2 vst function error](https://www.biostars.org/p/456209/).
 
 ### `--skip_pathway_analysis`
 
@@ -267,21 +266,21 @@ Set this flag to 'true' to skip pathway analysis and only run differential gene 
 
 ### `--input_type`
 
-This tells the pipeline which type of input dataset is provided. Must be one of 'rawcounts', 'rsem', 'salmon', default: rawcounts.
+This tells the pipeline which type of input dataset is provided. Must be one of 'featurecounts', 'rsem', 'salmon', default: featurecounts.
 
 ## Reference genome options
 
 ### `--genome`
 
-Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available. When running the pipeline with rsem or salmon and/or with pathway analysis, this parameter is required unless you separately provide the parameters --gtf (if rsem/salmon), --organism, --library and --keytype (these three if pathway analysis). If your target genome has not been fully implemented (i.e. the entries for library, organism and keytype are missing), please open a new issue (https://github.com/qbic-pipelines/rnadeseq/issues).
+Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available. When running the pipeline with rsem or salmon and/or with pathway analysis, this parameter is required unless you separately provide the parameters `--gtf` (if rsem/salmon), `--organism`, `--library` and `--keytype` (these three if pathway analysis). If your target genome has not been fully implemented (i.e. the entries for library, organism and keytype are missing), please open a new issue (https://github.com/qbic-pipelines/rnadeseq/issues).
 
 ### `--gtf`
 
-GTF file to be used for DESeq if input is rsem or salmon, not necessary for rawcounts.
+GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts.
 
 ### `--organism`
 
-Which organism name to use for pathway analysis, e.g. hsapiens, not necessary if --skip_pathway_analysis = true.
+Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--skip_pathway_analysis = true`.
 
 ### `--library`
 
@@ -289,7 +288,7 @@ Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not n
 
 ### `--keytype`
 
-Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if --skip_pathway_analysis = true.
+Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if `--skip_pathway_analysis = true`.
 
 ## Special cases
 
