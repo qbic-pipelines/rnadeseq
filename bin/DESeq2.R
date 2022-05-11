@@ -645,7 +645,6 @@ notAllZero <- (rowSums(counts(cds))>0)
 png("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.png")
 par(oma=c(3,3,3,3))
 par(mfrow = c(1, 3))
-#Should this be done for salmon and rsem as well?
 meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
 meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = "sd rlog transformed count data")
 meanSdPlot(assay((if (opt$rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd ", if (opt$rlog) "rld" else "vsd" ," transformed count data"))
