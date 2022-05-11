@@ -215,6 +215,7 @@ colnames(df_DE_selected) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
 n_rows = nrow(df_DE_selected)
 metadata <- read.table((paste0(wd, "/differential_gene_expression/metadata/metadata.tsv")), header=TRUE, sep="\t")
 metadata = metadata[,c("QBiC.Code")]
+#the following makes metadata a df again (in R, when extracting only 1 column from a df, it becomes a list)
 metadata <- data.frame(matrix(unlist(metadata)))
 colnames(metadata) <- c("Sample")
 table_complete = merge(metadata,df_DE_selected,by="Sample")
