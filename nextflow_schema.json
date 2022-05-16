@@ -25,13 +25,9 @@
                 "project_summary": {
                     "type": "string",
                     "description": "Project summary file downloaded from the qPortal."
-                },
-                "multiqc": {
-                    "type": "string",
-                    "description": "multiqc.zip folder containing the multiQC plots and report."
                 }
             },
-            "required": ["metadata", "model", "project_summary", "multiqc", "gene_counts"]
+            "required": ["metadata", "model", "project_summary", "gene_counts"]
         },
         "options": {
             "title": "Options",
@@ -98,6 +94,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Set this flag to true to use vst transformation (recommended when >50 samples; if false, will use rlog)"
+                },
+                "multiqc": {
+                    "type": "string",
+                    "default": "FALSE",
+                    "description": "multiqc.zip folder containing the multiQC plots and report."
                 }
             }
         },

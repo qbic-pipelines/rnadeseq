@@ -2,14 +2,19 @@ process REPORT {
     //TODO change container?
 
     input:
+    path gene_counts
+    path metadata
+    path model
+    path contrast_matrix
+    path contrast_list
+    path contrast_pairs
+    path relevel
+    path genelist
+    path gtf
+
     path proj_summary
     path softwareversions
-    path model
-    path contrnames
-    path deseq2
     path multiqc
-    path genelist
-    path gprofiler
     path quote
 
     output:
@@ -18,34 +23,54 @@ process REPORT {
 
     //TODO: remove multiqc
     script:
-    def genelistopt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
-    def batchopt = params.batch_effect ? "--batch_effect" : ''
+
+    def genelist_opt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
+    def contrast_matrix_opt = contrast_matrix.name != 'DEFAULT' ? "--contrasts_matrix $contrast_matrix" : ''
+    def contrast_list_opt = contrast_list.name != 'DEFAULT1' ? "--contrasts_list $contrast_list" : ''
+    def contrast_pairs_opt = contrast_pairs.name != 'DEFAULT2' ? "--contrasts_pairs $contrast_pairs" : ''
+    def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel $relevel" : ''
+    def batch_effect_opt = params.batch_effect ? "--batchEffect TRUE" : ''
+    def rlog_opt = params.use_vst ? '--rlog FALSE' : ''
+
+
     def quoteopt = quote.name != 'NO_FILE4' ? "$quote" : ''
     def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
-    def rlogopt = params.use_vst ? '' : "--rlog"
+
+
+    // if [ "$pathwayopt" == "--pathway_analysis" ]; then
+    //     unzip $gprofiler #TODO???
+    // fi
+    // mkdir QC
+    // mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
     """
-    unzip $deseq2
-    unzip $multiqc
-    if [ "$pathwayopt" == "--pathway_analysis" ]; then
-        unzip $gprofiler
+    if [ "$multiqc" != "FALSE" ]; then
+            unzip $multiqc
+            mkdir QC
+            mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
     fi
-    mkdir QC
-    mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' \
+    --gene_counts $gene_counts \
+    --metadata $metadata \
+    $contrast_matrix_opt \
+    $contrast_list_opt \
+    $contrast_pairs_opt \
+    $genelist_opt \
+    $relevel_opt \
     --output 'RNAseq_report.html' \
     --proj_summary $proj_summary \
     --versions $softwareversions \
     --model $model \
     --revision $workflow.manifest.version \
-    --contrasts $contrnames \
-    $genelistopt \
+    $genelist_opt \
     --organism $params.organism \
     --log_FC $params.logFCthreshold \
-    $batchopt \
+    $batch_effect_opt \
     --min_DEG_pathway $params.min_DEG_pathway \
     --species_library $params.library \
+    --keytype $params.keytype \
+    --input_type $params.input_type \
     $pathwayopt \
-    $rlogopt
+    $rlog_opt
     if [ "$pathwayopt" == "--pathway_analysis" ]; then
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quoteopt
     else
