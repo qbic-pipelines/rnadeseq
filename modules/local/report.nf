@@ -21,7 +21,6 @@ process REPORT {
     path "*.zip"
     path "RNAseq_report.html", emit: rnaseq_report
 
-    //TODO: remove multiqc
     script:
 
     def genelist_opt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
@@ -36,17 +35,11 @@ process REPORT {
     def quoteopt = quote.name != 'NO_FILE4' ? "$quote" : ''
     def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
 
-
-    // if [ "$pathwayopt" == "--pathway_analysis" ]; then
-    //     unzip $gprofiler #TODO???
-    // fi
-    // mkdir QC
-    // mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
     """
-    if [ "$multiqc" != "FALSE" ]; then
-            unzip $multiqc
-            mkdir QC
-            mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
+    if [ "$multiqc" != "NO_FILE3" ]; then
+        unzip $multiqc
+        mkdir QC
+        mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
     fi
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' \
     --gene_counts $gene_counts \
@@ -62,6 +55,7 @@ process REPORT {
     --model $model \
     --revision $workflow.manifest.version \
     $genelist_opt \
+    --gtf $gtf \
     --organism $params.organism \
     --log_FC $params.logFCthreshold \
     $batch_effect_opt \

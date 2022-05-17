@@ -35,6 +35,7 @@
   - [`--use_vst`](#--use_vst)
   - [`--vst_genes_number`](#--vst_genes_number)
   - [`--skip_pathway_analysis`](#--skip_pathway_analysis)
+  - [`--multiqc`](#--multiqc)
   - [`--input_type`](#--input_type)
 - [Reference genome options](#reference-genome-options)
   - [`--genome`](#--genome)
@@ -62,7 +63,6 @@
   - [`--max_cpus`](#--max_cpus)
   - [`--plaintext_email`](#--plaintext_email)
   - [`--monochrome_logs`](#--monochrome_logs)
-  - [`--multiqc_config`](#--multiqc_config)
   <!-- TOC END -->
 
 ## Introduction
@@ -263,6 +263,10 @@ This is ignored if --use_vst is set to false. If using the vst transformation, c
 ### `--skip_pathway_analysis`
 
 Set this flag to 'true' to skip pathway analysis and only run differential gene expression and report generation.
+
+### `--multiqc`
+
+Add here a multiQC.zip if you want some of the plots to be included in the rnadeseq report.
 
 ### `--input_type`
 

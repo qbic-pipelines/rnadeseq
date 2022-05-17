@@ -58,6 +58,7 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_min_DEG = opt$min_DEG_pathway,
                                 input_type = opt$input_type,
                                 path_quote = opt$quote,
+                                path_gtf = opt$gtf,
                                 organism = opt$organism,
                                 keytype = opt$keytype,
                                 species_library = opt$species_library,

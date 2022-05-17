@@ -97,7 +97,7 @@
                 },
                 "multiqc": {
                     "type": "string",
-                    "default": "FALSE",
+                    "default": "NO_FILE3",
                     "description": "multiqc.zip folder containing the multiQC plots and report."
                 }
             }

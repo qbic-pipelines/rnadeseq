@@ -40,7 +40,7 @@ params:
     path_relevel: ''
 
     #new args for PA
-    gtf: ''
+    path_gtf: ''
     keytype: ''
     min_DEG_pathway: ''
 
@@ -108,7 +108,7 @@ isNot <- function(value) {
 if (!(params$input_type %in% c("featurecounts", "rsem", "salmon"))){
     stop(paste0("Wrong input type ", params$input_type, ", must be one of [featurecounts, rsem, salmon]!"))
 }
-if (params$input_type %in% c("rsem", "salmon") & isNot(params$gtf)){
+if (params$input_type %in% c("rsem", "salmon") & isNot(params$path_gtf)){
     stop(paste0("For input type salmon, gtf file needs to be provided!\nIf using igenomes, please check that the entry for your genome contains a gtf file and otherwise provide one with `--gtf`."))
 }
 if (isNot(params$path_gene_counts)){
@@ -287,7 +287,7 @@ if (params$input_type == "featurecounts") {
     cds <- DESeq(cds,  parallel = FALSE)
 } else if (params$input_type %in% c("rsem", "salmon")) {
     ## Create a dataframe which consists of both the gene id and the transcript name
-    gtf <- rtracklayer::import(params$gtf)
+    gtf <- rtracklayer::import(params$path_gtf)
     gtf <- as.data.frame(gtf, header=T)
     # TODO: For some gtf files, transcript_id does not work!!
     tx2gene_gtf <- gtf[c("transcript_id", "gene_id")]
@@ -304,7 +304,7 @@ if (params$input_type == "featurecounts") {
     if (params$input_type == "rsem") {
         #rsem saves output into one file per sample in an output folder
         #-->the sample name is in the file name
-        files <- file.path(gsub("/$", "", path_gene_counts), paste0(qbicCodes, ".genes.results"))
+        files <- file.path(gsub("/$", "", params$path_gene_counts), paste0(qbicCodes, ".genes.results"))
         if (!(all(file.exists(files)))) {
             stop("DESeq2.R could not find all of the specified .genes.results files!")
         }
@@ -329,7 +329,7 @@ if (params$input_type == "featurecounts") {
     } else if (params$input_type == "salmon") {
         #salmon saves output to one file per sample, each file is contained in a subfolder of the output folder
         #-->the sample name is in the subfolder name, not in the file name!
-        files <- file.path(gsub("/$", "", path_gene_counts), qbicCodes, "quant.sf")
+        files <- file.path(gsub("/$", "", params$path_gene_counts), qbicCodes, "quant.sf")
         if (!(all(file.exists(files)))) {
             stop("DESeq2.R could not find all of the specified quant.sf files!")
         }
@@ -364,7 +364,7 @@ if (params$input_type == "featurecounts"){
 if (params$input_type %in% c("rsem", "salmon")) {
     # Else copy raw count sample files/folders
     system("mkdir differential_gene_expression/gene_counts_tables/raw_gene_counts/")
-    system(paste0("cp -r ",path_gene_counts,"/* differential_gene_expression/gene_counts_tables/raw_gene_counts/"))
+    system(paste0("cp -r ",params$path_gene_counts,"/* differential_gene_expression/gene_counts_tables/raw_gene_counts/"))
 }
 # Contrasts coefficient table write in metadata
 coefficients <- resultsNames(cds)
@@ -544,11 +544,19 @@ if (params$rlog){
     rld <- rlog(cds, blind=FALSE)
     rld_names <- merge(x=gene_names, y=assay(rld), by.x = "Ensembl_ID", by.y="row.names")
     write.table(rld_names, "differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  qmethod = c("escape", "double"))
+    #save table to another variable if pathway analysis
+    if (params$pathway_analysis) {
+        norm_counts <- rld_names
+    }
 } else {
     # vst transformation
     vsd <- vst(cds, blind=FALSE)
     vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
     write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
+    #save table to another variable if pathway analysis
+    if (params$pathway_analysis) {
+        norm_counts <- vsd_names
+    }
 }
 ############### BOXPLOTS GENE EXPRESSION PER CONDITION ##########################
 # extract ID for genes to plot, make 20 plots:
@@ -801,8 +809,6 @@ invisible(lapply(c(
 # Need to load library for your species! Or provide as parameter to biocmanager
 
 #TODO: This is the PA start
-path_norm_counts <- paste0('differential_gene_expression/gene_counts_tables/', ifelse(params$rlog, 'rlog_transformed_gene_counts.tsv', 'vst_transformed_gene_counts.tsv'))
-
 organism <- tolower(params$species)
 short_organism_name <- substr(organism,1,3)
 species_dir <- tempdir()
@@ -819,9 +825,6 @@ min_DEG_pathway <- as.integer(params$min_DEG_pathway)
 # Contrast files
 contrast_files <- list.files('differential_gene_expression/DE_genes_tables/')
 path_contrasts <- 'differential_gene_expression/DE_genes_tables/'
-
-# Reading count table
-norm_counts <- read.table(file = path_norm_counts, header = T, row.names = 1, sep = "\t", quote = "")
 
 # Reading metadata table
 metadata <- metadata_PA
@@ -1049,7 +1052,6 @@ if (!(isNot(params$path_genelist))){
     gene_list_tab <- read.table(file=genelist_path, sep = "\t", header = F, quote="")
     gene_list_unique_tab <- data.frame(gene_list=unique(gene_list_tab$V1))
 
-    norm_counts <- read.table(file = path_norm_counts, header = T, sep = "\t", quote = "")
     norm_counts$gene_name <- toupper(norm_counts$gene_name)
     IDs <- norm_counts[,c("Ensembl_ID","gene_name")]
 
