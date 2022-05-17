@@ -16,6 +16,7 @@
 
 ### Changed
 
+- [#124](https://github.com/qbic-pipelines/rnadeseq/pull/124) Combined R scripts and modules into a single one; made multiQC report optional
 - [#115](https://github.com/qbic-pipelines/rnadeseq/pull/115) Template update
 - [#117](https://github.com/qbic-pipelines/rnadeseq/pull/117) Turned LabID optional for report output in RNAseq_report.Rmd
 - Removed assets/report_options.yml
