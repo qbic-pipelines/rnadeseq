@@ -63,6 +63,7 @@
   - [`--max_cpus`](#--max_cpus)
   - [`--plaintext_email`](#--plaintext_email)
   - [`--monochrome_logs`](#--monochrome_logs)
+  - [`--multiqc_config`](#--multiqc_config)
   <!-- TOC END -->
 
 ## Introduction
