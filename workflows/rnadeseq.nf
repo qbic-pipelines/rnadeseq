@@ -79,40 +79,9 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/
 // Info required for completion email and summary
 workflow RNADESEQ {
 
-
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
-
-//
-//  MODULE: DE analysis
-//     DESEQ2 (
-//         ch_counts_path,
-//         ch_metadata_file,
-//         ch_model_file,
-//         ch_contrast_matrix,
-//         ch_relevel,
-//         ch_contrast_list,
-//         ch_contrast_pairs,
-//         ch_genes,
-//         ch_gtf
-//     )
-//     ch_deseq2 = DESEQ2.out.deseq2
-//     ch_contrnames = DESEQ2.out.contrnames
-
-// //
-// //  MODULE: Pathway analysis
-// //
-//     ch_pathway_analysis = Channel.fromPath("FALSE")
-//     if (!params.skip_pathway_analysis) {
-//         PATHWAY_ANALYSIS (
-//             ch_deseq2,
-//             ch_metadata_file,
-//             ch_model_file,
-//             ch_genes
-//         )
-//         ch_pathway_analysis = PATHWAY_ANALYSIS.out.pathway_analysis
-//     }
 
 //
 //  MODULE: RNAseq Report
@@ -128,14 +97,10 @@ workflow RNADESEQ {
         ch_relevel,
         ch_genes,
         ch_gtf,
-
         ch_proj_summary_file,
         ch_softwareversions_file,
         ch_multiqc_file,
         ch_quote_file
-
-
-
     )
 
     //TODO: Enable this:
