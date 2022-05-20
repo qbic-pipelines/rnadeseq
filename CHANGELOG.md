@@ -24,6 +24,7 @@
 - [#110](https://github.com/qbic-pipelines/rnadeseq/pull/110) Changed report to use rlog normalization by default, vst is used if --skip_rlog is enabled
 
 ### Fixed
+
 - [#125](https://github.com/qbic-pipelines/rnadeseq/pull/125) Fixed relevel bug
 - [#118](https://github.com/qbic-pipelines/rnadeseq/pull/118) Removed blacklist parameter and config and instead added trycatch to ignore pathways with errors
 - [#105](https://github.com/qbic-pipelines/rnadeseq/pull/105) Fixed relevel and added test_relevel.config
