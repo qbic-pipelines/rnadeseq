@@ -177,17 +177,6 @@ design <- read.csv(path_design, sep="\t", header = F)
 write.table(design, file="differential_gene_expression/metadata/linear_model.txt", sep="\t", quote=F, col.names = F, row.names = F)
 
 ################## RUN DESEQ2 ######################################
-#Apply relevel if provided to metadata
-if (!is.null(opt$relevel)) {
-    relevel_table <- read.table(path_relevel, sep="\t", header = T, colClasses = "character")
-    write.table(relevel_table, file="differential_gene_expression/metadata/relevel.tsv")
-
-    for (i in c(1:nrow(relevel_table))) {
-        relev <- relevel_table[i,]
-        cds[[paste(relev[1])]] <- relevel(cds[[paste(relev[1])]], paste(relev[2]))
-    }
-}
-
 # Run DESeq function
 if (opt$input_type == "featurecounts") {
     cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
@@ -260,6 +249,16 @@ if (opt$input_type == "featurecounts") {
     }
 } else {
     stop("Input type must be one of [featurecounts, rsem, salmon]!")
+}
+#Apply relevel if provided to metadata
+if (!is.null(opt$relevel)) {
+    relevel_table <- read.table(path_relevel, sep="\t", header = T, colClasses = "character")
+    write.table(relevel_table, file="differential_gene_expression/metadata/relevel.tsv")
+
+    for (i in c(1:nrow(relevel_table))) {
+        relev <- relevel_table[i,]
+        cds[[paste(relev[1])]] <- relevel(cds[[paste(relev[1])]], paste(relev[2]))
+    }
 }
 # SizeFactors(cds) as indicator of library sequencing depth
 write.table(sizeFactors(cds),paste("differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))

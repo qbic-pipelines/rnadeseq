@@ -4,6 +4,7 @@
 
 ### Added
 
+- [#125](https://github.com/qbic-pipelines/rnadeseq/pull/125) Added test_relevel to github tests, added explanation to usage.md that --species is not necessary if skipping pathway analysis
 - [#123](https://github.com/qbic-pipelines/rnadeseq/pull/123) Export report volcano plots as SVG; save all plots additionally as PDF
 - [#122](https://github.com/qbic-pipelines/rnadeseq/pull/122) Add searchable/sortable tables to report
 - [#118](https://github.com/qbic-pipelines/rnadeseq/pull/118) Add parameter "--input_type" (and change --rawcounts to --gene_counts) to process featurecounts, rsem and salmon output from the new rnaseq; add igenomes.config to process different species
@@ -24,6 +25,7 @@
 
 ### Fixed
 
+- [#125](https://github.com/qbic-pipelines/rnadeseq/pull/125) Fixed relevel bug
 - [#118](https://github.com/qbic-pipelines/rnadeseq/pull/118) Removed blacklist parameter and config and instead added trycatch to ignore pathways with errors
 - [#105](https://github.com/qbic-pipelines/rnadeseq/pull/105) Fixed relevel and added test_relevel.config
 - [#106](https://github.com/qbic-pipelines/rnadeseq/pull/106) Fixed `--logFCthreshold` bug

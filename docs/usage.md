@@ -168,7 +168,7 @@ Linear model function to calculate the contrasts (TXT). Variable names should be
 
 ### `--species`
 
-Species name. Currently the following species are available for pathway analysis: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
+Species name, not necessary if --skip_pathway_analysis = true. Currently the following species are available for pathway analysis: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
 
 ### `--project_summary`
 
