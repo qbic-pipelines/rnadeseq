@@ -35,7 +35,6 @@
   - [`--use_vst`](#--use_vst)
   - [`--vst_genes_number`](#--vst_genes_number)
   - [`--skip_pathway_analysis`](#--skip_pathway_analysis)
-  - [`--multiqc`](#--multiqc)
   - [`--input_type`](#--input_type)
 - [Reference genome options](#reference-genome-options)
   - [`--genome`](#--genome)
@@ -169,7 +168,7 @@ Linear model function to calculate the contrasts (TXT). Variable names should be
 
 ### `--species`
 
-Species name. Currently the following species are available for pathway analysis: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
+Species name, not necessary if --skip_pathway_analysis = true. Currently the following species are available for pathway analysis: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
 
 ### `--project_summary`
 
@@ -264,10 +263,6 @@ This is ignored if --use_vst is set to false. If using the vst transformation, c
 ### `--skip_pathway_analysis`
 
 Set this flag to 'true' to skip pathway analysis and only run differential gene expression and report generation.
-
-### `--multiqc`
-
-Add here a multiQC.zip if you want some of the plots to be included in the rnadeseq report.
 
 ### `--input_type`
 
