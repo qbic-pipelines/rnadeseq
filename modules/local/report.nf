@@ -42,8 +42,8 @@ process REPORT {
     --species_library $params.library \
     $pathwayopt \
     $rlogopt
-    # Remove allgenes files as those do not contain only DE genes
-    rm differential_gene_expression/DE_genes_tables/*allgenes*
+    # Remove allgenes dir as the contained files do not contain only DE genes
+    rm -r differential_gene_expression/allgenes
     if [ "$pathwayopt" == "--pathway_analysis" ]; then
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quoteopt
     else
