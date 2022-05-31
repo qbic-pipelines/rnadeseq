@@ -13,7 +13,7 @@ process DESEQ2 {
     path gtf
 
     output:
-    path '*.zip'             , emit: deseq2
+    path 'differential_gene_expression', emit: deseq2
     path "contrast_names.txt", emit: contrnames
 
     script:
@@ -28,6 +28,5 @@ process DESEQ2 {
     DESeq2.R --input_type $params.input_type --gene_counts $gene_counts --metadata $metadata --gtf $gtf --model $model \
     --logFCthreshold $params.logFCthreshold $relevel_opt $contrast_mat_opt \
     $contrast_list_opt $contrast_pairs_opt $gene_list_opt $batch_effect_opt $rlog_opt
-    zip -r differential_gene_expression.zip differential_gene_expression
     """
 }

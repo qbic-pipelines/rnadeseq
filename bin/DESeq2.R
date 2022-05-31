@@ -324,7 +324,7 @@ if (!is.null(opt$contrasts_matrix)){
 
 if (!is.null(opt$contrasts_list)) {
     contrasts <- read.table(path_contrasts_list, sep="\t", header=T, colClasses = "character")
-    write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv", quote=F)
+    write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
     ## Contrast calculation for contrast list
     for (i in c(1:nrow(contrasts))) {
