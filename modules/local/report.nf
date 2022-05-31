@@ -24,11 +24,7 @@ process REPORT {
     def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
     def rlogopt = params.use_vst ? '' : "--rlog"
     """
-    unzip $deseq2
     unzip $multiqc
-    if [ "$pathwayopt" == "--pathway_analysis" ]; then
-        unzip $gprofiler
-    fi
     mkdir QC
     mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
     Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' \
@@ -46,6 +42,8 @@ process REPORT {
     --species_library $params.library \
     $pathwayopt \
     $rlogopt
+    # Remove allgenes files as those do not contain only DE genes
+    rm differential_gene_expression/DE_genes_tables/*allgenes*
     if [ "$pathwayopt" == "--pathway_analysis" ]; then
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quoteopt
     else
@@ -53,3 +51,4 @@ process REPORT {
     fi
     """
 }
+

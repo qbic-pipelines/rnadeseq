@@ -654,3 +654,4 @@ Graphs were produced in RStudio with `r R.version.string` mainly using the `R` p
 [^3]: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/
 [^4]: https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/
 [^5]: https://github.com/qbic-pipelines/rnadeseq
+
