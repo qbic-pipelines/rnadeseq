@@ -441,6 +441,7 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
     contrast_files <- list.files(path=paste0(wd, "/differential_gene_expression/DE_genes_tables/"))
     table_list <- list()
+    #Use allgenes files for volcano plots to also show non-DE genes
     for (file in contrast_files){
         if (grepl("allgenes", file, fixed = T))
         {
@@ -539,16 +540,19 @@ The table below provides more detail on all enriched pathways."))
     contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
     q_list <- list()
     q_names <- c()
+    #Use non-allgenes files for PA to only show DE genes
     for (file in contrast_files){
-        #Reading DE genes list
-        fname <- tools::file_path_sans_ext(basename(file))
-        DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
-        if(nrow(DE_genes) <= 1){
-        next
+        if (!grepl("allgenes", file)) {
+            #Reading DE genes list
+            fname <- tools::file_path_sans_ext(basename(file))
+            DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
+            if(nrow(DE_genes) <= 1){
+            next
+            }
+            q = as.character(DE_genes$Ensembl_ID)
+            q_list <- append(q_list, list(q))
+            q_names <- append(q_names, fname)
         }
-        q = as.character(DE_genes$Ensembl_ID)
-        q_list <- append(q_list, list(q))
-        q_names <- append(q_names, fname)
     }
     datasources <- c("KEGG","REAC")
     names(q_list) <- q_names
@@ -566,7 +570,7 @@ The table below provides more detail on all enriched pathways."))
         pg2 <- gostplot(gostres, capped=T, interactive=T)
         pg2
         pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
-        pg2 %>% layout(margin = list(l = 75, b = 100), width=500, height = 400*length(contrast_files))
+        pg2 %>% layout(margin = list(l = 75, b = 100), width=500, height = 400*length(contrast_files[!grepl("allgenes", contrast_files, fixed = T)]))
     } else {
         cat("No enriched pathways were found.")
     }
