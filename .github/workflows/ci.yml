@@ -16,7 +16,7 @@ jobs:
   test:
     name: Run pipeline with test data
     # Only run on push if this is the nf-core dev branch (merged PRs)
-    if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'nf-core/rnadeseq') }}"
+    if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'qbic-pipelines/rnadeseq') }}"
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -40,13 +40,13 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:dev
+        run: docker build --no-cache . -t qbicpipelines/rnadeseq:2.0
 
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
           docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:dev
+          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:2.0
 
       - name: Install Nextflow
         env:
@@ -71,7 +71,6 @@ jobs:
       matrix:
         config:
           [
-            "test",
             "test_contrast_matrix",
             "test_contrast_list",
             "test_relevel",
@@ -92,10 +91,23 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:dev
+        run: docker build --no-cache . -t qbicpipelines/rnadeseq:2.0
 
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
+          docker pull qbicpipelines/rnadeseq:dev
+          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:2.0
+
+      - name: Install Nextflow
+        env:
+          NXF_VER: ${{ matrix.NXF_VER }}
+          # Uncomment only if the edge release is more recent than the latest stable release
+          # See https://github.com/nextflow-io/nextflow/issues/2467
+          # NXF_EDGE: ${{ matrix.NXF_EDGE }}
+        run: |
           wget -qO- get.nextflow.io | bash
           sudo mv nextflow /usr/local/bin/
+
+      - name: Run pipeline with test data
+        run: nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.config }},docker
