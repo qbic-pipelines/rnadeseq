@@ -117,163 +117,161 @@ theme_set(theme_classic())
 # list_enriched_pathways <- list()
 
 for (file in contrast_files){
-    if (!grepl("allgenes", file)) {
-        #Reading DE genes list
-        fname <- tools::file_path_sans_ext(basename(file))
+    #Reading DE genes list
+    fname <- tools::file_path_sans_ext(basename(file))
 
-        dir.create(paste(outdir, fname, sep="/"))
-        dir.create(paste(outdir, fname, pathway_heatmaps_dir, sep="/"))
-        dir.create(paste(outdir, fname, kegg_pathways_dir, sep="/"))
+    dir.create(paste(outdir, fname, sep="/"))
+    dir.create(paste(outdir, fname, pathway_heatmaps_dir, sep="/"))
+    dir.create(paste(outdir, fname, kegg_pathways_dir, sep="/"))
 
-        DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
-        DE_genes <- as.data.frame(DE_genes)
+    DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
+    DE_genes <- as.data.frame(DE_genes)
 
-        # Skip pathway analysis for the contrast if not 2 or more DE genes were found
-        if (nrow(DE_genes) < 2){
-            print(paste0("Not enough DE genes to allow for a pathway analysis for contrast: ", fname))
-            next
-        }
+    # Skip pathway analysis for the contrast if not 2 or more DE genes were found
+    if (nrow(DE_genes) < 2){
+        print(paste0("Not enough DE genes to allow for a pathway analysis for contrast: ", fname))
+        next
+    }
 
-        # Define list of Ensemble IDs (q) to run the pathway analysis
-        q = as.character(DE_genes$Ensembl_ID)
+    # Define list of Ensemble IDs (q) to run the pathway analysis
+    q = as.character(DE_genes$Ensembl_ID)
 
-        # gost query
-        gostres <- gost(query=q,
-                        organism=organism,
-                        significant=TRUE,
-                        correction_method="fdr",
-                        sources=datasources,
-                        evcodes=TRUE,
-                        user_threshold=0.05)
+    # gost query
+    gostres <- gost(query=q,
+                    organism=organism,
+                    significant=TRUE,
+                    correction_method="fdr",
+                    sources=datasources,
+                    evcodes=TRUE,
+                    user_threshold=0.05)
 
-        # Make data frame of gost result
-        pathway_gostres <- gostres$result
-        # Select only significantly enriched pathways (according to adjusted p-value)
-        pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
-        # Select only pathways with a min. number of DEG
-        pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
-        gostres$result <- pathway_gostres
-        # Plot pathways if there were any
-        if (nrow(pathway_gostres) > 0){
+    # Make data frame of gost result
+    pathway_gostres <- gostres$result
+    # Select only significantly enriched pathways (according to adjusted p-value)
+    pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
+    # Select only pathways with a min. number of DEG
+    pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
+    gostres$result <- pathway_gostres
+    # Plot pathways if there were any
+    if (nrow(pathway_gostres) > 0){
 
-            # annotate query size (number of DE genes in contrast)
-            pathway_gostres$original_query_size <- rep(length(q), nrow(pathway_gostres))
+        # annotate query size (number of DE genes in contrast)
+        pathway_gostres$original_query_size <- rep(length(q), nrow(pathway_gostres))
 
 
-            # Generate non-interactive pathway dotplots in the folder
-            pg <- gostplot(gostres, capped=T, interactive=F)
-            ggsave(pg, filename = paste0(outdir, "/", fname, "_gost_pathway_enrichment_plot.pdf"),
-                device="pdf",
-                height=10, width=15, units="cm", limitsize=F)
-            ggsave(pg, filename = paste0(outdir, "/", fname, "_gost_pathway_enrichment_plot.png"),
-                device="png",
-                height=10, width=15, units="cm", dpi=300, limitsize=F)
-        }
+        # Generate non-interactive pathway dotplots in the folder
+        pg <- gostplot(gostres, capped=T, interactive=F)
+        ggsave(pg, filename = paste0(outdir, "/", fname, "_gost_pathway_enrichment_plot.pdf"),
+            device="pdf",
+            height=10, width=15, units="cm", limitsize=F)
+        ggsave(pg, filename = paste0(outdir, "/", fname, "_gost_pathway_enrichment_plot.png"),
+            device="png",
+            height=10, width=15, units="cm", dpi=300, limitsize=F)
+    }
 
-        # Remove parents column to be able to save the table in tsv format
-        pathway_gostres_table = pathway_gostres
-        pathway_gostres_table$parents <- NULL
+    # Remove parents column to be able to save the table in tsv format
+    pathway_gostres_table = pathway_gostres
+    pathway_gostres_table$parents <- NULL
 
-        # Save pathway enrichment table in tsv format
-        write.table(pathway_gostres_table,
-                    file = paste0(outdir, "/", fname, "/", fname, "_pathway_enrichment_results.tsv"),
+    # Save pathway enrichment table in tsv format
+    write.table(pathway_gostres_table,
+                file = paste0(outdir, "/", fname, "/", fname, "_pathway_enrichment_results.tsv"),
+                sep="\t", quote = F, col.names = T, row.names = F)
+
+
+    # Printing summary variables
+    print("------------------------------------")
+    print(fname)
+    print("Number of genes in query:")
+    print(length(DE_genes$Ensembl_ID))
+    print("Number of pathways found:")
+    print(summary(as.factor(pathway_gostres_table$source)))
+    print("------------------------------------")
+
+    if (nrow(pathway_gostres) > 0){ #if there are enriched pathways
+        # Splitting results according to pathway resources (KEGG / REACTOME / GO)
+        res <- split(pathway_gostres, pathway_gostres$source)
+        for (df in res){
+        db_source <- df$source[1]
+        df$short_name <- sapply(df$term_name, substr, start=1, stop=50)
+
+        # Plotting results for df
+        df_subset <- data.frame(Pathway_name = df$short_name, Pathway_code = df$term_id, DE_genes = df$intersection_size, Pathway_size = df$term_size, Fraction_DE = (df$intersection_size / df$term_size), Padj = df$p_value)
+        write.table(df_subset,
+                    file = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"),
                     sep="\t", quote = F, col.names = T, row.names = F)
+        # Enriched pathways horizontal barplots of padj values
+        p <- ggplot(df_subset, aes(x=reorder(Pathway_name, Fraction_DE), y=Fraction_DE)) +
+            geom_bar(aes(fill=Padj), stat="identity", width = 0.7) +
+            geom_text(aes(label=paste0(df_subset$DE_genes, "/", df_subset$Pathway_size)), vjust=0.4, hjust=-0.5, size=3) +
+            coord_flip() +
+            scale_y_continuous(limits = c(0.00, 1.00)) +
+            scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
+            ggtitle("Enriched pathways") +
+            xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
+        ggsave(p, filename = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
+        ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
 
+        # Plotting heatmaps and KEGG pathways for all pathways
+        print("Plotting heatmaps...")
+        if (nrow(df) <= 100 & nrow(df) > 0) {
+            conditions <- grepl("Condition", colnames(metadata))
+            metadata_cond <- as.data.frame(metadata[,conditions])
+            metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
+            row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
-        # Printing summary variables
-        print("------------------------------------")
-        print(fname)
-        print("Number of genes in query:")
-        print(length(DE_genes$Ensembl_ID))
-        print("Number of pathways found:")
-        print(summary(as.factor(pathway_gostres_table$source)))
-        print("------------------------------------")
+            for (i in c(1:nrow(df))){
+            pathway <- df[i,]
+            gene_list <- unlist(strsplit(pathway$intersection, ","))
+            mat <- norm_counts[gene_list, ]
+            rownames(mat) <- mat$gene_name
+            mat$gene_name <- NULL
+            mat <- data.matrix(mat)
 
-        if (nrow(pathway_gostres) > 0){ #if there are enriched pathways
-            # Splitting results according to pathway resources (KEGG / REACTOME / GO)
-            res <- split(pathway_gostres, pathway_gostres$source)
-            for (df in res){
-            db_source <- df$source[1]
-            df$short_name <- sapply(df$term_name, substr, start=1, stop=50)
+            if (nrow(mat)>1){
+                png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
+                pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+                dev.off()
+                pdf(paste(outdir, "/", fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
+                pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+                dev.off()
+            }
 
-            # Plotting results for df
-            df_subset <- data.frame(Pathway_name = df$short_name, Pathway_code = df$term_id, DE_genes = df$intersection_size, Pathway_size = df$term_size, Fraction_DE = (df$intersection_size / df$term_size), Padj = df$p_value)
-            write.table(df_subset,
-                        file = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"),
-                        sep="\t", quote = F, col.names = T, row.names = F)
-            # Enriched pathways horizontal barplots of padj values
-            p <- ggplot(df_subset, aes(x=reorder(Pathway_name, Fraction_DE), y=Fraction_DE)) +
-                geom_bar(aes(fill=Padj), stat="identity", width = 0.7) +
-                geom_text(aes(label=paste0(df_subset$DE_genes, "/", df_subset$Pathway_size)), vjust=0.4, hjust=-0.5, size=3) +
-                coord_flip() +
-                scale_y_continuous(limits = c(0.00, 1.00)) +
-                scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
-                ggtitle("Enriched pathways") +
-                xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
-            ggsave(p, filename = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
-            ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+            # Plotting pathway view only for kegg pathways
+            if (pathway$source == "KEGG"){
+                pathway_kegg <- sapply(pathway$term_id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
+                # Try plotting pathways, ignore pathways graphs containing errors as pathview crashes if plotting them.
+                tryCatch({
+                    print(paste0("Plotting pathway: ", pathway_kegg))
+                    gene.data = DE_genes
+                    gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
 
-            # Plotting heatmaps and KEGG pathways for all pathways
-            print("Plotting heatmaps...")
-            if (nrow(df) <= 100 & nrow(df) > 0) {
-                conditions <- grepl("Condition", colnames(metadata))
-                metadata_cond <- as.data.frame(metadata[,conditions])
-                metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
-                row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
+                    entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=opt$keytype, multiVals="first")
 
-                for (i in c(1:nrow(df))){
-                pathway <- df[i,]
-                gene_list <- unlist(strsplit(pathway$intersection, ","))
-                mat <- norm_counts[gene_list, ]
-                rownames(mat) <- mat$gene_name
-                mat$gene_name <- NULL
-                mat <- data.matrix(mat)
+                    gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
 
-                if (nrow(mat)>1){
-                    png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
-                    pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
-                    dev.off()
-                    pdf(paste(outdir, "/", fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
-                    pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
-                    dev.off()
-                }
-
-                # Plotting pathway view only for kegg pathways
-                if (pathway$source == "KEGG"){
-                    pathway_kegg <- sapply(pathway$term_id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
-                    # Try plotting pathways, ignore pathways graphs containing errors as pathview crashes if plotting them.
-                    tryCatch({
-                        print(paste0("Plotting pathway: ", pathway_kegg))
-                        gene.data = DE_genes
-                        gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
-
-                        entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=opt$keytype, multiVals="first")
-
-                        gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
-
-                        if (length(entrez_ids)!=length(unique(entrez_ids))) {
-                            print(paste0("Skipping pathway: ", pathway_kegg,". This pathway has multiple IDs with same name."))
-                        } else {
-                            row.names(gene.data.subset) <- entrez_ids[!is.na(entrez_ids)]
-                            gene.data.subset$Ensembl_ID <- NULL
-                            pathview(gene.data  = gene.data.subset,
-                                    pathway.id = pathway_kegg,
-                                    species    = short_organism_name,
-                                    out.suffix=paste(fname,sep="_"))
-                            mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
-                            rm_command <- paste0("rm ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/", "*.xml")
-                            system(mv_command)
-                        }
-                        print_string <- paste0("Plotting pathway: ", pathway_kegg)
-                    }, error = function(e) {
-                        print_string <- paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database.")
-                    }, finally = {
-                        print(print_string)
-                    })
-                }
-                }
+                    if (length(entrez_ids)!=length(unique(entrez_ids))) {
+                        print(paste0("Skipping pathway: ", pathway_kegg,". This pathway has multiple IDs with same name."))
+                    } else {
+                        row.names(gene.data.subset) <- entrez_ids[!is.na(entrez_ids)]
+                        gene.data.subset$Ensembl_ID <- NULL
+                        pathview(gene.data  = gene.data.subset,
+                                pathway.id = pathway_kegg,
+                                species    = short_organism_name,
+                                out.suffix=paste(fname,sep="_"))
+                        mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
+                        rm_command <- paste0("rm ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/", "*.xml")
+                        system(mv_command)
+                    }
+                    print_string <- paste0("Plotting pathway: ", pathway_kegg)
+                }, error = function(e) {
+                    print_string <- paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database.")
+                }, finally = {
+                    print(print_string)
+                })
             }
             }
+        }
         }
     }
 }

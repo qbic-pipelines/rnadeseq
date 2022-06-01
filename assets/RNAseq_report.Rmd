@@ -439,20 +439,18 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     # Set plot theme
     theme_set(theme_bw(base_family = "ArialMT") +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
-    contrast_files <- list.files(path=paste0(wd, "/differential_gene_expression/DE_genes_tables/"))
+    allgenes_files <- list.files(path=paste0(wd, "/differential_gene_expression/allgenes/"))
     table_list <- list()
-    for (file in contrast_files){
-        if (grepl("allgenes", file, fixed = T))
-        {
-            #Reading DE genes list
-            fname <- tools::file_path_sans_ext(basename(file))
-            DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
-            DE_genes$contrast <- rep(fname, nrow(DE_genes))
-            # label: gene_name
-            # x: log2FoldChange
-            # y: -log10(padj)
-            table_list <- append(table_list, list(DE_genes))
-        }
+    #Use allgenes files for volcano plots to also show non-DE genes
+    for (file in allgenes_files){
+        #Reading DE genes list
+        fname <- tools::file_path_sans_ext(basename(file))
+        DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/allgenes/", file), sep="\t", header = T)
+        DE_genes$contrast <- rep(fname, nrow(DE_genes))
+        # label: gene_name
+        # x: log2FoldChange
+        # y: -log10(padj)
+        table_list <- append(table_list, list(DE_genes))
     }
     DE_all <- ldply(table_list, rbind)
     DE_all$logpval <- -log10(DE_all$padj)
@@ -489,7 +487,7 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
             }"
         )
     )
-    config(pg, modeBarButtonsToAdd = list(svg_exp)) %>% layout(margin = list(l = 100, b=100), width=700, height = 400*length(contrast_files[grepl("allgenes", contrast_files, fixed = T)]))
+    config(pg, modeBarButtonsToAdd = list(svg_exp)) %>% layout(margin = list(l = 100, b=100), width=700, height = 400*length(allgenes_files))
 ```
 
 ## Boxplots of gene normalized counts
@@ -539,6 +537,7 @@ The table below provides more detail on all enriched pathways."))
     contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
     q_list <- list()
     q_names <- c()
+    #Use non-allgenes files for PA to only show DE genes
     for (file in contrast_files){
         #Reading DE genes list
         fname <- tools::file_path_sans_ext(basename(file))
