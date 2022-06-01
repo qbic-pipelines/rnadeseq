@@ -1,9 +1,10 @@
 # qbic-pipelines/rnadeseq: Changelog
 
-## 2.0.0 - dev
+## 2.0 - Olive Trees
 
 ### Added
 
+- [#128](https://github.com/qbic-pipelines/rnadeseq/pull/128) Bump versions to 2.0
 - [#125](https://github.com/qbic-pipelines/rnadeseq/pull/125) Added test_relevel to github tests, added explanation to usage.md that --species is not necessary if skipping pathway analysis
 - [#123](https://github.com/qbic-pipelines/rnadeseq/pull/123) Export report volcano plots as SVG; save all plots additionally as PDF
 - [#122](https://github.com/qbic-pipelines/rnadeseq/pull/122) Add searchable/sortable tables to report
