@@ -17,9 +17,9 @@ The qbic-pipelines/rnadeseq pipeline comes with documentation about the pipeline
 
 1. [Installation](https://nf-co.re/usage/installation)
 2. Pipeline configuration
-    * [Local installation](https://nf-co.re/usage/local_installation)
-    * [Adding your own system config](https://nf-co.re/usage/adding_own_config)
-    * [Reference genomes](https://nf-co.re/usage/reference_genomes)
+   - [Local installation](https://nf-co.re/usage/local_installation)
+   - [Adding your own system config](https://nf-co.re/usage/adding_own_config)
+   - [Reference genomes](https://nf-co.re/usage/reference_genomes)
 3. [Running the pipeline](docs/usage.md)
 4. [Output and how to interpret the results](docs/output.md)
 5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
@@ -29,3 +29,5 @@ The qbic-pipelines/rnadeseq pipeline comes with documentation about the pipeline
 qbic-pipelines/rnadeseq was originally written by Gisela Gabernet (@ggabernet) and Silvia Morini (@silviamorins), at QBiC.
 
 The pipeline structure is based on the template by the `nf-core` project. For more information, please check out the [nf-core website](https://nf-co.re/).
+
+If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).

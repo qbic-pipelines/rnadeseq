@@ -1,5 +1,40 @@
 # qbic-pipelines/rnadeseq: Changelog
 
+## 2.0 - Olive Trees
+
+### Added
+
+- [#128](https://github.com/qbic-pipelines/rnadeseq/pull/128) Bump versions to 2.0
+- [#125](https://github.com/qbic-pipelines/rnadeseq/pull/125) Added test_relevel to github tests, added explanation to usage.md that --species is not necessary if skipping pathway analysis
+- [#123](https://github.com/qbic-pipelines/rnadeseq/pull/123) Export report volcano plots as SVG; save all plots additionally as PDF
+- [#122](https://github.com/qbic-pipelines/rnadeseq/pull/122) Add searchable/sortable tables to report
+- [#118](https://github.com/qbic-pipelines/rnadeseq/pull/118) Add parameter "--input_type" (and change --rawcounts to --gene_counts) to process featurecounts, rsem and salmon output from the new rnaseq; add igenomes.config to process different species
+- [#104](https://github.com/qbic-pipelines/rnadeseq/pull/104) Add parameter "--skip_pathway_analysis"
+- Bump versions to 1.4.0dev
+- Add parameter "--min_DE_genes"
+- [#97](https://github.com/qbic-pipelines/rnadeseq/pull/97) Update pipeline to DSL2
+- [#107](https://github.com/qbic-pipelines/rnadeseq/pull/107) Add parameter "--skip_rlog"
+- [#111](https://github.com/qbic-pipelines/rnadeseq/pull/111) Added enhanced volcano plots
+- [#93](https://github.com/qbic-pipelines/rnadeseq/pull/93/) Add parameter "--nsubgenes"
+
+### Changed
+
+- [#115](https://github.com/qbic-pipelines/rnadeseq/pull/115) Template update
+- [#117](https://github.com/qbic-pipelines/rnadeseq/pull/117) Turned LabID optional for report output in RNAseq_report.Rmd
+- Removed assets/report_options.yml
+- [#110](https://github.com/qbic-pipelines/rnadeseq/pull/110) Changed report to use rlog normalization by default, vst is used if --skip_rlog is enabled
+
+### Fixed
+
+- [#127](https://github.com/qbic-pipelines/rnadeseq/pull/127) Allgenes files are not introduced in the PA report section anymore except for volcano plots
+- [#126](https://github.com/qbic-pipelines/rnadeseq/pull/126) Allgenes files are not published in results anymore. Intermediate results are not zipped and published anymore
+- [#125](https://github.com/qbic-pipelines/rnadeseq/pull/125) Fixed relevel bug
+- [#118](https://github.com/qbic-pipelines/rnadeseq/pull/118) Removed blacklist parameter and config and instead added trycatch to ignore pathways with errors
+- [#105](https://github.com/qbic-pipelines/rnadeseq/pull/105) Fixed relevel and added test_relevel.config
+- [#106](https://github.com/qbic-pipelines/rnadeseq/pull/106) Fixed `--logFCthreshold` bug
+- [#108](https://github.com/qbic-pipelines/rnadeseq/pull/108) Fixed blacklist file not working
+- [#88](https://github.com/qbic-pipelines/rnadeseq/issues/88) Fixed volcano plot axis
+
 ## 1.3.2 - Almond Blossoms hotfix II
 
 ### Added
@@ -8,6 +43,7 @@
 - write deseq2 table to file
 
 ### Fixed
+
 - Contrast names in report plots
 - Convert species name to lower case also in report
 - LogFC is also reported in the report and set in volcano plots
