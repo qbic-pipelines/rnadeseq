@@ -5,16 +5,20 @@
 ### Added
 
 - [#131](https://github.com/qbic-pipelines/rnadeseq/pull/131) Added design_batcheffect.txt
+- [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Added test_batcheffect to github tests
 
 ### Changed
 
 - [#131](https://github.com/qbic-pipelines/rnadeseq/pull/131) Changed Sample_preparations.tsv by adding batch column
 
+## Fixed
+
+- [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Fixed batch effect bug
+
 ## 2.0 - Olive Trees
 
 ### Added
 
-- [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Added test_batcheffect to github tests
 - [#128](https://github.com/qbic-pipelines/rnadeseq/pull/128) Bump versions to 2.0
 - [#125](https://github.com/qbic-pipelines/rnadeseq/pull/125) Added test_relevel to github tests, added explanation to usage.md that --species is not necessary if skipping pathway analysis
 - [#123](https://github.com/qbic-pipelines/rnadeseq/pull/123) Export report volcano plots as SVG; save all plots additionally as PDF
@@ -37,7 +41,6 @@
 
 ### Fixed
 
-- [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Fixed batch effect bug
 - [#127](https://github.com/qbic-pipelines/rnadeseq/pull/127) Allgenes files are not introduced in the PA report section anymore except for volcano plots
 - [#126](https://github.com/qbic-pipelines/rnadeseq/pull/126) Allgenes files are not published in results anymore. Intermediate results are not zipped and published anymore
 - [#125](https://github.com/qbic-pipelines/rnadeseq/pull/125) Fixed relevel bug
