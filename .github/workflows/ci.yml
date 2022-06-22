@@ -40,13 +40,13 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:2.0
+        run: docker build --no-cache . -t qbicpipelines/rnadeseq:dev
 
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
           docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:2.0
+          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:dev
 
       - name: Install Nextflow
         env:
@@ -78,6 +78,7 @@ jobs:
             "test_star_rsem",
             "test_star_salmon",
             "test_use_vst",
+            "test_batcheffect",
           ]
     steps:
       - name: Check out pipeline code
@@ -91,13 +92,13 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:2.0
+        run: docker build --no-cache . -t qbicpipelines/rnadeseq:dev
 
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
           docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:2.0
+          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:dev
 
       - name: Install Nextflow
         env:

@@ -5,10 +5,15 @@
 ### Added
 
 - [#131](https://github.com/qbic-pipelines/rnadeseq/pull/131) Added design_batcheffect.txt
+- [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Added test_batcheffect to github tests
 
 ### Changed
 
 - [#131](https://github.com/qbic-pipelines/rnadeseq/pull/131) Changed Sample_preparations.tsv by adding batch column
+
+## Fixed
+
+- [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Fixed batch effect bug
 
 ## 2.0 - Olive Trees
 

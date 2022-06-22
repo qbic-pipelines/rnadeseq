@@ -579,7 +579,12 @@ ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.png",
 
 ########################### PCA PLOT with batch-corrected data ############
 if(opt$batchEffect){
-    assay(if (opt$rlog) rld else vsd) <- limma::removeBatchEffect(assay(if (opt$rlog) rld else vsd), (if (opt$rlog) rld else vsd)$batch)
+    if (opt$rlog) {
+        assay(rld) <- limma::removeBatchEffect(assay(rld), rld$batch)
+    }
+    else {
+        assay(vsd) <- limma::removeBatchEffect(assay(vsd), vsd$batch)
+    }
     pcaData2 <- plotPCA(if (opt$rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (opt$rlog) rld else vsd)[1], returnData=TRUE)
     percentVar <- round(100*attr(pcaData, "percentVar"))
     pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor)) +
