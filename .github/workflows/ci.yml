@@ -40,13 +40,13 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:dev
+        run: docker build --no-cache . -t qbicpipelines/rnadeseq:2.0.1
 
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
-          docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:dev
+          docker pull qbicpipelines/rnadeseq:2.0.1
+          docker tag qbicpipelines/rnadeseq:2.0.1 qbicpipelines/rnadeseq:2.0.1
 
       - name: Install Nextflow
         env:
@@ -92,13 +92,13 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:dev
+        run: docker build --no-cache . -t qbicpipelines/rnadeseq:2.0.1
 
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
-          docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:dev
+          docker pull qbicpipelines/rnadeseq:2.0.1
+          docker tag qbicpipelines/rnadeseq:2.0.1 qbicpipelines/rnadeseq:2.0.1
 
       - name: Install Nextflow
         env:
