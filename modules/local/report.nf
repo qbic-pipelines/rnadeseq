@@ -65,6 +65,8 @@ process REPORT {
     --input_type $params.input_type \
     $pathwayopt \
     $rlog_opt
+    # Remove allgenes dir as the contained files do not contain only DE genes
+    rm -r differential_gene_expression/allgenes
     if [ "$pathwayopt" == "--pathway_analysis" ]; then
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quoteopt
     else
