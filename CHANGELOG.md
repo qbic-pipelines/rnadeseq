@@ -1,5 +1,22 @@
 # qbic-pipelines/rnadeseq: Changelog
 
+## 2.0.1 - Olive Trees hotfix I
+
+### Added
+
+- [#134](https://github.com/qbic-pipelines/rnadeseq/pull/134) Corrected some versions
+- [#132](https://github.com/qbic-pipelines/rnadeseq/pull/132) Bump version to 2.0.1
+- [#131](https://github.com/qbic-pipelines/rnadeseq/pull/131) Added design_batcheffect.txt
+- [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Added test_batcheffect to github tests
+
+### Changed
+
+- [#131](https://github.com/qbic-pipelines/rnadeseq/pull/131) Changed Sample_preparations.tsv by adding batch column
+
+## Fixed
+
+- [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Fixed batch effect bug
+
 ## 2.0 - Olive Trees
 
 ### Added
