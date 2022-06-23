@@ -45,8 +45,8 @@ jobs:
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
-          docker pull qbicpipelines/rnadeseq:2.0.1
-          docker tag qbicpipelines/rnadeseq:2.0.1 qbicpipelines/rnadeseq:2.0.1
+          docker pull qbicpipelines/rnadeseq:dev
+          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:2.0.1
 
       - name: Install Nextflow
         env:
@@ -97,8 +97,8 @@ jobs:
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
-          docker pull qbicpipelines/rnadeseq:2.0.1
-          docker tag qbicpipelines/rnadeseq:2.0.1 qbicpipelines/rnadeseq:2.0.1
+          docker pull qbicpipelines/rnadeseq:dev
+          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:2.0.1
 
       - name: Install Nextflow
         env:
