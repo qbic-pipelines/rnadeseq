@@ -30,7 +30,7 @@ process REPORT {
     def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel $relevel" : ''
     def batch_effect_opt = params.batch_effect ? "--batchEffect TRUE" : ''
     def rlog_opt = params.use_vst ? '--rlog FALSE' : ''
-
+    def nsub_genes_opt = params.vst_genes_number ? "--nsub_genes $vst_genes_number" : ''
 
     def quoteopt = quote.name != 'NO_FILE4' ? "$quote" : ''
     def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
@@ -61,6 +61,7 @@ process REPORT {
     $batch_effect_opt \
     --min_DEG_pathway $params.min_DEG_pathway \
     --species_library $params.library \
+    $nsub_genes_opt \
     --keytype $params.keytype \
     --input_type $params.input_type \
     $pathwayopt \

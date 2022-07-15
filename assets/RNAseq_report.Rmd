@@ -467,7 +467,8 @@ if (params$rlog){
     }
 } else {
     # vst transformation
-    vsd <- vst(cds, blind=FALSE)
+    # TODO: check if nsub works!
+    vsd <- vst(cds, blind=FALSE, nsub = opt$nsub_genes)
     vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
     write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
     #save table to another variable if pathway analysis
