@@ -13,8 +13,6 @@ Learn more about contributing: [CONTRIBUTING.md](https://github.com/qbic-pipelin
 
 ## PR checklist
 
-//TODO: Change nf-core? In "If necessary, also...", this does not make much sense, maybe just delete?
-
 - [ ] This comment contains a description of changes (with reason).
 - [ ] If you've fixed a bug or added code that should be tested, add tests!
   - [ ] If you've added a new tool - have you followed the pipeline conventions in the [contribution docs](https://github.com/nf-core/rnadeseq/tree/master/.github/CONTRIBUTING.md)

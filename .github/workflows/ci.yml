@@ -16,7 +16,7 @@ jobs:
   test:
     name: Run pipeline with test data
     # Only run on push if this is the nf-core dev branch (merged PRs)
-    if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'nf-core/rnadeseq') }}"
+    if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'qbic-pipelines/rnadeseq') }}"
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -72,6 +72,7 @@ jobs:
         config:
           [
             "test",
+            "test_contrast_matrix",
             "test_contrast_list",
             "test_contrast_matrix",
             "test_no_multiqc",
@@ -80,6 +81,7 @@ jobs:
             "test_star_rsem",
             "test_star_salmon",
             "test_use_vst",
+            "test_batcheffect",
           ]
     steps:
       - name: Check out pipeline code
@@ -98,5 +100,18 @@ jobs:
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
+          docker pull qbicpipelines/rnadeseq:dev
+          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:dev
+
+      - name: Install Nextflow
+        env:
+          NXF_VER: ${{ matrix.NXF_VER }}
+          # Uncomment only if the edge release is more recent than the latest stable release
+          # See https://github.com/nextflow-io/nextflow/issues/2467
+          # NXF_EDGE: ${{ matrix.NXF_EDGE }}
+        run: |
           wget -qO- get.nextflow.io | bash
           sudo mv nextflow /usr/local/bin/
+
+      - name: Run pipeline with test data
+        run: nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.config }},docker
