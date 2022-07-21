@@ -925,7 +925,7 @@ To perform differential gene expression analysis, the gene expression data betwe
 These comparisons are called _contrasts_. For this analysis, the following contrasts or comparisons were made:
 
 <!-- contrast calculation start -->
-```{r, eval=params$pathway_analysis, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
 # Contrasts coefficient table write in metadata
 coefficients <- resultsNames(cds)
 coef_tab <- data.frame(coef=coefficients)
@@ -1031,7 +1031,9 @@ if (!(isNot(params$path_contrast_pairs))) {
 }
 # Calculating DE genes for default contrasts (no contrast matrix or list or pairs provided)
 if (isNot(params$path_contrast_matrix) & isNot(params$path_contrast_list) & isNot(params$path_contrast_pairs)) {
+    capture.output(coefficients, file="/mnt/volume/git/rnadeseq/bug/coeff")
     contrast_names <- coefficients[2:length(coefficients)]
+    capture.output(contrast_names, file="/mnt/volume/git/rnadeseq/bug/cont1")
     for (contname in contrast_names) {
         results_DEseq_contrast <- results(cds, name=contname)
         results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
@@ -1057,6 +1059,7 @@ if (isNot(params$path_contrast_matrix) & isNot(params$path_contrast_list) & isNo
 }
 # Write contrast names to file
 write(contrast_names, file="contrast_names.txt", sep="\t")
+capture.output(contrast_names, file="/mnt/volume/git/rnadeseq/bug/contrast_names2.txt")
 # Remove identical columns of DE_genes_df
 DE_genes_df$DE_genes_df <- NULL
 idx <- duplicated(t(DE_genes_df))
