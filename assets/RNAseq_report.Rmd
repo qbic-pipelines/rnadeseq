@@ -196,8 +196,8 @@ description = as.character(df$Description)
 library(yaml)
 design_deseq2 <- paste(readLines(params$path_design), collapse=" ")
 #prepare logFC threshold for report text
-log_FC_text <- as.character(params$log_FC)
-log_FC_num <- as.numeric(params$log_FC)
+log_FC_text <- as.character(params$log_FC_threshold)
+log_FC_num <- as.numeric(params$log_FC_threshold)
 ```
 
 ---
@@ -1043,62 +1043,26 @@ if (!(isNot(params$path_contrast_pairs))) {
 if (isNot(params$path_contrast_matrix) & isNot(params$path_contrast_list) & isNot(params$path_contrast_pairs)) {
     contrast_names <- coefficients[2:length(coefficients)]
     for (contname in contrast_names) {
-        capture.output("", file="/mnt/volume/git/rnadeseq/bug/contnames", append=F)
-        capture.output(contname, file="/mnt/volume/git/rnadeseq/bug/contnames", append=T)
         results_DEseq_contrast <- results(cds, name=contname)
         results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
         print("Analyzing contrast:")
         print(contname)
         # Adding gene name to table
         DE_genes_contrast_genename <- results_DEseq_contrast
-        capture.output(DE_genes_contrast_genename, file="/mnt/volume/git/rnadeseq/bug/DE_genes_contrast_genename1", append=F)
         DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x ="Ensembl_ID", by.y="Ensembl_ID", all.x=T)
-        capture.output(DE_genes_contrast_genename, file="/mnt/volume/git/rnadeseq/bug/DE_genes_contrast_genename2", append=F)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
-        capture.output(DE_genes_contrast_genename, file="/mnt/volume/git/rnadeseq/bug/DE_genes_contrast_genename3", append=F)
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
-        capture.output(DE_genes_contrast_genename, file="/mnt/volume/git/rnadeseq/bug/DE_genes_contrast_genename4", append=F)
-        capture.output(DE_genes_contrast_genename$Ensembl_ID, file="/mnt/volume/git/rnadeseq/bug/DE_genes_contrast_genename$Ensembl_ID", append=F)
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         # Select only significantly DE
-        capture.output(DE_genes_contrast_genename$padj, file="/mnt/volume/git/rnadeseq/bug/padj", append=F)
-        pups <- subset(DE_genes_contrast_genename, padj < 0.05)
-        pups <- pups$padj
-        capture.output("pups11", file="/mnt/volume/git/rnadeseq/bug/status", append=T)
-        capture.output(pups, file="/mnt/volume/git/rnadeseq/bug/padjf", append=F)
-        pups2 <- subset(DE_genes_contrast_genename, abs(log2FoldChange) > params$log_FC_threshold)
-        capture.output("pups21", file="/mnt/volume/git/rnadeseq/bug/status", append=T)
-        pups2 <- pups2$log2FoldChange
-        capture.output("pups22", file="/mnt/volume/git/rnadeseq/bug/status", append=T)
-        capture.output(pups2, file="/mnt/volume/git/rnadeseq/bug/logf", append=F)
-        pups3 <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > params$log_FC_threshold)
-        capture.output(params$log2FoldChange, file="/mnt/volume/git/rnadeseq/bug/status", append=T)
-        capture.output("median", file="/mnt/volume/git/rnadeseq/bug/status", append=T)
-        capture.output(median(pups2), file="/mnt/volume/git/rnadeseq/bug/status", append=T)
-        capture.output("typeof", file="/mnt/volume/git/rnadeseq/bug/status", append=T)
-        capture.output(typeof(pups2), file="/mnt/volume/git/rnadeseq/bug/status", append=T)
-        capture.output(pups2[1][1], file="/mnt/volume/git/rnadeseq/bug/status", append=T)
-        capture.output(typeof(pups2[1][1]), file="/mnt/volume/git/rnadeseq/bug/status", append=T)
-
-        capture.output(length(pups2), file="/mnt/volume/git/rnadeseq/bug/status", append=T)
-        capture.output("length", file="/mnt/volume/git/rnadeseq/bug/status", append=T)
-        capture.output("pups31", file="/mnt/volume/git/rnadeseq/bug/status", append=T)
-        pups3 <- pups3["padj","log2FoldChange",drop=F]
-        capture.output("pups32", file="/mnt/volume/git/rnadeseq/bug/status", append=T)
-        capture.output(pups3, file="/mnt/volume/git/rnadeseq/bug/dropf", append=F)
-
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > params$log_FC_threshold)
-        capture.output(DE_genes_contrast, file="/mnt/volume/git/rnadeseq/bug/DE_genes_contrast1", append=F)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Save table
-        capture.output(DE_genes_contrast, file="/mnt/volume/git/rnadeseq/bug/DE_genes_contrast2", append=F)
         write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
         # Append to DE genes table for all contrasts
         DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
-        capture.output(DE_genes_df, file="/mnt/volume/git/rnadeseq/bug/DE_genes_df", append=F)
     }
 }
 # Write contrast names to file
@@ -1232,7 +1196,7 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     log2FoldChange_min <- min(DE_all$log2FoldChange)
     log2FoldChange_max <- max(DE_all$log2FoldChange)
     pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
-            geom_point(alpha=0.5, aes(color=ifelse(abs(DE_all$log2FoldChange) > params$log_FC &  DE_all$logpval > -log10(pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
+            geom_point(alpha=0.5, aes(color=ifelse(abs(DE_all$log2FoldChange) > params$log_FC_threshold &  DE_all$logpval > -log10(pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
             geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
             geom_hline(yintercept = -log10(pval_threshold), size = 0.2, color = "grey") +
             geom_vline(xintercept = log_FC_num, size = 0.2, color = "grey") +
@@ -1652,35 +1616,22 @@ The table below provides more detail on all enriched pathways."))
     library(gprofiler2)
     #TODO: check if here, only the filtered genes are necessary
     contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
-    write("diff ex:", file="/home/centos/git/rnadeseq/status", append=F)
-    capture.output(list.dirs(path=paste0("differential_gene_expression/")), file="/home/centos/git/rnadeseq/status", append=T)
-    write("DE_genes_tables:", file="/home/centos/git/rnadeseq/status", append=T)
-    capture.output(list.dirs(path=paste0("differential_gene_expression/DE_genes_tables/")), file="/home/centos/git/rnadeseq/status", append=T)
     q_list <- list()
     q_names <- c()
     #Use non-allgenes files for PA to only show DE genes
     for (file in contrast_files){
         #Reading DE genes list
         fname <- tools::file_path_sans_ext(basename(file))
-        write("fname:", file="/home/centos/git/rnadeseq/status", append=T)
-        capture.output(fname, file="/home/centos/git/rnadeseq/status", append=T)
         DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
         if(nrow(DE_genes) <= 1){
             next
         }
-        write("DE_genes:", file="/home/centos/git/rnadeseq/status", append=T)
-        capture.output(DE_genes, file="/home/centos/git/rnadeseq/status", append=T)
         q = as.character(DE_genes$Ensembl_ID)
-        write("q:", file="/home/centos/git/rnadeseq/status", append=T)
-        capture.output(q, file="/home/centos/git/rnadeseq/status", append=T)
         q_list <- append(q_list, list(q))
         q_names <- append(q_names, fname)
     }
     datasources <- c("KEGG","REAC")
     names(q_list) <- q_names
-    write("q_names:", file="/home/centos/git/rnadeseq/status", append=T)
-        capture.output(file, file="/home/centos/git/rnadeseq/status", append=T)
-    capture.output(q_names, file="/home/centos/git/rnadeseq/qlist")
     if (!length(q_list)) {
         stop("list empty?!?")
     }
