@@ -25,9 +25,13 @@
                 "project_summary": {
                     "type": "string",
                     "description": "Project summary file downloaded from the qPortal."
+                },
+                "multiqc": {
+                    "type": "string",
+                    "description": "multiqc.zip folder containing the multiQC plots and report."
                 }
             },
-            "required": ["metadata", "model", "project_summary", "gene_counts"]
+            "required": ["metadata", "model", "project_summary", "multiqc", "gene_counts"]
         },
         "options": {
             "title": "Options",
@@ -94,11 +98,6 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Set this flag to true to use vst transformation (recommended when >50 samples; if false, will use rlog)"
-                },
-                "multiqc": {
-                    "type": "string",
-                    "default": "NO_FILE3",
-                    "description": "multiqc.zip folder containing the multiQC plots and report."
                 }
             }
         },
@@ -193,53 +192,47 @@
             "$ref": "#/definitions/other_options"
         }
     ],
-    "reference_genome_options": {
-        "title": "Reference genome options",
-        "type": "object",
-        "fa_icon": "fas fa-dna",
-        "description": "Reference genome related files and options required for the workflow.",
-        "properties": {
-            "show_hidden_params": {
-                "type": "boolean"
-            },
-            "input_type": {
-                "type": "string",
-                "default": "featurecounts",
-                "description": "Which type of input is provided, one of featurecounts, rsem, salmon"
-            },
-            "genome": {
-                "type": "string",
-                "default": null,
-                "description": "Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available."
-            },
-            "gtf": {
-                "type": "string",
-                "default": null,
-                "description": "Not necessary if genome is set. GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts."
-            },
-            "organism": {
-                "type": "string",
-                "default": null,
-                "description": "Not necessary if genome is set. Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--skip_pathway_analysis = true`."
-            },
-            "library": {
-                "type": "string",
-                "default": null,
-                "description": "Not necessary if genome is set. Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --skip_pathway_analysis = true."
-            },
-            "keytype": {
-                "type": "string",
-                "default": null,
-                "description": "Not necessary if genome is set. Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if --skip_pathway_analysis = true."
-            },
-            "igenomes_base": {
-                "type": "string",
-                "default": "s3://ngi-igenomes/igenomes"
-            },
-            "igenomes_ignore": {
-                "type": "boolean",
-                "default": false
-            }
+    "properties": {
+        "show_hidden_params": {
+            "type": "boolean"
+        },
+        "input_type": {
+            "type": "string",
+            "default": "featurecounts",
+            "description": "Which type of input is provided, one of featurecounts, rsem, salmon"
+        },
+        "genome": {
+            "type": "string",
+            "default": null,
+            "description": "Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available."
+        },
+        "gtf": {
+            "type": "string",
+            "default": null,
+            "description": "Not necessary if genome is set. GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts."
+        },
+        "organism": {
+            "type": "string",
+            "default": null,
+            "description": "Not necessary if genome is set. Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--skip_pathway_analysis = true`."
+        },
+        "library": {
+            "type": "string",
+            "default": null,
+            "description": "Not necessary if genome is set. Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --skip_pathway_analysis = true."
+        },
+        "keytype": {
+            "type": "string",
+            "default": null,
+            "description": "Not necessary if genome is set. Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if --skip_pathway_analysis = true."
+        },
+        "igenomes_base": {
+            "type": "string",
+            "default": "s3://ngi-igenomes/igenomes"
+        },
+        "igenomes_ignore": {
+            "type": "boolean",
+            "default": false
         }
     }
 }
