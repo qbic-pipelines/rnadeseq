@@ -23,9 +23,9 @@ process REPORT {
     script:
 
     def genelist_opt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
-    def contrast_matrix_opt = contrast_matrix.name != 'DEFAULT' ? "--contrasts_matrix $contrast_matrix" : ''
-    def contrast_list_opt = contrast_list.name != 'DEFAULT1' ? "--contrasts_list $contrast_list" : ''
-    def contrast_pairs_opt = contrast_pairs.name != 'DEFAULT2' ? "--contrasts_pairs $contrast_pairs" : ''
+    def contrast_matrix_opt = contrast_matrix.name != 'DEFAULT' ? "--contrast_matrix $contrast_matrix" : ''
+    def contrast_list_opt = contrast_list.name != 'DEFAULT1' ? "--contrast_list $contrast_list" : ''
+    def contrast_pairs_opt = contrast_pairs.name != 'DEFAULT2' ? "--contrast_pairs $contrast_pairs" : ''
     def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel $relevel" : ''
     def batch_effect_opt = params.batch_effect ? "--batchEffect TRUE" : ''
     def rlog_opt = params.use_vst ? '--rlog FALSE' : ''
