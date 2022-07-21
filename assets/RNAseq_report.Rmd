@@ -1417,8 +1417,6 @@ for (file in contrast_files){
     if (nrow(pathway_gostres) > 0){
         # annotate query size (number of DE genes in contrast)
         pathway_gostres$original_query_size <- rep(length(q), nrow(pathway_gostres))
-
-
         # Generate non-interactive pathway dotplots in the folder
         pg <- gostplot(gostres, capped=T, interactive=F)
         ggsave(pg, filename = paste0(outdir, "/", fname, "_gost_pathway_enrichment_plot.pdf"),
