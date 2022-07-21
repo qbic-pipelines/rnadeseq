@@ -54,7 +54,7 @@ params:
     organism: ''
     species_library: ''
     batch_effect: ''
-    log_FC: ''
+    log_FC_threshold: ''
     nsub_genes: ''
     revision: ''
     pathway_analysis: ''
@@ -188,16 +188,6 @@ PI_organization = as.character(df$PI.Organization)
 PM = as.character(df$Project.Manager)
 PM_email = as.character(df$Manager.E.Mail)
 description = as.character(df$Description)
-```
-
-<!-- load design.txt -->
-
-```{r load_config, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
-library(yaml)
-design_deseq2 <- paste(readLines(params$path_design), collapse=" ")
-#prepare logFC threshold for report text
-log_FC_text <- as.character(params$log_FC_threshold)
-log_FC_num <- as.numeric(params$log_FC_threshold)
 ```
 
 ---
@@ -1122,6 +1112,10 @@ for (i in 1:length(contrnames)){
 }
 ```
 
+```{r load_config, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+log_FC_text <- as.character(params$log_FC_threshold)
+```
+
 ## List of differentially expressed genes
 
 The analysis of the differential gene expression was performed using `DESeq2`.
@@ -1173,6 +1167,8 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
 ```
 
 ```{r, out.width="100%", out.height="100%"}
+    #prepare logFC threshold for report text
+    log_FC_num <- as.numeric(params$log_FC_threshold)
     # Set plot theme
     theme_set(theme_bw(base_family = "ArialMT") +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
@@ -1196,11 +1192,12 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     log2FoldChange_min <- min(DE_all$log2FoldChange)
     log2FoldChange_max <- max(DE_all$log2FoldChange)
     pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
+            #this goes after alpha=0.5:
             geom_point(alpha=0.5, aes(color=ifelse(abs(DE_all$log2FoldChange) > params$log_FC_threshold &  DE_all$logpval > -log10(pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
             geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
             geom_hline(yintercept = -log10(pval_threshold), size = 0.2, color = "grey") +
-            geom_vline(xintercept = log_FC_num, size = 0.2, color = "grey") +
-            geom_vline(xintercept = -log_FC_num, size = 0.2, color = "grey") +
+            geom_vline(xintercept = 0.05, size = 0.2, color = "grey") +
+            geom_vline(xintercept = -0.05, size = 0.2, color = "grey") +
             scale_color_manual(name = "", values=c("red", "black")) +
             scale_y_continuous(limits = c(1, 18)) +
             scale_x_continuous(breaks = seq(-200, 200, 1)) +
@@ -1328,7 +1325,7 @@ invisible(lapply(c(
 # Need to load library for your species! Or provide as parameter to biocmanager
 
 #TODO: This is the PA start
-organism <- tolower(params$species)
+organism <- tolower(params$organism)
 short_organism_name <- substr(organism,1,3)
 species_dir <- tempdir()
 if (!require("BiocManager", quietly = TRUE)) {
@@ -1399,15 +1396,15 @@ for (file in contrast_files){
 
     # Define list of Ensemble IDs (q) to run the pathway analysis
     q = as.character(DE_genes$Ensembl_ID)
-
     # gost query
     gostres <- gost(query=q,
-                    organism=organism,
-                    significant=TRUE,
-                    correction_method="fdr",
-                    sources=datasources,
-                    evcodes=TRUE,
-                    user_threshold=0.05)
+            organism=organism,
+            significant=TRUE,
+            correction_method="fdr",
+            sources=datasources,
+            evcodes=TRUE,
+            user_threshold=0.05)
+
 
     # Make data frame of gost result
     pathway_gostres <- gostres$result
