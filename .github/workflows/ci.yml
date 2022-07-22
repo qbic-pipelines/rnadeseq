@@ -117,3 +117,7 @@ jobs:
 
       - name: Run pipeline with test data
         run: nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.config }},docker
+
+      - name: Call md5sum workflows
+        call-workflow:
+          uses: profile_tests/test.yml

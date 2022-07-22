@@ -14,7 +14,7 @@ env:
 
 jobs:
   test:
-    name: Run pipeline with test data
+    name: Check results of pipeline run with test data
     # Only run on push if this is the nf-core dev branch (merged PRs)
     runs-on: ubuntu-latest
     strategy:
