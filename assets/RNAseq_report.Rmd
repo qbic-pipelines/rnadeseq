@@ -852,7 +852,8 @@ suppressMessages(ggsave(plot = pca, filename = "differential_gene_expression/plo
 suppressMessages(ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg", device = "svg", dpi = 150))
 suppressMessages(ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.png", device = "png", dpi = 150))
 ########################### PCA PLOT with batch-corrected data ############
-if(!isNot(params$batchEffect)){
+capture.output(!isNot(params$batch_effect), file="/mnt/volume/git/rnadeseq/bug/status", append=T)
+if(!isNot(params$batch_effect)){
     if (opt$rlog) {
         assay(rld) <- limma::removeBatchEffect(assay(rld), rld$batch)
     }
@@ -861,12 +862,14 @@ if(!isNot(params$batchEffect)){
     }
     pcaData2 <- plotPCA(if (params$rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
     percentVar <- round(100*attr(pcaData, "percentVar"))
+    write("running pca2", file="/mnt/volume/git/rnadeseq/bug/status", append=T)
     pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor)) +
                 geom_point(size=3)+
                 xlab(paste0("PC1: ", percentVar[1],"% variance")) +
                 ylab(paste0("PC2: ", percentVar[2], "% variance")) +
                 theme(legend.title = element_blank()) +
                 coord_fixed()
+    capture.output(pca2, file="/mnt/volume/git/rnadeseq/bug/pca2")
     suppressMessages(ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.pdf", device = "pdf", dpi=300))
     suppressMessages(ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.svg", device = "svg", dpi = 150))
     suppressMessages(ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.png", device = "png", dpi = 150))
@@ -967,7 +970,7 @@ if (!(isNot(params$path_contrast_matrix))){
     contrast_names <- append(contrast_names, colnames(contrasts))
 }
 if (!(isNot(params$path_contrast_list))) {
-    contrasts <- read.table(path_contrast_list, sep="\t", header=T, colClasses = "character")
+    contrasts <- read.table(params$path_contrast_list, sep="\t", header=T, colClasses = "character")
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv", quote=F)
     ## Contrast calculation for contrast list
     for (i in c(1:nrow(contrasts))) {
