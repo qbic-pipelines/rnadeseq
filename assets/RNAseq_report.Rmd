@@ -64,7 +64,7 @@ params:
 # Author: Silvia Morini, Gisela Gabernet, Simon Heumos
 ---
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
+```{r param_validation, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
 #self-written isNot function that tests for zero-length, emptystring and NULL (for some reason, some params cannot be tested with emptystring)
 isNot <- function(value) {
     tryCatch(
