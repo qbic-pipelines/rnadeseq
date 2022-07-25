@@ -154,7 +154,7 @@ invisible( lapply(c(
 ), library, character.only=T))
 ```
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
+```{r create_outdirs, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
 # create directories needed
 ifelse(!dir.exists("differential_gene_expression"), dir.create("differential_gene_expression"), FALSE)
 dir.create("differential_gene_expression/metadata")
