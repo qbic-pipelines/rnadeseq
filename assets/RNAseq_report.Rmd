@@ -256,7 +256,7 @@ pval_threshold <- 0.05  #set here the non-logarithmized threshold for the p valu
 pval_text <- as.character(pval_threshold)
 ```
 
-```{r setup, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+```{r read_metadata, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 ####### LOADING AND PROCESSING COUNT TABLE AND METADATA TABLE #####################################
 # Load metadata: sample preparations tsv file from qPortal
 metadata <- read.table(params$path_metadata, sep="\t", header=TRUE,na.strings =c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
