@@ -1324,7 +1324,6 @@ invisible(lapply(c(
 ), library, character.only=T))
 # Need to load library for your species! Or provide as parameter to biocmanager
 
-#TODO: This is the PA start
 organism <- tolower(params$organism)
 short_organism_name <- substr(organism,1,3)
 species_dir <- tempdir()
@@ -1337,6 +1336,9 @@ library(params$species_library, lib.loc=species_dir, character.only=T)
 library <- get(params$species_library)
 
 # Default to 1 for the nb of genes DE in a pathway
+
+capture.output(params$min_DEG_pathway, file="/mnt/volume/git/rnadeseq/bla/mindegpar", append=T)
+capture.output(typeof(params$min_DEG_pathway), file="/mnt/volume/git/rnadeseq/bla/mindegpar", append=T)
 min_DEG_pathway <- as.integer(params$min_DEG_pathway)
 # Contrast files
 contrast_files <- list.files('differential_gene_expression/DE_genes_tables/')
@@ -1347,12 +1349,8 @@ metadata <- metadata_PA
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name) # Remove blank spaces and ; from secondary name
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name) # Remove blank spaces if there from secondary name
 
-#TODO: make conditional
 # Create output directory
-outdir <- "pathway_analysis"
-dir.create(outdir)
-pathway_heatmaps_dir <- "pathway_heatmaps"
-kegg_pathways_dir <- "KEGG_pathways"
+dir.create("pathway_analysis")
 
 # ------------------
 # Set default params
@@ -1377,16 +1375,17 @@ theme_set(theme_classic())
 # number_enriched_pathways <- c()
 # list_DE_genes <- list()
 # list_enriched_pathways <- list()
-
+capture.output(contrast_files, file="/mnt/volume/git/rnadeseq/bla/contrast_files", append=T)
 for (file in contrast_files){
     #Reading DE genes list
     fname <- tools::file_path_sans_ext(basename(file))
 
-    dir.create(paste(outdir, fname, sep="/"))
-    dir.create(paste(outdir, fname, pathway_heatmaps_dir, sep="/"))
-    dir.create(paste(outdir, fname, kegg_pathways_dir, sep="/"))
+    dir.create(paste("pathway_analysis", fname, sep="/"))
+    dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
+    dir.create(paste("pathway_analysis", fname, "KEGG_pathways", sep="/"))
     DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
     DE_genes <- as.data.frame(DE_genes)
+    capture.output(DE_genes, file="/mnt/volume/git/rnadeseq/bla/de_genes", append=T)
 
     # Skip pathway analysis for the contrast if not 2 or more DE genes were found
     if (nrow(DE_genes) < 2){
@@ -1408,21 +1407,27 @@ for (file in contrast_files){
 
     # Make data frame of gost result
     pathway_gostres <- gostres$result
+    capture.output(pathway_gostres, file="/mnt/volume/git/rnadeseq/bla/gostres", append=T)
     # Select only significantly enriched pathways (according to adjusted p-value)
     pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
+    capture.output(pathway_gostres, file="/mnt/volume/git/rnadeseq/bla/gostressig", append=T)
     # Select only pathways with a min. number of DEG
+    capture.output(min_DEG_pathway, file="/mnt/volume/git/rnadeseq/bla/mindeg", append=T)
     pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
+    capture.output(pathway_gostres$intersection_size, file="/mnt/volume/git/rnadeseq/bla/intersize", append=T)
     gostres$result <- pathway_gostres
+    capture.output(pathway_gostres, file="/mnt/volume/git/rnadeseq/bla/gostresdeg", append=T)
     # Plot pathways if there were any
+    capture.output(nrow(pathway_gostres), file="/mnt/volume/git/rnadeseq/bla/nrowgostres", append=T)
     if (nrow(pathway_gostres) > 0){
         # annotate query size (number of DE genes in contrast)
         pathway_gostres$original_query_size <- rep(length(q), nrow(pathway_gostres))
         # Generate non-interactive pathway dotplots in the folder
         pg <- gostplot(gostres, capped=T, interactive=F)
-        ggsave(pg, filename = paste0(outdir, "/", fname, "_gost_pathway_enrichment_plot.pdf"),
+        ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.pdf"),
             device="pdf",
             height=10, width=15, units="cm", limitsize=F)
-        ggsave(pg, filename = paste0(outdir, "/", fname, "_gost_pathway_enrichment_plot.png"),
+        ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.png"),
             device="png",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
     }
@@ -1433,7 +1438,7 @@ for (file in contrast_files){
 
     # Save pathway enrichment table in tsv format
     write.table(pathway_gostres_table,
-                file = paste0(outdir, "/", fname, "/", fname, "_pathway_enrichment_results.tsv"),
+                file = paste0("pathway_analysis", "/", fname, "/", fname, "_pathway_enrichment_results.tsv"),
                 sep="\t", quote = F, col.names = T, row.names = F)
 
     # TODO debugging summary table
@@ -1462,7 +1467,7 @@ for (file in contrast_files){
         # Plotting results for df
         df_subset <- data.frame(Pathway_name = df$short_name, Pathway_code = df$term_id, DE_genes = df$intersection_size, Pathway_size = df$term_size, Fraction_DE = (df$intersection_size / df$term_size), Padj = df$p_value)
         write.table(df_subset,
-                    file = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"),
+                    file = paste0("pathway_analysis", "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"),
                     sep="\t", quote = F, col.names = T, row.names = F)
         # Enriched pathways horizontal barplots of padj values
         p <- ggplot(df_subset, aes(x=reorder(Pathway_name, Fraction_DE), y=Fraction_DE)) +
@@ -1473,8 +1478,8 @@ for (file in contrast_files){
             scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
             ggtitle("Enriched pathways") +
             xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
-        ggsave(p, filename = paste0(outdir, "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
-        ggsave(p, filename = paste0(outdir, "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+        ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
+        ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
 
         # Plotting heatmaps and KEGG pathways for all pathways
         print("Plotting heatmaps...")
@@ -1482,21 +1487,31 @@ for (file in contrast_files){
                 conditions <- grepl("Condition", colnames(metadata))
                 metadata_cond <- as.data.frame(metadata[,conditions])
                 metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
+                capture.output(conditions, file="/mnt/volume/git/rnadeseq/bla/conditions", append=F)
+                capture.output(metadata_cond, file="/mnt/volume/git/rnadeseq/bla/metadata_cond", append=F)
+                capture.output(metadata_name, file="/mnt/volume/git/rnadeseq/bla/metadata_name", append=F)
                 row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
                 for (i in c(1:nrow(df))){
                 pathway <- df[i,]
                 gene_list <- unlist(strsplit(pathway$intersection, ","))
+                capture.output(pathway$intersection, file="/mnt/volume/git/rnadeseq/bla/pathway$intersection", append=F)
+                capture.output(gene_list, file="/mnt/volume/git/rnadeseq/bla/gene_list", append=F)
                 mat <- norm_counts[gene_list, ]
+                capture.output(norm_counts, file="/mnt/volume/git/rnadeseq/bla/norm_counts", append=F)
+                capture.output(mat, file="/mnt/volume/git/rnadeseq/bla/mat", append=F)
+                capture.output(mat$gene_name, file="/mnt/volume/git/rnadeseq/bla/mat_genena", append=F)
                 rownames(mat) <- mat$gene_name
+                capture.output("schalala", file="/mnt/volume/git/rnadeseq/bla/schalala")
                 mat$gene_name <- NULL
                 mat <- data.matrix(mat)
-
+                capture.output(mat, file="/mnt/volume/git/rnadeseq/bla/mat2")
+                capture.output(nrow(mat), file="/mnt/volume/git/rnadeseq/bla/nrowmat", append=T)
                 if (nrow(mat)>1){
-                    png(filename = paste(outdir, "/",fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
+                    png(filename = paste("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
                     pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
                     dev.off()
-                    pdf(paste(outdir, "/", fname, "/", pathway_heatmaps_dir, "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
+                    pdf(paste("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
                     pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
                     dev.off()
                 }
@@ -1522,8 +1537,8 @@ for (file in contrast_files){
                                     pathway.id = pathway_kegg,
                                     species    = short_organism_name,
                                     out.suffix=paste(fname,sep="_"))
-                            mv_command <- paste0("mv *.png *.xml ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/")
-                            rm_command <- paste0("rm ","./",outdir, "/",fname, "/", kegg_pathways_dir, "/", "*.xml")
+                            mv_command <- paste0("mv *.png *.xml ","./","pathway_analysis", "/",fname, "/", "KEGG_pathways", "/")
+                            rm_command <- paste0("rm ","./","pathway_analysis", "/",fname, "/", "KEGG_pathways", "/", "*.xml")
                             system(mv_command)
                         }
                             print_string <- paste0("Plotting pathway: ", pathway_kegg)
@@ -1542,7 +1557,7 @@ for (file in contrast_files){
 # Writing DE gene summary table
 # df_summary <- data.frame(Contrast = contrast, Number_DE_genes = number_DE_genes, Number_enriched_pathways = number_enriched_pathways, DE_genes_list = list_DE_genes, Enriched_pathways_list = list_enriched_pathways)
 # write.table(df_summary,
-#         file = paste0(outdir, "/", fname, "/", fname, "_pathway_enrichment_summary.tsv"),
+#         file = paste0("pathway_analysis", "/", fname, "/", fname, "_pathway_enrichment_summary.tsv"),
 #         sep="\t", quote = F, col.names = T, row.names = F)
 
 
@@ -1552,7 +1567,7 @@ if (!(isNot(params$path_genelist))){
 
     genelist_path = params$path_genelist
     genelist_heatmaps_dir <- "heatmap_gene_list"
-    dir.create(paste(outdir, genelist_heatmaps_dir, sep="/"))
+    dir.create(paste("pathway_analysis", genelist_heatmaps_dir, sep="/"))
 
     print("Plotting heatmaps...")
     conditions <- grepl("Condition", colnames(metadata))
@@ -1580,11 +1595,11 @@ if (!(isNot(params$path_genelist))){
     mat <- data.matrix(mat)
 
     if (nrow(mat)>1){
-        png(filename = paste(outdir, "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.png", sep=""), width = 2500, height = 3000, res = 300)
+        png(filename = paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.png", sep=""), width = 2500, height = 3000, res = 300)
         pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
         dev.off()
 
-        pdf(paste(outdir, "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""))
+        pdf(paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""))
         pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
         dev.off()
     }
