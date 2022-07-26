@@ -455,6 +455,7 @@ if (params$rlog){
     #save table to another variable if pathway analysis
     if (params$pathway_analysis) {
         norm_counts <- rld_names
+        rownames(norm_counts) <- norm_counts$Ensembl_ID
     }
 
 } else {
@@ -466,6 +467,7 @@ if (params$rlog){
     #save table to another variable if pathway analysis
     if (params$pathway_analysis) {
         norm_counts <- vsd_names
+        rownames(norm_counts) <- norm_counts$Ensembl_ID
     }
 }
 
@@ -1336,9 +1338,6 @@ library(params$species_library, lib.loc=species_dir, character.only=T)
 library <- get(params$species_library)
 
 # Default to 1 for the nb of genes DE in a pathway
-
-capture.output(params$min_DEG_pathway, file="/mnt/volume/git/rnadeseq/bla/mindegpar", append=T)
-capture.output(typeof(params$min_DEG_pathway), file="/mnt/volume/git/rnadeseq/bla/mindegpar", append=T)
 min_DEG_pathway <- as.integer(params$min_DEG_pathway)
 # Contrast files
 contrast_files <- list.files('differential_gene_expression/DE_genes_tables/')
@@ -1375,7 +1374,6 @@ theme_set(theme_classic())
 # number_enriched_pathways <- c()
 # list_DE_genes <- list()
 # list_enriched_pathways <- list()
-capture.output(contrast_files, file="/mnt/volume/git/rnadeseq/bla/contrast_files", append=T)
 for (file in contrast_files){
     #Reading DE genes list
     fname <- tools::file_path_sans_ext(basename(file))
@@ -1385,7 +1383,6 @@ for (file in contrast_files){
     dir.create(paste("pathway_analysis", fname, "KEGG_pathways", sep="/"))
     DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
     DE_genes <- as.data.frame(DE_genes)
-    capture.output(DE_genes, file="/mnt/volume/git/rnadeseq/bla/de_genes", append=T)
 
     # Skip pathway analysis for the contrast if not 2 or more DE genes were found
     if (nrow(DE_genes) < 2){
@@ -1407,18 +1404,12 @@ for (file in contrast_files){
 
     # Make data frame of gost result
     pathway_gostres <- gostres$result
-    capture.output(pathway_gostres, file="/mnt/volume/git/rnadeseq/bla/gostres", append=T)
     # Select only significantly enriched pathways (according to adjusted p-value)
     pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
-    capture.output(pathway_gostres, file="/mnt/volume/git/rnadeseq/bla/gostressig", append=T)
     # Select only pathways with a min. number of DEG
-    capture.output(min_DEG_pathway, file="/mnt/volume/git/rnadeseq/bla/mindeg", append=T)
     pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
-    capture.output(pathway_gostres$intersection_size, file="/mnt/volume/git/rnadeseq/bla/intersize", append=T)
     gostres$result <- pathway_gostres
-    capture.output(pathway_gostres, file="/mnt/volume/git/rnadeseq/bla/gostresdeg", append=T)
     # Plot pathways if there were any
-    capture.output(nrow(pathway_gostres), file="/mnt/volume/git/rnadeseq/bla/nrowgostres", append=T)
     if (nrow(pathway_gostres) > 0){
         # annotate query size (number of DE genes in contrast)
         pathway_gostres$original_query_size <- rep(length(q), nrow(pathway_gostres))
@@ -1487,26 +1478,15 @@ for (file in contrast_files){
                 conditions <- grepl("Condition", colnames(metadata))
                 metadata_cond <- as.data.frame(metadata[,conditions])
                 metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
-                capture.output(conditions, file="/mnt/volume/git/rnadeseq/bla/conditions", append=F)
-                capture.output(metadata_cond, file="/mnt/volume/git/rnadeseq/bla/metadata_cond", append=F)
-                capture.output(metadata_name, file="/mnt/volume/git/rnadeseq/bla/metadata_name", append=F)
                 row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
 
                 for (i in c(1:nrow(df))){
                 pathway <- df[i,]
                 gene_list <- unlist(strsplit(pathway$intersection, ","))
-                capture.output(pathway$intersection, file="/mnt/volume/git/rnadeseq/bla/pathway$intersection", append=F)
-                capture.output(gene_list, file="/mnt/volume/git/rnadeseq/bla/gene_list", append=F)
                 mat <- norm_counts[gene_list, ]
-                capture.output(norm_counts, file="/mnt/volume/git/rnadeseq/bla/norm_counts", append=F)
-                capture.output(mat, file="/mnt/volume/git/rnadeseq/bla/mat", append=F)
-                capture.output(mat$gene_name, file="/mnt/volume/git/rnadeseq/bla/mat_genena", append=F)
                 rownames(mat) <- mat$gene_name
-                capture.output("schalala", file="/mnt/volume/git/rnadeseq/bla/schalala")
                 mat$gene_name <- NULL
                 mat <- data.matrix(mat)
-                capture.output(mat, file="/mnt/volume/git/rnadeseq/bla/mat2")
-                capture.output(nrow(mat), file="/mnt/volume/git/rnadeseq/bla/nrowmat", append=T)
                 if (nrow(mat)>1){
                     png(filename = paste("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
                     pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
