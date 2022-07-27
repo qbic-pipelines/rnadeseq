@@ -1100,8 +1100,8 @@ write.table(DE_genes_final_table, "differential_gene_expression/final_gene_table
 
 ```{r print_contrasts, echo=FALSE, results='asis'}
 #TODO:
-for (i in 1:length(contrast_names$V1)){
-    cat(paste("* ", contrnames$V1[i], "\n"))
+for (i in 1:length(contrast_names)){
+    cat(paste("* ", contrast_names[i], "\n"))
 }
 ```
 
