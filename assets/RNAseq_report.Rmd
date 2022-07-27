@@ -156,6 +156,7 @@ invisible( lapply(c(
 "plotly",
 "webshot",
 "htmlwidgets",
+"pheatmap",
 "DT"
 ), library, character.only=T))
 ```
@@ -1296,7 +1297,6 @@ cat("Plots for the [genes of interest](./differential_gene_expression/metadata/g
 invisible(lapply(c(
 "gprofiler2",
 "reshape2",
-"pheatmap",
 "pathview",
 "AnnotationDbi",
 "optparse",
