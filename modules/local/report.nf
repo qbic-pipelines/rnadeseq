@@ -33,7 +33,6 @@ process REPORT {
     def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
 
     """
-    echo $params.min_DEG_pathway > /mnt/volume/git/rnadeseq/rep_mindeg
     if [ "$multiqc" != "NO_FILE3" ]; then
         unzip $multiqc
         mkdir QC
