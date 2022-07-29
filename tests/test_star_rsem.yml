@@ -1,5 +1,5 @@
 - name: Run test profile with star rsem
-  command: nextflow run main.nf -profile test_star_rsem,docker
+  command: nextflow run main.nf -profile test_star_rsem,docker --CItest true
   tags:
     - test_star_rsem
   files:
@@ -76,43 +76,12 @@
     - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04610.DE_contrast_condition_genotype_WT_vs_KO.png
     - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04610.png
     - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04610.xml
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_KEGG_KEGG:04022_DE_contrast_condition_genotype_WT_vs_KO.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_KEGG_KEGG:04022_DE_contrast_condition_genotype_WT_vs_KO.png
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_KEGG_KEGG:04360_DE_contrast_condition_genotype_WT_vs_KO.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_KEGG_KEGG:04360_DE_contrast_condition_genotype_WT_vs_KO.png
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_KEGG_KEGG:04610_DE_contrast_condition_genotype_WT_vs_KO.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-140875_DE_contrast_condition_genotype_WT_vs_KO.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-140875_DE_contrast_condition_genotype_WT_vs_KO.png
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-140877_DE_contrast_condition_genotype_WT_vs_KO.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-140877_DE_contrast_condition_genotype_WT_vs_KO.png
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-1474244_DE_contrast_condition_genotype_WT_vs_KO.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-1474244_DE_contrast_condition_genotype_WT_vs_KO.png
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-211897_DE_contrast_condition_genotype_WT_vs_KO.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-211897_DE_contrast_condition_genotype_WT_vs_KO.png
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-216083_DE_contrast_condition_genotype_WT_vs_KO.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-216083_DE_contrast_condition_genotype_WT_vs_KO.png
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-381426_DE_contrast_condition_genotype_WT_vs_KO.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-381426_DE_contrast_condition_genotype_WT_vs_KO.png
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-397014_DE_contrast_condition_genotype_WT_vs_KO.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-397014_DE_contrast_condition_genotype_WT_vs_KO.png
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-8957275_DE_contrast_condition_genotype_WT_vs_KO.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-8957275_DE_contrast_condition_genotype_WT_vs_KO.png
     - path: results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_pathway_enrichment_results.tsv
       md5sum: e42c8335c8292e67cd26ff2cc62563a9
     - path: results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_results.tsv
       md5sum: 0ac4b300d358bafb4a0853dfc62caf7b
     - path: results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_plot.pdf
     - path: results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_plot.png
-    - path: results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-112409_DE_contrast_condition_treatment_Treated_vs_Control.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-112409_DE_contrast_condition_treatment_Treated_vs_Control.png
-    - path: results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-449147_DE_contrast_condition_treatment_Treated_vs_Control.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-449147_DE_contrast_condition_treatment_Treated_vs_Control.png
-    - path: results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-5673001_DE_contrast_condition_treatment_Treated_vs_Control.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-5673001_DE_contrast_condition_treatment_Treated_vs_Control.png
-    - path: results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-5675221_DE_contrast_condition_treatment_Treated_vs_Control.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-5675221_DE_contrast_condition_treatment_Treated_vs_Control.png
-    - path: results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-5684996_DE_contrast_condition_treatment_Treated_vs_Control.pdf
-    - path: results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/Heatmap_normalized_counts_REAC_REAC:R-MMU-5684996_DE_contrast_condition_treatment_Treated_vs_Control.png
     - path: results/pathway_analysis/heatmap_gene_list/Heatmap_normalized_counts_gene_list.pdf
     - path: results/pathway_analysis/heatmap_gene_list/Heatmap_normalized_counts_gene_list.png
     - path: results/RNAseq_report.html

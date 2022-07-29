@@ -1,6 +1,6 @@
 - name: Run test profile
   command: |
-    nextflow run main.nf -profile test,docker
+    nextflow run main.nf -profile test,docker --CItest true
   tags:
     - test
   files:

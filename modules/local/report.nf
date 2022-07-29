@@ -67,13 +67,20 @@ process REPORT {
     $rlog_opt
     # Remove allgenes dir as the contained files do not contain only DE genes
     rm -r differential_gene_expression/allgenes
+    if [ $params.CItest ]; then
+        cp RNAseq_report.html differential_gene_expression/ pathway_analysis/ ../../../results 2>/dev/null || :
+        rm -r ../../../results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/
+        rm -r ../../../results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/
+    fi
     if [ "$pathwayopt" == "--pathway_analysis" ]; then
-        cp -r RNAseq_report.html differential_gene_expression/ pathway_analysis/ ../../../results
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quoteopt
     else
-        cp -r RNAseq_report.html differential_gene_expression/ ../../../results
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ $quoteopt
     fi
     """
+
+
+
+
 }
 
