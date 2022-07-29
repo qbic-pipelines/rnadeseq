@@ -1,5 +1,7 @@
 process REPORT {
 
+    container "${ 'qbicpipelines/rnadeseq:dev' }"
+
     input:
     path gene_counts
     path metadata
@@ -66,8 +68,10 @@ process REPORT {
     # Remove allgenes dir as the contained files do not contain only DE genes
     rm -r differential_gene_expression/allgenes
     if [ "$pathwayopt" == "--pathway_analysis" ]; then
+        cp -r RNAseq_report.html differential_gene_expression/ pathway_analysis/ ../../../results
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quoteopt
     else
+        cp -r RNAseq_report.html differential_gene_expression/ ../../../results
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ $quoteopt
     fi
     """
