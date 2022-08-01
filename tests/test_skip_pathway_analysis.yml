@@ -1,5 +1,5 @@
 - name: Run test profile without pathway analysis
-  command: nextflow run main.nf -profile test_skip_pathway_analysis,docker --CItest true
+  command: nextflow run main.nf -profile test_skip_pathway_analysis,docker --citest true
   tags:
     - test_skip_pathway_analysis
   files:

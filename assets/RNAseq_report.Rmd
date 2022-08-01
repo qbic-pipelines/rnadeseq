@@ -61,6 +61,9 @@ params:
     rlog: ''
     multiqc: ''
 
+    #additional param to indicate that a github test is run
+    citest: ''
+
 # Author: Silvia Morini, Gisela Gabernet, Simon Heumos
 ---
 
@@ -1358,7 +1361,9 @@ for (file in contrast_files){
     fname <- tools::file_path_sans_ext(basename(file))
 
     dir.create(paste("pathway_analysis", fname, sep="/"))
-    dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
+    if (!isNot(params$citest)) {
+        dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
+    }
     dir.create(paste("pathway_analysis", fname, "KEGG_pathways", sep="/"))
     DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
     DE_genes <- as.data.frame(DE_genes)
@@ -1465,7 +1470,7 @@ for (file in contrast_files){
                 rownames(mat) <- mat$gene_name
                 mat$gene_name <- NULL
                 mat <- data.matrix(mat)
-                if (nrow(mat)>1){
+                if (!isNot(params$citest) & nrow(mat)>1){
                     png(filename = paste("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
                     pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
                     dev.off()

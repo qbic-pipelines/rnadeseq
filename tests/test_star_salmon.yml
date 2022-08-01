@@ -1,5 +1,5 @@
 - name: Run test profile with star salmon
-  command: nextflow run main.nf -profile test_star_salmon,docker --CItest true
+  command: nextflow run main.nf -profile test_star_salmon,docker --citest true
   tags:
     - test_star_salmon
   files:

@@ -1,5 +1,5 @@
 - name: Run test profile with relevel
-  command: nextflow run main.nf -profile test_relevel,docker --CItest true
+  command: nextflow run main.nf -profile test_relevel,docker --citest true
   tags:
     - test_relevel
   files:

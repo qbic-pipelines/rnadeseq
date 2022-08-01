@@ -33,6 +33,7 @@ process REPORT {
     def rlog_opt = params.use_vst ? '--rlog FALSE' : ''
     def quoteopt = quote.name != 'NO_FILE4' ? "$quote" : ''
     def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
+    def citest_opt = params.citest ? "--citest TRUE" : ''
 
     """
     if [ "$multiqc" != "NO_FILE3" ]; then
@@ -64,14 +65,13 @@ process REPORT {
     --keytype $params.keytype \
     --input_type $params.input_type \
     $pathwayopt \
-    $rlog_opt
+    $rlog_opt \
+    $citest_opt
     # Remove allgenes dir as the contained files do not contain only DE genes
     rm -r differential_gene_expression/allgenes
-    # If CItest, remove heatmaps as their filenames contain : which is an invalid character
-    if [ "$params.CItest" == true ]; then
+    # If citest, remove heatmaps as their filenames contain : which is an invalid character
+    if [ "$params.citest" == true ]; then
         mkdir ../../../results_test
-        rm -r pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/
-        rm -r pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/
         cp -r RNAseq_report.html differential_gene_expression/ pathway_analysis/ ../../../results_test # 2>/dev/null || :
     fi
     if [ "$pathwayopt" == "--pathway_analysis" ]; then

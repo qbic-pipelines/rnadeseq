@@ -99,7 +99,7 @@
                     "default": false,
                     "description": "Set this flag to true to use vst transformation (recommended when >50 samples; if false, will use rlog)"
                 },
-                "CItest": {
+                "citest": {
                     "type": "string",
                     "default": "false",
                     "description": "Only enable for CI tests on the github servers"

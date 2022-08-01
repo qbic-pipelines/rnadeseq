@@ -1,5 +1,5 @@
 - name: Run test profile with contrast list
-  command: nextflow run main.nf -profile test_contrast_list,docker --CItest true
+  command: nextflow run main.nf -profile test_contrast_list,docker --citest true
   tags:
     - test_contrast_list
   files:
