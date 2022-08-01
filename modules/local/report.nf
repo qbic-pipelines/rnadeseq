@@ -67,10 +67,11 @@ process REPORT {
     $rlog_opt
     # Remove allgenes dir as the contained files do not contain only DE genes
     rm -r differential_gene_expression/allgenes
-    if [ $params.CItest == true ]; then
+    # If CItest, remove heatmaps as their filenames contain : which is an invalid character
+    if [ $params.CItest ]; then
+        rm -r pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/
+        rm -r pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/
         cp RNAseq_report.html differential_gene_expression/ pathway_analysis/ ../../../results 2>/dev/null || :
-        rm -r ../../../results/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/
-        rm -r ../../../results/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/
     fi
     if [ "$pathwayopt" == "--pathway_analysis" ]; then
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quoteopt
