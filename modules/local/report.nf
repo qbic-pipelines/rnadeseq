@@ -33,7 +33,7 @@ process REPORT {
     def rlog_opt = params.use_vst ? '--rlog FALSE' : ''
     def quoteopt = quote.name != 'NO_FILE4' ? "$quote" : ''
     def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
-    def citest_opt = params.citest ? "--citest TRUE" : ''
+    def citest_opt = params.citest == "true" ? "--citest TRUE" : ''
 
     """
     if [ "$multiqc" != "NO_FILE3" ]; then
