@@ -29,7 +29,7 @@ option_list = list(
     make_option(c("-w", "--min_DEG_pathway"), type="integer", default=NULL, help="min. number of genes DE in a pathway for this pathway to be considered enriched.", metavar="integer"),
     make_option(c("-n", "--nsub_genes"), type="integer", default=NULL, help="subset number of genes for vst."),
     make_option(c("-a", "--pathway_analysis"), action="store_true", default=FALSE, help="Pathway analysis."),
-    make_option(c("-z", "--rlog"), action="store_true", default=TRUE, help="Use rlog instead of vst normalization.")
+    make_option(c("-z", "--rlog"), action="store_true", default=TRUE, help="Use rlog instead of vst normalization."),
     make_option(c("-h", "--citest"), action="store_true", default=FALSE, help="Run github test and don't save pathway heatmaps.")
 )
 
