@@ -70,6 +70,8 @@ process REPORT {
     # If CItest, remove heatmaps as their filenames contain : which is an invalid character
     if [ "$params.CItest" == true ]; then
         mkdir ../../../results_test
+        rm -r pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_heatmaps/
+        rm -r pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_heatmaps/
         cp -r RNAseq_report.html differential_gene_expression/ pathway_analysis/ ../../../results_test # 2>/dev/null || :
     fi
     if [ "$pathwayopt" == "--pathway_analysis" ]; then
