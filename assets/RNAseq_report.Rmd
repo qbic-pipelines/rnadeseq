@@ -355,7 +355,9 @@ if (params$input_type == "featurecounts") {
     colnames(gene_names) <- c("Ensembl_ID", "gene_name")
     gene_names <- distinct(gene_names)
     rownames(gene_names) <- gene_names[,1]
-    if (params$input_type == "rsem") {
+
+## Load Rsem count table
+            if (params$input_type == "rsem") {
         #rsem saves output into one file per sample in an output folder
         #-->the sample name is in the file name
         files <- file.path(gsub("/$", "", params$path_gene_counts), paste0(qbicCodes, ".genes.results"))
