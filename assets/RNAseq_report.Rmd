@@ -39,7 +39,7 @@ params:
     path_genelist: ''
     path_relevel: ''
 
-    #new args for PA
+    # Settings for pathway analysis
     path_gtf: ''
     keytype: ''
     min_DEG_pathway: ''
