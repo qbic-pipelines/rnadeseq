@@ -61,7 +61,7 @@ params:
     rlog: ''
     multiqc: ''
 
-# Author: Silvia Morini, Gisela Gabernet, Simon Heumos
+# Author: Silvia Morini, Gisela Gabernet, Simon Heumos, Oskar Wacker
 ---
 
 ```{r param_validation, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
