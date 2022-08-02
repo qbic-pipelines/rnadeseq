@@ -51,8 +51,6 @@ ch_multiqc_file = Channel.fromPath(params.multiqc)
 //
 // MODULE: Loaded from modules/local/
 //
-//include { DESEQ2 } from '../modules/local/deseq2'
-//include { PATHWAY_ANALYSIS } from '../modules/local/pathway_analysis'
 include { REPORT } from '../modules/local/report'
 
 //
