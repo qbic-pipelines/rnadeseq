@@ -382,6 +382,8 @@ if (params$input_type == "featurecounts") {
         #dds from SummarizedExperiment <se>, then run DESeq
         cds <- DESeqDataSet(se, design = as.formula(eval(parse(text=as.character(design[[1]])))))
         cds <- DESeq(cds)
+
+# Load salmon count files
     } else if (params$input_type == "salmon") {
         #salmon saves output to one file per sample, each file is contained in a subfolder of the output folder
         #-->the sample name is in the subfolder name, not in the file name!
