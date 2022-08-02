@@ -51,8 +51,6 @@ ch_multiqc_file = Channel.fromPath(params.multiqc)
 //
 // MODULE: Loaded from modules/local/
 //
-//include { DESEQ2 } from '../modules/local/deseq2'
-//include { PATHWAY_ANALYSIS } from '../modules/local/pathway_analysis'
 include { REPORT } from '../modules/local/report'
 
 //
@@ -120,7 +118,6 @@ workflow RNADESEQ {
 //Here I have to change the params?
 
 /*
-//TODO: Edit /lib/nfcoretemplate to add deseq report instead of multiqc
 workflow.onComplete {
     if (params.email || param.email_on_fail) {
         NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
