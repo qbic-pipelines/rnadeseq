@@ -6,7 +6,7 @@
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_genotype_WT_vs_KO.tsv
       md5sum: f154e8fa93c3e5a3034924cee98a55fa
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_treatment_Treated_vs_Control.tsv
-      md5sum: 622129a90e9fd9938692744fb771a0b7
+      md5sum: 39af0f930e603018e7640ad30f16b1bb
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
       md5sum: 2f315f507a6f65b3b98d64ef24d88dc1
     - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_table.tsv

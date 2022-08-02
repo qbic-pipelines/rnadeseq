@@ -4,11 +4,11 @@
     - test_contrast_list
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_genotype_KO_vs_WT.tsv
-      md5sum: f154e8fa93c3e5a3034924cee98a55fa
+      md5sum: 0f1d0ed561e2d44ca58a5e6bd46468ce
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_treatment_Treated_vs_Control.tsv
-      md5sum: 622129a90e9fd9938692744fb771a0b7
+      md5sum: 39af0f930e603018e7640ad30f16b1bb
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
-      md5sum: 2f315f507a6f65b3b98d64ef24d88dc1
+      md5sum: 8a1d2e2cb4585b27700df55acfcadd22
     - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_table.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv

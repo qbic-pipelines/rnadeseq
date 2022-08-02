@@ -3,19 +3,14 @@
   tags:
     - test_star_rsem
   files:
-    - path: DE_contrast_condition_cellline_H1_vs_GM12878.tsv
+    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_H1_vs_GM12878.tsv
       md5sum: 26be976fb134af60a20e7a188a4299a9
-    - path: DE_contrast_condition_cellline_K562_vs_GM12878.tsv
+    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_K562_vs_GM12878.tsv
       md5sum: 555fd6ada7b64b4e540bc9b2ac7e2a10
-    - path: DE_contrast_condition_cellline_MCF7_vs_GM12878.tsv
+    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_MCF7_vs_GM12878.tsv
       md5sum: 61906b246b6b7326768597c06d4731f4
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
       md5sum: e816f32d8cede73c8fda401511974176
-
-    - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_table.tsv
-    - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
-    - path: results_test/differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv
-    - path: results_test/differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.pdf
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.png
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.svg
@@ -92,14 +87,14 @@
       md5sum: b2511b6dc7e46053be93908e96be298d
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_pathway_enrichment_results.tsv
       md5sum: 14e89bdda8266a95a06b10735143c456
-    - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/DDE_contrast_condition_cellline_MCF7_vs_GM12878_pathway_enrichment_results.tsv
+    - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/DE_contrast_condition_cellline_MCF7_vs_GM12878_pathway_enrichment_results.tsv
       md5sum: e30aa6cea1eb5749eba26a2c9c430cfc
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_cellline_H1_vs_GM12878_gost_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_cellline_H1_vs_GM12878_gost_pathway_enrichment_plot.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_cellline_K562_vs_GM12878_gost_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_cellline_K562_vs_GM12878_gost_pathway_enrichment_plot.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_cellline_MCF7_vs_GM12878_gost_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_cellline_MCF7_vs_GM12878_gost_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_H1_vs_GM12878/DE_contrast_condition_cellline_H1_vs_GM12878_gost_pathway_enrichment_plot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_H1_vs_GM12878/DE_contrast_condition_cellline_H1_vs_GM12878_gost_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_H1_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_gost_pathway_enrichment_plot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_H1_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_gost_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_H1_vs_GM12878/DE_contrast_condition_cellline_MCF7_vs_GM12878_gost_pathway_enrichment_plot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_H1_vs_GM12878/DE_contrast_condition_cellline_MCF7_vs_GM12878_gost_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/KEGG_pathways/hsa00510.DE_contrast_condition_cellline_H1_vs_GM12878.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/KEGG_pathways/hsa00510.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/KEGG_pathways/hsa00510.xml
