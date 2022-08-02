@@ -3,58 +3,75 @@
   tags:
     - test_star_salmon
   files:
-    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_genotype_WT_vs_KO.tsv
-      md5sum: e4161cbfbd82a0f526a793c9070c77c1
-    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_treatment_Treated_vs_Control.tsv
-      md5sum: 622129a90e9fd9938692744fb771a0b7
+    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_H1_vs_GM12878.tsv
+      md5sum: f105ef1eba023cd206238ea2d38f10ac
+    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_K562_vs_GM12878.tsv
+      md5sum: e37f0e88861c2c0c23aa031c2db051b2
+    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_MCF7_vs_GM12878.tsv
+      md5sum: 80e20e645e3c2a627ba1264ff80f94ae
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
-      md5sum: 001eced70a41fef7b942f5cd5ce801d1
+      md5sum: 34543db0e46e53635a9db72ec1129f0e
     - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_table.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv
-    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSMUSG00000058427.pdf
-    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSMUSG00000058427.png
-    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSMUSG00000058427.svg
-    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL5_ENSMUSG00000029371.pdf
-    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL5_ENSMUSG00000029371.png
-    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL5_ENSMUSG00000029371.svg
-    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/IL11_ENSMUSG00000004371.pdf
-    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/IL11_ENSMUSG00000004371.png
-    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/IL11_ENSMUSG00000004371.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_genotype_WT_vs_KO.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_genotype_WT_vs_KO.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_genotype_WT_vs_KO.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_treatment_Treated_vs_Control.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_treatment_Treated_vs_Control.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_treatment_Treated_vs_Control.svg
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/IL10_ENSG00000136634.pdf
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/IL10_ENSG00000136634.png
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/IL10_ENSG00000136634.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_H1_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_H1_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_H1_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_K562_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_K562_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_K562_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_MCF7_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_MCF7_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_MCF7_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_H1_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_H1_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_H1_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.histogram_of_p.valuescondition_cellline_K562_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.histogram_of_p.valuescondition_cellline_K562_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.histogram_of_p.valuescondition_cellline_K562_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_MCF7_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_MCF7_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_MCF7_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_cellline_H1_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_cellline_H1_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_cellline_H1_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_cellline_K562_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_cellline_K562_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_cellline_K562_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_cellline_MCF7_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_cellline_MCF7_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_cellline_MCF7_vs_GM12878.svg
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Cooks-distances.pdf
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Cooks-distances.png
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Cooks-distances.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_genotype_WT_vs_KO.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_genotype_WT_vs_KO.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_genotype_WT_vs_KO.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_treatment_Treated_vs_Control.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_treatment_Treated_vs_Control.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_treatment_Treated_vs_Control.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_cellline_H1_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_cellline_H1_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_cellline_H1_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_cellline_K562_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_cellline_K562_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_cellline_K562_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.dependency_small.pval_mean_normal.counts_condition_cellline_MCF7_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.dependency_small.pval_mean_normal.counts_condition_cellline_MCF7_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.dependency_small.pval_mean_normal.counts_condition_cellline_MCF7_vs_GM12878.svg
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.pdf
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.png
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.svg
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.pdf
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.png
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_genotype_WT_vs_KO.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_genotype_WT_vs_KO.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_genotype_WT_vs_KO.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_treatment_Treated_vs_Control.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_treatment_Treated_vs_Control.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_treatment_Treated_vs_Control.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_genotype_WT_vs_KO.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_genotype_WT_vs_KO.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_genotype_WT_vs_KO.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_treatment_Treated_vs_Control.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_treatment_Treated_vs_Control.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_treatment_Treated_vs_Control.svg
+    - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.pdf
+    - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.png
+    - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.svg
+    - path: results_test/differential_gene_expression/plots/PCA_batch_corrected_plot.pdf
+    - path: results_test/differential_gene_expression/plots/PCA_batch_corrected_plot.png
+    - path: results_test/differential_gene_expression/plots/PCA_batch_corrected_plot.svg
+    - path: results_test/differential_gene_expression/plots/PCA_plot.pdf
+    - path: results_test/differential_gene_expression/plots/PCA_plot.png
+    - path: results_test/differential_gene_expression/plots/PCA_plot.svg
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO_gost_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO_gost_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_pathway_enrichment_results.tsv
@@ -83,5 +100,4 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/heatmap_gene_list/Heatmap_normalized_counts_gene_list.pdf
-    - path: results_test/pathway_analysis/heatmap_gene_list/Heatmap_normalized_counts_gene_list.png
     - path: results_test/RNAseq_report.html
