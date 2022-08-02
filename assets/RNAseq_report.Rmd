@@ -12,55 +12,36 @@ output:
         pdf_document: true
 bibliography: ./references.bibtex
 params:
-    # path_proj_summary: ''
-    # path_versions: ''
-    # path_design: ''
-    # path_contrasts: ''
-    # path_wd: ''
-    # path_genelist: ''
-    # path_min_DEG: ''
-    # path_quote: ''
-    # organism: ''
-    # species_library: ''
-    # batch_effect: ''
-    # log_FC: ''
-    # nsub_genes: ''
-    # revision: ''
-    # pathway_analysis: ''
-    # rlog: ''
-
-    #new args for DESeq2
+    #Main input args
     input_type: ''
     path_gene_counts: ''
     path_metadata: ''
+    path_design: ''
+    path_gtf: '' #only for star_rsem and star_salmon input
+
+    #DESeq2 args
     path_contrast_matrix: ''
     path_contrast_list: ''
     path_contrast_pairs: ''
     path_genelist: ''
     path_relevel: ''
+    batch_effect: ''
+    log_FC_threshold: ''
+    pval_threshold: ''  #TODO
+    nsub_genes: ''
+    rlog: ''
 
-    # Settings for pathway analysis
-    path_gtf: ''
+    #Pathway analysis args
+    pathway_analysis: ''
+    organism: ''
+    species_library: ''
     keytype: ''
     min_DEG_pathway: ''
 
-    #old params, some also for DESeq2
+    #Additional args for the report
     path_proj_summary: ''
     path_versions: ''
-    path_design: ''
-    path_wd: ''
-    path_min_DEG: ''
-    path_quote: ''
-    organism: ''
-    species_library: ''
-    batch_effect: ''
-    log_FC_threshold: ''
-    pval_DE: ''
-    nsub_genes: ''
     revision: ''
-    pathway_analysis: ''
-    rlog: ''
-    multiqc: ''
 
 # Author: Silvia Morini, Gisela Gabernet, Simon Heumos, Oskar Wacker
 ---
@@ -351,15 +332,6 @@ if(file.exists(QAfile)){
 
 ```{r DESeq, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
 ################## RUN DESEQ2 ######################################
-#Apply relevel if provided to metadata
-if (!isNot(params$path_relevel)) {
-    relevel_table <- read.table(params$path_relevel, sep="\t", header = T, colClasses = "character")
-    write.table(relevel_table, file="differential_gene_expression/metadata/relevel.tsv")
-    for (i in c(1:nrow(relevel_table))) {
-        relev <- relevel_table[i,]
-        cds[[paste(relev[1])]] <- relevel(cds[[paste(relev[1])]], paste(relev[2]))
-    }
-}
 # Run DESeq function
 if (params$input_type == "featurecounts") {
     cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
@@ -430,6 +402,16 @@ if (params$input_type == "featurecounts") {
     }
 } else {
     stop("Input type must be one of [featurecounts, rsem, salmon]!")
+}
+
+#Apply relevel if provided to metadata
+if (!isNot(params$path_relevel)) {
+    relevel_table <- read.table(params$path_relevel, sep="\t", header = T, colClasses = "character")
+    write.table(relevel_table, file="differential_gene_expression/metadata/relevel.tsv")
+    for (i in c(1:nrow(relevel_table))) {
+        relev <- relevel_table[i,]
+        cds[[paste(relev[1])]] <- relevel(cds[[paste(relev[1])]], paste(relev[2]))
+    }
 }
 
 # SizeFactors(cds) as indicator of library sequencing depth

@@ -118,7 +118,6 @@ workflow RNADESEQ {
 //Here I have to change the params?
 
 /*
-//TODO: Edit /lib/nfcoretemplate to add deseq report instead of multiqc
 workflow.onComplete {
     if (params.email || param.email_on_fail) {
         NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
