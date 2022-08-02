@@ -247,6 +247,7 @@ if (params$pathway_analysis) {
 }
 system(paste("mv ",params$path_metadata," differential_gene_expression/metadata/metadata.tsv",sep=""))
 qbicCodes <- rownames(metadata)
+
 # Make sure metadata is factor where needed
 names(metadata) = gsub("Condition..","condition_",names(metadata))
 conditions = names(metadata)[grepl("condition_",names(metadata))]
