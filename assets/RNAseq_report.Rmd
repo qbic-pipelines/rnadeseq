@@ -55,6 +55,7 @@ params:
     species_library: ''
     batch_effect: ''
     log_FC_threshold: ''
+    pval_DE: ''
     nsub_genes: ''
     revision: ''
     pathway_analysis: ''
