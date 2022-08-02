@@ -254,7 +254,8 @@ conditions = names(metadata)[grepl("condition_",names(metadata))]
 for (i in conditions) {
     metadata[,i] = as.factor(metadata[,i])
 }
-# Load count table
+
+# Load count table for FeatureCounts
 if (params$input_type == "featurecounts"){
     count.table <- read.table(params$path_gene_counts,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
     count.table$Ensembl_ID <- row.names(count.table)
