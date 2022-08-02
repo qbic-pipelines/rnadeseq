@@ -408,7 +408,7 @@ if (params$input_type == "featurecounts") {
         cds <- DESeq(cds)
     }
 } else {
-    stop("Input type must be one of [featurecounts, rsem, salmon]!")
+    stop("Input type must be one of: featurecounts, rsem, salmon!")
 }
 
 #Apply relevel if provided to metadata
