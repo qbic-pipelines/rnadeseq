@@ -4,13 +4,9 @@
     - test_star_salmon
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_H1_vs_GM12878.tsv
-      md5sum: f105ef1eba023cd206238ea2d38f10ac
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_K562_vs_GM12878.tsv
-      md5sum: e37f0e88861c2c0c23aa031c2db051b2
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_MCF7_vs_GM12878.tsv
-      md5sum: 80e20e645e3c2a627ba1264ff80f94ae
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
-      md5sum: 34543db0e46e53635a9db72ec1129f0e
     - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_table.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv
@@ -77,8 +73,8 @@
       md5sum: cd0e690958663e060dd78c17c27b9eee
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/DE_contrast_condition_cellline_H1_vs_GM12878_REAC_pathway_enrichment_results.tsv
       md5sum: 48b319d99ad00296d91231db37d8e1a5
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_cellline_H1_vs_GM12878_KEGG_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_cellline_H1_vs_GM12878_KEGG_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_H1_vs_GM12878/DE_contrast_condition_cellline_H1_vs_GM12878_KEGG_pathway_enrichment_plot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_H1_vs_GM12878/DE_contrast_condition_cellline_H1_vs_GM12878_KEGG_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_KEGG_pathway_enrichment_results.tsv
       md5sum: a64ad8c30a1a418ad3d1a588dee09d8c
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_pathway_enrichment_results.tsv
@@ -87,5 +83,4 @@
       md5sum: 586422e2142396e09571159658d40065
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_REAC_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_REAC_pathway_enrichment_plot.png
-    - path: results_test/pathway_analysis/heatmap_gene_list/Heatmap_normalized_counts_gene_list.pdf
     - path: results_test/RNAseq_report.html
