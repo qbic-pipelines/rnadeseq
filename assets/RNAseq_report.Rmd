@@ -279,6 +279,7 @@ if (params$input_type == "featurecounts"){
         stop("Count table headers do not exactly match the metadata table sample names!")
     }
 }
+
 # process secondary names and change row names in metadata
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name)
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
