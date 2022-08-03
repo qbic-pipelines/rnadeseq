@@ -86,6 +86,23 @@ isNot <- function(value) {
     )
 }
 
+#this function is used to produce a more informative error message when count table and metadata table disagree
+write_error_msg <- function(counts, meta) {
+    error_msg <- "Count table headers do not exactly match the metadata table sample names! Offending value(s) in count table:\n"
+    for (c in names(counts)) {
+        if (!(c %in% row.names(meta))) {
+            error_msg <- paste0(error_msg, c, "\n")
+        }
+    }
+    error_msg <- paste0(error_msg, "\n", "Offending value(s) in metadata table:\n")
+    for (m in row.names(meta)) {
+        if (!(m %in% names(counts))) {
+            error_msg <- paste0(error_msg, m, "\n")
+        }
+    }
+    return(paste0(error_msg, "\n"))
+}
+
 #Check necessary params
 if (!(params$input_type %in% c("featurecounts", "rsem", "salmon"))){
     stop(paste0("Wrong input type ", params$input_type, ", must be one of [featurecounts, rsem, salmon]!"))
@@ -254,7 +271,6 @@ conditions = names(metadata)[grepl("condition_",names(metadata))]
 for (i in conditions) {
     metadata[,i] = as.factor(metadata[,i])
 }
-
 # Load count table for FeatureCounts
 if (params$input_type == "featurecounts"){
     count.table <- read.table(params$path_gene_counts,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
@@ -276,40 +292,25 @@ if (params$input_type == "featurecounts"){
         print(names(count.table))
         print("Metadata table row names are:")
         print(row.names(metadata))
-        stop("Count table headers do not exactly match the metadata table sample names!")
-    }
+        error_out <- write_error_msg(count.table, metadata)
+        stop(paste0(error_out, "\nla"), call.=F)
+        }
 }
-
+capture.output(metadata, file="/home/iivow01/git/rnadeseq/error/met1")
 # process secondary names and change row names in metadata
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name)
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
 metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
 row.names(metadata) = metadata$sampleName
+capture.output(metadata, file="/home/iivow01/git/rnadeseq/error/met2")
+
 if (params$input_type == "featurecounts"){
-    # Load count table
-    count.table <- read.table(params$path_gene_counts,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
-    count.table$Ensembl_ID <- row.names(count.table)
-    drop <- c("Ensembl_ID","gene_name")
-    gene_names <- count.table[,drop]
-    # Reduce sample names to QBiC codes in count table
-    names(count.table) <- substr(names(count.table), 1, 10)
-    count.table <- count.table[ , !(names(count.table) %in% drop)]
-    # Remove lines with "__" from HTSeq, not needed for featureCounts (will not harm here)
-    count.table <- count.table[!grepl("^__",row.names(count.table)),]
-    # Do some hard filtering for genes with 0 expression
-    count.table = count.table[rowSums(count.table)>0,]
-    # Need to order columns in count.table
-    count.table <- count.table[, order(names(count.table))]
-    # Count table column headers and metadata table row names must match in the same order
-    if (!identical(names(count.table), row.names(metadata))) {
-        print("Count table column headers are:")
-        print(names(count.table))
-        print("Metadata table row names are:")
-        print(row.names(metadata))
-        stop("Count table headers do not exactly match the metadata table sample names!")
+    if (!identical(names(count.table),row.names(metadata))) {
+    print("After refactoring the metadata table, count table headers do not exactly match the metadata table sample names! Offending values in count table:")
+    error_out <- write_error_msg(count.table, metadata)
+    options(warning.length = 2000L) #increase length of error messages
+    #stop(paste0(error_out, "\n"), call.=F)
     }
-    names(count.table) = metadata$sampleName
-    stopifnot(identical(names(count.table),row.names(metadata)))
 
     # Write raw counts to file
     count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
