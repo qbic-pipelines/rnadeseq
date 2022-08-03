@@ -310,8 +310,7 @@ if (params$input_type == "featurecounts"){
     if (!identical(names(count.table),row.names(metadata))) {
     print("After refactoring the metadata table, count table headers do not exactly match the metadata table sample names! Offending values in count table:")
     error_out <- write_error_msg(count.table, metadata)
-    options(warning.length = 2000L) #increase length of error messages
-    #stop(paste0(error_out, "\n"), call.=F)
+    stop(paste0(error_out, "\n"), call.=F)
     }
 
     # Write raw counts to file
