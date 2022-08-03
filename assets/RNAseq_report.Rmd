@@ -239,7 +239,6 @@ pval_text <- as.character(pval_threshold)
 ```
 
 ```{r read_metadata, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
-####### LOADING AND PROCESSING COUNT TABLE AND METADATA TABLE #####################################
 # Load metadata: sample preparations tsv file from qPortal
 metadata <- read.table(params$path_metadata, sep="\t", header=TRUE,na.strings =c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
 if (params$pathway_analysis) {
@@ -248,13 +247,15 @@ if (params$pathway_analysis) {
 }
 system(paste("mv ",params$path_metadata," differential_gene_expression/metadata/metadata.tsv",sep=""))
 qbicCodes <- rownames(metadata)
+
 # Make sure metadata is factor where needed
 names(metadata) = gsub("Condition..","condition_",names(metadata))
 conditions = names(metadata)[grepl("condition_",names(metadata))]
 for (i in conditions) {
     metadata[,i] = as.factor(metadata[,i])
 }
-# Load count table
+
+# Load count table for FeatureCounts
 if (params$input_type == "featurecounts"){
     count.table <- read.table(params$path_gene_counts,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
     count.table$Ensembl_ID <- row.names(count.table)
@@ -278,6 +279,7 @@ if (params$input_type == "featurecounts"){
         stop("Count table headers do not exactly match the metadata table sample names!")
     }
 }
+
 # process secondary names and change row names in metadata
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name)
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
@@ -385,7 +387,8 @@ if (params$input_type == "featurecounts") {
     cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
     cds <- DESeq(cds,  parallel = FALSE)
 } else if (params$input_type %in% c("rsem", "salmon")) {
-    ## Create a dataframe which consists of both the gene id and the transcript name
+
+        ## Create a dataframe which consists of both the gene id and the transcript name
     gtf <- rtracklayer::import(params$path_gtf)
     gtf <- as.data.frame(gtf, header=T)
     # TODO: For some gtf files, transcript_id does not work!!
@@ -400,7 +403,9 @@ if (params$input_type == "featurecounts") {
     colnames(gene_names) <- c("Ensembl_ID", "gene_name")
     gene_names <- distinct(gene_names)
     rownames(gene_names) <- gene_names[,1]
-    if (params$input_type == "rsem") {
+
+## Load Rsem count table
+            if (params$input_type == "rsem") {
         #rsem saves output into one file per sample in an output folder
         #-->the sample name is in the file name
         files <- file.path(gsub("/$", "", params$path_gene_counts), paste0(qbicCodes, ".genes.results"))
@@ -425,6 +430,8 @@ if (params$input_type == "featurecounts") {
         #dds from SummarizedExperiment <se>, then run DESeq
         cds <- DESeqDataSet(se, design = as.formula(eval(parse(text=as.character(design[[1]])))))
         cds <- DESeq(cds)
+
+# Load salmon count files
     } else if (params$input_type == "salmon") {
         #salmon saves output to one file per sample, each file is contained in a subfolder of the output folder
         #-->the sample name is in the subfolder name, not in the file name!
@@ -449,7 +456,7 @@ if (params$input_type == "featurecounts") {
         cds <- DESeq(cds)
     }
 } else {
-    stop("Input type must be one of [featurecounts, rsem, salmon]!")
+    stop("Input type must be one of: featurecounts, rsem, salmon!")
 }
 
 #Apply relevel if provided to metadata
@@ -698,7 +705,6 @@ table_complete %>%
     kable(escape=F,row.names=F, col.names=colnames) %>%
     kable_styling("hover") %>%
     scroll_box(width = "100%", height = "400px")
-    #4 lines above, dplyr:: needs to be specified or an error is thrown: unable to find an inherited method for function 'select' for signature '"data.frame"
 
 cat(paste0("***
 Note: Duplicate intercept (%) is the percentage of duplicate reads for the intercept of a linear model of duplicate reads vs read counts. High numbers of duplicates at low read counts can indicate low library complexity with technical duplication.
