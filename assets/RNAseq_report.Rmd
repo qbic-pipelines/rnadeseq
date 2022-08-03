@@ -284,8 +284,34 @@ metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
 metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
 row.names(metadata) = metadata$sampleName
 if (params$input_type == "featurecounts"){
+    # Load count table
+    count.table <- read.table(params$path_gene_counts,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
+    count.table$Ensembl_ID <- row.names(count.table)
+    drop <- c("Ensembl_ID","gene_name")
+    gene_names <- count.table[,drop]
+    # Reduce sample names to QBiC codes in count table
+    names(count.table) <- substr(names(count.table), 1, 10)
+    count.table <- count.table[ , !(names(count.table) %in% drop)]
+    # Remove lines with "__" from HTSeq, not needed for featureCounts (will not harm here)
+    count.table <- count.table[!grepl("^__",row.names(count.table)),]
+    # Do some hard filtering for genes with 0 expression
+    count.table = count.table[rowSums(count.table)>0,]
+    # Need to order columns in count.table
+    count.table <- count.table[, order(names(count.table))]
+    # Count table column headers and metadata table row names must match in the same order
+    if (!identical(names(count.table), row.names(metadata))) {
+        print("Count table column headers are:")
+        print(names(count.table))
+        print("Metadata table row names are:")
+        print(row.names(metadata))
+        stop("Count table headers do not exactly match the metadata table sample names!")
+    }
     names(count.table) = metadata$sampleName
     stopifnot(identical(names(count.table),row.names(metadata)))
+
+    # Write raw counts to file
+    count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
+    write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 }
 # to get all possible pairwise comparisons, make a combined factor
 conditions <- grepl(colnames(metadata),pattern = "condition_")
@@ -325,6 +351,28 @@ if(file.exists(QAfile)){
 } else {
     no_RIN <- TRUE
 }
+```
+
+```{r RIN_block, echo=FALSE, results='asis', eval=RIN}
+cat("\
+The samples description and grouping, including quality assessment of the RNA samples,
+is summarized in the table below and can be found [here](./differential_gene_expression/metadata/metadata.tsv).
+The RNA Integrity Number (RIN) value has a maximum value of 10.
+\
+")
+kable(df_QA_neat) %>%
+    kable_styling() %>%
+    scroll_box(width = "100%", height = "400px")
+```
+
+```{r noRIN_block, echo=FALSE, results='asis', eval=no_RIN}
+cat("\
+The samples description and grouping is summarized in the table below and can be
+found [here](./differential_gene_expression/metadata/metadata.tsv).
+\
+")
+if ("RIN" %in% colnames(df_QA_neat)){df_QA_neat$RIN <- NULL}
+DT::datatable(df_QA_neat, options = list(scrollX  = "100%", scrollY = "400px", pageLength = -1, dom = 'ft'))
 ```
 
 <!-- DESeq2 start -->
@@ -418,11 +466,7 @@ if (!isNot(params$path_relevel)) {
 write.table(sizeFactors(cds),paste("differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
 # Write cds assay table to file
 write.table(counts(cds, normalized=T), paste("differential_gene_expression/gene_counts_tables/deseq2_table.tsv", sep=""), append=F, quote = F, sep = "\t", eol = "\n", na = "NA", dec = ".", row.names = T, col.names = T, qmethod = c("escape", "double"))
-if (params$input_type == "featurecounts"){
-    # Write raw counts to file
-    count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
-    write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
-}
+
 if (params$input_type %in% c("rsem", "salmon")) {
     # Else copy raw count sample files/folders
     system("mkdir differential_gene_expression/gene_counts_tables/raw_gene_counts/")
@@ -443,7 +487,6 @@ if (params$rlog){
 
 } else {
     # vst transformation
-    # TODO: check if nsub works!
     vsd <- vst(cds, blind=FALSE, nsub = opt$nsub_genes)
     vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
     write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
@@ -593,28 +636,6 @@ for (i in resultsNames(cds)[-1]) {
 }
 ```
 <!-- DESeq2 end -->
-
-```{r RIN_block, echo=FALSE, results='asis', eval=RIN}
-cat("\
-The samples description and grouping, including quality assessment of the RNA samples,
-is summarized in the table below and can be found [here](./differential_gene_expression/metadata/metadata.tsv).
-The RNA Integrity Number (RIN) value has a maximum value of 10.
-\
-")
-kable(df_QA_neat) %>%
-    kable_styling() %>%
-    scroll_box(width = "100%", height = "400px")
-```
-
-```{r noRIN_block, echo=FALSE, results='asis', eval=no_RIN}
-cat("\
-The samples description and grouping is summarized in the table below and can be
-found [here](./differential_gene_expression/metadata/metadata.tsv).
-\
-")
-if ("RIN" %in% colnames(df_QA_neat)){df_QA_neat$RIN <- NULL}
-DT::datatable(df_QA_neat, options = list(scrollX  = "100%", scrollY = "400px", pageLength = -1, dom = 'ft'))
-```
 
 <!-- metadata end -->
 
@@ -817,7 +838,7 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 
 \
 
-```{r PCA_plots, echo=F, warning=F}
+```{r PCA_ifNoBatch_plot, echo=F, warning=F, out.width="80%", dpi=1200, fig.align='center'}
 ############################ PCA PLOTS ########################
 pcaData <- plotPCA(if (params$rlog) rld else vsd,intgroup=c("combfactor"),ntop = dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
@@ -829,31 +850,9 @@ pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor)) +
     coord_fixed() +
     theme_bw() +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-suppressMessages(ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.pdf", device = "pdf", dpi = 300))
-suppressMessages(ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg", device = "svg", dpi = 150))
-suppressMessages(ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.png", device = "png", dpi = 150))
-########################### PCA PLOT with batch-corrected data ############
-if(!isNot(params$batch_effect)){
-    if (opt$rlog) {
-        assay(rld) <- limma::removeBatchEffect(assay(rld), rld$batch)
-    }
-    else {
-        assay(vsd) <- limma::removeBatchEffect(assay(vsd), vsd$batch)
-    }
-    pcaData2 <- plotPCA(if (params$rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
-    percentVar <- round(100*attr(pcaData, "percentVar"))
-    pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor)) +
-                geom_point(size=3)+
-                xlab(paste0("PC1: ", percentVar[1],"% variance")) +
-                ylab(paste0("PC2: ", percentVar[2], "% variance")) +
-                theme(legend.title = element_blank()) +
-                coord_fixed()
-    suppressMessages(ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.pdf", device = "pdf", dpi=300))
-    suppressMessages(ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.svg", device = "svg", dpi = 150))
-    suppressMessages(ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.png", device = "png", dpi = 150))
-}
-
-```{r PCA_ifNoBatch_plot, echo=F, out.width="80%", dpi=1200, fig.align='center'}
+ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
+ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg", device = "svg", dpi = 150)
+ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.png", device = "png", dpi = 150)
 pca
 ```
 
@@ -865,6 +864,24 @@ A PCA of the batch-effect corrected data is shown below and can be found [here](
 ```
 
 ```{r PCA_ifBatch_plot, echo=F, out.width="80%", dpi=1200, fig.align='center', eval=params$batch_effect}
+########################### PCA PLOT with batch-corrected data ############
+if (opt$rlog) {
+    assay(rld) <- limma::removeBatchEffect(assay(rld), rld$batch)
+}
+else {
+    assay(vsd) <- limma::removeBatchEffect(assay(vsd), vsd$batch)
+}
+pcaData2 <- plotPCA(if (params$rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
+percentVar <- round(100*attr(pcaData, "percentVar"))
+pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor)) +
+            geom_point(size=3)+
+            xlab(paste0("PC1: ", percentVar[1],"% variance")) +
+            ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+            theme(legend.title = element_blank()) +
+            coord_fixed()
+ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.pdf", device = "pdf", dpi=300)
+ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.svg", device = "svg", dpi = 150)
+ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.png", device = "png", dpi = 150)
 pca2
 ```
 
@@ -1082,7 +1099,6 @@ write.table(DE_genes_final_table, "differential_gene_expression/final_gene_table
 <!-- contrast calculation end -->
 
 ```{r print_contrasts, echo=FALSE, results='asis'}
-#TODO:
 for (i in 1:length(contrast_names)){
     cat(paste("* ", contrast_names[i], "\n"))
 }
@@ -1180,7 +1196,6 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     svg_icon_transform <- 'scale(0.07)'
     svg_icon_viewbox <- '0 0 240 320'
     # This adds a save-to-svg button to the plot menubar
-    #TODO: check if svg works
     svg_exp <- list(
         name = "Download plot as an svg",
         icon = list(
@@ -1283,18 +1298,15 @@ invisible(lapply(c(
 "pathview",
 "AnnotationDbi",
 "optparse",
-"org.Mm.eg.db",
-"org.Hs.eg.db"
 ), library, character.only=T))
-# Need to load library for your species! Or provide as parameter to biocmanager
 
+#The following installs the necessary species library
 organism <- tolower(params$organism)
 short_organism_name <- substr(organism,1,3)
 species_dir <- tempdir()
 if (!require("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
-
 BiocManager::install(params$species_library, lib=species_dir, version="3.14")
 library(params$species_library, lib.loc=species_dir, character.only=T)
 library <- get(params$species_library)
@@ -1564,7 +1576,6 @@ The table below provides more detail on all enriched pathways."))
 ```
 
 ```{r gost, eval=params$pathway_analysis, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE}
-    #TODO: check if here, only the filtered genes are necessary
     contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
     q_list <- list()
     q_names <- c()
@@ -1596,7 +1607,6 @@ The table below provides more detail on all enriched pathways."))
     path_enrich <- as.data.frame(gostres$result)
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)
-    # TODO   pg2
         pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
         pg2 %>% layout(margin = list(l = 75, b = 100), width=500, height = 400*length(contrast_files))
     } else {
