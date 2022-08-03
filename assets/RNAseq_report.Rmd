@@ -873,8 +873,7 @@ A PCA of the batch-effect corrected data is shown below and can be found [here](
 ########################### PCA PLOT with batch-corrected data ############
 if (opt$rlog) {
     assay(rld) <- limma::removeBatchEffect(assay(rld), rld$batch)
-}
-else {
+} else {
     assay(vsd) <- limma::removeBatchEffect(assay(vsd), vsd$batch)
 }
 pcaData2 <- plotPCA(if (params$rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
