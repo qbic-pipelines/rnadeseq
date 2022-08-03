@@ -76,7 +76,6 @@ jobs:
             "test",
             "test_contrast_matrix",
             "test_contrast_list",
-            "test_contrast_matrix",
             "test_no_multiqc",
             "test_relevel",
             "test_skip_pathway_analysis",
