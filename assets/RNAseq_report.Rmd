@@ -305,6 +305,7 @@ row.names(metadata) = metadata$sampleName
 capture.output(metadata, file="/home/iivow01/git/rnadeseq/error/met2")
 
 if (params$input_type == "featurecounts"){
+    names(count.table) = metadata$sampleName
     if (!identical(names(count.table),row.names(metadata))) {
     print("After refactoring the metadata table, count table headers do not exactly match the metadata table sample names! Offending values in count table:")
     error_out <- write_error_msg(count.table, metadata)
@@ -1304,8 +1305,12 @@ invisible(lapply(c(
 "reshape2",
 "pathview",
 "AnnotationDbi",
-"optparse",
+"optparse"
 ), library, character.only=T))
+
+# Human and mouse genomes are loaded by default as they otherwise produce errors
+library(org.Mm.eg.db) #Mmusculus
+library(org.Hs.eg.db) #Hsapiens
 
 #The following installs the necessary species library
 organism <- tolower(params$organism)
