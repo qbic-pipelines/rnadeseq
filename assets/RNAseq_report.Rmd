@@ -296,13 +296,11 @@ if (params$input_type == "featurecounts"){
         stop(paste0(error_out, "\nla"), call.=F)
         }
 }
-capture.output(metadata, file="/home/iivow01/git/rnadeseq/error/met1")
 # process secondary names and change row names in metadata
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name)
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
 metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
 row.names(metadata) = metadata$sampleName
-capture.output(metadata, file="/home/iivow01/git/rnadeseq/error/met2")
 
 if (params$input_type == "featurecounts"){
     names(count.table) = metadata$sampleName
