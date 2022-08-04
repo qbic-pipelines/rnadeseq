@@ -1,5 +1,5 @@
 - name: Run test profile with star rsem
-  command: nextflow run main.nf -profile test_star_rsem,docker --citest true
+  command: nextflow run main.nf -profile test_star_rsem,docker --citest true --round_DE 3
   tags:
     - test_star_rsem
   files:

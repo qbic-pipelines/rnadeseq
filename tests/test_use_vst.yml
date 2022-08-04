@@ -1,5 +1,5 @@
 - name: Run test profile with vst transformation
-  command: nextflow run main.nf -profile test_use_vst,docker --citest true
+  command: nextflow run main.nf -profile test_use_vst,docker --citest true --round_DE 3
   tags:
     - test_use_vst
   files:

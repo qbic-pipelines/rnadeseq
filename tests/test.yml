@@ -1,5 +1,5 @@
 - name: Run test profile
-  command: nextflow run main.nf -profile test,docker --citest true
+  command: nextflow run main.nf -profile test,docker --citest true --round_DE 3
   tags:
     - test
   files:

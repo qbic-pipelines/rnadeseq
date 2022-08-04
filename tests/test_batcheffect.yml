@@ -1,5 +1,5 @@
 - name: Run test profile with batcheffect correction
-  command: nextflow run main.nf -profile test_batcheffect,docker --citest true
+  command: nextflow run main.nf -profile test_batcheffect,docker --citest true --round_DE 3
   tags:
     - test_batcheffect
   files:

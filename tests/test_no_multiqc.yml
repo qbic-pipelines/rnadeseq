@@ -1,5 +1,5 @@
 - name: Run test profile without multiQC input
-  command: nextflow run main.nf -profile test_no_multiqc,docker --citest true
+  command: nextflow run main.nf -profile test_no_multiqc,docker --citest true --round_DE 3
   tags:
     - test_no_multiqc
   files:
