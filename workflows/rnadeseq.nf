@@ -34,7 +34,6 @@ ch_contrast_matrix = Channel.fromPath(params.contrast_matrix)
 ch_contrast_list = Channel.fromPath(params.contrast_list)
 ch_contrast_pairs = Channel.fromPath(params.contrast_pairs)
 ch_relevel = Channel.fromPath(params.relevel)
-ch_quote_file = Channel.fromPath(params.quote)
 ch_genes = Channel.fromPath(params.genelist)
 ch_multiqc_file = Channel.fromPath(params.multiqc)
 
@@ -89,16 +88,17 @@ workflow RNADESEQ {
         ch_counts_path,
         ch_metadata_file,
         ch_model_file,
+        ch_gtf,
+
         ch_contrast_matrix,
         ch_contrast_list,
         ch_contrast_pairs,
-        ch_relevel,
         ch_genes,
-        ch_gtf,
+        ch_relevel,
+
         ch_proj_summary_file,
         ch_softwareversions_file,
-        ch_multiqc_file,
-        ch_quote_file
+        ch_multiqc_file
     )
 
     //TODO: Enable this:

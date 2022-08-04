@@ -6,17 +6,17 @@ process REPORT {
     path gene_counts
     path metadata
     path model
+    path gtf
+
     path contrast_matrix
     path contrast_list
     path contrast_pairs
-    path relevel
     path genelist
-    path gtf
+    path relevel
 
     path proj_summary
     path softwareversions
     path multiqc
-    path quote
 
     output:
     path "*.zip"
@@ -24,15 +24,17 @@ process REPORT {
 
     script:
 
-    def genelist_opt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def contrast_matrix_opt = contrast_matrix.name != 'DEFAULT' ? "--contrast_matrix $contrast_matrix" : ''
     def contrast_list_opt = contrast_list.name != 'DEFAULT1' ? "--contrast_list $contrast_list" : ''
     def contrast_pairs_opt = contrast_pairs.name != 'DEFAULT2' ? "--contrast_pairs $contrast_pairs" : ''
+    def genelist_opt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel $relevel" : ''
     def batch_effect_opt = params.batch_effect ? "--batch_effect TRUE" : ''
     def rlog_opt = params.use_vst ? '--rlog FALSE' : ''
-    def quoteopt = quote.name != 'NO_FILE4' ? "$quote" : ''
+    def round_DE_opt = params.round_DE ? "--round_DE $params.round_DE" : ''
+
     def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
+
     def citest_opt = params.citest == "true" ? "--citest TRUE" : ''
 
     """
@@ -41,32 +43,34 @@ process REPORT {
         mkdir QC
         mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
     fi
-    Execute_report.R --report '$baseDir/assets/RNAseq_report.Rmd' \
-    --gene_counts $gene_counts \
-    --metadata $metadata \
-    $contrast_matrix_opt \
-    $contrast_list_opt \
-    $contrast_pairs_opt \
-    $genelist_opt \
-    $relevel_opt \
-    --output 'RNAseq_report.html' \
-    --proj_summary $proj_summary \
-    --versions $softwareversions \
-    --model $model \
-    --revision $workflow.manifest.version \
-    $genelist_opt \
-    --gtf $gtf \
-    --organism $params.organism \
-    --log_FC_threshold $params.logFCthreshold \
-    $batch_effect_opt \
-    --min_DEG_pathway $params.min_DEG_pathway \
-    --species_library $params.library \
-    --nsub_genes $params.vst_genes_number \
-    --keytype $params.keytype \
-    --input_type $params.input_type \
-    $pathwayopt \
-    $rlog_opt \
-    $citest_opt
+    Execute_report.R \
+        --report '$baseDir/assets/RNAseq_report.Rmd' \
+        --output 'RNAseq_report.html' \
+        --input_type $params.input_type \
+        --gene_counts $gene_counts \
+        --metadata $metadata \
+        --model $model \
+        --gtf $gtf \
+        $contrast_matrix_opt \
+        $contrast_list_opt \
+        $contrast_pairs_opt \
+        $genelist_opt \
+        $relevel_opt \
+        $batch_effect_opt \
+        --log_FC_threshold $params.logFCthreshold \
+        $rlog_opt \
+        --nsub_genes $params.vst_genes_number \
+        $round_DE_opt \
+        $pathwayopt \
+        --organism $params.organism \
+        --species_library $params.library \
+        --keytype $params.keytype \
+        --min_DEG_pathway $params.min_DEG_pathway \
+        --proj_summary $proj_summary \
+        --versions $softwareversions \
+        --revision $workflow.manifest.version \
+        $citest_opt
+
     # Remove allgenes dir as the contained files do not contain only DE genes
     rm -r differential_gene_expression/allgenes
     # If citest, remove heatmaps as their filenames contain : which is an invalid character
@@ -75,9 +79,9 @@ process REPORT {
         cp -r RNAseq_report.html differential_gene_expression/ pathway_analysis/ ../../../results_test # 2>/dev/null || :
     fi
     if [ "$pathwayopt" == "--pathway_analysis" ]; then
-        zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/ $quoteopt
+        zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/
     else
-        zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ $quoteopt
+        zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/
     fi
     """
 
