@@ -4,13 +4,13 @@
     - test_star_salmon
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_H1_vs_GM12878.tsv
-      md5sum: 586422e2142396e09571159658d40065
+      md5sum: c80564418790c6d4a60a460f594b2934
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_K562_vs_GM12878.tsv
-      md5sum: 586422e2142396e09571159658d40065
+      md5sum: 0221b0098bdcc1911a500ac9f97a1d2b
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_MCF7_vs_GM12878.tsv
-      md5sum: 586422e2142396e09571159658d40065
+      md5sum: fcfd60285199bb7adfe0ec001f95f86f
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
-      md5sum: 586422e2142396e09571159658d40065
+      md5sum: e493ccfc9f15d05049776a424b1464f1
     - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_table.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv
