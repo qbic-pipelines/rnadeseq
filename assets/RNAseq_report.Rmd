@@ -1200,11 +1200,11 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     log2FoldChange_max <- max(DE_all$log2FoldChange)
     pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
             #this goes after alpha=0.5:
-            geom_point(alpha=0.5, aes(color=ifelse(abs(DE_all$log2FoldChange) > params$logFC_threshold &  DE_all$logpval > -log10(pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
+            geom_point(alpha=0.5, aes(color=ifelse(abs(DE_all$log2FoldChange) > params$logFC_threshold &  DE_all$logpval > -log10(params$pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
             geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
-            geom_hline(yintercept = -log10(pval_threshold), size = 0.2, color = "grey") +
-            geom_vline(xintercept = -logFC_threshold, size = 0.2, color = "grey") +
-            geom_vline(xintercept = logFC_threshold, size = 0.2, color = "grey") +
+            geom_hline(yintercept = -log10(params$pval_threshold), size = 0.2, color = "grey") +
+            geom_vline(xintercept = -params$logFC_threshold, size = 0.2, color = "grey") +
+            geom_vline(xintercept = params$logFC_threshold, size = 0.2, color = "grey") +
             scale_color_manual(name = "", values=c("red", "black")) +
             scale_y_continuous(limits = c(1, 18)) +
             scale_x_continuous(breaks = seq(-200, 200, 1)) +
