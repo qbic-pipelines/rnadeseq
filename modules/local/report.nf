@@ -57,7 +57,8 @@ process REPORT {
         $genelist_opt \
         $relevel_opt \
         $batch_effect_opt \
-        --log_FC_threshold $params.logFCthreshold \
+        --logFC_threshold $params.logFC_threshold \
+        --pval_threshold $params.pval_threshold \
         $rlog_opt \
         --nsub_genes $params.vst_genes_number \
         $round_DE_opt \

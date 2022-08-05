@@ -26,8 +26,8 @@ params:
     path_genelist: ''
     path_relevel: ''
     batch_effect: ''
-    log_FC_threshold: ''
-    pval_threshold: ''  #TODO
+    logFC_threshold: ''
+    pval_threshold: ''
     nsub_genes: ''
     rlog: ''
     round_DE: ''
@@ -253,11 +253,6 @@ Auf der Morgenstelle 10, 72076 Tuebingen
 # Sample metadata
 
 <!-- metadata start -->
-
-```{r get_vals}
-pval_threshold <- 0.05  #set here the non-logarithmized threshold for the p value (probably 0.05)
-pval_text <- as.character(pval_threshold)
-```
 
 ```{r read_metadata, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 # Load metadata: sample preparations tsv file from qPortal
@@ -961,7 +956,7 @@ if (!(isNot(params$path_contrast_matrix))){
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > params$log_FC_threshold)
+        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < params$pval_threshold & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
         if (!isNot(params$round_DE)) {
@@ -995,7 +990,7 @@ if (!(isNot(params$path_contrast_list))) {
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > params$log_FC_threshold)
+        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < params$pval_threshold & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
         if (!isNot(params$round_DE)) {
@@ -1032,7 +1027,7 @@ if (!(isNot(params$path_contrast_pairs))) {
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > params$log_FC_threshold)
+        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < params$pval_threshold & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
         if (!isNot(params$round_DE)) {
@@ -1063,7 +1058,7 @@ if (isNot(params$path_contrast_matrix) & isNot(params$path_contrast_list) & isNo
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > params$log_FC_threshold)
+        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < params$pval_threshold & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
         if (!isNot(params$round_DE)) {
@@ -1091,10 +1086,10 @@ logFC_cols = names(DE_genes_df)[grepl("log2FoldChange", names(DE_genes_df))]
 logFC = DE_genes_df[,logFC_cols,drop=F]
 padj = DE_genes_df[,padj_cols,drop=F]
 padj[is.na(padj)] <- 1
-# Convert to binary (1/0) matrix if padj < 0.05 or not, respectively
-padj_bin = data.matrix(ifelse(padj < 0.05, 1, 0))
+# Convert to binary (1/0) matrix if padj < params$pval_threshold or not, respectively
+padj_bin = data.matrix(ifelse(padj < params$pval_threshold, 1, 0))
 # Convert to binary (1/0) matrix if logFC is bigger or smaller than threshold or not, respectively
-logFC_bin = data.matrix(ifelse(abs(logFC) > params$log_FC_threshold, 1, 0))
+logFC_bin = data.matrix(ifelse(abs(logFC) > params$logFC_threshold, 1, 0))
 # Multiply the two bin matrices --> if padj matrix value or LogFC matrix value is 0, will be 0
 DE_bin = padj_bin * logFC_bin
 # Save as data frame
@@ -1133,14 +1128,15 @@ for (i in 1:length(contrast_names)){
 ```
 
 ```{r load_config, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
-log_FC_text <- as.character(params$log_FC_threshold)
+logFC_text <- as.character(params$logFC_threshold)
+pval_text <- as.character(params$pval_threshold)
 ```
 
 ## List of differentially expressed genes
 
 The analysis of the differential gene expression was performed using `DESeq2`.
-Genes were considered differentially expressed (DE) when the adjusted p-value was lower than 0.05 (padj < 0.05).
-Genes were further considered differentially expressed (DE) if the log2 Fold Change in expression between the two considered groups was above the threshold of `r log_FC_text` in absolute terms.
+Genes were considered differentially expressed (DE) when the adjusted p-value was lower than `r pval_text` (padj < r `pval_text`).
+Genes were further considered differentially expressed (DE) if the log2 Fold Change in expression between the two considered groups was above the threshold of `r logFC_text` in absolute terms.
 The adjusted p-value is calculated in the `DESeq2` package with the Benjamini-Hochberg method. P-value adjustment
 helps reduce the number of false postives (not real differentially expressed genes).
 
@@ -1174,12 +1170,12 @@ kable(df, escape=F,row.names =F) %>%
 
 Volcano plots display the DE genes in Log2 Fold Change values (x axis)
 against their adjusted p-value (y axis) in a form of a -log10. Only DE genes are colored red.
-Genes were considered DE with a padj < 0.05 (horizontal drawn through line) and in addition a Log2FC > `r log_FC_text` or < -`r log_FC_text` (vertical grey lines). Values above the horizontal dashed line were capped.
+Genes were considered DE with a padj < `r pval_text` (horizontal drawn through line) and in addition a Log2FC > `r logFC_text` or < -`r logFC_text` (vertical grey lines). Values above the horizontal dashed line were capped.
 Here, volcano plots for all considered contrasts are shown. Hover over the dots to show the gene names.
 
 ```{r volcano_plot, out.width="100%", out.height="100%"}
     #prepare logFC threshold for report text
-    log_FC_num <- as.numeric(params$log_FC_threshold)
+    logFC_num <- as.numeric(params$logFC_threshold)
     # Set plot theme
     theme_set(theme_bw(base_family = "ArialMT") +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
@@ -1204,18 +1200,18 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     log2FoldChange_max <- max(DE_all$log2FoldChange)
     pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
             #this goes after alpha=0.5:
-            geom_point(alpha=0.5, aes(color=ifelse(abs(DE_all$log2FoldChange) > params$log_FC_threshold &  DE_all$logpval > -log10(pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
+            geom_point(alpha=0.5, aes(color=ifelse(abs(DE_all$log2FoldChange) > params$logFC_threshold &  DE_all$logpval > -log10(pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
             geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
             geom_hline(yintercept = -log10(pval_threshold), size = 0.2, color = "grey") +
-            geom_vline(xintercept = 0.05, size = 0.2, color = "grey") +
-            geom_vline(xintercept = -0.05, size = 0.2, color = "grey") +
+            geom_vline(xintercept = -logFC_threshold, size = 0.2, color = "grey") +
+            geom_vline(xintercept = logFC_threshold, size = 0.2, color = "grey") +
             scale_color_manual(name = "", values=c("red", "black")) +
             scale_y_continuous(limits = c(1, 18)) +
             scale_x_continuous(breaks = seq(-200, 200, 1)) +
             facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
             ylab("-log 10 padj") + xlab("Log2 Fold Change")
     pg <- ggplotly(pg, tooltip = "text")
-    pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05
+    pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05 #TODO: what do these two lines do?
     pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
 
     # svg path for the little svg format icon displayed in the volcano plot for svg export; based on https://www.svgviewer.dev/:
@@ -1407,7 +1403,7 @@ for (file in contrast_files){
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
-            user_threshold=0.05)
+            user_threshold=params$pval_threshold)
 
     # Make data frame of gost result
     pathway_gostres <- gostres$result
@@ -1602,7 +1598,7 @@ The pathway analysis results are stored [here](./pathway_analysis), and explaine
 
 ## Enriched pathways
 The plot below summarizes the pathways that were
-found significantly enriched in DE genes for each contrast (padj value < 0.05).
+found significantly enriched in DE genes for each contrast (padj value < `r pval_text`).
 Only contrasts for which an enriched pathway was found are shown.
 Both KEGG pathways and REACTOME (REAC) pathways are considered.
 Hover over the dots to reveal the pathway names.
@@ -1636,12 +1632,12 @@ The table below provides more detail on all enriched pathways."))
                     significant=T,
                     correction_method="fdr",
                     sources=datasources,
-                    user_threshold=0.05)
+                    user_threshold=params$pval_threshold)
 
     path_enrich <- as.data.frame(gostres$result)
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)
-        pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
+        pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$pval_threshold
         pg2 %>% layout(margin = list(l = 75, b = 100), width=500, height = 400*length(contrast_files))
     } else {
         cat("No enriched pathways were found.")
