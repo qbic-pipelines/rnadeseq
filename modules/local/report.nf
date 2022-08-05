@@ -76,7 +76,7 @@ process REPORT {
     # If citest, remove heatmaps as their filenames contain : which is an invalid character
     if [ "$params.citest" == true ]; then
         mkdir ../../../results_test
-        cp -r RNAseq_report.html differential_gene_expression/ pathway_analysis/ ../../../results_test
+        cp -r RNAseq_report.html differential_gene_expression/ ../../../results_test
         if [ "$pathwayopt" == "--pathway_analysis" ]; then
             cp -r pathway_analysis/ ../../../results_test
         fi
