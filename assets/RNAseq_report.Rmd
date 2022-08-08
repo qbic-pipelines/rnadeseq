@@ -1198,26 +1198,12 @@ The linear model employed to model gene expression in DESeq2 was:
 cat(paste(readLines(params$path_design), collapse=" "))
 ```
 
-The list summarizing all found differentially expressed genes for any contrast (comparison) is shown here.
 The differentially expressed genes are marked with "DE" in the outcome column if they were found
 differentially expressed for any of the contrasts considered.
 
 The table for download can be found [here](./differential_gene_expression/final_gene_table/final_DE_gene_list.tsv).
 
 Additional tables for all individual contrasts are provided [here](./differential_gene_expression/DE_genes_tables).
-
-<!-- Show table here removed as I dont like showing only top 20 genes.
-TODO Is this still necessary?
-```{r}
-df_DE <- read.table(paste0(wd,"/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv"),
-                            header=TRUE, sep="\t")
-padj = names(df_DE)[grepl("padj",names(df_DE))]
-df = head(df_DE %>% arrange(df_DE[[tail(padj, n=1)]]),20)
-kable(df, escape=F,row.names =F) %>%
-    kable_styling("hover") %>%
-    scroll_box(width = "100%", height = "400px")
-```
--->
 
 ## Volcano plots of DE genes
 
@@ -1680,9 +1666,6 @@ The table below provides more detail on all enriched pathways."))
     }
     datasources <- c("KEGG","REAC")
     names(q_list) <- q_names
-    if (!length(q_list)) {
-        stop("list empty?!?")
-    }
 
     #gost query
     gostres <- gost(query=q_list,
