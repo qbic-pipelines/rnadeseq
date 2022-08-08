@@ -972,7 +972,25 @@ if (!(isNot(params$path_contrast_matrix))){
 }
 if (!(isNot(params$path_contrast_list))) {
     contrasts <- read.table(params$path_contrast_list, sep="\t", header=T, colClasses = "character")
+    capture.output(contrasts, file="/home-link/iivow01/git/rnadeseq/error/cont", append=F)
+    for (i in 1:nrow(contrasts)) {
+        capture.output("contrast", file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
+        capture.output(contrasts[i,1], file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
+        capture.output(grepl("condition_", contrasts[i,1], fixed = TRUE), file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
+        if (grepl("condition_", contrasts[i,1], fixed = TRUE)) {
+            capture.output("factors", file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
+            for (j in 2:ncol(contrasts)) {
+            capture.output(contrasts[i,j], file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
+         #   capture.output(contrasts[i,j] %in% metadata[,2], file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
+            }
+        }
+
+    }
+    capture.output(metadata, file="/home-link/iivow01/git/rnadeseq/error/met")
+    capture.output("bla", file="/home-link/iivow01/git/rnadeseq/error/met", append=T)
+    capture.output(colnames(metadata), file="/home-link/iivow01/git/rnadeseq/error/met", append=T)
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv", quote=F)
+    lalala
     ## Contrast calculation for contrast list
     for (i in c(1:nrow(contrasts))) {
         cont <- as.character(contrasts[i,])
