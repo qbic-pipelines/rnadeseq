@@ -1349,13 +1349,6 @@ theme_set(theme_classic())
 
 # For each contrast do pathway analysis
 
-# TODO debugging summary table
-# Defining summary variables
-# contrast <- c()
-# number_DE_genes <- c()
-# number_enriched_pathways <- c()
-# list_DE_genes <- list()
-# list_enriched_pathways <- list()
 for (file in contrast_files){
     #Reading DE genes list
     fname <- tools::file_path_sans_ext(basename(file))
