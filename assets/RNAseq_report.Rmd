@@ -674,7 +674,6 @@ for (i in resultsNames(cds)[-1]) {
 ```
 <!-- DESeq2 end -->
 
-<!-- metadata end -->
 
 <!-- multiQC start -->
 
