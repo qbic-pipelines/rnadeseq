@@ -1500,11 +1500,6 @@ for (file in contrast_files){
     }
 }
 
-# Writing DE gene summary table
-# df_summary <- data.frame(Contrast = contrast, Number_DE_genes = number_DE_genes, Number_enriched_pathways = number_enriched_pathways, DE_genes_list = list_DE_genes, Enriched_pathways_list = list_enriched_pathways)
-# write.table(df_summary,
-#         file = paste0("pathway_analysis", "/", fname, "/", fname, "_pathway_enrichment_summary.tsv"),
-#         sep="\t", quote = F, col.names = T, row.names = F)
 
 
 # Plotting heatmap for provided gene list
