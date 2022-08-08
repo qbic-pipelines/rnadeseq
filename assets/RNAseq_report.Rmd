@@ -300,6 +300,7 @@ metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name)
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
 metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
 row.names(metadata) = metadata$sampleName
+metadata_save <- metadata
 
 if (params$input_type == "featurecounts"){
     names(count.table) = metadata$sampleName
@@ -972,23 +973,26 @@ if (!(isNot(params$path_contrast_matrix))){
 }
 if (!(isNot(params$path_contrast_list))) {
     contrasts <- read.table(params$path_contrast_list, sep="\t", header=T, colClasses = "character")
-    capture.output(contrasts, file="/home-link/iivow01/git/rnadeseq/error/cont", append=F)
+    metadata_cond <- metadata_save
+    write.table(metadata_cond, file="/home-link/iivow01/git/rnadeseq/error/metadata_cond", append=F)
     for (i in 1:nrow(contrasts)) {
-        capture.output("contrast", file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
-        capture.output(contrasts[i,1], file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
         capture.output(grepl("condition_", contrasts[i,1], fixed = TRUE), file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
         if (grepl("condition_", contrasts[i,1], fixed = TRUE)) {
-            capture.output("factors", file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
+            cond_name <- contrasts[i,1]
+            capture.output(cond_name, file="/home-link/iivow01/git/rnadeseq/error/metcond", append=T)
+            capture.output(metadata_cond[cond_name], file="/home-link/iivow01/git/rnadeseq/error/metcond", append=T)
             for (j in 2:ncol(contrasts)) {
-            capture.output(contrasts[i,j], file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
-         #   capture.output(contrasts[i,j] %in% metadata[,2], file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
+                if (contrasts[i,j] %in% metadata_cond$cond_name)) {
+                    capture.output(paste(contrasts[i,j], "is in"), file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
+                    capture.output(metadata_cond$cond_name, file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
+                } else {
+                    capture.output(paste(contrasts[i,j], "is not in"), file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
+                    capture.output(metadata_cond$cond_name, file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
+                }
             }
         }
 
     }
-    capture.output(metadata, file="/home-link/iivow01/git/rnadeseq/error/met")
-    capture.output("bla", file="/home-link/iivow01/git/rnadeseq/error/met", append=T)
-    capture.output(colnames(metadata), file="/home-link/iivow01/git/rnadeseq/error/met", append=T)
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv", quote=F)
     lalala
     ## Contrast calculation for contrast list
@@ -1367,7 +1371,7 @@ path_contrasts <- 'differential_gene_expression/DE_genes_tables/'
 metadata <- metadata_PA
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name) # Remove blank spaces and ; from secondary name
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name) # Remove blank spaces if there from secondary name
-
+#TODO: metadata <- metadata_save
 # Create output directory
 dir.create("pathway_analysis")
 
