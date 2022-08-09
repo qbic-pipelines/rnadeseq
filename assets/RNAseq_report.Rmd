@@ -1634,7 +1634,6 @@ The table below provides more detail on all enriched pathways."))
         q_list <- append(q_list, list(q))
         q_names <- append(q_names, fname)
     }
-    datasources <- c("KEGG","REAC")
     names(q_list) <- q_names
     if (!length(q_list)) {
         stop("list empty?!?")
@@ -1714,12 +1713,18 @@ An aggregation of the quality control for the RNAseq analysis was performed with
 
 The differential expression analysis was performed by the use of the `rnadeseq `r as.character(params$revision)`` pipeline [^5]. For differential expression analysis, the raw read count table resulting from `featureCounts` was processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
 
-```{r conditional_pathway2, echo=FALSE, results='hide', eval=params$pathway_analysis}
+```{r conditional_pathway2, echo=FALSE, results='asis', eval=params$pathway_analysis}
 version_gprofiler2 = packageVersion("gprofiler2")
 version_annotation = packageVersion("AnnotationDbi")
 name_species       = params$species_library
 version_species    = packageVersion(name_species)
-cat(paste("For pathway analysis, the R packages `gprofiler2 v",version_gprofiler2,"`, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed.", sep=''))
+database_string = ""
+database_version_info <- get_version_info(params$organism)
+for (db in datasources) {
+    database_string <- paste0(database_string, "`", db, ": ", gsub("\n", ", ", database_version_info$sources[[db]]$version), "`, ")
+}
+database_string <- substring(database_string, 1, nchar(database_string)-1)
+cat(paste("For pathway analysis, the R packages `gprofiler2 v",version_gprofiler2,"`, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. Also, the following databases were queried:", database_string, sep=''))
 ```
 
 Graphs were produced in RStudio with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")`` . Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
