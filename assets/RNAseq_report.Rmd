@@ -1222,7 +1222,9 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
             facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
             ylab("-log 10 padj") + xlab("Log2 Fold Change")
     pg <- ggplotly(pg, tooltip = "text")
-    pg[['x']][['layout']][['annotations']][[2]][['x']] <- 5 #TODO: what do these two lines do?
+
+    # the following two lines set the position of the axis descriptions (ylab and xlab)
+    pg[['x']][['layout']][['annotations']][[2]][['x']] <- 5
     pg[['x']][['layout']][['annotations']][[1]][['y']] <- -20
 
     # svg path for the little svg format icon displayed in the volcano plot for svg export; based on https://www.svgviewer.dev/:
