@@ -5,7 +5,6 @@
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_H1_vs_GM12878.tsv
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_K562_vs_GM12878.tsv
-      md5sum: 8f968136ddd5010e38699ff34c20266c
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_MCF7_vs_GM12878.tsv
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.pdf
@@ -71,8 +70,6 @@
     - path: results_test/differential_gene_expression/plots/PCA_plot.pdf
     - path: results_test/differential_gene_expression/plots/PCA_plot.png
     - path: results_test/differential_gene_expression/plots/PCA_plot.svg
-    - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878_KEGG_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878_KEGG_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/DE_contrast_condition_cellline_H1_vs_GM12878_pathway_enrichment_results.tsv
       md5sum: b2511b6dc7e46053be93908e96be298d
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_pathway_enrichment_results.tsv
