@@ -974,32 +974,21 @@ if (!(isNot(params$path_contrast_matrix))){
 if (!(isNot(params$path_contrast_list))) {
     contrasts <- read.table(params$path_contrast_list, sep="\t", header=T, colClasses = "character")
     metadata_cond <- metadata_save
-    write.table(metadata_cond, file="/home-link/iivow01/git/rnadeseq/error/metadata_cond", append=F)
     for (i in 1:nrow(contrasts)) {
-        capture.output(grepl("condition_", contrasts[i,1], fixed = TRUE), file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
         if (grepl("condition_", contrasts[i,1], fixed = TRUE)) {
             cond_name <- contrasts[i,1]
-            capture.output(cond_name, file="/home-link/iivow01/git/rnadeseq/error/metcond", append=T)
-            capture.output(metadata_cond[cond_name], file="/home-link/iivow01/git/rnadeseq/error/metcond", append=T)
             for (j in 2:ncol(contrasts)) {
-                if (contrasts[i,j] %in% metadata_cond$cond_name)) {
-                    capture.output(paste(contrasts[i,j], "is in"), file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
-                    capture.output(metadata_cond$cond_name, file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
-                } else {
-                    capture.output(paste(contrasts[i,j], "is not in"), file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
-                    capture.output(metadata_cond$cond_name, file="/home-link/iivow01/git/rnadeseq/error/contr", append=T)
+                if (!any(metadata_cond[cond_name]==contrasts[i,j])) {
+                    stop(paste("Could not find value", contrasts[i,j], "for contrast", metadata_cond[cond_name], ", please check metadata sheet and contrast list!"))
                 }
             }
         }
-
     }
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv", quote=F)
-    lalala
     ## Contrast calculation for contrast list
     for (i in c(1:nrow(contrasts))) {
         cont <- as.character(contrasts[i,])
         contname <- paste0(cont[1], "_", cont[2], "_vs_", cont[3])
-    # TODO: add checks if provided contrast_names and factors are in metadata
         results_DEseq_contrast <- results(cds, contrast=cont)
         results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
         print(contname)
