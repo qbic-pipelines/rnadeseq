@@ -73,7 +73,7 @@ process REPORT {
 
     # Remove allgenes dir as the contained files do not contain only DE genes
     rm -r differential_gene_expression/allgenes
-    # If citest, remove heatmaps as their filenames contain : which is an invalid character
+    # If citest, copy results before zipping as unzip does not work properly in the container
     if [ "$params.citest" == true ]; then
         mkdir ../../../results_test
         cp -r RNAseq_report.html differential_gene_expression/ ../../../results_test
