@@ -27,7 +27,7 @@
   - [`--contrast_list`](#--contrast_list)
   - [`--contrast_pairs`](#--contrast_pairs)
 - [Optional arguments](#optional-arguments)
-  - [`--logFCthreshold`](#--logfcthreshold)
+  - [`--logFC_threshold`](#--logFC_threshold)
   - [`--genelist`](#--genelist)
   - [`--batch_effect`](#--batch_effect)
   - [`--quote`](#--quote)
@@ -232,7 +232,7 @@ interaction_effect condition_treatment_treated_vs_control  condition_genotype_KO
 
 ## Optional arguments
 
-### `--logFCthreshold`
+### `--logFC_threshold`
 
 Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed. There is no threshold applied by default to Log2 Fold Change.
 

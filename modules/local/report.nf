@@ -54,7 +54,7 @@ process REPORT {
     $genelist_opt \
     --gtf $gtf \
     --organism $params.organism \
-    --log_FC_threshold $params.logFCthreshold \
+    --logFC_threshold $params.logFC_threshold \
     $batch_effect_opt \
     --min_DEG_pathway $params.min_DEG_pathway \
     --species_library $params.library \

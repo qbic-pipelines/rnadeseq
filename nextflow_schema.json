@@ -59,7 +59,7 @@
                     "default": "NO_FILE2",
                     "description": "Tsv indicating list of factors (conditions in the metadata table) and the new level on which to relevel the factor. Check contrasts docs."
                 },
-                "logFCthreshold": {
+                "logFC_threshold": {
                     "type": "integer",
                     "default": 0,
                     "description": "Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed."

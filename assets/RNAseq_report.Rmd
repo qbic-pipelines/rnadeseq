@@ -27,7 +27,7 @@ params:
     path_genelist: ''
     path_relevel: ''
     batch_effect: ''
-    log_FC_threshold: ''
+    logFC_threshold: ''
     pval_threshold: ''  #TODO
     nsub_genes: ''
     rlog: ''
@@ -994,7 +994,7 @@ if (!(isNot(params$path_contrast_matrix))){
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
 
         # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > params$log_FC_threshold)
+        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
 
         # Save table
@@ -1030,7 +1030,7 @@ if (!(isNot(params$path_contrast_list))) {
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
 
         # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > params$log_FC_threshold)
+        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
 
         # Save table
@@ -1069,7 +1069,7 @@ if (!(isNot(params$path_contrast_pairs))) {
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
 
         # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > params$log_FC_threshold)
+        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Save table
 
@@ -1102,7 +1102,7 @@ if (isNot(params$path_contrast_matrix) & isNot(params$path_contrast_list) & isNo
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
 
         # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > params$log_FC_threshold)
+        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < 0.05 & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
 
         # Save table
@@ -1136,7 +1136,7 @@ padj[is.na(padj)] <- 1
 padj_bin = data.matrix(ifelse(padj < 0.05, 1, 0))
 
 # Convert to binary (1/0) matrix if logFC is bigger or smaller than threshold or not, respectively
-logFC_bin = data.matrix(ifelse(abs(logFC) > params$log_FC_threshold, 1, 0))
+logFC_bin = data.matrix(ifelse(abs(logFC) > params$logFC_threshold, 1, 0))
 
 # Multiply the two bin matrices --> if padj matrix value or LogFC matrix value is 0, will be 0
 
@@ -1178,7 +1178,7 @@ for (i in 1:length(contrast_names)){
 ```
 
 ```{r load_config, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
-log_FC_text <- as.character(params$log_FC_threshold)
+log_FC_text <- as.character(params$logFC_threshold)
 ```
 
 ## List of differentially expressed genes
@@ -1211,7 +1211,7 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
 ```{r volcano_plot, out.width="100%", out.height="100%"}
 
     #prepare logFC threshold for report text
-    log_FC_num <- as.numeric(params$log_FC_threshold)
+    log_FC_num <- as.numeric(params$logFC_threshold)
 
     # Set plot theme
     theme_set(theme_bw(base_family = "ArialMT") +
@@ -1239,11 +1239,11 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     log2FoldChange_min <- min(DE_all$log2FoldChange)
     log2FoldChange_max <- max(DE_all$log2FoldChange)
     pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
-            geom_point(alpha=0.5, aes(color=ifelse(abs(DE_all$log2FoldChange) > params$log_FC_threshold &  DE_all$logpval > -log10(pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
+            geom_point(alpha=0.5, aes(color=ifelse(abs(DE_all$log2FoldChange) > params$logFC_threshold &  DE_all$logpval > -log10(pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
             geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
             geom_hline(yintercept = -log10(pval_threshold), size = 0.2, color = "grey") +
-            geom_vline(xintercept = params$log_FC_threshold, size = 0.2, color = "grey") +
-            geom_vline(xintercept = -params$log_FC_threshold, size = 0.2, color = "grey") +
+            geom_vline(xintercept = params$logFC_threshold, size = 0.2, color = "grey") +
+            geom_vline(xintercept = -params$logFC_threshold, size = 0.2, color = "grey") +
             scale_color_manual(name = "", values=c("red", "black")) +
             scale_y_continuous(limits = c(1, 18)) +
             scale_x_continuous(breaks = seq(-200, 200, 1)) +

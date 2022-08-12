@@ -19,7 +19,7 @@ option_list = list(
     make_option(c("-l", "--genelist"), type="character", default=NULL, help="path to gene list file", metavar="character"),
     make_option(c("-e", "--relevel"), type="character", default=NULL, help="path to factor relevel file", metavar="character"),
     make_option(c("-b", "--batch_effect"), action="store_true", default=FALSE, help="Batch effect correction."),
-    make_option(c("-f", "--log_FC_threshold"), type="double", default=NULL, help="Log Fold Change threshold to consider a gene DE."),
+    make_option(c("-f", "--logFC_threshold"), type="double", default=NULL, help="Log Fold Change threshold to consider a gene DE."),
 
     make_option(c("-n", "--nsub_genes"), type="integer", default=NULL, help="subset number of genes for vst."),
     make_option(c("-z", "--rlog"), action="store_true", default=TRUE, help="Use rlog instead of vst normalization."),
@@ -60,7 +60,7 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_genelist = path_genelist,
                                 path_relevel = opt$relevel,
                                 batch_effect = opt$batch_effect,
-                                log_FC_threshold = opt$log_FC_threshold,
+                                logFC_threshold = opt$logFC_threshold,
                                 nsub_genes = opt$nsub_genes,
                                 rlog = opt$rlog,
 
