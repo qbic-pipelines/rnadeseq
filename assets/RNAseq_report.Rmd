@@ -552,23 +552,30 @@ The table below provides more detail on all enriched pathways."))
     datasources <- c("KEGG","REAC")
     names(q_list) <- q_names
 
-    #gost query
-    gostres <- gost(query=q_list,
+    if (length(q_list > 0)) {
+        #gost query
+        gostres <- gost(query=q_list,
                     organism=tolower(params$organism),
                     significant=T,
                     correction_method="fdr",
                     sources=datasources,
                     user_threshold=0.05)
 
-    path_enrich <- as.data.frame(gostres$result)
-    if (nrow(path_enrich) > 0){
-        pg2 <- gostplot(gostres, capped=T, interactive=T)
-        pg2
-        pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
-        pg2 %>% layout(margin = list(l = 75, b = 100), width=500, height = 400*length(contrast_files))
+        path_enrich <- as.data.frame(gostres$result)
+        if (nrow(path_enrich) > 0){
+            pg2 <- gostplot(gostres, capped=T, interactive=T)
+            pg2
+            pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -0.05
+            pg2 %>% layout(margin = list(l = 75, b = 100), width=500, height = 400*length(contrast_files))
+        } else {
+            cat("No enriched pathways were found.")
+            path_enrich=data.frame(list())
+        }
     } else {
-        cat("No enriched pathways were found.")
+            cat("No enriched pathways were found.")
+            path_enrich=data.frame(list())
     }
+
 ```
 
 ```{r, eval=params$pathway_analysis, echo=FALSE}
