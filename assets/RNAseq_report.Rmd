@@ -935,44 +935,19 @@ This visualizes how similar the samples are to each other according to gene expr
 Two samples have more similar gene expression if their distance is closer to 0 (darker blue).
 The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances.pdf).
 
-```{r heatmap, echo=FALSE, warning=FALSE, out.width="80%", out.height="80%", dpi=1200, fig.align='center'}
+```{r heatmap, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", out.height="120%", dpi=1200, fig.align='center'}
 ##################  SAMPLE DISTANCES HEATMAP ##################
-library(ggdendro)
+library(heatmaply)
 # Sample distances
 sampleDists <- dist(t(assay(if (params$rlog) rld else vsd)))
-clust <- hclust(sampleDists)
 sampleDistMatrix <- as.matrix(sampleDists)
-sampleDistMatrixMolten <- melt(sampleDistMatrix)
-colnames(sampleDistMatrixMolten) <- c("x", "y", "value")
-capture.output(sampleDistMatrixMolten, file="/home-link/iivow01/git/rnadeseq/error/matmolt")
 colors = colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
 par(oma=c(3,3,3,3))
-dist_heatmap <- ggplot(sampleDistMatrixMolten, aes(x=x, y=y, fill=value)) +
-            geom_tile() + theme(axis.text.x = element_text(angle = -90, vjust = 0.5, hjust=1)) +
-     scale_color_gradientn(colors=colors)
-write.table(sampleDistMatrix, file="/home-link/iivow01/git/rnadeseq/error/mattab")
+dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, file="differential_gene_expression/plots/Heatmaps_of_distances.pdf", grid_color = "grey")
+#dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, file="differential_gene_expression/plots/Heatmaps_of_distances.svg", grid_color = "grey")
+dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, file="differential_gene_expression/plots/Heatmaps_of_distances.png", grid_color = "grey")
 
-
-dendro_plot_x <- ggdendrogram(clust)
-dendro_plot_y <- ggdendrogram(clust, rotate = TRUE) + scale_y_reverse()
-dendro_plot_x
-dendro_plot_y
-#clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=10)
-#dev.off()
-ggsave(plot=dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.pdf", device = "pdf", dpi=300)
-
-ggsave(plot=dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.svg", device = "svg", dpi = 150)
-#pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=10)
-#dev.off()
-ggsave(plot=dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.png", device = "png", dpi = 150)
-#pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=10)
-#dev.off()
-dist_heatmap <- ggplotly(dist_heatmap, tooltip = "text")
 dist_heatmap
-```
-
-```{r heatmap_plot, echo=F, out.width="80%", dpi=1200, fig.align='center'}
-
 ```
 
 # Differential expression analysis
