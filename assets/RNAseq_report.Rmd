@@ -159,7 +159,8 @@ invisible( lapply(c(
 "plotly",
 "webshot",
 "htmlwidgets",
-"pheatmap",
+#"pheatmap",
+"heatmaply",
 "DT"
 ), library, character.only=T))
 ```
@@ -935,9 +936,8 @@ This visualizes how similar the samples are to each other according to gene expr
 Two samples have more similar gene expression if their distance is closer to 0 (darker blue).
 The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances.pdf).
 
-```{r heatmap, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", out.height="120%", dpi=1200, fig.align='center'}
+```{r heatmap, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", out.height="100%", fig.asp=1, dpi=1000, fig.align='center'}
 ##################  SAMPLE DISTANCES HEATMAP ##################
-library(heatmaply)
 # Sample distances
 sampleDists <- dist(t(assay(if (params$rlog) rld else vsd)))
 sampleDistMatrix <- as.matrix(sampleDists)
@@ -946,7 +946,7 @@ par(oma=c(3,3,3,3))
 dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, file="differential_gene_expression/plots/Heatmaps_of_distances.pdf", grid_color = "grey")
 #dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, file="differential_gene_expression/plots/Heatmaps_of_distances.svg", grid_color = "grey")
 dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, file="differential_gene_expression/plots/Heatmaps_of_distances.png", grid_color = "grey")
-
+dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, height=height*1.2, grid_color = "grey")
 dist_heatmap
 ```
 
