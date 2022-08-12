@@ -703,7 +703,8 @@ columns <- c("Sample",
             "Cutadapt_mqc.generalstats.cutadapt.percent_trimmed",
             "STAR_mqc.generalstats.star.uniquely_mapped_percent",
             "featureCounts_mqc.generalstats.featurecounts.percent_assigned")
-df_DE_selected = df_DE[,columns]
+df_DE_selected <- df_DE[,columns]
+df_DE_selected <- subset(df_DE_selected, !(endsWith(Sample, "-fw")))
 df_DE_selected$Sample <- substr(df_DE_selected$Sample, 1, 10)
 colnames(df_DE_selected) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
 n_rows = nrow(df_DE_selected)
