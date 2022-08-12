@@ -159,7 +159,7 @@ invisible( lapply(c(
 "plotly",
 "webshot",
 "htmlwidgets",
-#"pheatmap",
+"pheatmap",
 "heatmaply",
 "DT"
 ), library, character.only=T))
