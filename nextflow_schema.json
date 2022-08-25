@@ -74,11 +74,6 @@
                     "default": "false",
                     "description": "Turn on this flag if you wish to consider batch effects. You need to add the batch effect to the linear model too!"
                 },
-                "quote": {
-                    "type": "string",
-                    "default": "NO_FILE4",
-                    "description": "Signed copy of the offer."
-                },
                 "min_DEG_pathway": {
                     "type": "integer",
                     "default": 1,
@@ -98,6 +93,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Set this flag to true to use vst transformation (recommended when >50 samples; if false, will use rlog)"
+                },
+                "citest": {
+                    "type": "string",
+                    "default": "false",
+                    "description": "Only enable for CI tests on the github servers"
                 }
             }
         },
@@ -208,22 +208,18 @@
         },
         "gtf": {
             "type": "string",
-            "default": null,
             "description": "Not necessary if genome is set. GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts."
         },
         "organism": {
             "type": "string",
-            "default": null,
             "description": "Not necessary if genome is set. Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--skip_pathway_analysis = true`."
         },
         "library": {
             "type": "string",
-            "default": null,
             "description": "Not necessary if genome is set. Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --skip_pathway_analysis = true."
         },
         "keytype": {
             "type": "string",
-            "default": null,
             "description": "Not necessary if genome is set. Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if --skip_pathway_analysis = true."
         },
         "igenomes_base": {
@@ -233,6 +229,10 @@
         "igenomes_ignore": {
             "type": "boolean",
             "default": false
+        },
+        "round_DE": {
+            "type": "string",
+            "default": null
         }
     }
 }

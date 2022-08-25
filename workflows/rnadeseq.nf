@@ -13,8 +13,7 @@ WorkflowRnadeseq.initialise(params, log)
 // Check input path parameters to see if they exist
 def checkPathParamList = [
     params.metadata, params.model,
-    params.project_summary, params.versions,
-    params.multiqc
+    params.project_summary, params.versions
     ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
@@ -26,7 +25,6 @@ if (params.metadata) { ch_metadata_file = Channel.fromPath(params.metadata) } el
 if (params.model) { ch_model_file = Channel.fromPath(params.model) } else { exit 1, 'Please provide linear model file!' }
 if (params.project_summary) { ch_proj_summary_file = Channel.fromPath(params.project_summary) } else { exit 1, 'Please provide project summary file!' }
 if (params.versions) { ch_softwareversions_file = Channel.fromPath(params.versions) } else { exit 1, 'Please provide software versions file!' }
-if (params.multiqc) { ch_multiqc_file = Channel.fromPath(params.multiqc) } else { exit 1, 'Please provide multiqc.zip folder!' }
 
 // Create channel for genome parameter gtf (the other genome params are not files)
 if (params.input_type in ["rsem", "salmon"]) { ch_gtf = Channel.fromPath(params.gtf) } else { ch_gtf = Channel.fromPath("FALSE") }
@@ -36,8 +34,9 @@ ch_contrast_matrix = Channel.fromPath(params.contrast_matrix)
 ch_contrast_list = Channel.fromPath(params.contrast_list)
 ch_contrast_pairs = Channel.fromPath(params.contrast_pairs)
 ch_relevel = Channel.fromPath(params.relevel)
-ch_quote_file = Channel.fromPath(params.quote)
 ch_genes = Channel.fromPath(params.genelist)
+ch_multiqc_file = Channel.fromPath(params.multiqc)
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -51,8 +50,6 @@ ch_genes = Channel.fromPath(params.genelist)
 //
 // MODULE: Loaded from modules/local/
 //
-include { DESEQ2 } from '../modules/local/deseq2'
-include { PATHWAY_ANALYSIS } from '../modules/local/pathway_analysis'
 include { REPORT } from '../modules/local/report'
 
 //
@@ -79,55 +76,29 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/
 // Info required for completion email and summary
 workflow RNADESEQ {
 
-
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
-
-//
-//  MODULE: DE analysis
-    DESEQ2 (
-        ch_counts_path,
-        ch_metadata_file,
-        ch_model_file,
-        ch_contrast_matrix,
-        ch_relevel,
-        ch_contrast_list,
-        ch_contrast_pairs,
-        ch_genes,
-        ch_gtf
-    )
-    ch_deseq2 = DESEQ2.out.deseq2
-    ch_contrnames = DESEQ2.out.contrnames
-
-//
-//  MODULE: Pathway analysis
-//
-    ch_pathway_analysis = Channel.fromPath("FALSE")
-    if (!params.skip_pathway_analysis) {
-        PATHWAY_ANALYSIS (
-            ch_deseq2,
-            ch_metadata_file,
-            ch_model_file,
-            ch_genes
-        )
-        ch_pathway_analysis = PATHWAY_ANALYSIS.out.pathway_analysis
-    }
 
 //
 //  MODULE: RNAseq Report
 //
 
     REPORT (
+        ch_counts_path,
+        ch_metadata_file,
+        ch_model_file,
+        ch_gtf,
+
+        ch_contrast_matrix,
+        ch_contrast_list,
+        ch_contrast_pairs,
+        ch_genes,
+        ch_relevel,
+
         ch_proj_summary_file,
         ch_softwareversions_file,
-        ch_model_file,
-        ch_contrnames,
-        ch_deseq2,
-        ch_multiqc_file,
-        ch_genes,
-        ch_pathway_analysis,
-        ch_quote_file
+        ch_multiqc_file
     )
 
     //TODO: Enable this:
@@ -147,9 +118,8 @@ workflow RNADESEQ {
 //Here I have to change the params?
 
 /*
-//TODO: Remove multiqc and also edit /lib/nfcoretemplate to add deseq report instead of multiqc
 workflow.onComplete {
-    if (params.email || params.email_on_fail) {
+    if (params.email || param.email_on_fail) {
         NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
     }
     NfcoreTemplate.summary(workflow, params, log)

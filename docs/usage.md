@@ -11,13 +11,13 @@
 - [Pre-requisites](#pre-requisites)
 - [Running the pipeline](#running-the-pipeline)
   - [Updating the pipeline](#updating-the-pipeline)
+  - [Testing the pipeline](#testing-the-pipeline)
   - [Reproducibility](#reproducibility)
 - [Mandatory arguments](#mandatory-arguments)
   - [`--gene_counts`](#--gene_counts)
   - [`--input_type`](#--input_type)
   - [`--metadata`](#--metadata)
   - [`--model`](#--model)
-  - [`--species`](#--species)
   - [`--project_summary`](#--project_summary)
   - [`--versions`](#--versions)
 - [Contrasts](#contrasts)
@@ -30,10 +30,10 @@
   - [`--logFCthreshold`](#--logfcthreshold)
   - [`--genelist`](#--genelist)
   - [`--batch_effect`](#--batch_effect)
-  - [`--quote`](#--quote)
   - [`--min_DEG_pathway`](#--min_deg_pathway)
   - [`--use_vst`](#--use_vst)
   - [`--vst_genes_number`](#--vst_genes_number)
+  - [`--round_DE`](#--round_DE)
   - [`--skip_pathway_analysis`](#--skip_pathway_analysis)
   - [`--input_type`](#--input_type)
 - [Reference genome options](#reference-genome-options)
@@ -93,7 +93,6 @@ nextflow run qbic-pipelines/rnadeseq -r 1.1.0 -profile docker \
 --contrast_matrix 'contrasts.tsv' \
 --project_summary 'QXXXX_summary.tsv' \
 --multiqc 'MultiQC.zip' \
---quote 'QXXXX_signed_offer.pdf' \
 --versions 'software_versions.csv' \
 --genome GRCh37
 ```
@@ -115,6 +114,28 @@ When you run the above command, Nextflow automatically pulls the pipeline code f
 
 ```bash
 nextflow pull qbic-pipelines/rnadeseq
+```
+
+### Testing the pipeline
+
+A number of test profiles are prepared to allow for easy execution of the pipeline with different parameters to check if these work. Two of these, test_star_rsem and test_star_salmon, do not work by simply running from qbic-pipelines as both require a param pointing to a folder, not a file, and these folders cannot be accessed via raw.githubusercontent.com. Instead you have to either clone the repo, change into the clone and run the pipeline locally, e.g. for the rsem profile, like this:
+
+```bash
+nextflow run . -profile docker,test_star_rsem
+```
+
+Or you have to download the QDESQ folder manually and move it to a folder called testdata, like so:
+
+```bash
+curl https://codeload.github.com/qbic-pipelines/rnadeseq/tar.gz/master | tar -xz --strip=2 rnadeseq-master/testdata/QDESQ
+mkdir testdata
+mv QDESQ testdata
+```
+
+Afterwards, you should be able to also run test_star_rsem and test_star_salmon from qbic-pipelines/rnadeseq without manually cloning, e.g.:
+
+```bash
+nextflow run qbic-pipelines/rnadeseq -r 2.0.1 -profile docker,test_star_salmon
 ```
 
 ### Reproducibility
@@ -165,10 +186,6 @@ Linear model function to calculate the contrasts (TXT). Variable names should be
 ```txt
 ~ condition_genotype + condition_treatment
 ```
-
-### `--species`
-
-Species name, not necessary if --skip_pathway_analysis = true. Currently the following species are available for pathway analysis: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
 
 ### `--project_summary`
 
@@ -244,10 +261,6 @@ List of genes (one per line) of which to plot heatmaps for normalized counts acr
 
 Option needed to account for batch effects in the data. Please check the section `Controlling for batch effects` to do so.
 
-### `--quote`
-
-Path to the signed copy of the QBiC offer as pdf, to be included in the report.
-
 ### `--min_DEG_pathway`
 
 Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1.
@@ -259,6 +272,10 @@ Consider using this parameter when the number of input samples is greater than 5
 ### `--vst_genes_number`
 
 This is ignored if --use_vst is set to false. If using the vst transformation, consider using this parameter for small dataset and low number of genes, e.g. with small rnaseq data. The default `vst` function for varianceStabilizingTransformation in DESeq2 is 1000, which triggers an error with small dataset. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here [DESeq2 vst function error](https://www.biostars.org/p/456209/).
+
+### `--round_DE`
+
+Integer indicating to how many decimals to round the DE results (default: no rounding).
 
 ### `--skip_pathway_analysis`
 
