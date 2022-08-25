@@ -208,27 +208,23 @@
         },
         "genome": {
             "type": "string",
-            "default": "None",
+            "default": null,
             "description": "Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available."
         },
         "gtf": {
             "type": "string",
-            "default": "None",
             "description": "Not necessary if genome is set. GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts."
         },
         "organism": {
             "type": "string",
-            "default": "None",
             "description": "Not necessary if genome is set. Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--skip_pathway_analysis = true`."
         },
         "library": {
             "type": "string",
-            "default": "None",
             "description": "Not necessary if genome is set. Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --skip_pathway_analysis = true."
         },
         "keytype": {
             "type": "string",
-            "default": "None",
             "description": "Not necessary if genome is set. Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if --skip_pathway_analysis = true."
         },
         "igenomes_base": {
