@@ -115,6 +115,7 @@ When you run the above command, Nextflow automatically pulls the pipeline code f
 ```bash
 nextflow pull qbic-pipelines/rnadeseq
 ```
+
 ### Testing the pipeline
 
 A number of test profiles are prepared to allow for easy execution of the pipeline with different parameters to check if these work. Two of these, test_star_rsem and test_star_salmon, do not work by simply running from qbic-pipelines as both require a param pointing to a folder, not a file, and these folders cannot be accessed via raw.githubusercontent.com. Instead you have to either clone the repo, change into the clone and run the pipeline locally, e.g. for the rsem profile, like this:
