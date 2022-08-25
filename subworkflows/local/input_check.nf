@@ -17,7 +17,7 @@ workflow INPUT_CHECK {
 
     emit:
     reads                                     // channel: [ val(meta), [ reads ] ]
-    versions = SAMPLESHEET_CHECK.out.versions // channel: [ versions.yml ]
+    software_versions = SAMPLESHEET_CHECK.out.versions // channel: [ software_versions.yml ]
 }
 
 // Function to get list of [ meta, [ fastq_1, fastq_2 ] ]

@@ -41,7 +41,7 @@ params:
 
     #Additional args for the report
     path_proj_summary: ''
-    path_versions: ''
+    path_software_versions: ''
     revision: ''
 
     #Additional arg to indicate that a github test is run
@@ -1680,12 +1680,12 @@ The results for all work packages, as described in the quote can be found in thi
 Further support for this project will be restricted to the results presented in this report.
 For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.
 
-```{r versions, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
+```{r software_versions, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
 # Import the .csv file output by the rna-seq Nextflow pipeline
-version <- read.csv(file = params$path_versions, sep="\t", header = FALSE)
+version <- read.csv(file = params$path_software_versions, sep="\t", header = FALSE)
 ```
 
-<!-- TODO all versions right (+gprofiler2, reference genome) and nicer description of computational methods -->
+<!-- TODO all software_versions right (+gprofiler2, reference genome) and nicer description of computational methods -->
 
 # Computational methods
 

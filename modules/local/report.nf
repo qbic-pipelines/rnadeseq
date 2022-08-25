@@ -15,7 +15,7 @@ process REPORT {
     path relevel
 
     path proj_summary
-    path softwareversions
+    path software_versions
     path multiqc
 
     output:
@@ -68,7 +68,7 @@ process REPORT {
         --keytype $params.keytype \
         --min_DEG_pathway $params.min_DEG_pathway \
         --proj_summary $proj_summary \
-        --versions $softwareversions \
+        --software_versions $software_versions \
         --revision $workflow.manifest.version \
         $citest_opt
 
