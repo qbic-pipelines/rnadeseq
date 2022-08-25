@@ -1688,8 +1688,7 @@ The table below provides more detail on all enriched pathways."))
     }
     datasources <- c("KEGG","REAC")
     names(q_list) <- q_names
-
-    if (length(q_list > 0)) {
+    if (length(q_list) > 0) {
         #gost query
         gostres <- gost(query=q_list,
                     organism=tolower(params$organism),
@@ -1697,8 +1696,8 @@ The table below provides more detail on all enriched pathways."))
                     correction_method="fdr",
                     sources=datasources,
                     user_threshold=0.05)
-
         path_enrich <- as.data.frame(gostres$result)
+
         if (nrow(path_enrich) > 0){
             pg2 <- gostplot(gostres, capped=T, interactive=T)
             pg2
