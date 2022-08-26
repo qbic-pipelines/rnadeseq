@@ -35,7 +35,7 @@ process REPORT {
 
     def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
 
-    def citest_opt = params.citest == "true" ? "--citest TRUE" : ''
+    def citest_opt = params.citest ? "--citest TRUE" : ''
 
     """
     if [ "$multiqc" != "NO_FILE3" ]; then
@@ -63,7 +63,7 @@ process REPORT {
         $round_DE_opt \
         $pathwayopt \
         --organism $params.organism \
-        --species_library $params.library \
+        --species_library $params.species_library \
         --keytype $params.keytype \
         --min_DEG_pathway $params.min_DEG_pathway \
         --proj_summary $proj_summary \

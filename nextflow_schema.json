@@ -214,7 +214,7 @@
             "type": "string",
             "description": "Not necessary if genome is set. Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--skip_pathway_analysis = true`."
         },
-        "library": {
+        "species_library": {
             "type": "string",
             "description": "Not necessary if genome is set. Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --skip_pathway_analysis = true."
         },
@@ -231,7 +231,7 @@
             "default": false
         },
         "round_DE": {
-            "type": "string",
+            "type": "integer",
             "default": null
         }
     }
