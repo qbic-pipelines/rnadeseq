@@ -128,7 +128,6 @@ Or you have to download the testdata/QDESQ folder manually, like so:
 
 ```bash
 curl https://codeload.github.com/qbic-pipelines/rnadeseq/tar.gz/master | tar -xz --strip=2 rnadeseq-master/testdata/QDESQ && mkdir testdata && mv QDESQ testdata
-mkdir testdata
 mv QDESQ testdata
 ```
 
