@@ -91,7 +91,7 @@
                 },
                 "round_DE": {
                     "type": "string",
-                    "default": "None",
+                    "default": "null",
                     "description": "Number of decimals to which to round result tables, default: no rounding. Integer, this is only set to string in the schema to allow for a null default."
                 }
             }
