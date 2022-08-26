@@ -33,7 +33,8 @@
                 },
                 "versions": {
                     "type": "string",
-                    "default": "None"
+                    "default": "None",
+                    "description": "CSV containing rnaseq software versions."
                 }
             },
             "required": ["input_type", "gene_counts", "metadata", "model", "versions"]
@@ -155,11 +156,13 @@
                 },
                 "igenomes_base": {
                     "type": "string",
-                    "default": "s3://ngi-igenomes/igenomes"
+                    "default": "s3://ngi-igenomes/igenomes",
+                    "description": "Directory / URL base for iGenomes references."
                 },
                 "igenomes_ignore": {
                     "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "description": "Do not load the iGenomes reference config."
                 }
             }
         },
@@ -264,7 +267,8 @@
                 },
                 "show_hidden_params": {
                     "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "description": "Show all params when using `--help`"
                 }
             }
         }
