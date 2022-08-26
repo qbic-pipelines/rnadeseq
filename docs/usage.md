@@ -28,6 +28,7 @@
   - [`--contrast_pairs`](#--contrast_pairs)
 - [Optional arguments](#optional-arguments)
   - [`--logFC_threshold`](#--logFC_threshold)
+  - [`--pval_threshold`](#--pval_threshold)
   - [`--genelist`](#--genelist)
   - [`--batch_effect`](#--batch_effect)
   - [`--min_DEG_pathway`](#--min_deg_pathway)
