@@ -52,26 +52,30 @@ params:
 ---
 
 ```{r param_validation, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
-
-#self-written isNot function that tests for zero-length, emptystring and NULL (for some reason, some params cannot be tested with emptystring)
-isNot <- function(value) {
+#self-written isProvided function that tests for zero-length, emptystring and NULL (for some reason, some params cannot be tested with emptystring)
+isProvided <- function(value) {
+    result <- TRUE
     tryCatch(
     {
         if (length(value)<1) {
-            return(TRUE)
+            result <- FALSE
         }
         else {
             tryCatch(
         {
-            return(value=="")
+            if (value=="") {
+                result <- FALSE
+            }
         },
         error=function(cond) {
             tryCatch(
                 {
-                    return(is.null(value))
+                    if (is.null(value)) {
+                        result <- FALSE
+                    }
                 },
                 error=function(cond) {
-                    message("isNot got the following error:")
+                    message("isProvided got the following error:")
                     message(cond)
                     message(paste("Object type:", typeof(value)))
                     message(paste("Object:", value))
@@ -83,13 +87,14 @@ isNot <- function(value) {
         }
     },
     error=function(cond) {
-        message("isNot got the following error:")
+        message("isProvided got the following error:")
                     message(cond)
                     message(paste("Object type:", typeof(value)))
                     message(paste("Object:", value))
                     quit(1)
     }
     )
+    return(result)
 }
 
 #this function is used to produce a more informative error message when count table and metadata table disagree
@@ -113,24 +118,24 @@ write_error_msg <- function(counts, meta) {
 if (!(params$input_type %in% c("featurecounts", "rsem", "salmon"))){
     stop(paste0("Wrong input type ", params$input_type, ", must be one of [featurecounts, rsem, salmon]!"))
 }
-if (params$input_type %in% c("rsem", "salmon") & isNot(params$path_gtf)){
+if (params$input_type %in% c("rsem", "salmon") & !isProvided(params$path_gtf)){
     stop(paste0("For input type salmon, gtf file needs to be provided!\nIf using igenomes, please check that the entry for your genome contains a gtf file and otherwise provide one with `--gtf`."))
 }
-if (isNot(params$path_gene_counts)){
+if (!isProvided(params$path_gene_counts)){
     print_help(opt_parser)
     stop("Counts table needs to be provided!")
 }
-if (isNot(params$path_metadata)){
+if (!isProvided(params$path_metadata)){
     print_help(opt_parser)
     stop("Metadata table needs to be provided!")
 }
-if (isNot(params$path_design)){
+if (!isProvided(params$path_design)){
     print_help(opt_parser)
     stop("Linear model design file needs to be provided!")
 }
 
 # Check if more than one contrast option was provided
-contrast_vector <- c(!isNot(params$path_contrast_list), !isNot(params$path_contrast_matrix), !isNot(params$path_contrast_pairs))
+contrast_vector <- c(isProvided(params$path_contrast_list), isProvided(params$path_contrast_matrix), isProvided(params$path_contrast_pairs))
 if (length(contrast_vector[contrast_vector== TRUE]) > 1) {
     stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
 }
@@ -475,7 +480,7 @@ if (params$input_type == "featurecounts") {
 }
 
 #Apply relevel if provided to metadata
-if (!isNot(params$path_relevel)) {
+if (isProvided(params$path_relevel)) {
     relevel_table <- read.table(params$path_relevel, sep="\t", header = T, colClasses = "character")
     write.table(relevel_table, file="differential_gene_expression/metadata/relevel.tsv")
     for (i in c(1:nrow(relevel_table))) {
@@ -969,7 +974,7 @@ write.table(coef_tab,file="differential_gene_expression/metadata/DESeq2_coeffici
 # Start variables to store DE genes for all contrasts
 DE_genes_df = data.frame(DE_genes_df = character(nrow(cds)))
 contrast_names <- c()
-if (!(isNot(params$path_contrast_matrix))){
+if (isProvided(params$path_contrast_matrix)){
     contrasts <- read.table(path_contrast_matrix, sep="\t", header = T, row.names = 1)
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
@@ -1000,7 +1005,7 @@ if (!(isNot(params$path_contrast_matrix))){
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < params$pval_threshold & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
-        if (!isNot(params$round_DE)) {
+        if (isProvided(params$round_DE)) {
             DE_genes_contrast <- (DE_genes_contrast  %>% mutate_if(is.numeric, round, digits=params$round_DE))
         }
         # Save table
@@ -1012,7 +1017,7 @@ if (!(isNot(params$path_contrast_matrix))){
     }
     contrast_names <- append(contrast_names, colnames(contrasts))
 }
-if (!(isNot(params$path_contrast_list))) {
+if (isProvided(params$path_contrast_list)) {
     contrasts <- read.table(params$path_contrast_list, sep="\t", header=T, colClasses = "character")
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv", quote=F)
 
@@ -1039,7 +1044,7 @@ if (!(isNot(params$path_contrast_list))) {
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < params$pval_threshold & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
-        if (!isNot(params$round_DE)) {
+        if (isProvided(params$round_DE)) {
             DE_genes_contrast <- (DE_genes_contrast  %>% mutate_if(is.numeric, round, digits=params$round_DE))
         }
         # Save table
@@ -1051,7 +1056,7 @@ if (!(isNot(params$path_contrast_list))) {
         contrast_names <- append(contrast_names, contname)
     }
 }
-if (!(isNot(params$path_contrast_pairs))) {
+if (isProvided(params$path_contrast_pairs)) {
     contrasts <- read.table(path_contrast_pairs, sep="\t", header = T, colClasses = "character")
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_pairs.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
@@ -1080,12 +1085,13 @@ if (!(isNot(params$path_contrast_pairs))) {
         # Select only significantly DE
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < params$pval_threshold & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
+
         # Round table before writing
-        if (!isNot(params$round_DE)) {
+        if (isProvided(params$round_DE)) {
             DE_genes_contrast <- (DE_genes_contrast  %>% mutate_if(is.numeric, round, digits=params$round_DE))
         }
-        # Save table
 
+        # Save table
         write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
 
@@ -1096,7 +1102,7 @@ if (!(isNot(params$path_contrast_pairs))) {
 }
 
 # Calculating DE genes for default contrasts (no contrast matrix or list or pairs provided)
-if (isNot(params$path_contrast_matrix) & isNot(params$path_contrast_list) & isNot(params$path_contrast_pairs)) {
+if (!isProvided(params$path_contrast_matrix) & !isProvided(params$path_contrast_list) & !isProvided(params$path_contrast_pairs)) {
     contrast_names <- coefficients[2:length(coefficients)]
     for (contname in contrast_names) {
         results_DEseq_contrast <- results(cds, name=contname)
@@ -1118,7 +1124,7 @@ if (isNot(params$path_contrast_matrix) & isNot(params$path_contrast_list) & isNo
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < params$pval_threshold & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
-        if (!isNot(params$round_DE)) {
+        if (isProvided(params$round_DE)) {
             DE_genes_contrast <- (DE_genes_contrast  %>% mutate_if(is.numeric, round, digits=params$round_DE))
         }
         # Save table
@@ -1181,9 +1187,10 @@ DE_genes_final_table = merge(x=DE_genes_final_table, y=gene_names, by.x="Ensembl
 DE_genes_final_table = DE_genes_final_table[,c(dim(DE_genes_final_table)[2],1:dim(DE_genes_final_table)[2]-1)]
 DE_genes_final_table = DE_genes_final_table[order(DE_genes_final_table[,"Ensembl_ID"]),]
 # Round table before writing
-if (!isNot(params$round_DE)) {
+if (isProvided(params$round_DE)) {
     DE_genes_final_table <- (DE_genes_final_table  %>% mutate_if(is.numeric, round, digits=params$round_DE))
 }
+
 #write to file
 write.table(DE_genes_final_table, "differential_gene_expression/final_gene_table/final_DE_gene_list.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 ```
@@ -1323,7 +1330,7 @@ for (i in random_DE_genes_plot){
 }
 
 # make boxplots of interesting genes in gene list
-if (!(isNot(params$path_genelist))){
+if (isProvided(params$path_genelist)){
     gene_ids <- read.table(params$path_genelist, col.names = "requested_gene_name")
     write.table(gene_ids, file="differential_gene_expression/metadata/requested_gene_list.txt", col.names=F, row.names=F, sep="\t")
     gene_ids$requested_gene_name <- sapply(gene_ids$requested_gene_name, toupper)
@@ -1440,7 +1447,7 @@ for (file in contrast_files){
     fname <- tools::file_path_sans_ext(basename(file))
 
     dir.create(paste("pathway_analysis", fname, sep="/"))
-    if (!isNot(params$citest)) {
+    if (isProvided(params$citest)) {
         dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
     }
     dir.create(paste("pathway_analysis", fname, "KEGG_pathways", sep="/"))
@@ -1549,7 +1556,7 @@ for (file in contrast_files){
                 rownames(mat) <- mat$gene_name
                 mat$gene_name <- NULL
                 mat <- data.matrix(mat)
-                if (isNot(params$citest) & nrow(mat)>1){
+                if (!isProvided(params$citest) & nrow(mat)>1){
                     png(filename = paste("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
                     pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
                     dev.off()
@@ -1601,8 +1608,7 @@ for (file in contrast_files){
 
 
 # Plotting heatmap for provided gene list
-
-if (!(isNot(params$path_genelist))){
+if (isProvided(params$path_genelist)){
 
     genelist_path = params$path_genelist
     genelist_heatmaps_dir <- "heatmap_gene_list"

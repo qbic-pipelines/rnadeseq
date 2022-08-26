@@ -40,7 +40,7 @@
   - [`--genome`](#--genome)
   - [`--gtf`](#--gtf)
   - [`--organism`](#--organism)
-  - [`--library`](#--library)
+  - [`--species_library`](#--species_library)
   - [`--keytype`](#--keytype)
   - [`--igenomes_base`](#--igenomes_base)
   - [`--igenomes_ignore`](#--igenomes_ignore)
@@ -124,12 +124,10 @@ A number of test profiles are prepared to allow for easy execution of the pipeli
 nextflow run . -profile docker,test_star_rsem
 ```
 
-Or you have to download the QDESQ folder manually and move it to a folder called testdata, like so:
+Or you have to download the testdata/QDESQ folder manually, like so:
 
 ```bash
-curl https://codeload.github.com/qbic-pipelines/rnadeseq/tar.gz/master | tar -xz --strip=2 rnadeseq-master/testdata/QDESQ
-mkdir testdata
-mv QDESQ testdata
+curl https://codeload.github.com/qbic-pipelines/rnadeseq/tar.gz/master | tar -xz --strip=2 rnadeseq-master/testdata/QDESQ && mkdir testdata && mv QDESQ testdata
 ```
 
 Afterwards, you should be able to also run test_star_rsem and test_star_salmon from qbic-pipelines/rnadeseq without manually cloning, e.g.:
@@ -293,7 +291,7 @@ This tells the pipeline which type of input dataset is provided. Must be one of 
 
 ### `--genome`
 
-Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available. When running the pipeline with rsem or salmon and/or with pathway analysis, this parameter is required unless you separately provide the parameters `--gtf` (if rsem/salmon), `--organism`, `--library` and `--keytype` (these three if pathway analysis). If your target genome has not been fully implemented (i.e. the entries for library, organism and keytype are missing), please open a new issue (https://github.com/qbic-pipelines/rnadeseq/issues).
+Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available. When running the pipeline with rsem or salmon and/or with pathway analysis, this parameter is required unless you separately provide the parameters `--gtf` (if rsem/salmon), `--organism`, `--species_library` and `--keytype` (these three if pathway analysis). If your target genome has not been fully implemented (i.e. the entries for species_library, organism and keytype are missing), please open a new issue (https://github.com/qbic-pipelines/rnadeseq/issues).
 
 ### `--gtf`
 
@@ -303,7 +301,7 @@ GTF file to be used for DESeq if input is rsem or salmon, not necessary for feat
 
 Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--skip_pathway_analysis = true`.
 
-### `--library`
+### `--species_library`
 
 Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --skip_pathway_analysis = true.
 
