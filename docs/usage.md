@@ -127,7 +127,7 @@ nextflow run . -profile docker,test_star_rsem
 Or you have to download the QDESQ folder manually and move it to a folder called testdata, like so:
 
 ```bash
-curl https://codeload.github.com/qbic-pipelines/rnadeseq/tar.gz/master | tar -xz --strip=2 rnadeseq-master/testdata/QDESQ
+curl https://codeload.github.com/qbic-pipelines/rnadeseq/tar.gz/master | tar -xz --strip=2 rnadeseq-master/testdata/QDESQ && mkdir testdata && mv QDESQ testdata
 mkdir testdata
 mv QDESQ testdata
 ```
