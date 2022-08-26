@@ -128,7 +128,6 @@ Or you have to download the testdata/QDESQ folder manually, like so:
 
 ```bash
 curl https://codeload.github.com/qbic-pipelines/rnadeseq/tar.gz/master | tar -xz --strip=2 rnadeseq-master/testdata/QDESQ && mkdir testdata && mv QDESQ testdata
-mv QDESQ testdata
 ```
 
 Afterwards, you should be able to also run test_star_rsem and test_star_salmon from qbic-pipelines/rnadeseq without manually cloning, e.g.:
