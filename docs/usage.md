@@ -124,7 +124,7 @@ A number of test profiles are prepared to allow for easy execution of the pipeli
 nextflow run . -profile docker,test_star_rsem
 ```
 
-Or you have to download the QDESQ folder manually and move it to a folder called testdata, like so:
+Or you have to download the testdata/QDESQ folder manually, like so:
 
 ```bash
 curl https://codeload.github.com/qbic-pipelines/rnadeseq/tar.gz/master | tar -xz --strip=2 rnadeseq-master/testdata/QDESQ && mkdir testdata && mv QDESQ testdata
