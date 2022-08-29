@@ -31,7 +31,7 @@
                     "type": "string",
                     "description": "Not necessary if genome is set or input_type is featurecounts. GTF file to be used for DESeq if input is rsem or salmon."
                 },
-                "versions": {
+                "software_versions": {
                     "type": "string",
                     "default": "None",
                     "description": "CSV containing rnaseq software versions."
