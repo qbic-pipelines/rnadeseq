@@ -1020,13 +1020,12 @@ if (isProvided(params$path_contrast_matrix)){
 }
 if (isProvided(params$path_contrast_list)) {
     contrasts <- read.table(params$path_contrast_list, sep="\t", header=T, colClasses = "character")
-    metadata_cond <- metadata_save
     for (i in 1:nrow(contrasts)) {
         if (grepl("condition_", contrasts[i,1], fixed = TRUE)) {
             cond_name <- contrasts[i,1]
             for (j in 2:ncol(contrasts)) {
-                if (!any(metadata_cond[cond_name]==contrasts[i,j])) {
-                    stop(paste("Could not find value", contrasts[i,j], "for contrast", metadata_cond[cond_name], ", please check metadata sheet and contrast list!"))
+                if (!any(metadata_save[cond_name]==contrasts[i,j])) {
+                    stop(paste("Could not find value", contrasts[i,j], "for contrast", metadata_save[cond_name], ", please check metadata sheet and contrast list!"))
                 }
             }
         }
@@ -1432,7 +1431,7 @@ path_contrasts <- 'differential_gene_expression/DE_genes_tables/'
 metadata <- metadata_PA
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name) # Remove blank spaces and ; from secondary name
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name) # Remove blank spaces if there from secondary name
-#TODO: metadata <- metadata_save
+
 # Create output directory
 dir.create("pathway_analysis")
 
@@ -1556,9 +1555,9 @@ for (file in contrast_files){
         print("Plotting heatmaps...")
             if (nrow(df) <= 100 & nrow(df) > 0) {
                 conditions <- grepl("Condition", colnames(metadata))
-                metadata_cond <- as.data.frame(metadata[,conditions])
+                metadata_save <- as.data.frame(metadata[,conditions])
                 metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
-                row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
+                row.names(metadata_save) <- apply(metadata_name,1,paste, collapse = "_")
 
                 for (i in c(1:nrow(df))){
                 pathway <- df[i,]
@@ -1569,10 +1568,10 @@ for (file in contrast_files){
                 mat <- data.matrix(mat)
                 if (!isProvided(params$citest) & nrow(mat)>1){
                     png(filename = paste("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
-                    pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+                    pheatmap(mat = mat, annotation_col = metadata_save, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
                     dev.off()
                     pdf(paste("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
-                    pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+                    pheatmap(mat = mat, annotation_col = metadata_save, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
                     dev.off()
                 }
 
@@ -1628,9 +1627,9 @@ if (isProvided(params$path_genelist)){
     print("Plotting heatmaps...")
     conditions <- grepl("Condition", colnames(metadata))
     condition <- metadata[,conditions]
-    metadata_cond <- as.data.frame(condition)
+    metadata_save <- as.data.frame(condition)
     metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
-    row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
+    row.names(metadata_save) <- apply(metadata_name,1,paste, collapse = "_")
 
     gene_list_tab <- read.table(file=genelist_path, sep = "\t", header = F, quote="")
     gene_list_unique_tab <- data.frame(gene_list=unique(gene_list_tab$V1))
@@ -1653,11 +1652,11 @@ if (isProvided(params$path_genelist)){
 
     if (nrow(mat)>1){
         png(filename = paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.png", sep=""), width = 2500, height = 3000, res = 300)
-        pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
         dev.off()
 
         pdf(paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""))
-        pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
         dev.off()
     }
 }
