@@ -12,6 +12,7 @@ output:
         pdf_document: true
 bibliography: ./references.bibtex
 params:
+
     #Main input args
     input_type: ''
     path_gene_counts: ''
@@ -41,7 +42,7 @@ params:
 
     #Additional args for the report
     path_proj_summary: ''
-    path_versions: ''
+    path_software_versions: ''
     revision: ''
 
     #Additional arg to indicate that a github test is run
@@ -51,25 +52,30 @@ params:
 ---
 
 ```{r param_validation, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
-#self-written isNot function that tests for zero-length, emptystring and NULL (for some reason, some params cannot be tested with emptystring)
-isNot <- function(value) {
+#self-written isProvided function that tests for zero-length, emptystring and NULL (for some reason, some params cannot be tested with emptystring)
+isProvided <- function(value) {
+    result <- TRUE
     tryCatch(
     {
         if (length(value)<1) {
-            return(TRUE)
+            result <- FALSE
         }
         else {
             tryCatch(
         {
-            return(value=="")
+            if (value=="") {
+                result <- FALSE
+            }
         },
         error=function(cond) {
             tryCatch(
                 {
-                    return(is.null(value))
+                    if (is.null(value)) {
+                        result <- FALSE
+                    }
                 },
                 error=function(cond) {
-                    message("isNot got the following error:")
+                    message("isProvided got the following error:")
                     message(cond)
                     message(paste("Object type:", typeof(value)))
                     message(paste("Object:", value))
@@ -81,13 +87,14 @@ isNot <- function(value) {
         }
     },
     error=function(cond) {
-        message("isNot got the following error:")
+        message("isProvided got the following error:")
                     message(cond)
                     message(paste("Object type:", typeof(value)))
                     message(paste("Object:", value))
                     quit(1)
     }
     )
+    return(result)
 }
 
 #this function is used to produce a more informative error message when count table and metadata table disagree
@@ -111,29 +118,31 @@ write_error_msg <- function(counts, meta) {
 if (!(params$input_type %in% c("featurecounts", "rsem", "salmon"))){
     stop(paste0("Wrong input type ", params$input_type, ", must be one of [featurecounts, rsem, salmon]!"))
 }
-if (params$input_type %in% c("rsem", "salmon") & isNot(params$path_gtf)){
+if (params$input_type %in% c("rsem", "salmon") & !isProvided(params$path_gtf)){
     stop(paste0("For input type salmon, gtf file needs to be provided!\nIf using igenomes, please check that the entry for your genome contains a gtf file and otherwise provide one with `--gtf`."))
 }
-if (isNot(params$path_gene_counts)){
+if (!isProvided(params$path_gene_counts)){
     print_help(opt_parser)
     stop("Counts table needs to be provided!")
 }
-if (isNot(params$path_metadata)){
+if (!isProvided(params$path_metadata)){
     print_help(opt_parser)
     stop("Metadata table needs to be provided!")
 }
-if (isNot(params$path_design)){
+if (!isProvided(params$path_design)){
     print_help(opt_parser)
     stop("Linear model design file needs to be provided!")
 }
+
 # Check if more than one contrast option was provided
-contrast_vector <- c(!isNot(params$path_contrast_list), !isNot(params$path_contrast_matrix), !isNot(params$path_contrast_pairs))
+contrast_vector <- c(isProvided(params$path_contrast_list), isProvided(params$path_contrast_matrix), isProvided(params$path_contrast_pairs))
 if (length(contrast_vector[contrast_vector== TRUE]) > 1) {
     stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
 }
 ```
 
 ```{r load_DE_libs, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
+
 # Load all necessary libs invisibly
 invisible( lapply(c(
 "RColorBrewer",
@@ -165,6 +174,7 @@ invisible( lapply(c(
 ```
 
 ```{r create_outdirs, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
+
 # create directories needed
 ifelse(!dir.exists("differential_gene_expression"), dir.create("differential_gene_expression"), FALSE)
 dir.create("differential_gene_expression/metadata")
@@ -180,10 +190,13 @@ dir.create("differential_gene_expression/final_gene_table")
 
 ```{r project_data, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 df <- read.csv(file = params$path_proj_summary, sep="\t", header = TRUE)
+
 # Import the .tsv file downloadable from https://portal.qbic.uni-tuebingen.de/portal/web/qbic/user-database -> Projects
 projectcode = as.character(df$Sub.Project)
+
 # Set the title; if the title is too long, it would get covered by the logo, so it is split in 2 or 3 parts.
 title = as.character(df$Short.Title)
+
 ## function to split the title
 splitInParts <- function(string, size){
         pat <- paste0('(?<=.{',size,'})')
@@ -211,6 +224,7 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 <div class="watermark">QBiC</div>
 
 ```{r docSetup, bootstrap.show.code = FALSE, dev = c('png'), bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+
 ## knitrBoostrap and device chunk options
 options(warn = -1)                          # suppress warnings and messages
 opts_chunk$set(bootstrap.show.code = FALSE, dev = 'png', echo=FALSE)
@@ -255,9 +269,11 @@ Auf der Morgenstelle 10, 72076 Tuebingen
 <!-- metadata start -->
 
 ```{r read_metadata, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+
 # Load metadata: sample preparations tsv file from qPortal
 metadata <- read.table(params$path_metadata, sep="\t", header=TRUE,na.strings =c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
 if (params$pathway_analysis) {
+
     #create copy of metadata for pathway_analysis
     metadata_PA <- read.table(file=params$path_metadata, sep = "\t", header = T, quote="")
 }
@@ -270,31 +286,6 @@ conditions = names(metadata)[grepl("condition_",names(metadata))]
 for (i in conditions) {
     metadata[,i] = as.factor(metadata[,i])
 }
-# Load count table for FeatureCounts
-if (params$input_type == "featurecounts"){
-    count.table <- read.table(params$path_gene_counts,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
-    count.table$Ensembl_ID <- row.names(count.table)
-    drop <- c("Ensembl_ID","gene_name")
-    gene_names <- count.table[,drop]
-    # Reduce sample names to QBiC codes in count table
-    names(count.table) <- substr(names(count.table), 1, 10)
-    count.table <- count.table[ , !(names(count.table) %in% drop)]
-    # Remove lines with "__" from HTSeq, not needed for featureCounts (will not harm here)
-    count.table <- count.table[!grepl("^__",row.names(count.table)),]
-    # Do some hard filtering for genes with 0 expression
-    count.table = count.table[rowSums(count.table)>0,]
-    # Need to order columns in count.table
-    count.table <- count.table[, order(names(count.table))]
-    # Count table column headers and metadata table row names must match in the same order
-    if (!identical(names(count.table), row.names(metadata))) {
-        print("Count table column headers are:")
-        print(names(count.table))
-        print("Metadata table row names are:")
-        print(row.names(metadata))
-        error_out <- write_error_msg(count.table, metadata)
-        stop(paste0(error_out, "\nla"), call.=F)
-        }
-}
 # process secondary names and change row names in metadata
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name)
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
@@ -302,7 +293,26 @@ metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
 row.names(metadata) = metadata$sampleName
 metadata_save <- metadata
 
+# Load count table for FeatureCounts
 if (params$input_type == "featurecounts"){
+    count.table <- read.table(params$path_gene_counts,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
+    count.table$Ensembl_ID <- row.names(count.table)
+    drop <- c("Ensembl_ID","gene_name")
+    gene_names <- count.table[,drop]
+
+    # Reduce sample names to QBiC codes in count table
+    names(count.table) <- substr(names(count.table), 1, 10)
+    count.table <- count.table[ , !(names(count.table) %in% drop)]
+
+    # Remove lines with "__" from HTSeq, not needed for featureCounts (will not harm here)
+    count.table <- count.table[!grepl("^__",row.names(count.table)),]
+
+    # Do some hard filtering for genes with 0 expression
+    count.table = count.table[rowSums(count.table)>0,]
+
+    # Need to order columns in count.table
+    count.table <- count.table[, order(names(count.table))]
+
     names(count.table) = metadata$sampleName
     if (!identical(names(count.table),row.names(metadata))) {
     print("After refactoring the metadata table, count table headers do not exactly match the metadata table sample names! Offending values in count table:")
@@ -314,9 +324,11 @@ if (params$input_type == "featurecounts"){
     count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
     write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 }
+
 # to get all possible pairwise comparisons, make a combined factor
 conditions <- grepl(colnames(metadata),pattern = "condition_")
 metadata$combfactor <- apply(as.data.frame(metadata[ ,conditions]),1,paste, collapse = "_")
+
 # Read design file
 design <- read.csv(params$path_design, sep="\t", header = F)
 write.table(design, file="differential_gene_expression/metadata/linear_model.txt", sep="\t", quote=F, col.names = F, row.names = F)
@@ -333,6 +345,7 @@ if(file.exists(QAfile)){
     df_QA_cond <- as.data.frame(df_QA[ ,conditions])
     colnames(df_QA_cond) <- colnames(df_QA)[conditions]
     df_QA_neat <- df_QA[,c("QBiC Code", "Secondary Name")]
+
     #add "Sample Type" only if present in metadata.tsv
     if ("Sample Type" %in% colnames(df_QA)) {
             df_QA_neat[,c("Sample Type")] <- df_QA[,c("Sample Type")]
@@ -380,6 +393,7 @@ DT::datatable(df_QA_neat, options = list(scrollX  = "100%", scrollY = "400px", p
 <!-- This block needs to be executed before the rest of the code as the variables will be needed -->
 
 ```{r DESeq, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
+
 ################## RUN DESEQ2 ######################################
 # Run DESeq function
 if (params$input_type == "featurecounts") {
@@ -387,12 +401,12 @@ if (params$input_type == "featurecounts") {
     cds <- DESeq(cds,  parallel = FALSE)
 } else if (params$input_type %in% c("rsem", "salmon")) {
 
-        ## Create a dataframe which consists of both the gene id and the transcript name
+    ## Create a dataframe which consists of both the gene id and the transcript name
     gtf <- rtracklayer::import(params$path_gtf)
     gtf <- as.data.frame(gtf, header=T)
-    # TODO: For some gtf files, transcript_id does not work!!
     tx2gene_gtf <- gtf[c("transcript_id", "gene_id")]
     tx2gene_gtf <- distinct(tx2gene_gtf)
+
     # As the tximport parameter ignoreTxVersion=T does not reliably work (I think it only ignores the version
     #in the input files, not in the gtf), this removes decimals from the transcript_id values,
     #e.g. transcript_id "AT1G01010.1" --> transcript_id "AT1G01010"
@@ -404,13 +418,15 @@ if (params$input_type == "featurecounts") {
     rownames(gene_names) <- gene_names[,1]
 
 ## Load Rsem count table
-            if (params$input_type == "rsem") {
+    if (params$input_type == "rsem") {
+
         #rsem saves output into one file per sample in an output folder
         #-->the sample name is in the file name
         files <- file.path(gsub("/$", "", params$path_gene_counts), paste0(qbicCodes, ".genes.results"))
         if (!(all(file.exists(files)))) {
             stop("DESeq2.R could not find all of the specified .genes.results files!")
         }
+
         #Extract condition columns and other info for tximeta
         condition_names <- unlist(strsplit(design[,1], split = " "))
         condition_names <- grep("condition", condition_names, value=T)
@@ -419,31 +435,37 @@ if (params$input_type == "featurecounts") {
         coldata <- data.frame(files = files, names= qbicCodes, sampleconditions)
         coldata$combfactor <- metadata$combfactor
         rownames(coldata) <- NULL
+
         #Do tximeta, this is necessary to run DESeq on rsem (imports the rsem output
         #and modifies them as they are not integers and can not directly be used for cds)
         se <- tximeta(coldata, type="rsem", txIn=FALSE, txOut=FALSE, skipMeta=TRUE)
         assays(se)$length[ assays(se)$length == 0] <- NA # set these as missing
+
         #Impute lengths for the 0-length values:
         length_imp <- impute.knn(assays(se)$length)
         assays(se)$length <- length_imp$data
+
         #dds from SummarizedExperiment <se>, then run DESeq
         cds <- DESeqDataSet(se, design = as.formula(eval(parse(text=as.character(design[[1]])))))
         cds <- DESeq(cds)
 
 # Load salmon count files
     } else if (params$input_type == "salmon") {
+
         #salmon saves output to one file per sample, each file is contained in a subfolder of the output folder
         #-->the sample name is in the subfolder name, not in the file name!
         files <- file.path(gsub("/$", "", params$path_gene_counts), qbicCodes, "quant.sf")
         if (!(all(file.exists(files)))) {
             stop("DESeq2.R could not find all of the specified quant.sf files!")
         }
+
         #The following steps are necessary for the processing of salmon output as the files do
         # not contain integer counts and can therefore not be directly used for cds
         ## Import all of the samples information and transform the identifiers
         txi.salmon <- tximport(files, type = "salmon", tx2gene = tx2gene_gtf, ignoreTxVersion = T)
+
         # Run cds with tximport depending on whether rsem or salmon was used
-                #Extract condition columns and other info for tximeta
+        #Extract condition columns and other info for tximeta
         condition_names <- unlist(strsplit(design[,1], split = " "))
         condition_names <- grep("condition", condition_names, value=T)
         sampleconditions <- data.frame(metadata[,condition_names])
@@ -459,7 +481,7 @@ if (params$input_type == "featurecounts") {
 }
 
 #Apply relevel if provided to metadata
-if (!isNot(params$path_relevel)) {
+if (isProvided(params$path_relevel)) {
     relevel_table <- read.table(params$path_relevel, sep="\t", header = T, colClasses = "character")
     write.table(relevel_table, file="differential_gene_expression/metadata/relevel.tsv")
     for (i in c(1:nrow(relevel_table))) {
@@ -470,10 +492,12 @@ if (!isNot(params$path_relevel)) {
 
 # SizeFactors(cds) as indicator of library sequencing depth
 write.table(sizeFactors(cds),paste("differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
+
 # Write cds assay table to file
 write.table(counts(cds, normalized=T), paste("differential_gene_expression/gene_counts_tables/deseq2_table.tsv", sep=""), append=F, quote = F, sep = "\t", eol = "\n", na = "NA", dec = ".", row.names = T, col.names = T, qmethod = c("escape", "double"))
 
 if (params$input_type %in% c("rsem", "salmon")) {
+
     # Else copy raw count sample files/folders
     system("mkdir differential_gene_expression/gene_counts_tables/raw_gene_counts/")
     system(paste0("cp -r ",params$path_gene_counts,"/* differential_gene_expression/gene_counts_tables/raw_gene_counts/"))
@@ -481,10 +505,12 @@ if (params$input_type %in% c("rsem", "salmon")) {
 
 ############################## TRANSFORMED AND NORMALIZED COUNTS ###################
 if (params$rlog){
+
     # rlog transformation
     rld <- rlog(cds, blind=FALSE)
     rld_names <- merge(x=gene_names, y=assay(rld), by.x = "Ensembl_ID", by.y="row.names")
     write.table(rld_names, "differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  qmethod = c("escape", "double"))
+
     #save table to another variable if pathway analysis
     if (params$pathway_analysis) {
         norm_counts <- rld_names
@@ -492,10 +518,12 @@ if (params$rlog){
     }
 
 } else {
+
     # vst transformation
     vsd <- vst(cds, blind=FALSE, nsub = params$nsub_genes)
     vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
     write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
+
     #save table to another variable if pathway analysis
     if (params$pathway_analysis) {
         norm_counts <- vsd_names
@@ -523,6 +551,7 @@ par( mfrow = c(1,2))
 boxplot(log10(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log10-Cooks")
 boxplot(log2(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log2-Cooks")
 dev.off()
+
 # The function plotDispEsts visualizes DESeqs dispersion estimates:
 pdf("differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.pdf")
 plotDispEsts(cds, ylim = c(1e-5, 1e8))
@@ -533,6 +562,7 @@ dev.off()
 svg("differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.svg")
 plotDispEsts(cds, ylim = c(1e-5, 1e8))
 dev.off()
+
 # Effects of transformations on the variance
 notAllZero <- (rowSums(counts(cds))>0)
 pdf("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.pdf")
@@ -546,7 +576,6 @@ notAllZero <- (rowSums(counts(cds))>0)
 png("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.png")
 par(oma=c(3,3,3,3))
 par(mfrow = c(1, 3))
-#Should this be done for salmon and rsem as well?
 meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
 meanSdPlot(assay((if (params$rlog) rld else vsd)[notAllZero,]),ylab  = "sd rlog transformed count data")
 meanSdPlot(assay((if (params$rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd ", if (params$rlog) "rld" else "vsd" ," transformed count data"))
@@ -559,6 +588,7 @@ meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw co
 meanSdPlot(assay((if (params$rlog) rld else vsd)[notAllZero,]),ylab  = "sd rlog transformed count data")
 meanSdPlot(assay((if (params$rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd ", if (params$rlog) "rld" else "vsd" ," transformed count data"))
 dev.off()
+
 # Further diagnostics plots
 res=0
 for (i in resultsNames(cds)[-1]) {
@@ -572,13 +602,17 @@ for (i in resultsNames(cds)[-1]) {
     svg(paste("differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_",i,".svg",sep=""))
     plotMA(res,ylim = c(-4, 4))
     dev.off()
+
     # multiple hyptothesis testing
     qs <- c( 0, quantile(results(cds)$baseMean[res$baseMean > 0], 0:4/4 ))
     bins <- cut(res$baseMean, qs )
+
     # rename the levels of the bins using the middle point
     levels(bins) <- paste0("~",round(.5*qs[-1] + .5*qs[-length(qs)]))
+
     # calculate the ratio of p values less than .01 for each bin
     ratios <- tapply(res$pvalue, bins, function(p) mean(p < .01, na.rm=TRUE ))
+
     # plot these ratios
     pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_",i,".pdf",sep=""))
     barplot(ratios, xlab="mean normalized count", ylab="ratio of small p values")
@@ -589,6 +623,7 @@ for (i in resultsNames(cds)[-1]) {
     svg(paste("differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_",i,".svg",sep=""))
     barplot(ratios, xlab="mean normalized count", ylab="ratio of small p values")
     dev.off()
+
     # plot number of rejections
     pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_",i,".pdf",sep=""))
     plot(metadata(res)$filterNumRej,
@@ -611,6 +646,7 @@ for (i in resultsNames(cds)[-1]) {
     lines(metadata(res)$lo.fit, col="red")
     abline(v=metadata(res)$filterTheta)
     dev.off()
+
     # Histogram of passed and rejected hypothesis
     use <- res$baseMean > metadata(res)$filterThreshold
     table(use)
@@ -643,7 +679,6 @@ for (i in resultsNames(cds)[-1]) {
 ```
 <!-- DESeq2 end -->
 
-<!-- metadata end -->
 
 <!-- multiQC start -->
 
@@ -678,6 +713,7 @@ colnames(df_DE_selected) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
 n_rows = nrow(df_DE_selected)
 metadata <- read.table((paste0(wd, "/differential_gene_expression/metadata/metadata.tsv")), header=TRUE, sep="\t")
 metadata = metadata[,c("QBiC.Code")]
+
 #the following makes metadata a df again (in R, when extracting only 1 column from a df, it becomes a list)
 metadata <- data.frame(matrix(unlist(metadata)))
 colnames(metadata) <- c("Sample")
@@ -820,6 +856,7 @@ cat(paste0("***
 <!-- multiQC end -->
 
 ```{r prepare_text}
+
 #Prepare text snippets
 rlog_text <- ifelse(params$rlog, "rlog", "vst")
 rlog_long_text <- ifelse(params$rlog, "regularized logarithm (rlog)", "variant stabilizing transformation (vst)")
@@ -844,6 +881,7 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 \
 
 ```{r PCA_ifNoBatch_plot, echo=F, warning=F, out.width="80%", dpi=1200, fig.align='center'}
+
 ############################ PCA PLOTS ########################
 pcaData <- plotPCA(if (params$rlog) rld else vsd,intgroup=c("combfactor"),ntop = dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
@@ -869,6 +907,7 @@ A PCA of the batch-effect corrected data is shown below and can be found [here](
 ```
 
 ```{r PCA_ifBatch_plot, echo=F, out.width="80%", dpi=1200, fig.align='center', eval=params$batch_effect}
+
 ########################### PCA PLOT with batch-corrected data ############
 if (params$rlog) {
     assay(rld) <- limma::removeBatchEffect(assay(rld), rld$batch)
@@ -898,6 +937,7 @@ Two samples have more similar gene expression if their distance is closer to 0 (
 The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances.pdf).
 
 ```{r heatmap, echo=FALSE, warning=FALSE, results='hide'}
+
 ##################  SAMPLE DISTANCES HEATMAP ##################
 # Sample distances
 sampleDists <- dist(t(assay(if (params$rlog) rld else vsd)))
@@ -913,7 +953,6 @@ dev.off()
 png("differential_gene_expression/plots/Heatmaps_of_distances.png")
 pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=10)
 dev.off()
-#knitr::include_graphics(paste0(wd,"/differential_gene_expression/plots/Heatmaps_of_distances.svg"))
 ```
 
 ```{r heatmap_plot, echo=F, out.width="80%", dpi=1200, fig.align='center'}
@@ -927,20 +966,24 @@ These comparisons are called _contrasts_. For this analysis, the following contr
 
 <!-- contrast calculation start -->
 ```{r contrast_calc, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
+
 # Contrasts coefficient table write in metadata
 coefficients <- resultsNames(cds)
 coef_tab <- data.frame(coef=coefficients)
 write.table(coef_tab,file="differential_gene_expression/metadata/DESeq2_coefficients.tsv", sep="\t", quote=F, col.names = T, row.names = F)
+
 # Start variables to store DE genes for all contrasts
 DE_genes_df = data.frame(DE_genes_df = character(nrow(cds)))
 contrast_names <- c()
-if (!(isNot(params$path_contrast_matrix))){
+if (isProvided(params$path_contrast_matrix)){
     contrasts <- read.table(path_contrast_matrix, sep="\t", header = T, row.names = 1)
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
+
     # Check that contrast matrix is valid
     if (length(coefficients) != nrow(contrasts)){
         stop("Error: Your contrast table has different number of rows than the number of coefficients in the DESeq2 model.")
     }
+
     ## Contrast calculation for contrast matrix
     for (i in c(1:ncol(contrasts))) {
         results_DEseq_contrast <-results(cds, contrast=contrasts[[i]])
@@ -948,43 +991,47 @@ if (!(isNot(params$path_contrast_matrix))){
         results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
         print("Analyzing contrast:")
         print(contname)
+
         # Add gene name in table
         DE_genes_contrast_genename <- results_DEseq_contrast
         DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+
         # Select only significantly DE
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < params$pval_threshold & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
-        if (!isNot(params$round_DE)) {
+        if (isProvided(params$round_DE)) {
             DE_genes_contrast <- (DE_genes_contrast  %>% mutate_if(is.numeric, round, digits=params$round_DE))
         }
         # Save table
         write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
+
         # Append to DE genes table for all contrasts
         DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
     }
     contrast_names <- append(contrast_names, colnames(contrasts))
 }
-if (!(isNot(params$path_contrast_list))) {
+if (isProvided(params$path_contrast_list)) {
     contrasts <- read.table(params$path_contrast_list, sep="\t", header=T, colClasses = "character")
-    metadata_cond <- metadata_save
     for (i in 1:nrow(contrasts)) {
         if (grepl("condition_", contrasts[i,1], fixed = TRUE)) {
             cond_name <- contrasts[i,1]
             for (j in 2:ncol(contrasts)) {
-                if (!any(metadata_cond[cond_name]==contrasts[i,j])) {
-                    stop(paste("Could not find value", contrasts[i,j], "for contrast", metadata_cond[cond_name], ", please check metadata sheet and contrast list!"))
+                if (!any(metadata_save[cond_name]==contrasts[i,j])) {
+                    stop(paste("Could not find value", contrasts[i,j], "for contrast", metadata_save[cond_name], ", please check metadata sheet and contrast list!"))
                 }
             }
         }
     }
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_list.tsv", quote=F)
+
     ## Contrast calculation for contrast list
     for (i in c(1:nrow(contrasts))) {
         cont <- as.character(contrasts[i,])
@@ -992,32 +1039,37 @@ if (!(isNot(params$path_contrast_list))) {
         results_DEseq_contrast <- results(cds, contrast=cont)
         results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
         print(contname)
+
         # Add gene name in table
         DE_genes_contrast_genename <- results_DEseq_contrast
         DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+
         # Select only significantly DE
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < params$pval_threshold & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
-        if (!isNot(params$round_DE)) {
+        if (isProvided(params$round_DE)) {
             DE_genes_contrast <- (DE_genes_contrast  %>% mutate_if(is.numeric, round, digits=params$round_DE))
         }
         # Save table
         write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
+
         # Append to DE genes table for all contrasts
         DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
         contrast_names <- append(contrast_names, contname)
     }
 }
-if (!(isNot(params$path_contrast_pairs))) {
+if (isProvided(params$path_contrast_pairs)) {
     contrasts <- read.table(path_contrast_pairs, sep="\t", header = T, colClasses = "character")
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_pairs.tsv", sep="\t", quote=F, col.names = T, row.names = F)
+
     # Contrast calculation for contrast pairs
     for (i in c(1:nrow(contrasts))) {
         cont <- as.character(contrasts[i,])
@@ -1029,61 +1081,74 @@ if (!(isNot(params$path_contrast_pairs))) {
         results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
         print("Analyzing contrast:")
         print(contname)
+
         # Add gene name in table
         DE_genes_contrast_genename <- results_DEseq_contrast
         DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+
         # Select only significantly DE
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < params$pval_threshold & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
+
         # Round table before writing
-        if (!isNot(params$round_DE)) {
+        if (isProvided(params$round_DE)) {
             DE_genes_contrast <- (DE_genes_contrast  %>% mutate_if(is.numeric, round, digits=params$round_DE))
         }
+
         # Save table
         write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
+
         # Append to DE genes table for all contrasts
         DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
         contrast_names <- append(contrast_names, contname)
     }
 }
+
 # Calculating DE genes for default contrasts (no contrast matrix or list or pairs provided)
-if (isNot(params$path_contrast_matrix) & isNot(params$path_contrast_list) & isNot(params$path_contrast_pairs)) {
+if (!isProvided(params$path_contrast_matrix) & !isProvided(params$path_contrast_list) & !isProvided(params$path_contrast_pairs)) {
     contrast_names <- coefficients[2:length(coefficients)]
     for (contname in contrast_names) {
         results_DEseq_contrast <- results(cds, name=contname)
         results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
         print("Analyzing contrast:")
         print(contname)
+
         # Adding gene name to table
         DE_genes_contrast_genename <- results_DEseq_contrast
         DE_genes_contrast_genename$Ensembl_ID = row.names(results_DEseq_contrast)
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x ="Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
+
         # Select only significantly DE
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj < params$pval_threshold & abs(log2FoldChange) > params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
-        if (!isNot(params$round_DE)) {
+        if (isProvided(params$round_DE)) {
             DE_genes_contrast <- (DE_genes_contrast  %>% mutate_if(is.numeric, round, digits=params$round_DE))
         }
         # Save table
         write.table(DE_genes_contrast, file=paste("differential_gene_expression/DE_genes_tables/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
         names(results_DEseq_contrast) = paste(names(results_DEseq_contrast),contname,sep="_")
+
         # Append to DE genes table for all contrasts
         DE_genes_df = cbind(DE_genes_df,results_DEseq_contrast)
     }
 }
+
 # Write contrast names to file
 write(contrast_names, file="contrast_names.txt", sep="\t")
+
 # Remove identical columns of DE_genes_df
 DE_genes_df$DE_genes_df <- NULL
 idx <- duplicated(t(DE_genes_df))
@@ -1091,21 +1156,27 @@ DE_genes_df <- DE_genes_df[, !idx]
 DE_genes_df$Ensembl_ID <- row.names(DE_genes_df)
 DE_genes_df <- DE_genes_df[,c(dim(DE_genes_df)[2],1:dim(DE_genes_df)[2]-1)]
 names(DE_genes_df)[1:2] = c("Ensembl_ID","baseMean")
+
 # Get DE genes from any contrast
 padj_cols=names(DE_genes_df)[grepl("padj",names(DE_genes_df))]
 logFC_cols = names(DE_genes_df)[grepl("log2FoldChange", names(DE_genes_df))]
 logFC = DE_genes_df[,logFC_cols,drop=F]
 padj = DE_genes_df[,padj_cols,drop=F]
 padj[is.na(padj)] <- 1
+
 # Convert to binary (1/0) matrix if padj < params$pval_threshold or not, respectively
 padj_bin = data.matrix(ifelse(padj < params$pval_threshold, 1, 0))
+
 # Convert to binary (1/0) matrix if logFC is bigger or smaller than threshold or not, respectively
 logFC_bin = data.matrix(ifelse(abs(logFC) > params$logFC_threshold, 1, 0))
 # Multiply the two bin matrices --> if padj matrix value or LogFC matrix value is 0, will be 0
+
 DE_bin = padj_bin * logFC_bin
+
 # Save as data frame
 DE_bin = as.data.frame(DE_bin)
 cols <- names(padj)
+
 # Contrast vector column -> contains 1 or 0 if gene was DE for each contrast
 if (ncol(DE_bin)>1){
     DE_bin$contrast_vector <- apply(DE_bin[ ,cols],1,paste, collapse = "-")
@@ -1115,18 +1186,21 @@ if (ncol(DE_bin)>1){
     DE_bin$Ensembl_ID = row.names(padj)
 }
 DE_bin = DE_bin[,c("Ensembl_ID","contrast_vector")]
+
 # Add contrast vector to final DE genes data frame
 DE_genes_final_table = merge(DE_genes_df,DE_bin,by.x="Ensembl_ID",by.y="Ensembl_ID")
 stopifnot(identical(dim(DE_genes_final_table)[1],dim(assay(cds))[1]))
+
 # Calculate outcome --> if gene is DE in any contrast, annotate as DE
 DE_genes_final_table$outcome = ifelse(grepl("1",DE_genes_final_table$contrast_vector),"DE","not_DE")
 DE_genes_final_table = merge(x=DE_genes_final_table, y=gene_names, by.x="Ensembl_ID", by.y="Ensembl_ID", all.x = T)
 DE_genes_final_table = DE_genes_final_table[,c(dim(DE_genes_final_table)[2],1:dim(DE_genes_final_table)[2]-1)]
 DE_genes_final_table = DE_genes_final_table[order(DE_genes_final_table[,"Ensembl_ID"]),]
 # Round table before writing
-if (!isNot(params$round_DE)) {
+if (isProvided(params$round_DE)) {
     DE_genes_final_table <- (DE_genes_final_table  %>% mutate_if(is.numeric, round, digits=params$round_DE))
 }
+
 #write to file
 write.table(DE_genes_final_table, "differential_gene_expression/final_gene_table/final_DE_gene_list.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 ```
@@ -1146,7 +1220,7 @@ pval_text <- as.character(params$pval_threshold)
 ## List of differentially expressed genes
 
 The analysis of the differential gene expression was performed using `DESeq2`.
-Genes were considered differentially expressed (DE) when the adjusted p-value was lower than `r pval_text` (padj < r `pval_text`).
+Genes were considered differentially expressed (DE) when the adjusted p-value was lower than `r pval_text` (padj < `r pval_text`).
 Genes were further considered differentially expressed (DE) if the log2 Fold Change in expression between the two considered groups was above the threshold of `r logFC_text` in absolute terms.
 The adjusted p-value is calculated in the `DESeq2` package with the Benjamini-Hochberg method. P-value adjustment
 helps reduce the number of false postives (not real differentially expressed genes).
@@ -1156,26 +1230,12 @@ The linear model employed to model gene expression in DESeq2 was:
 cat(paste(readLines(params$path_design), collapse=" "))
 ```
 
-The list summarizing all found differentially expressed genes for any contrast (comparison) is shown here.
 The differentially expressed genes are marked with "DE" in the outcome column if they were found
 differentially expressed for any of the contrasts considered.
 
 The table for download can be found [here](./differential_gene_expression/final_gene_table/final_DE_gene_list.tsv).
 
 Additional tables for all individual contrasts are provided [here](./differential_gene_expression/DE_genes_tables).
-
-<!-- Show table here removed as I dont like showing only top 20 genes.
-TODO Is this still necessary?
-```{r}
-df_DE <- read.table(paste0(wd,"/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv"),
-                            header=TRUE, sep="\t")
-padj = names(df_DE)[grepl("padj",names(df_DE))]
-df = head(df_DE %>% arrange(df_DE[[tail(padj, n=1)]]),20)
-kable(df, escape=F,row.names =F) %>%
-    kable_styling("hover") %>%
-    scroll_box(width = "100%", height = "400px")
-```
--->
 
 ## Volcano plots of DE genes
 
@@ -1185,6 +1245,7 @@ Genes were considered DE with a padj < `r pval_text` (horizontal drawn through l
 Here, volcano plots for all considered contrasts are shown. Hover over the dots to show the gene names.
 
 ```{r volcano_plot, out.width="100%", out.height="100%"}
+
     #prepare logFC threshold for report text
     logFC_num <- as.numeric(params$logFC_threshold)
     # Set plot theme
@@ -1192,12 +1253,15 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
     allgenes_files <- list.files(path=paste0(wd, "/differential_gene_expression/allgenes/"))
     table_list <- list()
+
     #Use allgenes files for volcano plots to also show non-DE genes
     for (file in allgenes_files){
+
         #Reading DE genes list
         fname <- tools::file_path_sans_ext(basename(file))
         DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/allgenes/", file), sep="\t", header = T)
         DE_genes$contrast <- rep(fname, nrow(DE_genes))
+
         # label: gene_name
         # x: log2FoldChange
         # y: -log10(padj)
@@ -1222,16 +1286,15 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
             facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
             ylab("-log 10 padj") + xlab("Log2 Fold Change")
     pg <- ggplotly(pg, tooltip = "text")
-
-    # the following two lines set the position of the axis descriptions (ylab and xlab)
-    pg[['x']][['layout']][['annotations']][[2]][['x']] <- 5
-    pg[['x']][['layout']][['annotations']][[1]][['y']] <- -20
+    pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05 #TODO: what do these two lines do?
+    pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
 
     # svg path for the little svg format icon displayed in the volcano plot for svg export; based on https://www.svgviewer.dev/:
     svg_icon_path <- 'M228 319.5H12C5.64873 319.5 0.5 314.351 0.5 308V12C0.5 5.64873 5.64873 0.5 12 0.5H159.175C159.571 0.5 159.952 0.656748 160.233 0.936021L239.057 79.2681C239.341 79.5497 239.5 79.9326 239.5 80.3321V308C239.5 314.351 234.351 319.5 228 319.5Z'
     svg_icon_fill <- 'darkgrey'
     svg_icon_transform <- 'scale(0.07)'
     svg_icon_viewbox <- '0 0 240 320'
+
     # This adds a save-to-svg button to the plot menubar
     svg_exp <- list(
         name = "Download plot as an svg",
@@ -1251,6 +1314,7 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
 ```
 
 ```{r box_plots, echo=F, message =F}
+
 ############### BOXPLOTS GENE EXPRESSION PER CONDITION ##########################
 # extract ID for genes to plot, make 20 plots:
 DE_genes_plot <- subset(DE_genes_final_table, outcome == "DE")
@@ -1274,14 +1338,17 @@ for (i in random_DE_genes_plot){
     ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".png",sep=""), width=10, height=5, plot=plot)
     ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".pdf",sep=""), width=10, height=5, plot=plot)
 }
+
 # make boxplots of interesting genes in gene list
-if (!(isNot(params$path_genelist))){
+if (isProvided(params$path_genelist)){
     gene_ids <- read.table(params$path_genelist, col.names = "requested_gene_name")
     write.table(gene_ids, file="differential_gene_expression/metadata/requested_gene_list.txt", col.names=F, row.names=F, sep="\t")
     gene_ids$requested_gene_name <- sapply(gene_ids$requested_gene_name, toupper)
     gene_names$gene_name <- sapply(gene_names$gene_name, toupper)
+
     # get Ensemble IDs from requested genes
     requested_genes_plot <- subset(gene_names, gene_name %in% gene_ids$requested_gene_name)
+
     # Check that genes are in the cds table
     requested_genes_plot <- subset(requested_genes_plot, requested_genes_plot$Ensembl_ID %in% row.names(cds))
     requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
@@ -1328,6 +1395,7 @@ cat("Plots for the [genes of interest](./differential_gene_expression/metadata/g
 
 <!-- PA start -->
 ```{r load_PA_libs, eval=params$pathway_analysis, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
+
 # Load libs invisibly
 invisible(lapply(c(
 "gprofiler2",
@@ -1354,6 +1422,7 @@ library <- get(params$species_library)
 
 # Default to 1 for the nb of genes DE in a pathway
 min_DEG_pathway <- as.integer(params$min_DEG_pathway)
+
 # Contrast files
 contrast_files <- list.files('differential_gene_expression/DE_genes_tables/')
 path_contrasts <- 'differential_gene_expression/DE_genes_tables/'
@@ -1362,7 +1431,7 @@ path_contrasts <- 'differential_gene_expression/DE_genes_tables/'
 metadata <- metadata_PA
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name) # Remove blank spaces and ; from secondary name
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name) # Remove blank spaces if there from secondary name
-#TODO: metadata <- metadata_save
+
 # Create output directory
 dir.create("pathway_analysis")
 
@@ -1382,19 +1451,13 @@ theme_set(theme_classic())
 
 # For each contrast do pathway analysis
 
-# TODO debugging summary table
-# Defining summary variables
-# contrast <- c()
-# number_DE_genes <- c()
-# number_enriched_pathways <- c()
-# list_DE_genes <- list()
-# list_enriched_pathways <- list()
 for (file in contrast_files){
+
     #Reading DE genes list
     fname <- tools::file_path_sans_ext(basename(file))
 
     dir.create(paste("pathway_analysis", fname, sep="/"))
-    if (!isNot(params$citest)) {
+    if (isProvided(params$citest)) {
         dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
     }
     dir.create(paste("pathway_analysis", fname, "KEGG_pathways", sep="/"))
@@ -1409,6 +1472,7 @@ for (file in contrast_files){
 
     # Define list of Ensemble IDs (q) to run the pathway analysis
     q = as.character(DE_genes$Ensembl_ID)
+
     # gost query
     gostres <- gost(query=q,
             organism=organism,
@@ -1420,15 +1484,20 @@ for (file in contrast_files){
 
     # Make data frame of gost result
     pathway_gostres <- gostres$result
+
     # Select only significantly enriched pathways (according to adjusted p-value)
     pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
+
     # Select only pathways with a min. number of DEG
     pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
     gostres$result <- pathway_gostres
+
     # Plot pathways if there were any
     if (nrow(pathway_gostres) > 0){
+
         # annotate query size (number of DE genes in contrast)
         pathway_gostres$original_query_size <- rep(length(q), nrow(pathway_gostres))
+
         # Generate non-interactive pathway dotplots in the folder
         pg <- gostplot(gostres, capped=T, interactive=F)
         ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.pdf"),
@@ -1448,14 +1517,6 @@ for (file in contrast_files){
                 file = paste0("pathway_analysis", "/", fname, "/", fname, "_pathway_enrichment_results.tsv"),
                 sep="\t", quote = F, col.names = T, row.names = F)
 
-    # TODO debugging summary table
-    # Collecting summary variables
-    # contrast <- append(contrast, fname)
-    # number_DE_genes <- append(number_DE_genes, length(DE_genes$Ensembl_ID))
-    # number_enriched_pathways <- append(number_enriched_pathways, summary(as.factor(pathway_gostres_table$source)))
-    # list_DE_genes <- append(list_DE_genes, DE_genes$Ensembl_ID)
-    # list_enriched_pathways <- append(list_enriched_pathways, pathway_gostres_table$term_id)
-    # Printing summary variables
     print("------------------------------------")
     print(fname)
     print("Number of genes in query:")
@@ -1465,6 +1526,7 @@ for (file in contrast_files){
     print("------------------------------------")
 
     if (nrow(pathway_gostres) > 0){ #if there are enriched pathways
+
         # Splitting results according to pathway resources (KEGG / REACTOME / GO)
         res <- split(pathway_gostres, pathway_gostres$source)
         for (df in res){
@@ -1476,6 +1538,7 @@ for (file in contrast_files){
         write.table(df_subset,
                     file = paste0("pathway_analysis", "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"),
                     sep="\t", quote = F, col.names = T, row.names = F)
+
         # Enriched pathways horizontal barplots of padj values
         p <- ggplot(df_subset, aes(x=reorder(Pathway_name, Fraction_DE), y=Fraction_DE)) +
             geom_bar(aes(fill=Padj), stat="identity", width = 0.7) +
@@ -1492,9 +1555,9 @@ for (file in contrast_files){
         print("Plotting heatmaps...")
             if (nrow(df) <= 100 & nrow(df) > 0) {
                 conditions <- grepl("Condition", colnames(metadata))
-                metadata_cond <- as.data.frame(metadata[,conditions])
+                metadata_save <- as.data.frame(metadata[,conditions])
                 metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
-                row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
+                row.names(metadata_save) <- apply(metadata_name,1,paste, collapse = "_")
 
                 for (i in c(1:nrow(df))){
                 pathway <- df[i,]
@@ -1503,17 +1566,19 @@ for (file in contrast_files){
                 rownames(mat) <- mat$gene_name
                 mat$gene_name <- NULL
                 mat <- data.matrix(mat)
-                if (isNot(params$citest) & nrow(mat)>1){
+                if (!isProvided(params$citest) & nrow(mat)>1){
                     png(filename = paste("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
-                    pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+                    pheatmap(mat = mat, annotation_col = metadata_save, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
                     dev.off()
                     pdf(paste("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
-                    pheatmap(mat = mat, annotation_col = metadata_cond, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+                    pheatmap(mat = mat, annotation_col = metadata_save, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
                     dev.off()
                 }
+
                 # Plotting pathway view only for kegg pathways
                 if (pathway$source == "KEGG"){
                     pathway_kegg <- sapply(pathway$term_id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
+
                     # Try plotting pathways, ignore pathways graphs containing errors as pathview crashes if plotting them.
                     tryCatch({
                         print(paste0("Plotting pathway: ", pathway_kegg))
@@ -1550,16 +1615,10 @@ for (file in contrast_files){
     }
 }
 
-# Writing DE gene summary table
-# df_summary <- data.frame(Contrast = contrast, Number_DE_genes = number_DE_genes, Number_enriched_pathways = number_enriched_pathways, DE_genes_list = list_DE_genes, Enriched_pathways_list = list_enriched_pathways)
-# write.table(df_summary,
-#         file = paste0("pathway_analysis", "/", fname, "/", fname, "_pathway_enrichment_summary.tsv"),
-#         sep="\t", quote = F, col.names = T, row.names = F)
 
 
 # Plotting heatmap for provided gene list
-
-if (!(isNot(params$path_genelist))){
+if (isProvided(params$path_genelist)){
 
     genelist_path = params$path_genelist
     genelist_heatmaps_dir <- "heatmap_gene_list"
@@ -1568,9 +1627,9 @@ if (!(isNot(params$path_genelist))){
     print("Plotting heatmaps...")
     conditions <- grepl("Condition", colnames(metadata))
     condition <- metadata[,conditions]
-    metadata_cond <- as.data.frame(condition)
+    metadata_save <- as.data.frame(condition)
     metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
-    row.names(metadata_cond) <- apply(metadata_name,1,paste, collapse = "_")
+    row.names(metadata_save) <- apply(metadata_name,1,paste, collapse = "_")
 
     gene_list_tab <- read.table(file=genelist_path, sep = "\t", header = F, quote="")
     gene_list_unique_tab <- data.frame(gene_list=unique(gene_list_tab$V1))
@@ -1580,6 +1639,7 @@ if (!(isNot(params$path_genelist))){
 
     genestoEnsmbl <- merge(x=gene_list_unique_tab, y=IDs, by.x="gene_list", by.y="gene_name", all.x=T)
     gene_list <- genestoEnsmbl$Ensembl_ID
+
     # Omit genes not present in the count table (NAs)
     gene_list <- na.omit(gene_list)
 
@@ -1592,11 +1652,11 @@ if (!(isNot(params$path_genelist))){
 
     if (nrow(mat)>1){
         png(filename = paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.png", sep=""), width = 2500, height = 3000, res = 300)
-        pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
         dev.off()
 
         pdf(paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""))
-        pheatmap(mat = mat, annotation_col = metadata_cond, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
         dev.off()
     }
 }
@@ -1604,6 +1664,7 @@ if (!(isNot(params$path_genelist))){
 
 ```{r pathway_analysis, echo=FALSE, results='asis', eval=params$pathway_analysis}
 cat(paste0("***
+
 # Pathway analysis
 The pathway analysis was performed with the `gProfiler2` tool.
 The pathway analysis results are stored [here](./pathway_analysis), and explained in this section.
@@ -1611,7 +1672,7 @@ The pathway analysis results are stored [here](./pathway_analysis), and explaine
 
 ## Enriched pathways
 The plot below summarizes the pathways that were
-found significantly enriched in DE genes for each contrast (padj value < `r pval_text`).
+found significantly enriched in DE genes for each contrast (padj value < ", pval_text, ").
 Only contrasts for which an enriched pathway was found are shown.
 Both KEGG pathways and REACTOME (REAC) pathways are considered.
 Hover over the dots to reveal the pathway names.
@@ -1622,8 +1683,10 @@ The table below provides more detail on all enriched pathways."))
     contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
     q_list <- list()
     q_names <- c()
+
     #Use non-allgenes files for PA to only show DE genes
     for (file in contrast_files){
+
         #Reading DE genes list
         fname <- tools::file_path_sans_ext(basename(file))
         DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
@@ -1635,9 +1698,7 @@ The table below provides more detail on all enriched pathways."))
         q_names <- append(q_names, fname)
     }
     names(q_list) <- q_names
-    if (!length(q_list)) {
-        stop("list empty?!?")
-    }
+
     #gost query
     gostres <- gost(query=q_list,
                     organism=tolower(params$organism),
@@ -1692,12 +1753,12 @@ The results for all work packages, as described in the quote can be found in thi
 Further support for this project will be restricted to the results presented in this report.
 For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.
 
-```{r versions, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
+```{r software_versions, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
 # Import the .csv file output by the rna-seq Nextflow pipeline
-version <- read.csv(file = params$path_versions, sep="\t", header = FALSE)
+version <- read.csv(file = params$path_software_versions, sep="\t", header = FALSE)
 ```
 
-<!-- TODO all versions right (+gprofiler2, reference genome) and nicer description of computational methods -->
+<!-- TODO all software_versions right (+gprofiler2, reference genome) and nicer description of computational methods -->
 
 # Computational methods
 
