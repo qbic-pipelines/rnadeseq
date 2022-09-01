@@ -15,7 +15,7 @@ nextflow.enable.dsl = 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-//Either genome needs to be set or the parameters gtf (for rsem/salmon) and organism, library and keytype
+//Either genome needs to be set or the parameters gtf (for rsem/salmon) and organism, species_library and keytype
 //(for pathway analysis) have to be provided separately
 //-->gtf is necessary for rsem and salmon
 if (params.input_type in ["rsem", "salmon"]) {
@@ -27,7 +27,7 @@ if (params.input_type in ["rsem", "salmon"]) {
         }
     }
 }
-//-->organism, library and keytype are necessary for pathway analysis
+//-->organism, species_library and keytype are necessary for pathway analysis
 if (!params.skip_pathway_analysis) {
     if (!params.genome && !params.organism) { exit 1, 'Please provide either genome or organism!' }
     else if (!params.organism) {
@@ -36,11 +36,11 @@ if (!params.skip_pathway_analysis) {
             exit 1, 'It seems that for your genome, no organism is defined. Please provide the organism with the --organism parameter or open a github issue: https://github.com/qbic-pipelines/rnadeseq/issues'
         }
     }
-    if (!params.genome && !params.library) { exit 1, 'Please provide either genome or library!' }
-    else if (!params.library) {
-        params.library = WorkflowMain.getGenomeAttribute(params, 'library')
-        if (!params.library) {
-            exit 1, 'It seems that for your genome, no library is defined. Please provide the library with the --library parameter or open a github issue: https://github.com/qbic-pipelines/rnadeseq/issues'
+    if (!params.genome && !params.species_library) { exit 1, 'Please provide either genome or species_library!' }
+    else if (!params.species_library) {
+        params.species_library = WorkflowMain.getGenomeAttribute(params, 'species_library')
+        if (!params.species_library) {
+            exit 1, 'It seems that for your genome, no species_library is defined. Please provide the library with the --species_library parameter or open a github issue: https://github.com/qbic-pipelines/rnadeseq/issues'
         }
     }
     if (!params.genome && !params.keytype) { exit 1, 'Please provide either genome or keytype!' }
