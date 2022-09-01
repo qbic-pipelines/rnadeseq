@@ -15,7 +15,7 @@ process REPORT {
     path relevel
 
     path proj_summary
-    path softwareversions
+    path software_versions
     path multiqc
 
     output:
@@ -57,7 +57,8 @@ process REPORT {
         $genelist_opt \
         $relevel_opt \
         $batch_effect_opt \
-        --log_FC_threshold $params.logFCthreshold \
+        --logFC_threshold $params.logFC_threshold \
+        --pval_threshold $params.pval_threshold \
         $rlog_opt \
         --nsub_genes $params.vst_genes_number \
         $round_DE_opt \
@@ -67,7 +68,7 @@ process REPORT {
         --keytype $params.keytype \
         --min_DEG_pathway $params.min_DEG_pathway \
         --proj_summary $proj_summary \
-        --versions $softwareversions \
+        --software_versions $software_versions \
         --revision $workflow.manifest.version \
         $citest_opt
 

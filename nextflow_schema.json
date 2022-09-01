@@ -31,10 +31,10 @@
                     "type": "string",
                     "description": "Not necessary if genome is set or input_type is featurecounts. GTF file to be used for DESeq if input is rsem or salmon."
                 },
-                "versions": {
+                "software_versions": {
                     "type": "string",
                     "default": "None",
-                    "description": "CSV containing rnaseq software versions."
+                    "description": "CSV containing nf-core/rnaseq software versions."
                 }
             },
             "required": ["input_type", "gene_counts", "metadata", "model", "versions"]
@@ -75,10 +75,15 @@
                     "default": "false",
                     "description": "Turn on this flag if you wish to consider batch effects. You need to add the batch effect to the linear model too!"
                 },
-                "logFCthreshold": {
+                "logFC_threshold": {
                     "type": "integer",
                     "default": 0,
                     "description": "Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed."
+                },
+                "pval_threshold": {
+                    "type": "number",
+                    "default": 0.05,
+                    "description": "p value (float) to consider a gene as differentially expressed. The default value is 0.05."
                 },
                 "use_vst": {
                     "type": "boolean",

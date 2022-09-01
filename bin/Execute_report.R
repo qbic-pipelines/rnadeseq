@@ -19,7 +19,8 @@ option_list = list(
     make_option(c("-l", "--genelist"), type="character", default=NULL, help="Path to gene list file", metavar="character"),
     make_option(c("-e", "--relevel"), type="character", default=NULL, help="Path to factor relevel file", metavar="character"),
     make_option(c("-b", "--batch_effect"), action="store_true", default=FALSE, help="Batch effect correction."),
-    make_option(c("-f", "--log_FC_threshold"), type="double", default=NULL, help="Log Fold Change threshold to consider a gene DE."),
+    make_option(c("-f", "--logFC_threshold"), type="double", default=NULL, help="Log Fold Change threshold to consider a gene DE."),
+    make_option("--pval_threshold", type="double", default=0.05, help="p value threshold to consider a gene DE."),
     make_option("--round_DE", type="integer", default=NULL, help="How many decimals to keep after rounding the DE analysis values."),
 
     make_option(c("-z", "--rlog"), action="store_true", default=TRUE, help="Use rlog instead of vst normalization."),
@@ -32,7 +33,7 @@ option_list = list(
     make_option(c("-w", "--min_DEG_pathway"), type="integer", default=NULL, help="min. number of genes DE in a pathway for this pathway to be considered enriched.", metavar="integer"),
 
     make_option(c("-s", "--proj_summary"), type="character", default=NULL, help="Project summary file", metavar="character"),
-    make_option(c("-v", "--versions"), type="character", default=NULL, help="Versions file", metavar="character"),
+    make_option(c("-v", "--software_versions"), type="character", default=NULL, help="Versions file", metavar="character"),
     make_option(c("-j", "--revision"), type="character", default=NULL, help="Rnadeseq workflow revision", metavar="character"),
 
     make_option("--citest", action="store_true", default=FALSE, help="Run github test and don't save pathway heatmaps.")
@@ -63,7 +64,8 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_genelist = path_genelist,
                                 path_relevel = opt$relevel,
                                 batch_effect = opt$batch_effect,
-                                log_FC_threshold = opt$log_FC_threshold,
+                                logFC_threshold = opt$logFC_threshold,
+                                pval_threshold = opt$pval_threshold,
                                 rlog = opt$rlog,
                                 nsub_genes = opt$nsub_genes,
                                 round_DE = opt$round_DE,
@@ -75,7 +77,7 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 min_DEG_pathway = opt$min_DEG_pathway,
 
                                 path_proj_summary = opt$proj_summary,
-                                path_versions = opt$versions,
+                                path_software_versions = opt$software_versions,
                                 revision = opt$revision,
 
                                 citest = opt$citest))

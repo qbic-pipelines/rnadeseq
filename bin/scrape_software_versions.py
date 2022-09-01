@@ -25,8 +25,8 @@ results['Nextflow'] = '<span style="color:#999999;\">N/A</span>'
 # Search each file using its regex
 for k, v in regexes.items():
     with open(v[0]) as x:
-        versions = x.read()
-        match = re.search(v[1], versions)
+        software_versions = x.read()
+        match = re.search(v[1], software_versions)
         if match:
             results[k] = "v{}".format(match.group(1))
 
