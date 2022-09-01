@@ -429,7 +429,7 @@ if (params$input_type == "featurecounts") {
 
         #Extract condition columns and other info for tximeta
         condition_names <- unlist(strsplit(design[,1], split = " "))
-        condition_names <- grep("condition", condition_names, value=T)
+        condition_names <- grep("condition|batch", condition_names, value=T)
         sampleconditions <- data.frame(metadata[,condition_names])
         colnames(sampleconditions) <- condition_names
         coldata <- data.frame(files = files, names= qbicCodes, sampleconditions)
@@ -467,7 +467,7 @@ if (params$input_type == "featurecounts") {
         # Run cds with tximport depending on whether rsem or salmon was used
         #Extract condition columns and other info for tximeta
         condition_names <- unlist(strsplit(design[,1], split = " "))
-        condition_names <- grep("condition", condition_names, value=T)
+        condition_names <- grep("condition|batch", condition_names, value=T)
         sampleconditions <- data.frame(metadata[,condition_names])
         colnames(sampleconditions) <- condition_names
         coldata <- data.frame(files = files, names= qbicCodes, sampleconditions)
