@@ -4,6 +4,7 @@
 
 ### Added
 
+- [#147](https://github.com/qbic-pipelines/rnadeseq/pull/145) Added check for contrast list/metadata comparison
 - [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Added pval threshold param
 - [#136](https://github.com/qbic-pipelines/rnadeseq/pull/136) Added pytest checks and md5sums to make sure that output stays consistent
 - [#134](https://github.com/qbic-pipelines/rnadeseq/pull/134) Corrected some versions
