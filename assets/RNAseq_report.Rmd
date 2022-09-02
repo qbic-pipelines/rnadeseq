@@ -400,7 +400,6 @@ if (params$input_type == "featurecounts") {
     cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
     cds <- DESeq(cds,  parallel = FALSE)
 } else if (params$input_type %in% c("rsem", "salmon")) {
-
     ## Create a dataframe which consists of both the gene id and the transcript name
     gtf <- rtracklayer::import(params$path_gtf)
     gtf <- as.data.frame(gtf, header=T)
@@ -424,7 +423,14 @@ if (params$input_type == "featurecounts") {
         #-->the sample name is in the file name
         files <- file.path(gsub("/$", "", params$path_gene_counts), paste0(qbicCodes, ".genes.results"))
         if (!(all(file.exists(files)))) {
-            stop("DESeq2.R could not find all of the specified .genes.results files! Please check that for all QBiC codes in the metadata sheet, a quant.sf file is present in the gene_counts folder and make sure that no typos exist.")
+            missing_files <- "DESeq2.R could not find all of the specified .genes.results files! Please check that for all QBiC codes in the metadata sheet, a quant.sf file is present in the gene_counts folder and make sure that no typos exist. The following file(s) could not be found: "
+            for (f in files) {
+                if (!file.exists(f)) {
+                    missing_files <- paste0(missing_files, f, ", ")
+                }
+            }
+            missing_files <- paste0(substring(missing_files, 1, nchar(missing_files)-2), ".")
+            stop(missing_files, call.=F)
         }
 
         #Extract condition columns and other info for tximeta
@@ -456,8 +462,14 @@ if (params$input_type == "featurecounts") {
         #-->the sample name is in the subfolder name, not in the file name!
         files <- file.path(gsub("/$", "", params$path_gene_counts), qbicCodes, "quant.sf")
         if (!(all(file.exists(files)))) {
-            stop("DESeq2.R could not find all of the specified quant.sf files! Please check that for all QBiC codes in the metadata sheet, a subfolder with a quant.sf file is present in the gene_counts folder and make sure that no typos exist.")
-        }
+            missing_files <- "DESeq2.R could not find all of the specified .genes.results files! Please check that for all QBiC codes in the metadata sheet, a quant.sf file is present in the gene_counts folder and make sure that no typos exist. The following file(s) could not be found: "
+            for (f in files) {
+                if (!file.exists(f)) {
+                    missing_files <- paste0(missing_files, f, ", ")
+                }
+            }
+            missing_files <- paste0(substring(missing_files, 1, nchar(missing_files)-2), ".")
+            stop(missing_files, call.=F)        }
 
         #The following steps are necessary for the processing of salmon output as the files do
         # not contain integer counts and can therefore not be directly used for cds
@@ -477,7 +489,7 @@ if (params$input_type == "featurecounts") {
         cds <- DESeq(cds)
     }
 } else {
-    stop(paste0("Invalid input type: ", params$input_type, "! Input type must be one of: featurecounts, rsem, salmon!")
+    stop(paste0("Invalid input type: ", params$input_type, "! Input type must be one of: featurecounts, rsem, salmon!"))
 }
 
 #Apply relevel if provided to metadata
