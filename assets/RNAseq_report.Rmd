@@ -1785,7 +1785,7 @@ for (db in datasources) {
     database_string <- paste0(database_string, "`", db, ": ", gsub("\n", ", ", database_version_info$sources[[db]]$version), "`, ")
 }
 database_string <- paste0(substr(database_string,1,nchar(database_string)-2), ".")
-cat(paste0("For pathway analysis, the R packages `gprofiler2 v",version_gprofiler2,"`, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. Also, the following databases were queried: ", database_string))
+cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2," `, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. Also, the following databases were queried: ", database_string))
 ```
 
 Graphs were produced in RStudio with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")`` . Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
