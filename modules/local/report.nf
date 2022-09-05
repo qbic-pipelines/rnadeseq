@@ -15,7 +15,7 @@ process REPORT {
     path relevel
 
     path proj_summary
-    path softwareversions
+    path software_versions
     path multiqc
 
     output:
@@ -35,7 +35,7 @@ process REPORT {
 
     def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
 
-    def citest_opt = params.citest == "true" ? "--citest TRUE" : ''
+    def citest_opt = params.citest ? "--citest TRUE" : ''
 
     """
     if [ "$multiqc" != "NO_FILE3" ]; then
@@ -64,17 +64,17 @@ process REPORT {
         $round_DE_opt \
         $pathwayopt \
         --organism $params.organism \
-        --species_library $params.library \
+        --species_library $params.species_library \
         --keytype $params.keytype \
         --min_DEG_pathway $params.min_DEG_pathway \
         --proj_summary $proj_summary \
-        --versions $softwareversions \
+        --software_versions $software_versions \
         --revision $workflow.manifest.version \
         $citest_opt
 
     # Remove allgenes dir as the contained files do not contain only DE genes
     rm -r differential_gene_expression/allgenes
-    # If citest, remove heatmaps as their filenames contain : which is an invalid character
+    # If citest, copy results before zipping as unzip does not work properly in the container
     if [ "$params.citest" == true ]; then
         mkdir ../../../results_test
         cp -r RNAseq_report.html differential_gene_expression/ ../../../results_test
