@@ -4,15 +4,15 @@
     - test_batcheffect
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_batch_b2_vs_b1.tsv
-    #      md5sum: 4c8bcede761f82803c262f28a13eb5ce
+      md5sum: 4c8bcede761f82803c262f28a13eb5ce
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_batch_b3_vs_b1.tsv
-    #      md5sum: 94b10670ba4dbba7596ee3dcae46e8ea
+      md5sum: 94b10670ba4dbba7596ee3dcae46e8ea
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_genotype_WT_vs_KO.tsv
-    #      md5sum: e698fbecc341bd59ce7d47dfab77d642
+      md5sum: e698fbecc341bd59ce7d47dfab77d642
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_treatment_Treated_vs_Control.tsv
-    #      md5sum: 2738119f899ecd154cd5cfc40e1e24e4
+      md5sum: 2738119f899ecd154cd5cfc40e1e24e4
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
-    #      md5sum: ad0df4e1d022ba7fd56df6a5e594a281
+      md5sum: ad0df4e1d022ba7fd56df6a5e594a281
     - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_table.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv
