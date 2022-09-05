@@ -33,7 +33,7 @@ option_list = list(
     make_option(c("-w", "--min_DEG_pathway"), type="integer", default=NULL, help="min. number of genes DE in a pathway for this pathway to be considered enriched.", metavar="integer"),
 
     make_option(c("-s", "--proj_summary"), type="character", default=NULL, help="Project summary file", metavar="character"),
-    make_option(c("-v", "--versions"), type="character", default=NULL, help="Versions file", metavar="character"),
+    make_option(c("-v", "--software_versions"), type="character", default=NULL, help="Versions file", metavar="character"),
     make_option(c("-j", "--revision"), type="character", default=NULL, help="Rnadeseq workflow revision", metavar="character"),
 
     make_option("--citest", action="store_true", default=FALSE, help="Run github test and don't save pathway heatmaps.")
@@ -77,7 +77,7 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 min_DEG_pathway = opt$min_DEG_pathway,
 
                                 path_proj_summary = opt$proj_summary,
-                                path_versions = opt$versions,
+                                path_software_versions = opt$software_versions,
                                 revision = opt$revision,
 
                                 citest = opt$citest))
