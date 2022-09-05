@@ -14,11 +14,13 @@
 
 ### Changed
 
+- [#159](https://github.com/qbic-pipelines/rnadeseq/pull/159) Changed error messages for non-existing rsem/salmon files
 - [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Renamed versions to software_versions
 - [#131](https://github.com/qbic-pipelines/rnadeseq/pull/131) Changed Sample_preparations.tsv by adding batch column
 
 ## Fixed
 
+- [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Fixed batch effect bug for rsem/salmon
 - [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Fixed batch effect bug
 
 ## 2.0 - Olive Trees
