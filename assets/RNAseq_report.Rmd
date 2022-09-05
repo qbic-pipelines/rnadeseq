@@ -400,7 +400,6 @@ if (params$input_type == "featurecounts") {
     cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
     cds <- DESeq(cds,  parallel = FALSE)
 } else if (params$input_type %in% c("rsem", "salmon")) {
-
     ## Create a dataframe which consists of both the gene id and the transcript name
     gtf <- rtracklayer::import(params$path_gtf)
     gtf <- as.data.frame(gtf, header=T)
@@ -424,12 +423,19 @@ if (params$input_type == "featurecounts") {
         #-->the sample name is in the file name
         files <- file.path(gsub("/$", "", params$path_gene_counts), paste0(qbicCodes, ".genes.results"))
         if (!(all(file.exists(files)))) {
-            stop("DESeq2.R could not find all of the specified .genes.results files!")
+            missing_files <- "DESeq2.R could not find all of the specified <QBiC-code>.genes.results files! Please check that for all QBiC codes in the metadata sheet, a <QBiC-code>.genes.results file is present in the gene_counts folder and make sure that no typos exist. The following file(s) could not be found: "
+            for (f in files) {
+                if (!file.exists(f)) {
+                    missing_files <- paste0(missing_files, f, ", ")
+                }
+            }
+            missing_files <- paste0(substring(missing_files, 1, nchar(missing_files)-2), ".")
+            stop(missing_files, call.=F)
         }
 
         #Extract condition columns and other info for tximeta
         condition_names <- unlist(strsplit(design[,1], split = " "))
-        condition_names <- grep("condition", condition_names, value=T)
+        condition_names <- grep("condition|batch", condition_names, value=T)
         sampleconditions <- data.frame(metadata[,condition_names])
         colnames(sampleconditions) <- condition_names
         coldata <- data.frame(files = files, names= qbicCodes, sampleconditions)
@@ -456,8 +462,14 @@ if (params$input_type == "featurecounts") {
         #-->the sample name is in the subfolder name, not in the file name!
         files <- file.path(gsub("/$", "", params$path_gene_counts), qbicCodes, "quant.sf")
         if (!(all(file.exists(files)))) {
-            stop("DESeq2.R could not find all of the specified quant.sf files!")
-        }
+            missing_files <- "DESeq2.R could not find all of the specified <QBiC-code>/quant.sf files! Please check that for all QBiC codes in the metadata sheet, a <QBiC-code>/quant.sf file is present in the gene_counts folder and <QBiC-code> subfolder and make sure that no typos exist. The following file(s) could not be found: "
+            for (f in files) {
+                if (!file.exists(f)) {
+                    missing_files <- paste0(missing_files, f, ", ")
+                }
+            }
+            missing_files <- paste0(substring(missing_files, 1, nchar(missing_files)-2), ".")
+            stop(missing_files, call.=F)        }
 
         #The following steps are necessary for the processing of salmon output as the files do
         # not contain integer counts and can therefore not be directly used for cds
@@ -467,7 +479,7 @@ if (params$input_type == "featurecounts") {
         # Run cds with tximport depending on whether rsem or salmon was used
         #Extract condition columns and other info for tximeta
         condition_names <- unlist(strsplit(design[,1], split = " "))
-        condition_names <- grep("condition", condition_names, value=T)
+        condition_names <- grep("condition|batch", condition_names, value=T)
         sampleconditions <- data.frame(metadata[,condition_names])
         colnames(sampleconditions) <- condition_names
         coldata <- data.frame(files = files, names= qbicCodes, sampleconditions)
@@ -477,7 +489,7 @@ if (params$input_type == "featurecounts") {
         cds <- DESeq(cds)
     }
 } else {
-    stop("Input type must be one of: featurecounts, rsem, salmon!")
+    stop(paste0("Invalid input type: ", params$input_type, "! Input type must be one of: featurecounts, rsem, salmon!"))
 }
 
 #Apply relevel if provided to metadata
@@ -979,7 +991,7 @@ if (isProvided(params$path_contrast_matrix)){
 
     # Check that contrast matrix is valid
     if (length(coefficients) != nrow(contrasts)){
-        stop("Error: Your contrast table has different number of rows than the number of coefficients in the DESeq2 model.")
+        stop("Error: Your contrast table has a different number of rows than the number of coefficients in the DESeq2 model.")
     }
 
     ## Contrast calculation for contrast matrix
@@ -1073,7 +1085,7 @@ if (isProvided(params$path_contrast_pairs)) {
         cont <- as.character(contrasts[i,])
         contname <- cont[0]
         if (!(cont[2] %in% coefficients & cont[3] %in% coefficients)){
-            stop(paste0("Provided contrast name is invalid, it needs to be contained in ", coefficients))
+            stop(paste("Provided contrast name is invalid, it needs to be contained in", coefficients))
         }
         results_DEseq_contrast <- results(cds, contrast=list(cont[1],cont[2]))
         results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
@@ -1528,29 +1540,29 @@ for (file in contrast_files){
         # Splitting results according to pathway resources (KEGG / REACTOME / GO)
         res <- split(pathway_gostres, pathway_gostres$source)
         for (df in res){
-        db_source <- df$source[1]
-        df$short_name <- sapply(df$term_name, substr, start=1, stop=50)
+            db_source <- df$source[1]
+            df$short_name <- sapply(df$term_name, substr, start=1, stop=50)
 
-        # Plotting results for df
-        df_subset <- data.frame(Pathway_name = df$short_name, Pathway_code = df$term_id, DE_genes = df$intersection_size, DE_genes_names = df$intersection, Pathway_size = df$term_size, Fraction_DE = (df$intersection_size / df$term_size), Padj = df$p_value)
-        write.table(df_subset,
-                    file = paste0("pathway_analysis", "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"),
-                    sep="\t", quote = F, col.names = T, row.names = F)
+            # Plotting results for df
+            df_subset <- data.frame(Pathway_name = df$short_name, Pathway_code = df$term_id, DE_genes = df$intersection_size, Pathway_size = df$term_size, Fraction_DE = (df$intersection_size / df$term_size), Padj = df$p_value, DE_genes_names = df$intersection)
+            write.table(df_subset,
+                        file = paste0("pathway_analysis", "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"),
+                        sep="\t", quote = F, col.names = T, row.names = F)
 
-        # Enriched pathways horizontal barplots of padj values
-        p <- ggplot(df_subset, aes(x=reorder(Pathway_name, Fraction_DE), y=Fraction_DE)) +
-            geom_bar(aes(fill=Padj), stat="identity", width = 0.7) +
-            geom_text(aes(label=paste0(df_subset$DE_genes, "/", df_subset$Pathway_size)), vjust=0.4, hjust=-0.5, size=3) +
-            coord_flip() +
-            scale_y_continuous(limits = c(0.00, 1.00)) +
-            scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
-            ggtitle("Enriched pathways") +
-            xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
-        ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
-        ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+            # Enriched pathways horizontal barplots of padj values
+            p <- ggplot(df_subset, aes(x=reorder(Pathway_name, Fraction_DE), y=Fraction_DE)) +
+                geom_bar(aes(fill=Padj), stat="identity", width = 0.7) +
+                geom_text(aes(label=paste0(df_subset$DE_genes, "/", df_subset$Pathway_size)), vjust=0.4, hjust=-0.5, size=3) +
+                coord_flip() +
+                scale_y_continuous(limits = c(0.00, 1.00)) +
+                scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
+                ggtitle("Enriched pathways") +
+                xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 2+0.5*nrow(df_subset), units = "cm", limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 2+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
 
-        # Plotting heatmaps and KEGG pathways for all pathways
-        print("Plotting heatmaps...")
+            # Plotting heatmaps and KEGG pathways for all pathways
+            print("Plotting heatmaps...")
             if (nrow(df) <= 100 & nrow(df) > 0) {
                 conditions <- grepl("Condition", colnames(metadata))
                 metadata_save <- as.data.frame(metadata[,conditions])
@@ -1558,49 +1570,48 @@ for (file in contrast_files){
                 row.names(metadata_save) <- apply(metadata_name,1,paste, collapse = "_")
 
                 for (i in c(1:nrow(df))){
-                pathway <- df[i,]
-                gene_list <- unlist(strsplit(pathway$intersection, ","))
-                mat <- norm_counts[gene_list, ]
-                rownames(mat) <- mat$gene_name
-                mat$gene_name <- NULL
-                mat <- data.matrix(mat)
-                if (!isProvided(params$citest) & nrow(mat)>1){
-                    png(filename = paste("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
-                    pheatmap(mat = mat, annotation_col = metadata_save, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
-                    dev.off()
-                    pdf(paste("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
-                    pheatmap(mat = mat, annotation_col = metadata_save, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
-                    dev.off()
-                }
+                    pathway <- df[i,]
+                    gene_list <- unlist(strsplit(pathway$intersection, ","))
+                    mat <- norm_counts[gene_list, ]
+                    rownames(mat) <- mat$gene_name
+                    mat$gene_name <- NULL
+                    mat <- data.matrix(mat)
+                    if (!isProvided(params$citest) & nrow(mat)>1){
+                        png(filename = paste("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
+                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+                        dev.off()
+                        pdf(paste("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
+                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+                        dev.off()
+                    }
 
-                # Plotting pathway view only for kegg pathways
-                if (pathway$source == "KEGG"){
-                    pathway_kegg <- sapply(pathway$term_id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
+                    # Plotting pathway view only for kegg pathways
+                    if (pathway$source == "KEGG"){
+                        pathway_kegg <- sapply(pathway$term_id, function(x) paste0(short_organism_name, unlist(strsplit(as.character(x), ":"))[2]))
 
-                    # Try plotting pathways, ignore pathways graphs containing errors as pathview crashes if plotting them.
-                    tryCatch({
-                        print(paste0("Plotting pathway: ", pathway_kegg))
-                        gene.data = DE_genes
-                        gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
-
-                        entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=params$keytype, multiVals="first")
-
-                        gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
-
-                        if (length(entrez_ids)!=length(unique(entrez_ids))) {
-                            print(paste0("Skipping pathway: ", pathway_kegg,". This pathway has multiple IDs with same name."))
-                        } else {
-                            row.names(gene.data.subset) <- entrez_ids[!is.na(entrez_ids)]
-                            gene.data.subset$Ensembl_ID <- NULL
-                            pathview(gene.data  = gene.data.subset,
-                                    pathway.id = pathway_kegg,
-                                    species    = short_organism_name,
-                                    out.suffix=paste(fname,sep="_"))
-                            mv_command <- paste0("mv *.png *.xml ","./","pathway_analysis", "/",fname, "/", "KEGG_pathways", "/")
-                            rm_command <- paste0("rm ","./","pathway_analysis", "/",fname, "/", "KEGG_pathways", "/", "*.xml")
-                            system(mv_command)
-                        }
+                        # Try plotting pathways, ignore pathways graphs containing errors as pathview crashes if plotting them.
+                        tryCatch({
                             print_string <- paste0("Plotting pathway: ", pathway_kegg)
+                            gene.data = DE_genes
+                            gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
+
+                            entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=params$keytype, multiVals="first")
+
+                            gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
+
+                            if (length(entrez_ids)!=length(unique(entrez_ids))) {
+                                print_string <- paste0("Skipping pathway: ", pathway_kegg,". This pathway has multiple IDs with same name.")
+                            } else {
+                                row.names(gene.data.subset) <- entrez_ids[!is.na(entrez_ids)]
+                                gene.data.subset$Ensembl_ID <- NULL
+                                pathview(gene.data  = gene.data.subset,
+                                        pathway.id = pathway_kegg,
+                                        species    = short_organism_name,
+                                        out.suffix=paste(fname,sep="_"))
+                                mv_command <- paste0("mv *.png *.xml ","./","pathway_analysis", "/",fname, "/", "KEGG_pathways", "/")
+                                rm_command <- paste0("rm ","./","pathway_analysis", "/",fname, "/", "KEGG_pathways", "/", "*.xml")
+                                system(mv_command)
+                            }
                         }, error = function(e) {
                             print_string <- paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database.")
                         }, finally = {
@@ -1612,8 +1623,6 @@ for (file in contrast_files){
         }
     }
 }
-
-
 
 # Plotting heatmap for provided gene list
 if (isProvided(params$path_genelist)){
@@ -1783,7 +1792,7 @@ for (db in datasources) {
     database_string <- paste0(database_string, "`", db, ": ", gsub("\n", ", ", database_version_info$sources[[db]]$version), "`, ")
 }
 database_string <- paste0(substr(database_string,1,nchar(database_string)-2), ".")
-cat(paste0("For pathway analysis, the R packages `gprofiler2 v",version_gprofiler2,"`, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. Also, the following databases were queried: ", database_string))
+cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2," `, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. Also, the following databases were queried: ", database_string))
 ```
 
 Graphs were produced in RStudio with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")`` . Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.

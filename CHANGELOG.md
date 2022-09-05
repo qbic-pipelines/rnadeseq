@@ -4,7 +4,8 @@
 
 ### Added
 
-- [#147](https://github.com/qbic-pipelines/rnadeseq/pull/145) Added check for contrast list/metadata comparison
+- [#148](https://github.com/qbic-pipelines/rnadeseq/pull/148) Added KEGG/REAC versions to report
+- [#147](https://github.com/qbic-pipelines/rnadeseq/pull/147) Added check for contrast list/metadata comparison
 - [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Added pval threshold param
 - [#136](https://github.com/qbic-pipelines/rnadeseq/pull/136) Added pytest checks and md5sums to make sure that output stays consistent
 - [#134](https://github.com/qbic-pipelines/rnadeseq/pull/134) Corrected some versions
@@ -14,11 +15,13 @@
 
 ### Changed
 
+- [#159](https://github.com/qbic-pipelines/rnadeseq/pull/159) Changed error messages for non-existing rsem/salmon files
 - [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Renamed versions to software_versions
 - [#131](https://github.com/qbic-pipelines/rnadeseq/pull/131) Changed Sample_preparations.tsv by adding batch column
 
 ## Fixed
 
+- [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Fixed batch effect bug for rsem/salmon
 - [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Fixed batch effect bug
 
 ## 2.0 - Olive Trees
