@@ -98,9 +98,9 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/KEGG_pathways/hsa01040.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/KEGG_pathways/hsa01040.xml
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_KEGG_pathway_enrichment_results.tsv
-      md5sum: 2d69934c95e3a223961fa3dd37fdbbc5
+      md5sum: ef25ba804276cece5679834d825cdab9
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_pathway_enrichment_results.tsv
       md5sum: 14e89bdda8266a95a06b10735143c456
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_REAC_pathway_enrichment_results.tsv
-      md5sum: 687e210de4809d90d4b4f9349e81dd93
+      md5sum: 5af03fde3bedbf2852e659e9f9c9e22d
     - path: results_test/RNAseq_report.html
