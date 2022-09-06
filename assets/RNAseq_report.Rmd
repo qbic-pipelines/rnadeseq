@@ -142,13 +142,6 @@ if (length(contrast_vector[contrast_vector== TRUE]) > 1) {
 ```
 
 ```{r load_DE_libs, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
-
-species_dir <- tempdir()
-install.packages('viridis', lib=species_dir,repos = "http://cran.us.r-project.org")
-library("viridis", lib.loc=species_dir)
-
-install.packages('heatmaply', lib=species_dir,repos = "http://cran.us.r-project.org")
-library("heatmaply", lib.loc=species_dir)
 # Load all necessary libs invisibly
 invisible( lapply(c(
 "RColorBrewer",
@@ -175,7 +168,10 @@ invisible( lapply(c(
 "webshot",
 "htmlwidgets",
 "pheatmap",
-"DT"
+"DT",
+"sessioninfo",
+"details",
+"heatmaply"
 ), library, character.only=T))
 ```
 
@@ -942,7 +938,7 @@ pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor, text=paste("PC1: ", PC1
             coord_fixed() +
             theme_bw() +
             theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-            guides(fill=guide_legend(title=NULL))
+            guides(color=guide_legend(title=NULL))
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.pdf", device = "pdf", dpi=300)
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.svg", device = "svg", dpi = 150)
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.png", device = "png", dpi = 150)
@@ -958,16 +954,24 @@ This visualizes how similar the samples are to each other according to gene expr
 Two samples have more similar gene expression if their distance is closer to 0 (darker blue).
 The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances.pdf).
 
-```{r heatmap, echo=FALSE, message=FALSE, warning=FALSE, out.width="90%", out.height="130%", fig.asp=1, dpi=1000, fig.align='center'}
+```{r heatmap_calculate, include=FALSE}
 ##################  SAMPLE DISTANCES HEATMAP ##################
-# Sample distances
+# Sample distances, this chunk is hidden as otherwise, the heatmap is shown multiple times
 sampleDists <- dist(t(assay(if (params$rlog) rld else vsd)))
 sampleDistMatrix <- as.matrix(sampleDists)
 colors = colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
 par(oma=c(3,3,3,3))
-dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, file=c("differential_gene_expression/plots/Heatmaps_of_distances.pdf", "differential_gene_expression/plots/Heatmaps_of_distances.png", "/home-link/iivow01/git/rnadeseq/error/plot.png"), grid_color = "grey")
-dist_heatmap
+dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey")
+export(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.png")
+export(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.pdf")
 ```
+
+```{r heatmap_show, echo=FALSE, message=FALSE, warning=FALSE, out.width="90%", out.height="130%", fig.asp=1, dpi=1000, fig.align='center'}
+#show heatmap
+dist_heatmap %>% layout(height=700, width=800)
+```
+
+
 
 # Differential expression analysis
 
@@ -1416,6 +1420,7 @@ invisible(lapply(c(
 ), library, character.only=T))
 
 #The following installs the necessary species library
+species_dir <- tempdir()
 organism <- tolower(params$organism)
 short_organism_name <- substr(organism,1,3)
 if (!require("BiocManager", quietly = TRUE)) {
@@ -1791,6 +1796,12 @@ cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofil
 ```
 
 Graphs were produced in RStudio with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")`` . Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
+
+
+```{r versions}
+sessioninfo::session_info()%>%
+  details::details(summary = 'current session info')
+```
 
 ---
 
