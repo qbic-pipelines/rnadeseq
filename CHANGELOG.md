@@ -25,6 +25,10 @@
 - [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Fixed batch effect bug for rsem/salmon
 - [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Fixed batch effect bug
 
+## Removed
+
+- [#150](https://github.com/qbic-pipelines/rnadeseq/pull/150) Removed human and mouse db from env.yml, both are now installed during pipeline execution if needed
+
 ## 2.0 - Olive Trees
 
 ### Added
