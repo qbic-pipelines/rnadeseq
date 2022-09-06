@@ -920,13 +920,7 @@ cat("Batch effects were observed in the PCA, so batch effects were corrected.
 A PCA of the batch-effect corrected data is shown below and can be found [here](./differential_gene_expression/plots/PCA_batch_corrected_plot.pdf)")
 ```
 
-<<<<<<< HEAD
-```{r PCA_ifBatch_plot, warning=F, echo=F, message=F, out.width="100%", out.height="100%", dpi=1200, fig.align='center', eval=params$batch_effect}
-
-=======
 ```{r PCA_ifBatch_plot, echo=F, message=F, warning=F, out.width="80%", dpi=1200, fig.align='center', eval=params$batch_effect}
-} else {
-}
 pcaData2 <- plotPCA(if (params$rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
 pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor, text=paste("PC1: ", PC1, "<br>", "PC2: ", PC2))) +
