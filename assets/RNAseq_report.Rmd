@@ -143,6 +143,12 @@ if (length(contrast_vector[contrast_vector== TRUE]) > 1) {
 
 ```{r load_DE_libs, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
 
+species_dir <- tempdir()
+install.packages('viridis', lib=species_dir,repos = "http://cran.us.r-project.org")
+library("viridis", lib.loc=species_dir)
+
+install.packages('heatmaply', lib=species_dir,repos = "http://cran.us.r-project.org")
+library("heatmaply", lib.loc=species_dir)
 # Load all necessary libs invisibly
 invisible( lapply(c(
 "RColorBrewer",
@@ -169,7 +175,6 @@ invisible( lapply(c(
 "webshot",
 "htmlwidgets",
 "pheatmap",
-"heatmaply",
 "DT"
 ), library, character.only=T))
 ```
@@ -893,7 +898,7 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 
 \
 
-```{r PCA_ifNoBatch_plot, echo=F, warning=F, out.width="100%", out.height="100%", dpi=1200, fig.align='center'}
+```{r PCA_ifNoBatch_plot, warning=F, echo=F, message=F, out.width="100%", out.height="100%", dpi=1200, fig.align='center'}
 
 ############################ PCA PLOTS ########################
 pcaData <- plotPCA(if (params$rlog) rld else vsd,intgroup=c("combfactor"), ntop=dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
@@ -902,10 +907,10 @@ pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor, text=paste("PC1: ", PC1, 
             geom_point(size=3) +
             xlab(paste0("PC1: ",percentVar[1],"% variance")) +
             ylab(paste0("PC2: ",percentVar[2], "% variance")) +
-            theme(legend.title = element_blank()) +
             coord_fixed() +
             theme_bw() +
-            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+            guides(color=guide_legend(title=NULL))
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg", device = "svg", dpi = 150)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.png", device = "png", dpi = 150)
@@ -920,7 +925,7 @@ cat("Batch effects were observed in the PCA, so batch effects were corrected.
 A PCA of the batch-effect corrected data is shown below and can be found [here](./differential_gene_expression/plots/PCA_batch_corrected_plot.pdf)")
 ```
 
-```{r PCA_ifBatch_plot, echo=F, warning=F, out.width="100%", out.height="100%", dpi=1200, fig.align='center', eval=params$batch_effect}
+```{r PCA_ifBatch_plot, warning=F, echo=F, message=F, out.width="100%", out.height="100%", dpi=1200, fig.align='center', eval=params$batch_effect}
 
 ########################### PCA PLOT with batch-corrected data ############
 if (params$rlog) {
@@ -934,10 +939,10 @@ pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor, text=paste("PC1: ", PC1
             geom_point(size=3)+
             xlab(paste0("PC1: ", percentVar[1],"% variance")) +
             ylab(paste0("PC2: ", percentVar[2], "% variance")) +
-            theme(legend.title = element_blank()) +
             coord_fixed() +
             theme_bw() +
-            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+            guides(fill=guide_legend(title=NULL))
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.pdf", device = "pdf", dpi=300)
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.svg", device = "svg", dpi = 150)
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.png", device = "png", dpi = 150)
@@ -953,17 +958,14 @@ This visualizes how similar the samples are to each other according to gene expr
 Two samples have more similar gene expression if their distance is closer to 0 (darker blue).
 The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances.pdf).
 
-```{r heatmap, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", out.height="100%", fig.asp=1, dpi=1000, fig.align='center'}
+```{r heatmap, echo=FALSE, message=FALSE, warning=FALSE, out.width="90%", out.height="130%", fig.asp=1, dpi=1000, fig.align='center'}
 ##################  SAMPLE DISTANCES HEATMAP ##################
 # Sample distances
 sampleDists <- dist(t(assay(if (params$rlog) rld else vsd)))
 sampleDistMatrix <- as.matrix(sampleDists)
 colors = colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
 par(oma=c(3,3,3,3))
-dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, file="differential_gene_expression/plots/Heatmaps_of_distances.pdf", grid_color = "grey")
-#dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, file="differential_gene_expression/plots/Heatmaps_of_distances.svg", grid_color = "grey")
-dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, file="differential_gene_expression/plots/Heatmaps_of_distances.png", grid_color = "grey")
-dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, height=height*1.2, grid_color = "grey")
+dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, file=c("differential_gene_expression/plots/Heatmaps_of_distances.pdf", "differential_gene_expression/plots/Heatmaps_of_distances.png", "/home-link/iivow01/git/rnadeseq/error/plot.png"), grid_color = "grey")
 dist_heatmap
 ```
 
@@ -1416,7 +1418,6 @@ invisible(lapply(c(
 #The following installs the necessary species library
 organism <- tolower(params$organism)
 short_organism_name <- substr(organism,1,3)
-species_dir <- tempdir()
 if (!require("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
