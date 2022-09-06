@@ -892,8 +892,7 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 
 \
 
-```{r PCA_ifNoBatch_plot, echo=F, warning=F, out.width="80%", dpi=1200, fig.align='center'}
-
+```{r PCA_ifNoBatch_plot, echo=F, message=F, warning=F, out.width="80%", dpi=1200, fig.align='center'}
 ############################ PCA PLOTS ########################
 pcaData <- plotPCA(if (params$rlog) rld else vsd,intgroup=c("combfactor"),ntop = dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
@@ -913,13 +912,12 @@ pca
 
 \
 
-```{r batch_text, echo=FALSE, eval=params$batch_effect, results='asis'}
+```{r batch_text, echo=F, message=F, warning=F, eval=params$batch_effect, results='asis'}
 cat("Batch effects were observed in the PCA, so batch effects were corrected.
 A PCA of the batch-effect corrected data is shown below and can be found [here](./differential_gene_expression/plots/PCA_batch_corrected_plot.pdf)")
 ```
 
-```{r PCA_ifBatch_plot, echo=F, out.width="80%", dpi=1200, fig.align='center', eval=params$batch_effect}
-
+```{r PCA_ifBatch_plot, echo=F, message=F, warning=F, out.width="80%", dpi=1200, fig.align='center', eval=params$batch_effect}
 ########################### PCA PLOT with batch-corrected data ############
 if (params$rlog) {
     assay(rld) <- limma::removeBatchEffect(assay(rld), rld$batch)
@@ -1502,6 +1500,7 @@ for (file in contrast_files){
 
     # Select only pathways with a min. number of DEG
     pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
+
     gostres$result <- pathway_gostres
 
     # Plot pathways if there were any
@@ -1519,9 +1518,8 @@ for (file in contrast_files){
             device="png",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
     }
-
     # Remove parents column to be able to save the table in tsv format
-    pathway_gostres_table = pathway_gostres
+    pathway_gostres_table <- pathway_gostres
     pathway_gostres_table$parents <- NULL
 
     # Save pathway enrichment table in tsv format
@@ -1546,7 +1544,7 @@ for (file in contrast_files){
             df$short_name <- sapply(df$term_name, substr, start=1, stop=50)
 
             # Plotting results for df
-            df_subset <- data.frame(Pathway_name = df$short_name, Pathway_code = df$term_id, DE_genes = df$intersection_size, Pathway_size = df$term_size, Fraction_DE = (df$intersection_size / df$term_size), Padj = df$p_value)
+            df_subset <- data.frame(Pathway_name = df$short_name, Pathway_code = df$term_id, DE_genes = df$intersection_size, Pathway_size = df$term_size, Fraction_DE = (df$intersection_size / df$term_size), Padj = df$p_value, DE_genes_names = df$intersection)
             write.table(df_subset,
                         file = paste0("pathway_analysis", "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"),
                         sep="\t", quote = F, col.names = T, row.names = F)
