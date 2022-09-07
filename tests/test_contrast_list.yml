@@ -57,7 +57,6 @@
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_treatment_Treated_vs_Control.svg
     - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.pdf
     - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.png
-    - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.svg
     - path: results_test/differential_gene_expression/plots/PCA_plot.pdf
     - path: results_test/differential_gene_expression/plots/PCA_plot.png
     - path: results_test/differential_gene_expression/plots/PCA_plot.svg
