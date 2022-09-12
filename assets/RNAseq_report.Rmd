@@ -894,9 +894,9 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 
 \
 
-```{r PCA_ifNoBatch_plot, echo=F, message=F, warning=F, fig.width=1, fig.heigth=1.5, dpi=1200, fig.align='center'}
+```{r PCA_ifNoBatch_plot, echo=F, message=F, warning=F, out.width="80%", dpi=1200, fig.align='center'}
 ############################ PCA PLOTS ########################
-pcaData <- plotPCA(if (params$rlog) rld else vsd, intgroup=c("combfactor"), ntop=dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
+pcaData <- plotPCA(if (params$rlog) rld else vsd,intgroup=c("combfactor"), ntop=dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
 pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor, text=paste("PC1: ", PC1, "<br>", "PC2: ", PC2))) +
             geom_point(size=3) +
@@ -909,7 +909,7 @@ pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor, text=paste("PC1: ", PC1, 
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg", device = "svg", dpi = 150)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.png", device = "png", dpi = 150)
-pca <- ggplotly(pca, tooltip = "text")
+pca <- ggplotly(pca, tooltip = "text") %>% layout()
 pca
 ```
 
@@ -920,7 +920,7 @@ cat("Batch effects were observed in the PCA, so batch effects were corrected.
 A PCA of the batch-effect corrected data is shown below and can be found [here](./differential_gene_expression/plots/PCA_batch_corrected_plot.pdf)")
 ```
 
-```{r PCA_ifBatch_plot, echo=F, message=F, warning=F, fig.width=1, fig.heigth=1.5, dpi=1200, fig.align='center', eval=params$batch_effect}
+```{r PCA_ifBatch_plot, echo=F, message=F, warning=F, out.width="80%", dpi=1200, fig.align='center', eval=params$batch_effect}
 pcaData2 <- plotPCA(if (params$rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
 pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor, text=paste("PC1: ", PC1, "<br>", "PC2: ", PC2))) +
@@ -934,7 +934,7 @@ pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor, text=paste("PC1: ", PC1
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.pdf", device = "pdf", dpi=300)
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.svg", device = "svg", dpi = 150)
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.png", device = "png", dpi = 150)
-pca2 <- ggplotly(pca2, tooltip = "text")
+pca2 <- ggplotly(pca2, tooltip = "text") %>% layout()
 pca2
 ```
 
