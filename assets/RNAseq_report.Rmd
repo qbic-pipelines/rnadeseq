@@ -1789,6 +1789,9 @@ cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofil
 
 Graphs were produced in RStudio with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")`` . Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
 
+## Package version overview
+
+The following lists all packages used for analysis, together with their versions.
 
 ```{r versions}
 sessioninfo::session_info()%>%
