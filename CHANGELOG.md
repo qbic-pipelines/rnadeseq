@@ -4,7 +4,7 @@
 
 ### Added
 
-- [#151](https://github.com/qbic-pipelines/rnadeseq/pull/149) Added session info to report
+- [#151](https://github.com/qbic-pipelines/rnadeseq/pull/151) Added session info to report
 - [#149](https://github.com/qbic-pipelines/rnadeseq/pull/149) Added gene names to PA tables
 - [#148](https://github.com/qbic-pipelines/rnadeseq/pull/148) Added KEGG/REAC versions to report
 - [#147](https://github.com/qbic-pipelines/rnadeseq/pull/147) Added check for contrast list/metadata comparison
