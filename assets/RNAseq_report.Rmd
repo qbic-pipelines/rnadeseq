@@ -51,6 +51,11 @@ params:
 # Author: Silvia Morini, Gisela Gabernet, Simon Heumos
 ---
 
+```{r set_sees, include=F}
+#set a seed in case some background calculations are random-based
+    set.seed(10)
+```
+
 ```{r param_validation, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
 #self-written isProvided function that tests for zero-length, emptystring and NULL (for some reason, some params cannot be tested with emptystring)
 isProvided <- function(value) {
@@ -909,7 +914,7 @@ pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor, text=paste("PC1: ", PC1, 
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg", device = "svg", dpi = 150)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.png", device = "png", dpi = 150)
-pca <- ggplotly(pca, tooltip = "text") %>% layout()
+pca <- ggplotly(pca, tooltip = "text", width=750, height=400)
 pca
 ```
 
@@ -920,7 +925,7 @@ cat("Batch effects were observed in the PCA, so batch effects were corrected.
 A PCA of the batch-effect corrected data is shown below and can be found [here](./differential_gene_expression/plots/PCA_batch_corrected_plot.pdf)")
 ```
 
-```{r PCA_ifBatch_plot, echo=F, message=F, warning=F, out.width="80%", dpi=1200, fig.align='center', eval=params$batch_effect}
+```{r PCA_ifBatch_plot, echo=F, message=F, warning=F, dpi=1200, fig.align='center', eval=params$batch_effect}
 pcaData2 <- plotPCA(if (params$rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
 pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor, text=paste("PC1: ", PC1, "<br>", "PC2: ", PC2))) +
@@ -934,7 +939,7 @@ pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor, text=paste("PC1: ", PC1
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.pdf", device = "pdf", dpi=300)
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.svg", device = "svg", dpi = 150)
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.png", device = "png", dpi = 150)
-pca2 <- ggplotly(pca2, tooltip = "text") %>% layout()
+pca2 <- ggplotly(pca2, tooltip = "text", width=750, height=400)
 pca2
 ```
 
@@ -1326,7 +1331,6 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
 DE_genes_plot <- subset(DE_genes_final_table, outcome == "DE")
 DE_genes_plot = unique(DE_genes_plot$Ensembl_ID)
 if (length(DE_genes_plot) > 20) {
-    set.seed(10)
     random_DE_genes_plot = sample(DE_genes_plot,size = 2)
 } else {
     random_DE_genes_plot = DE_genes_plot
