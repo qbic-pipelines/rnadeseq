@@ -1724,7 +1724,9 @@ The table below provides more detail on all enriched pathways."))
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)
         pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$pval_threshold
-        pg2 %>% layout(margin = list(l = 75, b = 100), width=500, height = 400*length(contrast_files))
+
+        #add export button to plot
+        config(pg2, modeBarButtonsToAdd = list(svg_exp)) %>% layout(margin = list(l = 75, b = 100), width=500, height = 400*length(contrast_files))
     } else {
         cat("No enriched pathways were found.")
     }
@@ -1809,7 +1811,7 @@ The following lists all packages used for analysis, together with their versions
 
 ```{r versions}
 sessioninfo::session_info()%>%
-  details::details(summary = 'current session info')
+  details::details(summary = 'Session info/used packages')
 ```
 
 ---
