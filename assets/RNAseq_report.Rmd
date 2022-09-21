@@ -925,14 +925,14 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 ############################ PCA PLOTS ########################
 pcaData <- plotPCA(if (params$rlog) rld else vsd,intgroup=c("combfactor"), ntop=dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
-pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor, text=paste("PC1: ", PC1, "<br>", "PC2: ", PC2))) +
-            geom_point(size=3) +
-            xlab(paste0("PC1: ",percentVar[1],"% variance")) +
-            ylab(paste0("PC2: ",percentVar[2], "% variance")) +
-            coord_fixed() +
-            theme_bw() +
-            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-            guides(color=guide_legend(title=NULL))
+pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor, text=paste("Sample: ", name, "<br>", "PC1: ", PC1, "<br>", "PC2: ", PC2))) +
+    geom_point(size=3) +
+    xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+    ylab(paste0("PC2: ",percentVar[2], "% variance")) +
+    coord_fixed() +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    guides(color=guide_legend(title=NULL))
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg", device = "svg", dpi = 150)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.png", device = "png", dpi = 150)
@@ -957,14 +957,14 @@ if (params$rlog) {
 }
 pcaData2 <- plotPCA(if (params$rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
-pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor, text=paste("PC1: ", PC1, "<br>", "PC2: ", PC2))) +
-            geom_point(size=3)+
-            xlab(paste0("PC1: ", percentVar[1],"% variance")) +
-            ylab(paste0("PC2: ", percentVar[2], "% variance")) +
-            coord_fixed() +
-            theme_bw() +
-            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-            guides(color=guide_legend(title=NULL))
+pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor, text=paste("Sample: ", name, "<br>", "PC1: ", PC1, "<br>", "PC2: ", PC2))) +
+    geom_point(size=3)+
+    xlab(paste0("PC1: ", percentVar[1],"% variance")) +
+    ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+    coord_fixed() +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    guides(color=guide_legend(title=NULL))
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.pdf", device = "pdf", dpi=300)
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.svg", device = "svg", dpi = 150)
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.png", device = "png", dpi = 150)
@@ -972,15 +972,6 @@ pca2 <- ggplotly(pca2, tooltip = "text", width=750, height=400)
 
 #add export button to plot
 config(pca2, modeBarButtonsToAdd = list(svg_exp)) %>% layout()
-```
-
-```{r remove_batch, include=F}
-#Remove batch columns (not condition_batch columns) from cds as they will otherwise lead to problems with DE
-for (c in colnames(colData(cds))) {
-  if (startsWith(c, "batch")) {
-    colData(cds)[,c] <- NULL
-  }
-}
 ```
 
 ## Sample distance heatmap
@@ -1018,7 +1009,6 @@ These comparisons are called _contrasts_. For this analysis, the following contr
 
 # Contrasts coefficient table write in metadata
 coefficients <- resultsNames(cds)
-coefficients <- coefficients[!startsWith(coefficients, "batch_")]
 coef_tab <- data.frame(coef=coefficients)
 write.table(coef_tab,file="differential_gene_expression/metadata/DESeq2_coefficients.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
@@ -1026,53 +1016,15 @@ write.table(coef_tab,file="differential_gene_expression/metadata/DESeq2_coeffici
 DE_genes_df = data.frame(DE_genes_df = character(nrow(cds)))
 contrast_names <- c()
 if (isProvided(params$path_contrast_matrix)){
-    capture.output(cds, file="/home-link/iivow01/git/rnadeseq/error/cds1")
-
     contrasts <- read.table(params$path_contrast_matrix, sep="\t", header = T, row.names = 1)
-    for (cont in contrasts) {
-        print("sd")
-        #for (coeff in coefficients)
-    }
-
-
-    capture.output(contrasts, file="/home-link/iivow01/git/rnadeseq/error/cont1")
-    contrasts <- contrasts[!(startsWith(row.names(contrasts), "batch_")),]
-    capture.output(contrasts, file="/home-link/iivow01/git/rnadeseq/error/cont2")
-    capture.output("cols", file="/home-link/iivow01/git/rnadeseq/error/cont2", append=T)
-    for (c in colnames(contrasts)) {
-        capture.output(c, file="/home-link/iivow01/git/rnadeseq/error/cont2", append=T)
-    }
-    capture.output("rows", file="/home-link/iivow01/git/rnadeseq/error/cont2", append=T)
-    for (c in rownames(contrasts)) {
-        capture.output(c, file="/home-link/iivow01/git/rnadeseq/error/cont2", append=T)
-    }
-    capture.output(coefficients, file="/home-link/iivow01/git/rnadeseq/error/coeffs")
-    capture.output("cols", file="/home-link/iivow01/git/rnadeseq/error/coeffs", append=T)
-    for (c in colnames(coefficients)) {
-        capture.output(c, file="/home-link/iivow01/git/rnadeseq/error/coeffs", append=T)
-    }
-    capture.output("rows", file="/home-link/iivow01/git/rnadeseq/error/coeffs", append=T)
-    for (c in rownames(coefficients)) {
-        capture.output(c, file="/home-link/iivow01/git/rnadeseq/error/coeffs", append=T)
-    }
-    aslidhasild
+    contrasts <- contrasts[!startsWith(row.names(contrasts), "batch"),]
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
     # Check that contrast matrix is valid
     if (length(coefficients) != nrow(contrasts)){
         stop("Error: Your contrast table has a different number of rows than the number of coefficients in the DESeq2 model.")
     }
-    capture.output(contrasts, file="/home-link/iivow01/git/rnadeseq/error/contrasts")
-    capture.output(resultsNames(cds), file="/home-link/iivow01/git/rnadeseq/error/cds2")
-    capture.output(
-    colnames(colData(cds)), file="/home-link/iivow01/git/rnadeseq/error/colnames")
-    for (c in colnames(colData(cds))) {
-        if (startsWith(c, "batch_")) {
-            colData(cds)[,c] <- NULL
-        }
-    }
 
-    capture.output(resultsNames(cds), file="/home-link/iivow01/git/rnadeseq/error/cds3")
     ## Contrast calculation for contrast matrix
     for (i in c(1:ncol(contrasts))) {
         results_DEseq_contrast <-results(cds, contrast=contrasts[[i]])
@@ -1109,6 +1061,7 @@ if (isProvided(params$path_contrast_matrix)){
 }
 if (isProvided(params$path_contrast_list)) {
     contrasts <- read.table(params$path_contrast_list, sep="\t", header=T, colClasses = "character")
+    contrasts <- contrasts[!startsWith(contrasts$factor, "batch"),]
     for (i in 1:nrow(contrasts)) {
         if (grepl("condition_", contrasts[i,1], fixed = TRUE)) {
             cond_name <- contrasts[i,1]
@@ -1157,6 +1110,7 @@ if (isProvided(params$path_contrast_list)) {
 }
 if (isProvided(params$path_contrast_pairs)) {
     contrasts <- read.table(path_contrast_pairs, sep="\t", header = T, colClasses = "character")
+    #TODO: Do I need to watch out for batch effect here as well?
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_pairs.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
     # Contrast calculation for contrast pairs
@@ -1203,7 +1157,9 @@ if (isProvided(params$path_contrast_pairs)) {
 # Calculating DE genes for default contrasts (no contrast matrix or list or pairs provided)
 if (!isProvided(params$path_contrast_matrix) & !isProvided(params$path_contrast_list) & !isProvided(params$path_contrast_pairs)) {
     contrast_names <- coefficients[2:length(coefficients)]
+    contrast_names <- contrast_names[!startsWith(contrast_names, "batch_")]
     for (contname in contrast_names) {
+
         results_DEseq_contrast <- results(cds, name=contname)
         results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
         print("Analyzing contrast:")
@@ -1360,6 +1316,10 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     DE_all <- na.omit(DE_all)
     log2FoldChange_min <- min(DE_all$log2FoldChange)
     log2FoldChange_max <- max(DE_all$log2FoldChange)
+
+    # get quotient of log2FoldChange range and 10 to determine if xticks of plot need to be scaled discretely (otherwise, for large FC ranges, there will be too many xticks and they will overlap)
+    log2FoldChange_quotient <- length(seq(log2FoldChange_min, log2FoldChange_max, 10))
+
     pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
             #this goes after alpha=0.5:
             geom_point(alpha=0.5, aes(color=ifelse(abs(DE_all$log2FoldChange) > params$logFC_threshold &  DE_all$logpval > -log10(params$pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
@@ -1369,12 +1329,14 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
             geom_vline(xintercept = params$logFC_threshold, size = 0.2, color = "grey") +
             scale_color_manual(name = "", values=c("red", "black")) +
             scale_y_continuous(limits = c(1, 18)) +
-            scale_x_continuous(breaks = seq(-200, 200, 1)) +
             facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
-            ylab("-log 10 padj") + xlab("Log2 Fold Change") + theme(panel.spacing = unit(ifelse(length(allgenes_files)>2, 0.1, 0.6), "lines"))
+            ylab("-log 10 padj") + xlab("Log2 Fold Change") +
+            theme(panel.spacing = unit(ifelse(length(allgenes_files)>2, 0.1, 0.6), "lines")) +
+            scale_x_continuous(breaks = seq(-200, 200, ifelse(log2FoldChange_quotient<3, 1, 5)))
+
     pg <- ggplotly(pg, tooltip = "text")
-    pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05 #TODO: what do these two lines do?
-    pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
+    pg[['x']][['layout']][['annotations']][[2]][['x']] <- -params$pval_threshold #-0.05 TODO: what do these two lines do?
+    pg[['x']][['layout']][['annotations']][[1]][['y']] <- -params$pval_threshold
 
     #add export button to plot
     config(pg, modeBarButtonsToAdd = list(svg_exp)) %>% layout(margin = list(b = ifelse(length(allgenes_files)>2, 150, 100)), width=700, height = 500*length(allgenes_files))
@@ -1769,14 +1731,14 @@ The table below provides more detail on all enriched pathways."))
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)
         pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$pval_threshold
-        counter <- 0
-        for (c in contrast_files) {
-            counter <- counter+1
+
+        #limit gostplot y maximum
+        for (counter in c(1:length(contrast_files))) {
             pg2[['x']][['layout']][[paste0('yaxis', ifelse(counter>1, counter, ""))]][['range']] <- c(0,ceiling(2*-log10(max(gostres$p_value))))
         }
 
         #add export button to plot
-        config(pg2, modeBarButtonsToAdd = list(svg_exp)) %>% layout(margin = list(l = 75, b = 100), width=500, height = 400*length(contrast_files))
+        config(pg2, modeBarButtonsToAdd = list(svg_exp)) %>% layout(width=500, height = 450*length(contrast_files))
     } else {
         cat("No enriched pathways were found.")
     }
