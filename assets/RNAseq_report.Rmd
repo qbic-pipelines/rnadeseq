@@ -1738,7 +1738,7 @@ The table below provides more detail on all enriched pathways."))
         }
 
         #add export button to plot
-        config(pg2, modeBarButtonsToAdd = list(svg_exp)) %>% layout(width=500, height = 450*length(contrast_files))
+        config(pg2, modeBarButtonsToAdd = list(svg_exp)) %>% layout(width=500, height = 400*length(contrast_files))
     } else {
         cat("No enriched pathways were found.")
     }
