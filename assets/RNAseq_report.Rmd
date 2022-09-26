@@ -1415,10 +1415,6 @@ invisible(lapply(c(
 "optparse"
 ), library, character.only=T))
 
-# Human and mouse genomes are loaded by default as they otherwise produce errors
-library(org.Mm.eg.db) #Mmusculus
-library(org.Hs.eg.db) #Hsapiens
-
 #The following installs the necessary species library
 organism <- tolower(params$organism)
 short_organism_name <- substr(organism,1,3)
@@ -1426,9 +1422,9 @@ species_dir <- tempdir()
 if (!require("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
-BiocManager::install(params$species_library, lib=species_dir, version="3.14")
+BiocManager::install(params$species_library, lib=species_dir, version="3.14", force=T)
 library(params$species_library, lib.loc=species_dir, character.only=T)
-library <- get(params$species_library)
+species_library_installed <- get(params$species_library)
 
 # Default to 1 for the nb of genes DE in a pathway
 min_DEG_pathway <- as.integer(params$min_DEG_pathway)
@@ -1595,7 +1591,7 @@ for (file in contrast_files){
                             gene.data = DE_genes
                             gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
 
-                            entrez_ids = mapIds(library, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=params$keytype, multiVals="first")
+                            entrez_ids = mapIds(species_library_installed, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=params$keytype, multiVals="first")
 
                             gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
 
