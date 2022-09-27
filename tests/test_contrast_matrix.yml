@@ -3,9 +3,9 @@
   tags:
     - test_contrast_matrix
   files:
-    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_genotype_WT_vs_KO.tsv
+    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_genotype_KO_vs_WT.tsv
       md5sum: 93fd663cb976c102144e1ffb34d88e53
-    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_treatment_Treated_vs_Control.tsv
+    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_treatment_treated_vs_control.tsv
       md5sum: cb1f49e7fe93b4ef2673eb99fd8793cd
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
       md5sum: 81d3437334849b3b4de4de6729a3d54d
@@ -60,27 +60,27 @@
     - path: results_test/differential_gene_expression/plots/PCA_plot.pdf
     - path: results_test/differential_gene_expression/plots/PCA_plot.png
     - path: results_test/differential_gene_expression/plots/PCA_plot.svg
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO_gost_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO_gost_pathway_enrichment_plot.png
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/DE_contrast_genotype_WT_vs_KO_pathway_enrichment_results.tsv
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT_gost_pathway_enrichment_plot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT_gost_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/DE_contrast_genotype_KO_vs_WT_pathway_enrichment_results.tsv
       md5sum: 306f537672a8329158a0a18f2007dab1
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/DE_contrast_genotype_WT_vs_KO_KEGG_pathway_enrichment_results.tsv
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/DE_contrast_genotype_KO_vs_WT_KEGG_pathway_enrichment_results.tsv
       md5sum: 5ce7b57cee03c4f8e01e01a352e1e4b4
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/DE_contrast_genotype_WT_vs_KO_REAC_pathway_enrichment_results.tsv
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/DE_contrast_genotype_KO_vs_WT_REAC_pathway_enrichment_results.tsv
       md5sum: 1b807427f1d5c3da70c75ee3ea5ccf84
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/DE_contrast_genotype_WT_vs_KO_KEGG_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/DE_contrast_genotype_WT_vs_KO_KEGG_pathway_enrichment_plot.png
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/DE_contrast_genotype_WT_vs_KO_REAC_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/DE_contrast_genotype_WT_vs_KO_REAC_pathway_enrichment_plot.png
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/KEGG_pathways/mmu04022.DE_contrast_genotype_WT_vs_KO.png
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/KEGG_pathways/mmu04022.png
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/KEGG_pathways/mmu04022.xml
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/KEGG_pathways/mmu04360.DE_contrast_genotype_WT_vs_KO.png
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/KEGG_pathways/mmu04360.png
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/KEGG_pathways/mmu04360.xml
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/KEGG_pathways/mmu04610.DE_contrast_genotype_WT_vs_KO.png
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/KEGG_pathways/mmu04610.png
-    - path: results_test/pathway_analysis/DE_contrast_genotype_WT_vs_KO/KEGG_pathways/mmu04610.xml
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/DE_contrast_genotype_KO_vs_WT_KEGG_pathway_enrichment_plot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/DE_contrast_genotype_KO_vs_WT_KEGG_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/DE_contrast_genotype_KO_vs_WT_REAC_pathway_enrichment_plot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/DE_contrast_genotype_KO_vs_WT_REAC_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/KEGG_pathways/mmu04022.DE_contrast_genotype_KO_vs_WT.png
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/KEGG_pathways/mmu04022.png
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/KEGG_pathways/mmu04022.xml
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/KEGG_pathways/mmu04360.DE_contrast_genotype_KO_vs_WT.png
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/KEGG_pathways/mmu04360.png
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/KEGG_pathways/mmu04360.xml
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/KEGG_pathways/mmu04610.DE_contrast_genotype_KO_vs_WT.png
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/KEGG_pathways/mmu04610.png
+    - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/KEGG_pathways/mmu04610.xml
     - path: results_test/pathway_analysis/DE_contrast_treatment_Treated_vs_Control/DE_contrast_treatment_Treated_vs_Control_pathway_enrichment_results.tsv
       md5sum: e42c8335c8292e67cd26ff2cc62563a9
     - path: results_test/pathway_analysis/DE_contrast_treatment_Treated_vs_Control/DE_contrast_treatment_Treated_vs_Control_REAC_pathway_enrichment_results.tsv
