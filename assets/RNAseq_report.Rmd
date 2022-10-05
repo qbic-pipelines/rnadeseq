@@ -52,6 +52,7 @@ params:
 ---
 
 ```{r param_validation, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
+
 #self-written isProvided function that tests for zero-length, emptystring and NULL (for some reason, some params cannot be tested with emptystring)
 isProvided <- function(value) {
     result <- TRUE
@@ -136,7 +137,7 @@ if (!isProvided(params$path_design)){
 
 # Check if more than one contrast option was provided
 contrast_vector <- c(isProvided(params$path_contrast_list), isProvided(params$path_contrast_matrix), isProvided(params$path_contrast_pairs))
-if (length(contrast_vector[contrast_vector== TRUE]) > 1) {
+if (length(contrast_vector[contrast_vector==TRUE]) > 1) {
     stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
 }
 ```
@@ -327,6 +328,7 @@ if (params$input_type == "featurecounts"){
 
 # to get all possible pairwise comparisons, make a combined factor
 conditions <- grepl(colnames(metadata),pattern = "condition_")
+conditions_contrasts <- conditions # save copy that might be changed in contrast section and will be used for boxplots
 metadata$combfactor <- apply(as.data.frame(metadata[ ,conditions]),1,paste, collapse = "_")
 
 # Read design file
@@ -986,7 +988,15 @@ write.table(coef_tab,file="differential_gene_expression/metadata/DESeq2_coeffici
 DE_genes_df = data.frame(DE_genes_df = character(nrow(cds)))
 contrast_names <- c()
 if (isProvided(params$path_contrast_matrix)){
-    contrasts <- read.table(path_contrast_matrix, sep="\t", header = T, row.names = 1)
+    contrasts <- read.table(params$path_contrast_matrix, sep="\t", header = T, row.names = 1)
+
+    # to get all possible pairwise comparisons, make a combined factor
+    for (c in 1:length(conditions_contrasts)) {
+        if (grepl("condition_", colnames(metadata_save)[c], fixed = TRUE) && !(any(grepl(paste0("^", (colnames(metadata_save)[c])), rownames(contrasts))))) {
+            conditions_contrasts[c] <- FALSE
+        }
+    }
+    metadata_save$combfactor_contrasts <- apply(as.data.frame(metadata_save[ ,conditions_contrasts]),1,paste, collapse = "_")
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
     # Check that contrast matrix is valid
@@ -1030,6 +1040,15 @@ if (isProvided(params$path_contrast_matrix)){
 }
 if (isProvided(params$path_contrast_list)) {
     contrasts <- read.table(params$path_contrast_list, sep="\t", header=T, colClasses = "character")
+
+    # to get all possible pairwise comparisons, make a combined factor
+    for (c in 1:length(conditions_contrasts)) {
+        if (grepl("condition_", colnames(metadata_save)[c], fixed = TRUE) & !(colnames(metadata_save)[c] %in% contrasts$factor) ) {
+            conditions_contrasts[c] <- FALSE
+        }
+    }
+    metadata_save$combfactor_contrasts <- apply(as.data.frame(metadata_save[ ,conditions_contrasts]),1,paste, collapse = "_")
+
     for (i in 1:nrow(contrasts)) {
         if (grepl("condition_", contrasts[i,1], fixed = TRUE)) {
             cond_name <- contrasts[i,1]
@@ -1336,9 +1355,10 @@ if (length(DE_genes_plot) > 20) {
     random_DE_genes_plot = DE_genes_plot
 }
 for (i in random_DE_genes_plot){
-    boxplot_counts <- plotCounts(cds, gene=i, intgroup=c("combfactor"), returnData=TRUE, normalized = T)
+    colData(cds)$combfactor_contrasts <- apply(as.data.frame(metadata_save[ ,conditions_contrasts]),1,paste, collapse = "_")
+    boxplot_counts <- plotCounts(cds, gene=i, intgroup=c("combfactor_contrasts"), returnData=TRUE, normalized = T)
     boxplot_counts$variable = row.names(boxplot_counts)
-    plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
+    plot <- ggplot(data=boxplot_counts, aes(x=combfactor_contrasts, y=count, fill=combfactor_contrasts)) +
                 geom_boxplot(position=position_dodge()) +
                 geom_jitter(position=position_dodge(.8)) +
                 ggtitle(paste("Gene ",i,sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
@@ -1364,9 +1384,9 @@ if (isProvided(params$path_genelist)){
     requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
     requested_genes_plot_gene_name <- requested_genes_plot$gene_name
     for (i in seq_along(requested_genes_plot_Ensembl)) {
-        boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE, normalized = T)
+        boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor_contrasts"), returnData=TRUE, normalized = T)
         boxplot_counts$variable = row.names(boxplot_counts)
-        plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
+        plot <- ggplot(data=boxplot_counts, aes(x=combfactor_contrasts, y=count, fill=combfactor_contrasts)) +
         geom_boxplot(position=position_dodge()) +
         geom_jitter(position=position_dodge(.8)) +
         ggtitle(paste("Gene ",requested_genes_plot_gene_name[i],sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
