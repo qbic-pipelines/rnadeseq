@@ -18,7 +18,7 @@ params:
     path_gene_counts: ''
     path_metadata: ''
     path_design: ''
-    path_gtf: '' #only for star_rsem and star_salmon input
+    path_gtf: '' # only for star_rsem and star_salmon input
 
     #DESeq2 args
     path_contrast_matrix: ''
