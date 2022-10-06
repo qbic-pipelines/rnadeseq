@@ -17,6 +17,7 @@
 
 ### Changed
 
+- [#159](https://github.com/qbic-pipelines/rnadeseq/pull/165) -fw entries in multiqc stats are now merged
 - [#159](https://github.com/qbic-pipelines/rnadeseq/pull/159) Changed error messages for non-existing rsem/salmon files
 - [#151](https://github.com/qbic-pipelines/rnadeseq/pull/151) PCA plots and heatmap are now interactive
 - [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Renamed versions to software_versions
