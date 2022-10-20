@@ -4,6 +4,7 @@
 
 ### Added
 
+- [#151](https://github.com/qbic-pipelines/rnadeseq/pull/151) Added session info to report
 - [#149](https://github.com/qbic-pipelines/rnadeseq/pull/149) Added gene names to PA tables
 - [#148](https://github.com/qbic-pipelines/rnadeseq/pull/148) Added KEGG/REAC versions to report
 - [#147](https://github.com/qbic-pipelines/rnadeseq/pull/147) Added check for contrast list/metadata comparison
@@ -17,6 +18,7 @@
 ### Changed
 
 - [#159](https://github.com/qbic-pipelines/rnadeseq/pull/159) Changed error messages for non-existing rsem/salmon files
+- [#151](https://github.com/qbic-pipelines/rnadeseq/pull/151) PCA plots and heatmap are now interactive, volcano and enrichment plots are cleaned up in their layout
 - [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Renamed versions to software_versions
 - [#131](https://github.com/qbic-pipelines/rnadeseq/pull/131) Changed Sample_preparations.tsv by adding batch column
 
