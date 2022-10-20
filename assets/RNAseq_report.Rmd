@@ -55,7 +55,7 @@ params:
 #set a seed in case some background calculations are random-based
     set.seed(10)
 
- # svg path for the little svg format icon displayed in the interactive plots for svg export; based on https://www.svgviewer.dev/:
+# svg path for the little svg format icon displayed in the interactive plots for svg export; based on https://www.svgviewer.dev/:
 svg_icon_path <- 'M228 319.5H12C5.64873 319.5 0.5 314.351 0.5 308V12C0.5 5.64873 5.64873 0.5 12 0.5H159.175C159.571 0.5 159.952 0.656748 160.233 0.936021L239.057 79.2681C239.341 79.5497 239.5 79.9326 239.5 80.3321V308C239.5 314.351 234.351 319.5 228 319.5Z'
 svg_icon_fill <- 'darkgrey'
 svg_icon_transform <- 'scale(0.07)'
@@ -1110,7 +1110,6 @@ if (isProvided(params$path_contrast_list)) {
 }
 if (isProvided(params$path_contrast_pairs)) {
     contrasts <- read.table(path_contrast_pairs, sep="\t", header = T, colClasses = "character")
-    #TODO: Do I need to watch out for batch effect here as well?
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_pairs.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
     # Contrast calculation for contrast pairs
