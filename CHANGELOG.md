@@ -24,6 +24,7 @@
 
 ## Fixed
 
+- [#152](https://github.com/qbic-pipelines/rnadeseq/pull/152) Fixed empty qlist for gost query
 - [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Fixed batch effect bug for rsem/salmon
 - [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Fixed batch effect bug
 
