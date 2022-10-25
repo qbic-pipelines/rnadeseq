@@ -1701,20 +1701,16 @@ The table below provides more detail on all enriched pathways."))
 ```
 
 ```{r gost, eval=params$pathway_analysis, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE}
-    capture.output(paste0("häää? ", list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))),
-        file="/home-link/iivow01/git/rnadeseq/error/wat", append=T)
-
     contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
     q_list <- list()
     q_names <- c()
+
     #Use non-allgenes files for PA to only show DE genes
     for (file in contrast_files){
 
         #Reading DE genes list
         fname <- tools::file_path_sans_ext(basename(file))
-        capture.output(paste0("Reading differential_gene_expression/DE_genes_tables/", file), file="/home-link/iivow01/git/rnadeseq/error/files", append=T)
         DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
-        capture.output(paste0("Successfully read differential_gene_expression/DE_genes_tables/", file), file="/home-link/iivow01/git/rnadeseq/error/files", append=T)
 
         if(nrow(DE_genes) <= 1){
             next
@@ -1722,11 +1718,11 @@ The table below provides more detail on all enriched pathways."))
         q = as.character(DE_genes$Ensembl_ID)
         q_list <- append(q_list, list(q))
         q_names <- append(q_names, fname)
-        capture.output("Appended successfully", file="/home-link/iivow01/git/rnadeseq/error/files", append=T)
 
     }
     names(q_list) <- q_names
     if (length(q_list) > 0) {
+
         #gost query
         gostres <- gost(query=q_list,
                     organism=tolower(params$organism),
@@ -1738,13 +1734,11 @@ The table below provides more detail on all enriched pathways."))
         if (nrow(path_enrich) > 0){
             pg2 <- gostplot(gostres, capped=T, interactive=T)
             pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$pval_threshold
-            capture.output("bla1", file="/home-link/iivow01/git/rnadeseq/error/files", append=T)
 
             #limit gostplot y maximum
             for (counter in c(1:length(contrast_files))) {
                 pg2[['x']][['layout']][[paste0('yaxis', ifelse(counter>1, counter, ""))]][['range']] <- c(0,ceiling(2*-log10(max(gostres$p_value))))
             }
-            capture.output("bla2", file="/home-link/iivow01/git/rnadeseq/error/files", append=T)
 
             #add export button to plot
             config(pg2, modeBarButtonsToAdd = list(svg_exp)) %>% layout(width=500, height = 400*length(contrast_files))
