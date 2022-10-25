@@ -1,6 +1,6 @@
 process REPORT {
 
-    container "${ 'qbicpipelines/rnadeseq:dev' }"
+    container 'qbicpipelines/rnadeseq:dev'
 
     input:
     path gene_counts
@@ -15,7 +15,7 @@ process REPORT {
     path relevel
 
     path proj_summary
-    path softwareversions
+    path software_versions
     path multiqc
 
     output:
@@ -35,7 +35,7 @@ process REPORT {
 
     def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
 
-    def citest_opt = params.citest == "true" ? "--citest TRUE" : ''
+    def citest_opt = params.citest ? "--citest TRUE" : ''
 
     """
     if [ "$multiqc" != "NO_FILE3" ]; then
@@ -57,17 +57,18 @@ process REPORT {
         $genelist_opt \
         $relevel_opt \
         $batch_effect_opt \
-        --log_FC_threshold $params.logFCthreshold \
+        --logFC_threshold $params.logFC_threshold \
+        --pval_threshold $params.pval_threshold \
         $rlog_opt \
         --nsub_genes $params.vst_genes_number \
         $round_DE_opt \
         $pathwayopt \
         --organism $params.organism \
-        --species_library $params.library \
+        --species_library $params.species_library \
         --keytype $params.keytype \
         --min_DEG_pathway $params.min_DEG_pathway \
         --proj_summary $proj_summary \
-        --versions $softwareversions \
+        --software_versions $software_versions \
         --revision $workflow.manifest.version \
         $citest_opt
 
@@ -87,9 +88,6 @@ process REPORT {
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/
     fi
     """
-
-
-
 
 }
 

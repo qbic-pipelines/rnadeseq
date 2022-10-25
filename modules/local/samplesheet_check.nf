@@ -11,7 +11,7 @@ process SAMPLESHEET_CHECK {
 
     output:
     path '*.csv'       , emit: csv
-    path "versions.yml", emit: versions
+    path "software_versions.yml", emit: software_versions
 
     script: // This script is bundled with the pipeline, in nf-core/rnadeseq/bin/
     """
@@ -19,7 +19,7 @@ process SAMPLESHEET_CHECK {
         $samplesheet \\
         samplesheet.valid.csv
 
-    cat <<-END_VERSIONS > versions.yml
+    cat <<-END_VERSIONS > software_versions.yml
     "${task.process}":
         python: \$(python --version | sed 's/Python //g')
     END_VERSIONS
