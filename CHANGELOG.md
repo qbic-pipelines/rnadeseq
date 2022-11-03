@@ -17,6 +17,7 @@
 
 ### Changed
 
+- [#169](https://github.com/qbic-pipelines/rnadeseq/pull/169) Changed skip_pathway_analysis to run_pathway_analysis, default false
 - [#159](https://github.com/qbic-pipelines/rnadeseq/pull/159) Changed error messages for non-existing rsem/salmon files
 - [#151](https://github.com/qbic-pipelines/rnadeseq/pull/151) PCA plots and heatmap are now interactive, volcano and enrichment plots are cleaned up in their layout
 - [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Renamed versions to software_versions
