@@ -1,0 +1,6 @@
+# Ignore all HTML files:
+results*
+testdata/*
+*.html
+*.zip
+*.md

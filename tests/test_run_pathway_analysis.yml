@@ -1,7 +1,7 @@
 - name: Run test profile without pathway analysis
-  command: nextflow run main.nf -profile test_skip_pathway_analysis,docker --citest true --round_DE 3
+  command: nextflow run main.nf -profile test_run_pathway_analysis,docker --citest true --round_DE 3
   tags:
-    - test_skip_pathway_analysis
+    - test_run_pathway_analysis
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_genotype_WT_vs_KO.tsv
       md5sum: 93fd663cb976c102144e1ffb34d88e53

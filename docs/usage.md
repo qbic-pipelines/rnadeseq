@@ -35,7 +35,7 @@
   - [`--use_vst`](#--use_vst)
   - [`--vst_genes_number`](#--vst_genes_number)
   - [`--round_DE`](#--round_DE)
-  - [`--skip_pathway_analysis`](#--skip_pathway_analysis)
+  - [`--run_pathway_analysis`](#--run_pathway_analysis)
   - [`--input_type`](#--input_type)
 - [Reference genome options](#reference-genome-options)
   - [`--genome`](#--genome)
@@ -291,9 +291,9 @@ This is ignored if --use_vst is set to false. If using the vst transformation, c
 
 Integer indicating to how many decimals to round the DE results (default: no rounding).
 
-### `--skip_pathway_analysis`
+### `--run_pathway_analysis`
 
-Set this flag to 'true' to skip pathway analysis and only run differential gene expression and report generation.
+Set this flag to 'true' to run pathway analysis, otherwise, this step will be skipped.
 
 ### `--input_type`
 
@@ -311,15 +311,15 @@ GTF file to be used for DESeq if input is rsem or salmon, not necessary for feat
 
 ### `--organism`
 
-Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--skip_pathway_analysis = true`.
+Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--run_pathway_analysis = false`.
 
 ### `--species_library`
 
-Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --skip_pathway_analysis = true.
+Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --run_pathway_analysis = false.
 
 ### `--keytype`
 
-Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if `--skip_pathway_analysis = true`.
+Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if `--run_pathway_analysis = false`.
 
 ## Special cases
 

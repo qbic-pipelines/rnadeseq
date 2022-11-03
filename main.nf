@@ -28,7 +28,7 @@ if (params.input_type in ["rsem", "salmon"]) {
     }
 }
 //-->organism, species_library and keytype are necessary for pathway analysis
-if (!params.skip_pathway_analysis) {
+if (params.run_pathway_analysis) {
     if (!params.genome && !params.organism) { exit 1, 'Please provide either genome or organism!' }
     else if (!params.organism) {
         params.organism = WorkflowMain.getGenomeAttribute(params, 'organism')
