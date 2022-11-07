@@ -10,6 +10,7 @@ dependencies:
   - bioconda::bioconductor-deseq2=1.34.0
   - bioconda::bioconductor-genefilter=1.76.0
   - bioconda::bioconductor-genomeinfodbdata=1.2.7
+  - bioconda::bioconductor-limma=3.50.3
   - bioconda::bioconductor-pathview=1.34.0
   - bioconda::bioconductor-vsn=3.62.0
   - bioconda::bioconductor-tximeta=1.12.0
