@@ -78,11 +78,11 @@
     - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/KEGG_pathways/mmu04610.DE_contrast_genotype_KO_vs_WT.png
     - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/KEGG_pathways/mmu04610.png
     - path: results_test/pathway_analysis/DE_contrast_genotype_KO_vs_WT/KEGG_pathways/mmu04610.xml
-    - path: results_test/pathway_analysis/DE_contrast_treatment_Treated_vs_Control/DE_contrast_treatment_Treated_vs_Control_pathway_enrichment_results.tsv
+    - path: results_test/pathway_analysis/DE_contrast_treatment_treated_vs_control/DE_contrast_treatment_treated_vs_control_pathway_enrichment_results.tsv
       md5sum: fa0b5b0772d026ff5a6b5ccffb05eb14
-    - path: results_test/pathway_analysis/DE_contrast_treatment_Treated_vs_Control/DE_contrast_treatment_Treated_vs_Control_REAC_pathway_enrichment_results.tsv
+    - path: results_test/pathway_analysis/DE_contrast_treatment_treated_vs_control/DE_contrast_treatment_treated_vs_control_REAC_pathway_enrichment_results.tsv
       md5sum: 2e896e28c5a064767dda6668b292e064
-    - path: results_test/pathway_analysis/DE_contrast_treatment_Treated_vs_Control/DE_contrast_treatment_Treated_vs_Control_REAC_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_treatment_Treated_vs_Control/DE_contrast_treatment_Treated_vs_Control_REAC_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_treatment_treated_vs_control/DE_contrast_treatment_treated_vs_control_REAC_pathway_enrichment_plot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_treatment_treated_vs_control/DE_contrast_treatment_treated_vs_control_REAC_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/heatmap_gene_list/Heatmap_normalized_counts_gene_list.pdf
     - path: results_test/RNAseq_report.html
