@@ -1490,7 +1490,6 @@ for (file in contrast_files){
 
     # Make data frame of gost result
     pathway_gostres <- gostres$result
-    capture.output(pathway_gostres, file="/home-link/iivow01/git/rnadeseq_template/error/gst_vst")
     # Select only significantly enriched pathways (according to adjusted p-value)
     pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
 
