@@ -1,7 +1,7 @@
-- name: Run test profile with contrast matrix
-  command: nextflow run main.nf -profile test_contrast_matrix,docker --citest true --round_DE 3
+- name: Run full test profile
+  command: nextflow run main.nf -profile test_full,docker --citest true --round_DE 3
   tags:
-    - test_contrast_matrix
+    - test_full
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_genotype_WT_vs_KO.tsv
       md5sum: 93fd663cb976c102144e1ffb34d88e53
