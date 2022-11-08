@@ -3,12 +3,12 @@
   tags:
     - test_contrast_matrix
   files:
-    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_genotype_WT_vs_KO.tsv
+    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_genotype_KO_vs_WT.tsv
       md5sum: 93fd663cb976c102144e1ffb34d88e53
-    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_treatment_Treated_vs_Control.tsv
+    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_treatment_treated_vs_control.tsv
       md5sum: cb1f49e7fe93b4ef2673eb99fd8793cd
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
-      md5sum: 81d3437334849b3b4de4de6729a3d54d
+      md5sum: 7950e3e0a5084e431134aa943884a488
     - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_table.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv
@@ -57,7 +57,6 @@
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_treatment_Treated_vs_Control.svg
     - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.pdf
     - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.png
-    - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.svg
     - path: results_test/differential_gene_expression/plots/PCA_plot.pdf
     - path: results_test/differential_gene_expression/plots/PCA_plot.png
     - path: results_test/differential_gene_expression/plots/PCA_plot.svg
