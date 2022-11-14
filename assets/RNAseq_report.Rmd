@@ -987,7 +987,7 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 # Sample distances, this chunk is hidden as otherwise, the heatmap is shown multiple times
 sampleDists <- dist(t(assay(if (params$rlog) rld else vsd)))
 sampleDistMatrix <- as.matrix(sampleDists)
-colors = colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
+colors = colorRampPalette(rev(RColorBrewer::brewer.pal(9, "Blues")))(255)
 par(oma=c(3,3,3,3))
 dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey")
 export(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.png")
@@ -1607,7 +1607,7 @@ for (file in contrast_files){
                             gene.data = DE_genes
                             gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
 
-                            entrez_ids = mapIds(species_library_installed, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=params$keytype, multiVals="first")
+                            entrez_ids = AnnotationDbi::mapIds(species_library_installed, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=params$keytype, multiVals="first")
 
                             gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
 
