@@ -1746,6 +1746,8 @@ The table below provides more detail on all enriched pathways."))
                 cat("No enriched pathways were found.")
                 path_enrich=data.frame(list())
         }
+    } else {
+        cat("No DE genes were found, pathway analysis not possible.")
     }
 ```
 
