@@ -66,6 +66,7 @@ process REPORT {
         --organism $params.organism \
         --species_library $params.species_library \
         --keytype $params.keytype \
+        --gost_gmt $params.gost_gmt \
         --min_DEG_pathway $params.min_DEG_pathway \
         --proj_summary $proj_summary \
         --software_versions $software_versions \

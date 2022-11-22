@@ -38,6 +38,7 @@ params:
     organism: ''
     species_library: ''
     keytype: ''
+    gost_gmt: ''
     min_DEG_pathway: ''
 
     #Additional args for the report
@@ -90,7 +91,7 @@ isProvided <- function(value) {
         else {
             tryCatch(
         {
-            if (value=="") {
+            if (value %in% c("", "null", "NULL", "false", "FALSE")) {
                 result <- FALSE
             }
         },
@@ -1443,6 +1444,9 @@ BiocManager::install(params$species_library, lib=species_dir, version="3.14", fo
 library(params$species_library, lib.loc=species_dir, character.only=T)
 species_library_installed <- get(params$species_library)
 
+# gprofiler pathway / term sources parameters
+datasources <- c("KEGG", "REAC")
+
 # Default to 1 for the nb of genes DE in a pathway
 min_DEG_pathway <- as.integer(params$min_DEG_pathway)
 
@@ -1455,15 +1459,20 @@ metadata <- metadata_PA
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name) # Remove blank spaces and ; from secondary name
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name) # Remove blank spaces if there from secondary name
 
+# If custom GMT file was provided, filter it for upload it to use in gost queries (datasources )
+if (isProvided(params$gost_gmt)){
+
+    gost_id <- upload_GMT_file(params$gost_gmt)
+} else {
+    gost_id <- organism
+}
+
 # Create output directory
 dir.create("pathway_analysis")
 
 # ------------------
 # Set default params
 # ------------------
-
-# gprofiler pathway / term sources parameters
-datasources <- c("KEGG", "REAC")
 
 # Set theme for graphs
 theme_set(theme_classic())
@@ -1480,9 +1489,6 @@ for (file in contrast_files){
     fname <- tools::file_path_sans_ext(basename(file))
 
     dir.create(paste("pathway_analysis", fname, sep="/"))
-    if (isProvided(params$citest)) {
-        dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
-    }
     dir.create(paste("pathway_analysis", fname, "KEGG_pathways", sep="/"))
     DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
     DE_genes <- as.data.frame(DE_genes)
@@ -1495,10 +1501,10 @@ for (file in contrast_files){
 
     # Define list of Ensemble IDs (q) to run the pathway analysis
     q = as.character(DE_genes$Ensembl_ID)
-
+    write(q, file=paste0("/home-link/iivow01/git/template_gprofiler_tests/104/", fname))
     # gost query
     gostres <- gost(query=q,
-            organism=organism,
+            organism=gost_id,
             significant=TRUE,
             correction_method="fdr",
             sources=datasources,
@@ -1588,7 +1594,10 @@ for (file in contrast_files){
                     rownames(mat) <- mat$gene_name
                     mat$gene_name <- NULL
                     mat <- data.matrix(mat)
+
+                    # Skip the heatmaps for CI tests
                     if (!isProvided(params$citest) & nrow(mat)>1){
+                        dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
                         png(filename = paste("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
                         pheatmap(mat = mat, annotation_col = metadata_save, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
                         dev.off()
@@ -1719,8 +1728,10 @@ The table below provides more detail on all enriched pathways."))
     names(q_list) <- q_names
 
     #gost query
+
+    capture.output(q_list, file=("/home-link/iivow01/git/template_gprofiler_tests/104/q_list"))
     gostres <- gost(query=q_list,
-                    organism=tolower(params$organism),
+                    organism=gost_id,
                     significant=T,
                     correction_method="fdr",
                     sources=datasources,
@@ -1804,13 +1815,23 @@ version_gprofiler2 = packageVersion("gprofiler2")
 version_annotation = packageVersion("AnnotationDbi")
 name_species       = params$species_library
 version_species    = packageVersion(name_species)
-database_string = ""
-database_version_info <- get_version_info(params$organism)
-for (db in datasources) {
-    database_string <- paste0(database_string, "`", db, ": ", gsub("\n", ", ", database_version_info$sources[[db]]$version), "`, ")
+
+if (isProvided(params$gost_gmt)){
+    database_string <- paste0("Also, a gprofiler query with this custom GMT file was done: `", basename(params$gost_gmt), "`. Entries of the following datasources were considered: ")
+    for (db in datasources) {
+        database_string <- paste0(database_string, "`", db, "`, ")
+    }
+    database_string <- paste0(substr(database_string,1,nchar(database_string)-1), ".")
+} else {
+    database_string = "Also, the following databases were queried: "
+    database_version_info <- get_version_info(params$organism)
+    for (db in datasources) {
+        database_string <- paste0(database_string, "`", db, ": ", gsub("\n", ", ", database_version_info$sources[[db]]$version), "`, ")
+    }
+    database_string <- paste0(substr(database_string,1,nchar(database_string)-2), ".")
 }
-database_string <- paste0(substr(database_string,1,nchar(database_string)-2), ".")
-cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2," `, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. Also, the following databases were queried: ", database_string))
+
+cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2," `, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. ", database_string))
 ```
 
 Graphs were produced in RStudio with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")`` . Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
