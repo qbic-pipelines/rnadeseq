@@ -1,5 +1,8 @@
 # qbic-pipelines/rnadeseq: Changelog
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## 2.0.1 - Olive Trees hotfix I
 
 ### Added
@@ -17,6 +20,7 @@
 
 ### Changed
 
+- [#163](https://github.com/qbic-pipelines/rnadeseq/pull/163) Template update
 - [#159](https://github.com/qbic-pipelines/rnadeseq/pull/159) Changed error messages for non-existing rsem/salmon files
 - [#151](https://github.com/qbic-pipelines/rnadeseq/pull/151) PCA plots and heatmap are now interactive, volcano and enrichment plots are cleaned up in their layout
 - [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Renamed versions to software_versions
