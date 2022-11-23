@@ -1,9 +1,10 @@
-FROM continuumio/miniconda:4.6.14
+FROM condaforge/mambaforge
 LABEL authors="Gisela Gabernet, Alexander Peltzer" \
     description="Docker image containing all requirements for qbic-pipelines/rnadeseq pipeline"
 COPY environment.yml /
-RUN conda install -c conda-forge mamba
-RUN mamba env create -f /environment.yml && conda clean -a
+#RUN conda install -c conda-forge mamba
+RUN mamba env create --file /environment.yml -p /opt/conda/envs/qbic-pipelines-rnadeseq-dev && \
+    mamba clean --all --yes
 RUN apt-get update -qq && \
     apt-get install -y zip procps ghostscript
 # Add conda installation dir to PATH
@@ -13,3 +14,4 @@ RUN mamba env export --name qbic-pipelines-rnadeseq-dev > qbic-pipelines-rnadese
 # Instruct R processes to use these empty files instead of clashing with a local config
 RUN touch .Rprofile
 RUN touch .Renviron
+
