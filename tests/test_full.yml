@@ -1,14 +1,14 @@
-- name: Run test profile with batcheffect correction
-  command: nextflow run main.nf -profile test_batcheffect,docker --citest true --round_DE 3
+- name: Run full test profile
+  command: nextflow run main.nf -profile test_full,docker --citest true --round_DE 3
   tags:
-    - test_batcheffect
+    - test_full
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_genotype_WT_vs_KO.tsv
-      md5sum: da291c2a1c1fb2fd0d9c3059010a7800
+      md5sum: 93fd663cb976c102144e1ffb34d88e53
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_treatment_Treated_vs_Control.tsv
-      md5sum: 8ec60640f4331b08648fdc3caf78e2c2
+      md5sum: cb1f49e7fe93b4ef2673eb99fd8793cd
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
-      md5sum: be7f08bdbba0805a45c8a02703532da5
+      md5sum: 81d3437334849b3b4de4de6729a3d54d
     - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_table.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv
@@ -57,33 +57,32 @@
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_treatment_Treated_vs_Control.svg
     - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.pdf
     - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.png
-    - path: results_test/differential_gene_expression/plots/PCA_batch_corrected_plot.pdf
-    - path: results_test/differential_gene_expression/plots/PCA_batch_corrected_plot.png
-    - path: results_test/differential_gene_expression/plots/PCA_batch_corrected_plot.svg
+    - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.svg
     - path: results_test/differential_gene_expression/plots/PCA_plot.pdf
     - path: results_test/differential_gene_expression/plots/PCA_plot.png
     - path: results_test/differential_gene_expression/plots/PCA_plot.svg
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO_gost_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO_gost_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_pathway_enrichment_results.tsv
-      md5sum: a0552ff9292e8c3410a9ed9a972cb210
+      md5sum: 53d777593af962a4b590cef2e076780c
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_KEGG_pathway_enrichment_results.tsv
+      md5sum: 75eba6f4796f03efc3321f2427afe18e
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_REAC_pathway_enrichment_results.tsv
-      md5sum: 358e26db7a137b0ded31f010638f1ec5
+      md5sum: 15f0769b63d766b056f7298ab6a3a2a8
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_KEGG_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_KEGG_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_REAC_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_REAC_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04360.DE_contrast_condition_genotype_WT_vs_KO.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04360.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04360.xml
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04610.DE_contrast_condition_genotype_WT_vs_KO.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04610.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04610.xml
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_KEGG_pathway_enrichment_results.tsv
-      md5sum: aedbaa15d5f6ef0c67d8699307b93de8
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_REAC_pathway_enrichment_results.tsv
-      md5sum: 358e26db7a137b0ded31f010638f1ec5
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_pathway_enrichment_results.tsv
-      md5sum: b8c90ea672753ad8b5718f12c6c4c9af
+      md5sum: fa0b5b0772d026ff5a6b5ccffb05eb14
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_results.tsv
-      md5sum: f589164814d72a81e2007ccd50e0d39a
+      md5sum: 2e896e28c5a064767dda6668b292e064
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/heatmap_gene_list/Heatmap_normalized_counts_gene_list.pdf
