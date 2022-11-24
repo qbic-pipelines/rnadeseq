@@ -1291,55 +1291,55 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
 
 ```{r volcano_plot, out.width="100%", out.height="100%"}
 
-    # Set plot theme
-    theme_set(theme_bw(base_family = "ArialMT") +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
-    allgenes_files <- list.files(path=paste0(wd, "/differential_gene_expression/allgenes/"))
-    table_list <- list()
+# Set plot theme
+theme_set(theme_bw(base_family = "ArialMT") +
+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
+allgenes_files <- list.files(path=paste0(wd, "/differential_gene_expression/allgenes/"))
+table_list <- list()
 
-    #Use allgenes files for volcano plots to also show non-DE genes
-    for (file in allgenes_files){
+#Use allgenes files for volcano plots to also show non-DE genes
+for (file in allgenes_files){
 
-        #Reading DE genes list
-        fname <- tools::file_path_sans_ext(basename(file))
-        DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/allgenes/", file), sep="\t", header = T)
-        DE_genes$contrast <- rep(fname, nrow(DE_genes))
+    #Reading DE genes list
+    fname <- tools::file_path_sans_ext(basename(file))
+    DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/allgenes/", file), sep="\t", header = T)
+    DE_genes$contrast <- rep(fname, nrow(DE_genes))
 
-        # label: gene_name
-        # x: log2FoldChange
-        # y: -log10(padj)
-        table_list <- append(table_list, list(DE_genes))
-    }
-    DE_all <- ldply(table_list, rbind)
-    DE_all$logpval <- -log10(DE_all$padj)
-    DE_all$logpval[DE_all$logpval > 16] <- 17
-    DE_all <- na.omit(DE_all)
-    log2FoldChange_min <- min(DE_all$log2FoldChange)
-    log2FoldChange_max <- max(DE_all$log2FoldChange)
+    # label: gene_name
+    # x: log2FoldChange
+    # y: -log10(padj)
+    table_list <- append(table_list, list(DE_genes))
+}
+DE_all <- ldply(table_list, rbind)
+DE_all$logpval <- -log10(DE_all$padj)
+DE_all$logpval[DE_all$logpval > 16] <- 17
+DE_all <- na.omit(DE_all)
+log2FoldChange_min <- min(DE_all$log2FoldChange)
+log2FoldChange_max <- max(DE_all$log2FoldChange)
 
-    # get quotient of log2FoldChange range and 10 to determine if xticks of plot need to be scaled discretely (otherwise, for large FC ranges, there will be too many xticks and they will overlap)
-    log2FoldChange_quotient <- length(seq(log2FoldChange_min, log2FoldChange_max, 10))
+# get quotient of log2FoldChange range and 10 to determine if xticks of plot need to be scaled discretely (otherwise, for large FC ranges, there will be too many xticks and they will overlap)
+log2FoldChange_quotient <- length(seq(log2FoldChange_min, log2FoldChange_max, 10))
 
-    pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
-            #this goes after alpha=0.5:
-            geom_point(alpha=0.5, aes(color=ifelse(abs(DE_all$log2FoldChange) > params$logFC_threshold &  DE_all$logpval > -log10(params$pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
-            geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
-            geom_hline(yintercept = -log10(params$pval_threshold), size = 0.2, color = "grey") +
-            geom_vline(xintercept = -params$logFC_threshold, size = 0.2, color = "grey") +
-            geom_vline(xintercept = params$logFC_threshold, size = 0.2, color = "grey") +
-            scale_color_manual(name = "", values=c("red", "black")) +
-            scale_y_continuous(limits = c(1, 18)) +
-            facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
-            ylab("-log 10 padj") + xlab("Log2 Fold Change") +
-            theme(panel.spacing = unit(ifelse(length(allgenes_files)>2, 0.1, 0.6), "lines")) +
-            scale_x_continuous(breaks = seq(-200, 200, ifelse(log2FoldChange_quotient<3, 1, 5)))
+pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
+        #this goes after alpha=0.5:
+        geom_point(alpha=0.5, aes(color=ifelse(abs(DE_all$log2FoldChange) > params$logFC_threshold &  DE_all$logpval > -log10(params$pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
+        geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
+        geom_hline(yintercept = -log10(params$pval_threshold), size = 0.2, color = "grey") +
+        geom_vline(xintercept = -params$logFC_threshold, size = 0.2, color = "grey") +
+        geom_vline(xintercept = params$logFC_threshold, size = 0.2, color = "grey") +
+        scale_color_manual(name = "", values=c("red", "black")) +
+        scale_y_continuous(limits = c(1, 18)) +
+        facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
+        ylab("-log 10 padj") + xlab("Log2 Fold Change") +
+        theme(panel.spacing = unit(ifelse(length(allgenes_files)>2, 0.1, 0.6), "lines")) +
+        scale_x_continuous(breaks = seq(-200, 200, ifelse(log2FoldChange_quotient<3, 1, 5)))
 
-    pg <- ggplotly(pg, tooltip = "text")
-    pg[['x']][['layout']][['annotations']][[2]][['x']] <- -params$pval_threshold #-0.05 TODO: what do these two lines do?
-    pg[['x']][['layout']][['annotations']][[1]][['y']] <- -params$pval_threshold
+pg <- ggplotly(pg, tooltip = "text")
+pg[['x']][['layout']][['annotations']][[2]][['x']] <- -params$pval_threshold #-0.05 TODO: what do these two lines do?
+pg[['x']][['layout']][['annotations']][[1]][['y']] <- -params$pval_threshold
 
-    #add export button to plot
-    config(pg, modeBarButtonsToAdd = list(svg_exp)) %>% layout(margin = list(b = ifelse(length(allgenes_files)>2, 150, 100)), width=700, height = 500*length(allgenes_files))
+#add export button to plot
+config(pg, modeBarButtonsToAdd = list(svg_exp)) %>% layout(margin = list(b = ifelse(length(allgenes_files)>2, 150, 100)), width=700, height = 500*length(allgenes_files))
 ```
 
 ```{r box_plots, echo=F, message =F}
@@ -1433,9 +1433,8 @@ invisible(lapply(c(
 "optparse"
 ), library, character.only=T))
 
-# Create output directory as well as metadata directory
+# Create output directory
 dir.create("pathway_analysis")
-dir.create("pathway_analysis/metadata")
 
 #The following installs the necessary species library
 species_dir <- tempdir()
@@ -1463,7 +1462,11 @@ metadata <- metadata_PA
 metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name) # Remove blank spaces and ; from secondary name
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name) # Remove blank spaces if there from secondary name
 
+#This saves whether a GMT file is present and should be moved to the pathway_analysis/metadata folder; initialize as FALSE
+mv_status <- F
+
 if (isProvided(params$gost_gmt)){
+
     # If custom GMT file was provided, filter it before uploading to use in gost queries (gprofiler will NOT filter itself, so otherwise the output will contain all kinds of datasources, not just the selected ones)
     out_gmt <- (Filter(function(line) any(startsWith(line, datasources)), readLines(params$gost_gmt)))
     out_path <- paste0(file_path_sans_ext(basename(params$gost_gmt)), "_filtered.gmt")
@@ -1471,6 +1474,7 @@ if (isProvided(params$gost_gmt)){
     gost_id <- upload_GMT_file(out_path)
     mv_status <- T
 } else {
+
     # Otherwise, get the GMT file from gprofiler and save both the full file as well as the filtered one to metadata
     gost_id <- organism
     gmt_url <- paste0("https://biit.cs.ut.ee/gprofiler//static/gprofiler_full_", organism, ".ENSG.gmt")
@@ -1478,29 +1482,29 @@ if (isProvided(params$gost_gmt)){
         {
             wget_command <- paste0("wget ", gmt_url)
             sys_return <- system(wget_command)
-            if ("saved" %in% sys_return) {
+            capture.output(sys_return, file="/home-link/iivow01/git/rnadeseq/error/ret")
+            if (sys_return == 0 || "saved" %in% sys_return) {
                 mv_status <- T
             } else {
                 print("Failed to fetch the GMT file from gprofiler with this URL:")
                 print(gmt_url)
                 print("For reproducibility reasons, try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'.")
-                mv_status <- F
             }
         },
-        error=function(e) {
+        error=function(gost_error) {
             print("Failed to fetch the GMT file from gprofiler with this URL:")
             print(gmt_url)
             print("Got error:")
-            print(e)
+            print(gost_error)
             print("For reproducibility reasons, try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'.")
-            mv_status <- F
         }
     )
 }
 
-# Move all GMT files (if exist) to pathway analysis metadata directory
+# If GMT exist(s), create metadata folder and move GMT there
 
 if (mv_status) {
+    dir.create("pathway_analysis/metadata")
     system("mv *.gmt pathway_analysis/metadata")
 }
 
@@ -1725,12 +1729,21 @@ if (isProvided(params$path_genelist)){
 ```
 
 ```{r pathway_analysis, echo=FALSE, results='asis', eval=params$pathway_analysis}
+if (mv_status) {
+    if (isProvided(params$gost_gmt)) {
+        gost_text <- "A custom GMT file was provided for the gost query; it is saved [here](./pathway_analysis/metadata)."
+    } else {
+        gost_text <- "A GMT file corresponding to the current gprofiler database version was downloaded to allow for reproducing the gost query; it is saved [here](./pathway_analysis/metadata). Note that the downloaded GMT contains entries from various datasources; a filtered version of the file was used for the actual query against the targeted datasources, this file is also saved in the folder. Some datasources might be missing from the files due to licensing reasons."
+    }
+} else {
+    gost_text <- paste0("Failed to fetch the GMT file of the current gprofiler database with this URL: ", gmt_url, ". For reproducibility reasons, try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'.")
+}
+
 cat(paste0("***
 
 # Pathway analysis
 The pathway analysis was performed with the `gProfiler2` tool.
-The pathway analysis results are stored [here](./pathway_analysis), and explained in this section.
-
+The pathway analysis results are stored [here](./pathway_analysis), and explained in this section. ", gost_text, "
 
 ## Enriched pathways
 The plot below summarizes the pathways that were
@@ -1742,47 +1755,47 @@ The table below provides more detail on all enriched pathways."))
 ```
 
 ```{r gost, eval=params$pathway_analysis, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE}
-    contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
-    q_list <- list()
-    q_names <- c()
+contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
+q_list <- list()
+q_names <- c()
 
-    #Use non-allgenes files for PA to only show DE genes
-    for (file in contrast_files){
+#Use non-allgenes files for PA to only show DE genes
+for (file in contrast_files){
 
-        #Reading DE genes list
-        fname <- tools::file_path_sans_ext(basename(file))
-        DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
-        if(nrow(DE_genes) <= 1){
-            next
-        }
-        q = as.character(DE_genes$Ensembl_ID)
-        q_list <- append(q_list, list(q))
-        q_names <- append(q_names, fname)
+    #Reading DE genes list
+    fname <- tools::file_path_sans_ext(basename(file))
+    DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
+    if(nrow(DE_genes) <= 1){
+        next
     }
-    names(q_list) <- q_names
+    q = as.character(DE_genes$Ensembl_ID)
+    q_list <- append(q_list, list(q))
+    q_names <- append(q_names, fname)
+}
+names(q_list) <- q_names
 
-    #gost query
-    gostres <- gost(query=q_list,
-                    organism=gost_id,
-                    significant=T,
-                    correction_method="fdr",
-                    sources=datasources,
-                    user_threshold=params$pval_threshold)
-    path_enrich <- as.data.frame(gostres$result)
-    if (nrow(path_enrich) > 0){
-        pg2 <- gostplot(gostres, capped=T, interactive=T)
-        pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$pval_threshold
+#gost query
+gostres <- gost(query=q_list,
+                organism=gost_id,
+                significant=T,
+                correction_method="fdr",
+                sources=datasources,
+                user_threshold=params$pval_threshold)
+path_enrich <- as.data.frame(gostres$result)
+if (nrow(path_enrich) > 0){
+    pg2 <- gostplot(gostres, capped=T, interactive=T)
+    pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$pval_threshold
 
-        #limit gostplot y maximum
-        for (counter in c(1:length(contrast_files))) {
-            pg2[['x']][['layout']][[paste0('yaxis', ifelse(counter>1, counter, ""))]][['range']] <- c(0,ceiling(2*-log10(max(gostres$p_value))))
-        }
-
-        #add export button to plot
-        config(pg2, modeBarButtonsToAdd = list(svg_exp)) %>% layout(width=500, height = 400*length(contrast_files))
-    } else {
-        cat("No enriched pathways were found.")
+    #limit gostplot y maximum
+    for (counter in c(1:length(contrast_files))) {
+        pg2[['x']][['layout']][[paste0('yaxis', ifelse(counter>1, counter, ""))]][['range']] <- c(0,ceiling(2*-log10(max(gostres$p_value))))
     }
+
+    #add export button to plot
+    config(pg2, modeBarButtonsToAdd = list(svg_exp)) %>% layout(width=500, height = 400*length(contrast_files))
+} else {
+    cat("No enriched pathways were found.")
+}
 ```
 
 ```{r enriched_table, eval=params$pathway_analysis, echo=FALSE}
