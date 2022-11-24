@@ -18,7 +18,7 @@ params:
     path_gene_counts: ''
     path_metadata: ''
     path_design: ''
-    path_gtf: '' #only for star_rsem and star_salmon input
+    path_gtf: '' # only for star_rsem and star_salmon input
 
     #DESeq2 args
     path_contrast_matrix: ''
@@ -50,6 +50,33 @@ params:
 
 # Author: Silvia Morini, Gisela Gabernet, Simon Heumos
 ---
+
+```{r seed_plot_peparations, include=F}
+#set a seed in case some background calculations are random-based
+    set.seed(10)
+
+# svg path for the little svg format icon displayed in the interactive plots for svg export; based on https://www.svgviewer.dev/:
+svg_icon_path <- 'M228 319.5H12C5.64873 319.5 0.5 314.351 0.5 308V12C0.5 5.64873 5.64873 0.5 12 0.5H159.175C159.571 0.5 159.952 0.656748 160.233 0.936021L239.057 79.2681C239.341 79.5497 239.5 79.9326 239.5 80.3321V308C239.5 314.351 234.351 319.5 228 319.5Z'
+svg_icon_fill <- 'darkgrey'
+svg_icon_transform <- 'scale(0.07)'
+svg_icon_viewbox <- '0 0 240 320'
+
+# This adds a save-to-svg button to the plot menubar
+svg_exp <- list(
+    name = "Download plot as an svg",
+    icon = list(
+        path = svg_icon_path,
+        fill = svg_icon_fill,
+        transform = svg_icon_transform,
+        viewbox = svg_icon_viewbox
+    ),
+    click = htmlwidgets::JS(
+        "function(pg) {
+            Plotly.downloadImage(pg, {format: 'svg', filename: 'newplot'});
+        }"
+    )
+)
+```
 
 ```{r param_validation, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
 
@@ -143,7 +170,6 @@ if (length(contrast_vector[contrast_vector==TRUE]) > 1) {
 ```
 
 ```{r load_DE_libs, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
-
 # Load all necessary libs invisibly
 invisible( lapply(c(
 "RColorBrewer",
@@ -170,7 +196,10 @@ invisible( lapply(c(
 "webshot",
 "htmlwidgets",
 "pheatmap",
-"DT"
+"DT",
+"sessioninfo",
+"details",
+"heatmaply"
 ), library, character.only=T))
 ```
 
@@ -896,20 +925,23 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 
 ```{r PCA_ifNoBatch_plot, echo=F, message=F, warning=F, out.width="80%", dpi=1200, fig.align='center'}
 ############################ PCA PLOTS ########################
-pcaData <- plotPCA(if (params$rlog) rld else vsd,intgroup=c("combfactor"),ntop = dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
+pcaData <- plotPCA(if (params$rlog) rld else vsd,intgroup=c("combfactor"), ntop=dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
-pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor)) +
+pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor, text=paste("Sample: ", name, "<br>", "PC1: ", PC1, "<br>", "PC2: ", PC2))) +
     geom_point(size=3) +
     xlab(paste0("PC1: ",percentVar[1],"% variance")) +
     ylab(paste0("PC2: ",percentVar[2], "% variance")) +
-    theme(legend.title = element_blank()) +
     coord_fixed() +
     theme_bw() +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    guides(color=guide_legend(title=NULL))
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg", device = "svg", dpi = 150)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.png", device = "png", dpi = 150)
-pca
+pca <- ggplotly(pca, tooltip = "text", width=750, height=400)
+
+#add export button to plot
+config(pca, modeBarButtonsToAdd = list(svg_exp)) %>% layout()
 ```
 
 \
@@ -919,8 +951,7 @@ cat("Batch effects were observed in the PCA, so batch effects were corrected.
 A PCA of the batch-effect corrected data is shown below and can be found [here](./differential_gene_expression/plots/PCA_batch_corrected_plot.pdf)")
 ```
 
-```{r PCA_ifBatch_plot, echo=F, message=F, warning=F, out.width="80%", dpi=1200, fig.align='center', eval=params$batch_effect}
-########################### PCA PLOT with batch-corrected data ############
+```{r PCA_ifBatch_plot, echo=F, message=F, warning=F, dpi=1200, fig.align='center', eval=params$batch_effect}
 if (params$rlog) {
     assay(rld) <- limma::removeBatchEffect(assay(rld), rld$batch)
 } else {
@@ -928,16 +959,21 @@ if (params$rlog) {
 }
 pcaData2 <- plotPCA(if (params$rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (params$rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
-pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor)) +
-            geom_point(size=3)+
-            xlab(paste0("PC1: ", percentVar[1],"% variance")) +
-            ylab(paste0("PC2: ", percentVar[2], "% variance")) +
-            theme(legend.title = element_blank()) +
-            coord_fixed()
+pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor, text=paste("Sample: ", name, "<br>", "PC1: ", PC1, "<br>", "PC2: ", PC2))) +
+    geom_point(size=3)+
+    xlab(paste0("PC1: ", percentVar[1],"% variance")) +
+    ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+    coord_fixed() +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    guides(color=guide_legend(title=NULL))
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.pdf", device = "pdf", dpi=300)
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.svg", device = "svg", dpi = 150)
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.png", device = "png", dpi = 150)
-pca2
+pca2 <- ggplotly(pca2, tooltip = "text", width=750, height=400)
+
+#add export button to plot
+config(pca2, modeBarButtonsToAdd = list(svg_exp)) %>% layout()
 ```
 
 ## Sample distance heatmap
@@ -948,27 +984,21 @@ This visualizes how similar the samples are to each other according to gene expr
 Two samples have more similar gene expression if their distance is closer to 0 (darker blue).
 The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances.pdf).
 
-```{r heatmap, echo=FALSE, warning=FALSE, results='hide'}
-
+```{r heatmap_calculate, include=FALSE}
 ##################  SAMPLE DISTANCES HEATMAP ##################
-# Sample distances
+# Sample distances, this chunk is hidden as otherwise, the heatmap is shown multiple times
 sampleDists <- dist(t(assay(if (params$rlog) rld else vsd)))
 sampleDistMatrix <- as.matrix(sampleDists)
-colours = colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
-pdf("differential_gene_expression/plots/Heatmaps_of_distances.pdf")
+colors = colorRampPalette(rev(RColorBrewer::brewer.pal(9, "Blues")))(255)
 par(oma=c(3,3,3,3))
-dist_heatmap <- pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=10)
-dev.off()
-svg("differential_gene_expression/plots/Heatmaps_of_distances.svg")
-pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=10)
-dev.off()
-png("differential_gene_expression/plots/Heatmaps_of_distances.png")
-pheatmap(sampleDistMatrix, clustering_distance_rows=sampleDists, clustering_distance_cols=sampleDists, col=colours,fontsize=10)
-dev.off()
+dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey")
+export(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.png")
+export(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.pdf")
 ```
 
-```{r heatmap_plot, echo=F, out.width="80%", dpi=1200, fig.align='center'}
-dist_heatmap
+```{r heatmap_show, echo=FALSE, message=FALSE, warning=FALSE, out.width="90%", out.height="130%", fig.asp=1, dpi=1000, fig.align='center'}
+#add export button to plot
+dist_heatmap %>% layout(height=700, width=800) %>% config(modeBarButtonsToAdd = list(svg_exp))
 ```
 
 # Differential expression analysis
@@ -989,6 +1019,9 @@ DE_genes_df = data.frame(DE_genes_df = character(nrow(cds)))
 contrast_names <- c()
 if (isProvided(params$path_contrast_matrix)){
     contrasts <- read.table(params$path_contrast_matrix, sep="\t", header = T, row.names = 1)
+
+    # Remove batch as this should normally not be considered a contrast
+    contrasts <- contrasts[!startsWith(row.names(contrasts), "batch"),]
 
     # to get all possible pairwise comparisons, make a combined factor
     for (c in 1:length(conditions_contrasts)) {
@@ -1040,6 +1073,9 @@ if (isProvided(params$path_contrast_matrix)){
 }
 if (isProvided(params$path_contrast_list)) {
     contrasts <- read.table(params$path_contrast_list, sep="\t", header=T, colClasses = "character")
+
+    # Remove batch as this should normally not be considered a contrast
+    contrasts <- contrasts[!startsWith(contrasts$factor, "batch"),]
 
     # to get all possible pairwise comparisons, make a combined factor
     for (c in 1:length(conditions_contrasts)) {
@@ -1143,7 +1179,9 @@ if (isProvided(params$path_contrast_pairs)) {
 # Calculating DE genes for default contrasts (no contrast matrix or list or pairs provided)
 if (!isProvided(params$path_contrast_matrix) & !isProvided(params$path_contrast_list) & !isProvided(params$path_contrast_pairs)) {
     contrast_names <- coefficients[2:length(coefficients)]
+    contrast_names <- contrast_names[!startsWith(contrast_names, "batch_")]
     for (contname in contrast_names) {
+
         results_DEseq_contrast <- results(cds, name=contname)
         results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
         print("Analyzing contrast:")
@@ -1275,8 +1313,6 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
 
 ```{r volcano_plot, out.width="100%", out.height="100%"}
 
-    #prepare logFC threshold for report text
-    logFC_num <- as.numeric(params$logFC_threshold)
     # Set plot theme
     theme_set(theme_bw(base_family = "ArialMT") +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
@@ -1302,6 +1338,10 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
     DE_all <- na.omit(DE_all)
     log2FoldChange_min <- min(DE_all$log2FoldChange)
     log2FoldChange_max <- max(DE_all$log2FoldChange)
+
+    # get quotient of log2FoldChange range and 10 to determine if xticks of plot need to be scaled discretely (otherwise, for large FC ranges, there will be too many xticks and they will overlap)
+    log2FoldChange_quotient <- length(seq(log2FoldChange_min, log2FoldChange_max, 10))
+
     pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
             #this goes after alpha=0.5:
             geom_point(alpha=0.5, aes(color=ifelse(abs(DE_all$log2FoldChange) > params$logFC_threshold &  DE_all$logpval > -log10(params$pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
@@ -1311,35 +1351,17 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
             geom_vline(xintercept = params$logFC_threshold, size = 0.2, color = "grey") +
             scale_color_manual(name = "", values=c("red", "black")) +
             scale_y_continuous(limits = c(1, 18)) +
-            scale_x_continuous(breaks = seq(-200, 200, 1)) +
             facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
-            ylab("-log 10 padj") + xlab("Log2 Fold Change")
+            ylab("-log 10 padj") + xlab("Log2 Fold Change") +
+            theme(panel.spacing = unit(ifelse(length(allgenes_files)>2, 0.1, 0.6), "lines")) +
+            scale_x_continuous(breaks = seq(-200, 200, ifelse(log2FoldChange_quotient<3, 1, 5)))
+
     pg <- ggplotly(pg, tooltip = "text")
-    pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05 #TODO: what do these two lines do?
-    pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
+    pg[['x']][['layout']][['annotations']][[2]][['x']] <- -params$pval_threshold #-0.05 TODO: what do these two lines do?
+    pg[['x']][['layout']][['annotations']][[1]][['y']] <- -params$pval_threshold
 
-    # svg path for the little svg format icon displayed in the volcano plot for svg export; based on https://www.svgviewer.dev/:
-    svg_icon_path <- 'M228 319.5H12C5.64873 319.5 0.5 314.351 0.5 308V12C0.5 5.64873 5.64873 0.5 12 0.5H159.175C159.571 0.5 159.952 0.656748 160.233 0.936021L239.057 79.2681C239.341 79.5497 239.5 79.9326 239.5 80.3321V308C239.5 314.351 234.351 319.5 228 319.5Z'
-    svg_icon_fill <- 'darkgrey'
-    svg_icon_transform <- 'scale(0.07)'
-    svg_icon_viewbox <- '0 0 240 320'
-
-    # This adds a save-to-svg button to the plot menubar
-    svg_exp <- list(
-        name = "Download plot as an svg",
-        icon = list(
-            path = svg_icon_path,
-            fill = svg_icon_fill,
-            transform = svg_icon_transform,
-            viewbox = svg_icon_viewbox
-        ),
-        click = htmlwidgets::JS(
-            "function(pg) {
-                Plotly.downloadImage(pg, {format: 'svg', filename: 'newplot'});
-            }"
-        )
-    )
-    config(pg, modeBarButtonsToAdd = list(svg_exp)) %>% layout(margin = list(l = 100, b=100), width=700, height = 400*length(allgenes_files))
+    #add export button to plot
+    config(pg, modeBarButtonsToAdd = list(svg_exp)) %>% layout(margin = list(b = ifelse(length(allgenes_files)>2, 150, 100)), width=700, height = 500*length(allgenes_files))
 ```
 
 ```{r box_plots, echo=F, message =F}
@@ -1349,7 +1371,6 @@ Here, volcano plots for all considered contrasts are shown. Hover over the dots 
 DE_genes_plot <- subset(DE_genes_final_table, outcome == "DE")
 DE_genes_plot = unique(DE_genes_plot$Ensembl_ID)
 if (length(DE_genes_plot) > 20) {
-    set.seed(10)
     random_DE_genes_plot = sample(DE_genes_plot,size = 2)
 } else {
     random_DE_genes_plot = DE_genes_plot
@@ -1436,9 +1457,9 @@ invisible(lapply(c(
 ), library, character.only=T))
 
 #The following installs the necessary species library
+species_dir <- tempdir()
 organism <- tolower(params$organism)
 short_organism_name <- substr(organism,1,3)
-species_dir <- tempdir()
 if (!require("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
@@ -1510,7 +1531,6 @@ for (file in contrast_files){
 
     # Make data frame of gost result
     pathway_gostres <- gostres$result
-
     # Select only significantly enriched pathways (according to adjusted p-value)
     pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
 
@@ -1611,7 +1631,7 @@ for (file in contrast_files){
                             gene.data = DE_genes
                             gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
 
-                            entrez_ids = mapIds(species_library_installed, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=params$keytype, multiVals="first")
+                            entrez_ids = AnnotationDbi::mapIds(species_library_installed, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=params$keytype, multiVals="first")
 
                             gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
 
@@ -1713,30 +1733,44 @@ The table below provides more detail on all enriched pathways."))
         #Reading DE genes list
         fname <- tools::file_path_sans_ext(basename(file))
         DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
+
         if(nrow(DE_genes) <= 1){
             next
         }
         q = as.character(DE_genes$Ensembl_ID)
         q_list <- append(q_list, list(q))
         q_names <- append(q_names, fname)
+
     }
     names(q_list) <- q_names
+    if (length(q_list) > 0) {
 
-    #gost query
-    gostres <- gost(query=q_list,
+        #gost query
+        gostres <- gost(query=q_list,
                     organism=tolower(params$organism),
                     significant=T,
                     correction_method="fdr",
                     sources=datasources,
                     user_threshold=params$pval_threshold)
+        path_enrich <- as.data.frame(gostres$result)
+        if (nrow(path_enrich) > 0){
+            pg2 <- gostplot(gostres, capped=T, interactive=T)
+            pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$pval_threshold
 
-    path_enrich <- as.data.frame(gostres$result)
-    if (nrow(path_enrich) > 0){
-        pg2 <- gostplot(gostres, capped=T, interactive=T)
-        pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$pval_threshold
-        pg2 %>% layout(margin = list(l = 75, b = 100), width=500, height = 400*length(contrast_files))
+            #limit gostplot y maximum
+            for (counter in c(1:length(contrast_files))) {
+                pg2[['x']][['layout']][[paste0('yaxis', ifelse(counter>1, counter, ""))]][['range']] <- c(0,ceiling(2*-log10(max(gostres$p_value))))
+            }
+
+            #add export button to plot
+            config(pg2, modeBarButtonsToAdd = list(svg_exp)) %>% layout(width=500, height = 400*length(contrast_files))
+        } else {
+                cat("No enriched pathways were found.")
+                path_enrich=data.frame(list())
+        }
     } else {
-        cat("No enriched pathways were found.")
+        cat("No DE genes were found, pathway analysis not possible.")
+        path_enrich=data.frame(list())
     }
 ```
 
@@ -1812,6 +1846,15 @@ cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofil
 ```
 
 Graphs were produced in RStudio with `r R.version.string` mainly using the `R` package `ggplot2 v`r packageVersion("ggplot2")`` . Final reports were produced using the `R` package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages. The sample similarity heatmap was created using the `edgeR `r as.character(version[version$V1=="edgeR",2])`` R package.
+
+## Package version overview
+
+The following lists all packages used for analysis, together with their versions.
+
+```{r versions}
+sessioninfo::session_info()%>%
+  details::details(summary = 'Session info/used packages')
+```
 
 ---
 
