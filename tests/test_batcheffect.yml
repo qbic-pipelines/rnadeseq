@@ -4,11 +4,11 @@
     - test_batcheffect
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_genotype_WT_vs_KO.tsv
-#      md5sum: e698fbecc341bd59ce7d47dfab77d642
+      # md5sum: e698fbecc341bd59ce7d47dfab77d642
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_treatment_Treated_vs_Control.tsv
-#      md5sum: 2738119f899ecd154cd5cfc40e1e24e4
+      # md5sum: 2738119f899ecd154cd5cfc40e1e24e4
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
-#      md5sum: b566de65d7b6e55aad648f74c439fcea
+      # md5sum: b566de65d7b6e55aad648f74c439fcea
     - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_table.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv
@@ -66,10 +66,10 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO_gost_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO_gost_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_pathway_enrichment_results.tsv
-      md5sum: 8a1d5289b0a1ed1dcbc75fe6ce69e9c9
+      # md5sum: 8a1d5289b0a1ed1dcbc75fe6ce69e9c9
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_KEGG_pathway_enrichment_results.tsv
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_REAC_pathway_enrichment_results.tsv
-      md5sum: 35f72ed3816badbe1a14e00d0fad9186
+      # md5sum: 35f72ed3816badbe1a14e00d0fad9186
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_KEGG_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_KEGG_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_REAC_pathway_enrichment_plot.pdf
@@ -77,13 +77,13 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04610.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04610.xml
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_KEGG_pathway_enrichment_results.tsv
-      md5sum: ca2eb7fe32c31ba3a43ee6b6d968d28a
+      # md5sum: ca2eb7fe32c31ba3a43ee6b6d968d28a
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_REAC_pathway_enrichment_results.tsv
-      md5sum: 35f72ed3816badbe1a14e00d0fad9186
+      # md5sum: 35f72ed3816badbe1a14e00d0fad9186
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_pathway_enrichment_results.tsv
-      md5sum: f945ac8b913cbc4b4c349f82104862e0
+      # md5sum: f945ac8b913cbc4b4c349f82104862e0
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_results.tsv
-      md5sum: 44c39de7393136e3fb67719c28547254
+      # md5sum: 44c39de7393136e3fb67719c28547254
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/heatmap_gene_list/Heatmap_normalized_counts_gene_list.pdf
