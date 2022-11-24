@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [#172](https://github.com/qbic-pipelines/rnadeseq/pull/172) Added option to provide custom gost GMT, for online gost, GMT is downloaded
 - [#151](https://github.com/qbic-pipelines/rnadeseq/pull/151) Added session info to report
 - [#149](https://github.com/qbic-pipelines/rnadeseq/pull/149) Added gene names to PA tables
 - [#148](https://github.com/qbic-pipelines/rnadeseq/pull/148) Added KEGG/REAC versions to report
