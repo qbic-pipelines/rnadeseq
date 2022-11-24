@@ -4,13 +4,13 @@
     - test_star_rsem
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_H1_vs_GM12878.tsv
-      md5sum: cc6b71b6cdb86435ce0d1b40d521bced
+      md5sum: f41854e3d6d69f0c6dc556dfd82b2874
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_K562_vs_GM12878.tsv
-      md5sum: a7808824f714111d7ab0b40226e5dba3
+      md5sum: e592b11964145fb1d7ac7e4f85e61564
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_MCF7_vs_GM12878.tsv
-      md5sum: f906ac4a695655625357ba97af4a5499
+      md5sum: b9ac6841b40e6407cc087aab727f7a6b
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
-      md5sum: f6d0ad467dc1d0330cbfd850270e2a0e
+      md5sum: d280d8cb9ead946417e4cdbe0bb3e64a
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.pdf
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.png
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.svg
