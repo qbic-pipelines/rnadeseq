@@ -8,9 +8,20 @@ on:
   release:
     types: [published]
 
+# TODO: From time to time, check if 20.04 can be changed back to latest without producing the following error on github in nf-core:
+#"Run actions/setup-python@v1
+#Error: Version 3.6 with arch x64 not found
+#Available versions:
+
+#3.10.8 (x64)
+#3.11.0 (x64)
+#3.7.15 (x64)
+#3.8.14 (x64)
+#3.9.15 (x64)"
+
 jobs:
   EditorConfig:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
 
