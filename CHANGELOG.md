@@ -21,7 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- [#163](https://github.com/qbic-pipelines/rnadeseq/pull/163) Template update
+- [#169](https://github.com/qbic-pipelines/rnadeseq/pull/169) Changed skip_pathway_analysis to run_pathway_analysis, default false
+- [#165](https://github.com/qbic-pipelines/rnadeseq/pull/165) -fw entries in multiqc stats are now merged
+- [#164](https://github.com/qbic-pipelines/rnadeseq/pull/164) Boxplots are now only generated for contrasts in list/matrix file if provided
+- [#163](https://github.com/qbic-pipelines/rnadeseq/pull/163) Template update, re-added limma, annotationdbi, colorbrewr to env (were previously incorrectly deleted), switched container to mamba
 - [#159](https://github.com/qbic-pipelines/rnadeseq/pull/159) Changed error messages for non-existing rsem/salmon files
 - [#151](https://github.com/qbic-pipelines/rnadeseq/pull/151) PCA plots and heatmap are now interactive, volcano and enrichment plots are cleaned up in their layout
 - [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Renamed versions to software_versions
@@ -30,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 
 - [#167](https://github.com/qbic-pipelines/rnadeseq/pull/167) Corrected 5sum for batcheffect after container update
-- [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Fixed batch effect bug for rsem/salmon
+- [#152](https://github.com/qbic-pipelines/rnadeseq/pull/152) Fixed empty qlist for gost query
 - [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Fixed batch effect bug
 
 ## Removed
