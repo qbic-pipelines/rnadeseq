@@ -1,7 +1,7 @@
-- name: Run test profile with vst transformation
-  command: nextflow run main.nf -profile test_use_vst,docker --citest true --round_DE 3
+- name: Run full test profile
+  command: nextflow run main.nf -profile test_full,docker --citest true --round_DE 3
   tags:
-    - test_use_vst
+    - test_full
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_genotype_WT_vs_KO.tsv
       md5sum: 93fd663cb976c102144e1ffb34d88e53
@@ -11,7 +11,7 @@
       md5sum: 81d3437334849b3b4de4de6729a3d54d
     - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_table.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
-    - path: results_test/differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv
+    - path: results_test/differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSMUSG00000058427.pdf
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSMUSG00000058427.png
@@ -57,6 +57,7 @@
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_treatment_Treated_vs_Control.svg
     - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.pdf
     - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.png
+    - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.svg
     - path: results_test/differential_gene_expression/plots/PCA_plot.pdf
     - path: results_test/differential_gene_expression/plots/PCA_plot.png
     - path: results_test/differential_gene_expression/plots/PCA_plot.svg

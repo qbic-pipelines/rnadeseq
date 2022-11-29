@@ -55,7 +55,7 @@ params:
 #set a seed in case some background calculations are random-based
     set.seed(10)
 
- # svg path for the little svg format icon displayed in the interactive plots for svg export; based on https://www.svgviewer.dev/:
+# svg path for the little svg format icon displayed in the interactive plots for svg export; based on https://www.svgviewer.dev/:
 svg_icon_path <- 'M228 319.5H12C5.64873 319.5 0.5 314.351 0.5 308V12C0.5 5.64873 5.64873 0.5 12 0.5H159.175C159.571 0.5 159.952 0.656748 160.233 0.936021L239.057 79.2681C239.341 79.5497 239.5 79.9326 239.5 80.3321V308C239.5 314.351 234.351 319.5 228 319.5Z'
 svg_icon_fill <- 'darkgrey'
 svg_icon_transform <- 'scale(0.07)'
@@ -79,6 +79,7 @@ svg_exp <- list(
 ```
 
 ```{r param_validation, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
+
 #self-written isProvided function that tests for zero-length, emptystring and NULL (for some reason, some params cannot be tested with emptystring)
 isProvided <- function(value) {
     result <- TRUE
@@ -163,7 +164,7 @@ if (!isProvided(params$path_design)){
 
 # Check if more than one contrast option was provided
 contrast_vector <- c(isProvided(params$path_contrast_list), isProvided(params$path_contrast_matrix), isProvided(params$path_contrast_pairs))
-if (length(contrast_vector[contrast_vector== TRUE]) > 1) {
+if (length(contrast_vector[contrast_vector==TRUE]) > 1) {
     stop("Provide only one of contrasts_matrix / contrasts_list / contrasts pairs!")
 }
 ```
@@ -298,7 +299,6 @@ Auf der Morgenstelle 10, 72076 Tuebingen
 <!-- metadata start -->
 
 ```{r read_metadata, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
-
 # Load metadata: sample preparations tsv file from qPortal
 metadata <- read.table(params$path_metadata, sep="\t", header=TRUE,na.strings =c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
 if (params$pathway_analysis) {
@@ -356,6 +356,7 @@ if (params$input_type == "featurecounts"){
 
 # to get all possible pairwise comparisons, make a combined factor
 conditions <- grepl(colnames(metadata),pattern = "condition_")
+conditions_contrasts <- conditions # save copy that might be changed in contrast section and will be used for boxplots
 metadata$combfactor <- apply(as.data.frame(metadata[ ,conditions]),1,paste, collapse = "_")
 
 # Read design file
@@ -748,10 +749,18 @@ columns <- c("Sample",
             "Cutadapt_mqc.generalstats.cutadapt.percent_trimmed",
             "STAR_mqc.generalstats.star.uniquely_mapped_percent",
             "featureCounts_mqc.generalstats.featurecounts.percent_assigned")
-df_DE_selected = df_DE[,columns]
+df_DE_selected <- df_DE[,columns]
+
+# The following gets rid of multiQC entries that are spread across two rows, one ending with -fw (see https://github.com/qbic-pipelines/rnadeseq/issues/114)
+sum_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else sum(x, na.rm = TRUE)}
+df_DE_selected$Sample <- gsub("-fw", "", df_DE_selected$Sample)
+df_DE_selected <- df_DE_selected %>% group_by(Sample) %>% summarise_all(sum_NA)
+
+
 df_DE_selected$Sample <- substr(df_DE_selected$Sample, 1, 10)
 colnames(df_DE_selected) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
 n_rows = nrow(df_DE_selected)
+
 metadata <- read.table((paste0(wd, "/differential_gene_expression/metadata/metadata.tsv")), header=TRUE, sep="\t")
 metadata = metadata[,c("QBiC.Code")]
 
@@ -987,7 +996,7 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 # Sample distances, this chunk is hidden as otherwise, the heatmap is shown multiple times
 sampleDists <- dist(t(assay(if (params$rlog) rld else vsd)))
 sampleDistMatrix <- as.matrix(sampleDists)
-colors = colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
+colors = colorRampPalette(rev(RColorBrewer::brewer.pal(9, "Blues")))(255)
 par(oma=c(3,3,3,3))
 dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey")
 export(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.png")
@@ -1017,7 +1026,17 @@ DE_genes_df = data.frame(DE_genes_df = character(nrow(cds)))
 contrast_names <- c()
 if (isProvided(params$path_contrast_matrix)){
     contrasts <- read.table(params$path_contrast_matrix, sep="\t", header = T, row.names = 1)
+
+    # Remove batch as this should normally not be considered a contrast
     contrasts <- contrasts[!startsWith(row.names(contrasts), "batch"),]
+
+    # to get all possible pairwise comparisons, make a combined factor
+    for (c in 1:length(conditions_contrasts)) {
+        if (grepl("condition_", colnames(metadata_save)[c], fixed = TRUE) && !(any(grepl(paste0("^", (colnames(metadata_save)[c])), rownames(contrasts))))) {
+            conditions_contrasts[c] <- FALSE
+        }
+    }
+    metadata_save$combfactor_contrasts <- apply(as.data.frame(metadata_save[ ,conditions_contrasts]),1,paste, collapse = "_")
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_matrix.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
     # Check that contrast matrix is valid
@@ -1061,7 +1080,18 @@ if (isProvided(params$path_contrast_matrix)){
 }
 if (isProvided(params$path_contrast_list)) {
     contrasts <- read.table(params$path_contrast_list, sep="\t", header=T, colClasses = "character")
+
+    # Remove batch as this should normally not be considered a contrast
     contrasts <- contrasts[!startsWith(contrasts$factor, "batch"),]
+
+    # to get all possible pairwise comparisons, make a combined factor
+    for (c in 1:length(conditions_contrasts)) {
+        if (grepl("condition_", colnames(metadata_save)[c], fixed = TRUE) & !(colnames(metadata_save)[c] %in% contrasts$factor) ) {
+            conditions_contrasts[c] <- FALSE
+        }
+    }
+    metadata_save$combfactor_contrasts <- apply(as.data.frame(metadata_save[ ,conditions_contrasts]),1,paste, collapse = "_")
+
     for (i in 1:nrow(contrasts)) {
         if (grepl("condition_", contrasts[i,1], fixed = TRUE)) {
             cond_name <- contrasts[i,1]
@@ -1110,7 +1140,6 @@ if (isProvided(params$path_contrast_list)) {
 }
 if (isProvided(params$path_contrast_pairs)) {
     contrasts <- read.table(path_contrast_pairs, sep="\t", header = T, colClasses = "character")
-    #TODO: Do I need to watch out for batch effect here as well?
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_pairs.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
     # Contrast calculation for contrast pairs
@@ -1354,9 +1383,10 @@ if (length(DE_genes_plot) > 20) {
     random_DE_genes_plot = DE_genes_plot
 }
 for (i in random_DE_genes_plot){
-    boxplot_counts <- plotCounts(cds, gene=i, intgroup=c("combfactor"), returnData=TRUE, normalized = T)
+    colData(cds)$combfactor_contrasts <- apply(as.data.frame(metadata_save[ ,conditions_contrasts]),1,paste, collapse = "_")
+    boxplot_counts <- plotCounts(cds, gene=i, intgroup=c("combfactor_contrasts"), returnData=TRUE, normalized = T)
     boxplot_counts$variable = row.names(boxplot_counts)
-    plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
+    plot <- ggplot(data=boxplot_counts, aes(x=combfactor_contrasts, y=count, fill=combfactor_contrasts)) +
                 geom_boxplot(position=position_dodge()) +
                 geom_jitter(position=position_dodge(.8)) +
                 ggtitle(paste("Gene ",i,sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
@@ -1382,9 +1412,9 @@ if (isProvided(params$path_genelist)){
     requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
     requested_genes_plot_gene_name <- requested_genes_plot$gene_name
     for (i in seq_along(requested_genes_plot_Ensembl)) {
-        boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor"), returnData=TRUE, normalized = T)
+        boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor_contrasts"), returnData=TRUE, normalized = T)
         boxplot_counts$variable = row.names(boxplot_counts)
-        plot <- ggplot(data=boxplot_counts, aes(x=combfactor, y=count, fill=combfactor)) +
+        plot <- ggplot(data=boxplot_counts, aes(x=combfactor_contrasts, y=count, fill=combfactor_contrasts)) +
         geom_boxplot(position=position_dodge()) +
         geom_jitter(position=position_dodge(.8)) +
         ggtitle(paste("Gene ",requested_genes_plot_gene_name[i],sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
@@ -1508,7 +1538,6 @@ for (file in contrast_files){
 
     # Make data frame of gost result
     pathway_gostres <- gostres$result
-
     # Select only significantly enriched pathways (according to adjusted p-value)
     pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
 
@@ -1609,7 +1638,7 @@ for (file in contrast_files){
                             gene.data = DE_genes
                             gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
 
-                            entrez_ids = mapIds(species_library_installed, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=params$keytype, multiVals="first")
+                            entrez_ids = AnnotationDbi::mapIds(species_library_installed, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=params$keytype, multiVals="first")
 
                             gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
 
@@ -1711,36 +1740,44 @@ The table below provides more detail on all enriched pathways."))
         #Reading DE genes list
         fname <- tools::file_path_sans_ext(basename(file))
         DE_genes <- read.csv(file = paste0("differential_gene_expression/DE_genes_tables/", file), sep="\t", header = T)
+
         if(nrow(DE_genes) <= 1){
             next
         }
         q = as.character(DE_genes$Ensembl_ID)
         q_list <- append(q_list, list(q))
         q_names <- append(q_names, fname)
+
     }
     names(q_list) <- q_names
+    if (length(q_list) > 0) {
 
-    #gost query
-    gostres <- gost(query=q_list,
+        #gost query
+        gostres <- gost(query=q_list,
                     organism=tolower(params$organism),
                     significant=T,
                     correction_method="fdr",
                     sources=datasources,
                     user_threshold=params$pval_threshold)
-    path_enrich <- as.data.frame(gostres$result)
-    if (nrow(path_enrich) > 0){
-        pg2 <- gostplot(gostres, capped=T, interactive=T)
-        pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$pval_threshold
+        path_enrich <- as.data.frame(gostres$result)
+        if (nrow(path_enrich) > 0){
+            pg2 <- gostplot(gostres, capped=T, interactive=T)
+            pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$pval_threshold
 
-        #limit gostplot y maximum
-        for (counter in c(1:length(contrast_files))) {
-            pg2[['x']][['layout']][[paste0('yaxis', ifelse(counter>1, counter, ""))]][['range']] <- c(0,ceiling(2*-log10(max(gostres$p_value))))
+            #limit gostplot y maximum
+            for (counter in c(1:length(contrast_files))) {
+                pg2[['x']][['layout']][[paste0('yaxis', ifelse(counter>1, counter, ""))]][['range']] <- c(0,ceiling(2*-log10(max(gostres$p_value))))
+            }
+
+            #add export button to plot
+            config(pg2, modeBarButtonsToAdd = list(svg_exp)) %>% layout(width=500, height = 400*length(contrast_files))
+        } else {
+                cat("No enriched pathways were found.")
+                path_enrich=data.frame(list())
         }
-
-        #add export button to plot
-        config(pg2, modeBarButtonsToAdd = list(svg_exp)) %>% layout(width=500, height = 400*length(contrast_files))
     } else {
-        cat("No enriched pathways were found.")
+        cat("No DE genes were found, pathway analysis not possible.")
+        path_enrich=data.frame(list())
     }
 ```
 

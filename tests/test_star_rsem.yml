@@ -4,13 +4,13 @@
     - test_star_rsem
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_H1_vs_GM12878.tsv
-      md5sum: cc6b71b6cdb86435ce0d1b40d521bced
+      md5sum: f41854e3d6d69f0c6dc556dfd82b2874
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_K562_vs_GM12878.tsv
-      md5sum: a7808824f714111d7ab0b40226e5dba3
+      md5sum: e592b11964145fb1d7ac7e4f85e61564
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_MCF7_vs_GM12878.tsv
-      md5sum: f906ac4a695655625357ba97af4a5499
+      md5sum: b9ac6841b40e6407cc087aab727f7a6b
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
-      md5sum: f6d0ad467dc1d0330cbfd850270e2a0e
+      md5sum: d280d8cb9ead946417e4cdbe0bb3e64a
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.pdf
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.png
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.svg
@@ -86,11 +86,11 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/DE_contrast_condition_cellline_MCF7_vs_GM12878_REAC_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/DE_contrast_condition_cellline_MCF7_vs_GM12878_REAC_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/DE_contrast_condition_cellline_H1_vs_GM12878_pathway_enrichment_results.tsv
-      md5sum: b2511b6dc7e46053be93908e96be298d
+      md5sum: 569d992498f2feb6eab5186b272510bf
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_pathway_enrichment_results.tsv
-      md5sum: 14e89bdda8266a95a06b10735143c456
+      md5sum: d93e805f242f9f16ad99a94602123468
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/DE_contrast_condition_cellline_MCF7_vs_GM12878_pathway_enrichment_results.tsv
-      md5sum: e30aa6cea1eb5749eba26a2c9c430cfc
+      md5sum: 51266349ce9a9bfc62ea4ea149dcc10f
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/DE_contrast_condition_cellline_H1_vs_GM12878_KEGG_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/DE_contrast_condition_cellline_H1_vs_GM12878_KEGG_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_KEGG_pathway_enrichment_plot.pdf
@@ -103,19 +103,12 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_REAC_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/DE_contrast_condition_cellline_MCF7_vs_GM12878_REAC_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/DE_contrast_condition_cellline_MCF7_vs_GM12878_REAC_pathway_enrichment_plot.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/KEGG_pathways/hsa00510.DE_contrast_condition_cellline_H1_vs_GM12878.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/KEGG_pathways/hsa00510.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/KEGG_pathways/hsa00510.xml
-    - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/KEGG_pathways/hsa00920.DE_contrast_condition_cellline_H1_vs_GM12878.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/KEGG_pathways/hsa00920.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/KEGG_pathways/hsa00920.xml
-    #    - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/KEGG_pathways/hsa01040.DE_contrast_condition_cellline_H1_vs_GM12878.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/KEGG_pathways/hsa01040.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/KEGG_pathways/hsa01040.xml
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_KEGG_pathway_enrichment_results.tsv
-      md5sum: 60a0c9380d495e2b1e6f798c627a77b3
+      md5sum: 46ce910756ee4dc8a96f310838d5d398
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_pathway_enrichment_results.tsv
-      md5sum: 14e89bdda8266a95a06b10735143c456
+      md5sum: d93e805f242f9f16ad99a94602123468
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_REAC_pathway_enrichment_results.tsv
-      md5sum: 1e10e25690d5437439661b446821d794
+      md5sum: 7d1dc63865de1c1768cb536fedc53519
     - path: results_test/RNAseq_report.html

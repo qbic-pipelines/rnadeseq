@@ -1,6 +1,9 @@
-# Ignore all HTML files:
-results*
-testdata/*
-*.html
-*.zip
-*.md
+email_template.html
+.nextflow*
+work/
+data/
+results/
+.DS_Store
+testing/
+testing*
+*.pyc
