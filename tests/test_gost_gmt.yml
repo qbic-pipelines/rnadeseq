@@ -1,4 +1,4 @@
-- name: Run test profile
+- name: Run test profile with custom gost gmt
   command: nextflow run main.nf -profile test_gost_gmt,docker --citest true --round_DE 3
   tags:
     - test_gost_gmt
