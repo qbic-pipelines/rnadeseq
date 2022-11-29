@@ -299,7 +299,6 @@ Auf der Morgenstelle 10, 72076 Tuebingen
 <!-- metadata start -->
 
 ```{r read_metadata, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
-
 # Load metadata: sample preparations tsv file from qPortal
 metadata <- read.table(params$path_metadata, sep="\t", header=TRUE,na.strings =c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
 if (params$pathway_analysis) {
@@ -750,10 +749,18 @@ columns <- c("Sample",
             "Cutadapt_mqc.generalstats.cutadapt.percent_trimmed",
             "STAR_mqc.generalstats.star.uniquely_mapped_percent",
             "featureCounts_mqc.generalstats.featurecounts.percent_assigned")
-df_DE_selected = df_DE[,columns]
+df_DE_selected <- df_DE[,columns]
+
+# The following gets rid of multiQC entries that are spread across two rows, one ending with -fw (see https://github.com/qbic-pipelines/rnadeseq/issues/114)
+sum_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else sum(x, na.rm = TRUE)}
+df_DE_selected$Sample <- gsub("-fw", "", df_DE_selected$Sample)
+df_DE_selected <- df_DE_selected %>% group_by(Sample) %>% summarise_all(sum_NA)
+
+
 df_DE_selected$Sample <- substr(df_DE_selected$Sample, 1, 10)
 colnames(df_DE_selected) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
 n_rows = nrow(df_DE_selected)
+
 metadata <- read.table((paste0(wd, "/differential_gene_expression/metadata/metadata.tsv")), header=TRUE, sep="\t")
 metadata = metadata[,c("QBiC.Code")]
 

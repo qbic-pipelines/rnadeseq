@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#165](https://github.com/qbic-pipelines/rnadeseq/pull/165) -fw entries in multiqc stats are now merged
 - [#164](https://github.com/qbic-pipelines/rnadeseq/pull/164) Boxplots are now only generated for contrasts in list/matrix file if provided
 - [#163](https://github.com/qbic-pipelines/rnadeseq/pull/163) Template update, re-added limma, annotationdbi, colorbrewr to env (were previously incorrectly deleted), switched container to mamba
 - [#159](https://github.com/qbic-pipelines/rnadeseq/pull/159) Changed error messages for non-existing rsem/salmon files
@@ -31,7 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [#167](https://github.com/qbic-pipelines/rnadeseq/pull/167) Corrected 5sum for batcheffect after container update
 - [#152](https://github.com/qbic-pipelines/rnadeseq/pull/152) Fixed empty qlist for gost query
-- [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Fixed batch effect bug for rsem/salmon
 - [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Fixed batch effect bug
 
 ## Removed
