@@ -82,7 +82,7 @@ jobs:
             "test_star_salmon",
             "test_use_vst",
             "test_batcheffect",
-            "test_gost_gmt"
+            "test_gost_gmt",
           ]
     steps:
       - name: Check out pipeline code
