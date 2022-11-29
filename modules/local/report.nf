@@ -33,7 +33,7 @@ process REPORT {
     def rlog_opt = params.use_vst ? '--rlog FALSE' : ''
     def round_DE_opt = params.round_DE ? "--round_DE $params.round_DE" : ''
 
-    def pathwayopt = params.skip_pathway_analysis ? '' : "--pathway_analysis"
+    def pathwayopt = params.run_pathway_analysis ? "--pathway_analysis" : ''
 
     def citest_opt = params.citest ? "--citest TRUE" : ''
 
