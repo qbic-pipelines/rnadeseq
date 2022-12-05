@@ -38,7 +38,7 @@ params:
     organism: ''
     species_library: ''
     keytype: ''
-    gost_gmt: ''
+    custom_gmt: ''
     min_DEG_pathway: ''
 
     #Additional args for the report
@@ -1497,11 +1497,11 @@ metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name) # Remove blan
 #This saves whether a GMT file is present and should be moved to the pathway_analysis/metadata folder; initialize as FALSE
 mv_status <- F
 
-if (isProvided(params$gost_gmt)){
+if (isProvided(params$custom_gmt)){
 
     # If custom GMT file was provided, filter it before uploading to use in gost queries (gprofiler will NOT filter itself, so otherwise the output will contain all kinds of datasources, not just the selected ones)
-    out_gmt <- (Filter(function(line) any(startsWith(line, datasources)), readLines(params$gost_gmt)))
-    out_path <- paste0(tools::file_path_sans_ext(basename(params$gost_gmt)), "_filtered.gmt")
+    out_gmt <- (Filter(function(line) any(startsWith(line, datasources)), readLines(params$custom_gmt)))
+    out_path <- paste0(tools::file_path_sans_ext(basename(params$custom_gmt)), "_filtered.gmt")
     writeLines(out_gmt, out_path)
     gost_id <- upload_GMT_file(out_path)
     mv_status <- T
@@ -1514,7 +1514,6 @@ if (isProvided(params$gost_gmt)){
         {
             wget_command <- paste0("wget ", gmt_url)
             sys_return <- system(wget_command)
-            capture.output(sys_return, file="/home-link/iivow01/git/rnadeseq/error/ret")
             if (sys_return == 0 || "saved" %in% sys_return) {
                 mv_status <- T
             } else {
@@ -1531,6 +1530,42 @@ if (isProvided(params$gost_gmt)){
             print("For reproducibility reasons, try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'.")
         }
     )
+
+    # Also try to get the version info from the current build
+    gpro_version_url <- paste0("https://biit.cs.ut.ee/gprofiler/api/util/data_versions?organism=", organism)
+    gpro_version_string <- ""
+    tryCatch(
+        {
+            gpro_command <- paste0("curl ", gpro_version_url)
+            sys_return <- system(gpro_command)
+            if ("gprofiler_version" %in% sys_return) {
+                info <- sys_return
+                sources <- info$sources
+                gpro_version_string <- paste0("`gprofiler: ", info$gprofiler_version, "`, ")
+            } else {
+                print("Failed to obtain the gprofiler version with this command:")
+                print(gpro_command)
+                print("For reproducibility reasons, find the gprofiler command on https://biit.cs.ut.ee/gprofiler/gost.")
+            }
+        },
+        error=function(version_error) {
+            print("Failed to fetch the gprofiler version with this command:")
+            print(gpro_command)
+            print("Got error:")
+            print(version_error)
+            print("For reproducibility reasons, find the gprofiler command on https://biit.cs.ut.ee/gprofiler/gost.")
+        }
+    )
+
+
+
+
+
+
+
+
+
+
 }
 
 # If GMT exist(s), create metadata folder and move GMT(s) there
@@ -1538,8 +1573,8 @@ if (isProvided(params$gost_gmt)){
 if (mv_status) {
     dir.create("pathway_analysis/metadata")
     system("mv *.gmt pathway_analysis/metadata")
-    if (isProvided(params$gost_gmt)) {
-        system(paste("cp", params$gost_gmt, "pathway_analysis/metadata/"))
+    if (isProvided(params$custom_gmt)) {
+        system(paste("cp", params$custom_gmt, "pathway_analysis/metadata/"))
     }
 }
 
@@ -1765,7 +1800,7 @@ if (isProvided(params$path_genelist)){
 
 ```{r pathway_analysis, echo=FALSE, results='asis', eval=params$pathway_analysis}
 if (mv_status) {
-    if (isProvided(params$gost_gmt)) {
+    if (isProvided(params$custom_gmt)) {
         gost_text <- "A custom GMT file was provided for the gost query; it is saved [here](./pathway_analysis/metadata). In case this GMT file contained entries from datasources other than the selected ones, it was filtered and the resulting filtered GMT was used for querying. The filtered version is also saved to the metadata folder."
     } else {
         gost_text <- "A GMT file corresponding to the current gprofiler database version was downloaded to allow for reproducing the gost query; it is saved [here](./pathway_analysis/metadata). Note that the downloaded GMT contains entries from various datasources, not just the selected ones. Also, some datasources might be missing from the files due to licensing reasons."
@@ -1904,19 +1939,22 @@ version_annotation = packageVersion("AnnotationDbi")
 name_species       = params$species_library
 version_species    = packageVersion(name_species)
 
-if (isProvided(params$gost_gmt)){
-    database_string <- paste0("Also, a gprofiler query with this custom GMT file was done: `", basename(params$gost_gmt), "`. Entries of the following datasources were considered: ")
-    for (db in datasources) {
-        database_string <- paste0(database_string, "`", db, "`, ")
-    }
-    database_string <- paste0(substr(database_string,1,nchar(database_string)-1), ".")
+if (isProvided(params$custom_gmt)){
+    database_string <- paste0("Also, a gprofiler query with this custom GMT file was done: `", basename(params$custom_gmt), "`. Entries of the following datasources were considered: ")
+    dbs <- paste(datasources, collapse="`, `")
+    database_string <- paste0(database_string, "`", dbs, "`.")
 } else {
-    database_string = "Also, the following databases were queried: "
+    database_string = paste0("Also, the following databases were queried: ", gpro_version_string)
+    capture.output(database_string, file="/home-link/iivow01/git/rnadeseq/error/db1")
     database_version_info <- get_version_info(params$organism)
     for (db in datasources) {
         database_string <- paste0(database_string, "`", db, ": ", gsub("\n", ", ", database_version_info$sources[[db]]$version), "`, ")
+        capture.output(database_string, paste0(file="/home-link/iivow01/git/rnadeseq/error/db2_after_", db))
+
     }
-    database_string <- paste0(substr(database_string,1,nchar(database_string)-2), ".")
+    database_string <- strsplit(database_string, ",\\s*(?=[^,]+$)", perl=TRUE)[1]
+    capture.output(database_string, file="/home-link/iivow01/git/rnadeseq/error/db3")
+
 }
 
 cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2," `, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. ", database_string))

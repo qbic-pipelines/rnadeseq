@@ -1,7 +1,7 @@
 - name: Run test profile with custom gost gmt
-  command: nextflow run main.nf -profile test_gost_gmt,docker --citest true --round_DE 3
+  command: nextflow run main.nf -profile test_custom_gmt,docker --citest true --round_DE 3
   tags:
-    - test_gost_gmt
+    - test_custom_gmt
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_genotype_WT_vs_KO.tsv
       md5sum: 93fd663cb976c102144e1ffb34d88e53

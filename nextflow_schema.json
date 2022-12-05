@@ -120,7 +120,7 @@
                     "type": "string",
                     "description": "Not necessary if genome is set. Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if --run_pathway_analysis = false."
                 },
-                "gost_gmt": {
+                "custom_gmt": {
                     "type": "string",
                     "description": "Path to custom GMT file for gost query, this allows e.g. to query older versions of databases for pathway analysis, not necessary if --skip_pathway_analysis = true."
                 },

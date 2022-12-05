@@ -30,7 +30,7 @@ option_list = list(
     make_option(c("-g", "--organism"), type="character", default=NULL, help="Organism, e.g. Hsapiens."),
     make_option(c("-i", "--species_library"), type="character", default=NULL, help="Library name. Example format: org.At.tair.db", metavar="character"),
     make_option(c("-u", "--keytype"), type="character", default=NULL, help="Keytype. Example format: TAIR (varies greatly depending on library!)", metavar="character"),
-    make_option("--gost_gmt", type="character", default=NULL, help="Path to custom GMT file to query during pathway analysis.", metavar="character"),
+    make_option("--custom_gmt", type="character", default=NULL, help="Path to custom GMT file to query during pathway analysis.", metavar="character"),
     make_option(c("-w", "--min_DEG_pathway"), type="integer", default=NULL, help="min. number of genes DE in a pathway for this pathway to be considered enriched.", metavar="integer"),
 
     make_option(c("-s", "--proj_summary"), type="character", default=NULL, help="Project summary file", metavar="character"),
@@ -74,7 +74,7 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 pathway_analysis = opt$pathway_analysis,
                                 organism = opt$organism,
                                 species_library = opt$species_library,
-                                gost_gmt = opt$gost_gmt,
+                                custom_gmt = opt$custom_gmt,
                                 keytype = opt$keytype,
                                 min_DEG_pathway = opt$min_DEG_pathway,
 
