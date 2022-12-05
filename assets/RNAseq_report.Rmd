@@ -1556,16 +1556,6 @@ if (isProvided(params$custom_gmt)){
             print("For reproducibility reasons, find the gprofiler command on https://biit.cs.ut.ee/gprofiler/gost.")
         }
     )
-
-
-
-
-
-
-
-
-
-
 }
 
 # If GMT exist(s), create metadata folder and move GMT(s) there
@@ -1944,17 +1934,15 @@ if (isProvided(params$custom_gmt)){
     dbs <- paste(datasources, collapse="`, `")
     database_string <- paste0(database_string, "`", dbs, "`.")
 } else {
-    database_string = paste0("Also, the following databases were queried: ", gpro_version_string)
-    capture.output(database_string, file="/home-link/iivow01/git/rnadeseq/error/db1")
+    database_string = "Also, the following databases were queried: "
+    if (gpro_version_string != "") {
+        database_string <- paste0(database_string, gpro_version_string, ",")
+    }
     database_version_info <- get_version_info(params$organism)
     for (db in datasources) {
         database_string <- paste0(database_string, "`", db, ": ", gsub("\n", ", ", database_version_info$sources[[db]]$version), "`, ")
-        capture.output(database_string, paste0(file="/home-link/iivow01/git/rnadeseq/error/db2_after_", db))
-
     }
-    database_string <- strsplit(database_string, ",\\s*(?=[^,]+$)", perl=TRUE)[1]
-    capture.output(database_string, file="/home-link/iivow01/git/rnadeseq/error/db3")
-
+    database_string <- paste0(strsplit(database_string, ",\\s*(?=[^,]+$)", perl=TRUE)[[1]], ".")
 }
 
 cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2," `, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. ", database_string))
