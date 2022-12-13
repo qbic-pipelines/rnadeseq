@@ -1527,7 +1527,7 @@ if (isProvided(params$custom_gmt)){
             print(gmt_url)
             print("Got error:")
             print(gost_error)
-            print("For reproducibility reasons, try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'.")
+            print("For reproducibility reasons, try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'. Then provide it to the pipeline with the parameter `--custom_gmt`")
         }
     )
 
