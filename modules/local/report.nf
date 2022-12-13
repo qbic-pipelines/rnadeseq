@@ -17,6 +17,7 @@ process REPORT {
     path proj_summary
     path software_versions
     path multiqc
+    path custom_gmt
 
     output:
     path "*.zip"
@@ -33,12 +34,13 @@ process REPORT {
     def rlog_opt = params.use_vst ? '--rlog FALSE' : ''
     def round_DE_opt = params.round_DE ? "--round_DE $params.round_DE" : ''
 
-    def pathwayopt = params.run_pathway_analysis ? "--pathway_analysis" : ''
+    def pathway_opt = params.run_pathway_analysis ? "--pathway_analysis" : ''
+    def custom_gmt_opt = custom_gmt.name  != 'NO_FILE3' ? "--custom_gmt $custom_gmt" : ''
 
     def citest_opt = params.citest ? "--citest TRUE" : ''
 
     """
-    if [ "$multiqc" != "NO_FILE3" ]; then
+    if [ "$multiqc" != "NO_FILE4" ]; then
         unzip $multiqc
         mkdir QC
         mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
@@ -62,7 +64,8 @@ process REPORT {
         $rlog_opt \
         --nsub_genes $params.vst_genes_number \
         $round_DE_opt \
-        $pathwayopt \
+        $pathway_opt \
+        $custom_gmt_opt \
         --organism $params.organism \
         --species_library $params.species_library \
         --keytype $params.keytype \
@@ -78,11 +81,11 @@ process REPORT {
     if [ "$params.citest" == true ]; then
         mkdir ../../../results_test
         cp -r RNAseq_report.html differential_gene_expression/ ../../../results_test
-        if [ "$pathwayopt" == "--pathway_analysis" ]; then
+        if [ "$pathway_opt" == "--pathway_analysis" ]; then
             cp -r pathway_analysis/ ../../../results_test
         fi
     fi
-    if [ "$pathwayopt" == "--pathway_analysis" ]; then
+    if [ "$pathway_opt" == "--pathway_analysis" ]; then
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/
     else
         zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/
