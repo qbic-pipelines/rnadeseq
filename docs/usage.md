@@ -321,6 +321,10 @@ Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not n
 
 Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if `--run_pathway_analysis = false`.
 
+### `--custom_gmt`
+
+Path to custom GMT file to use instead of querying against the live gprofiler database, ignored if `--run_pathway_analysis = false`.
+
 ## Special cases
 
 ### Controlling for batch effects
