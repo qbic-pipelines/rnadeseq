@@ -19,13 +19,13 @@
                     "type": "string",
                     "description": "If input_type = featurecounts: Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name. If input_type = rsem or input_type = salmon: Path to rsem/salmon output folder."
                 },
-                "metadata": {
+                "input": {
                     "type": "string",
-                    "description": "Metadata table (TSV). Rows are samples and columns contain sample grouping."
+                    "description": "Metadata table/samplesheet (TSV). Rows are samples and columns contain sample grouping."
                 },
                 "model": {
                     "type": "string",
-                    "description": "Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file."
+                    "description": "Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file/samplesheet."
                 },
                 "gtf": {
                     "type": "string",
@@ -37,7 +37,7 @@
                     "description": "CSV containing nf-core/rnaseq software versions."
                 }
             },
-            "required": ["input_type", "gene_counts", "metadata", "model", "versions"]
+            "required": ["input_type", "gene_counts", "input", "model", "versions"]
         },
         "deseq2_arguments": {
             "title": "DESeq2 arguments",
@@ -68,7 +68,7 @@
                 "relevel": {
                     "type": "string",
                     "default": "NO_FILE2",
-                    "description": "Tsv indicating list of factors (conditions in the metadata table) and the new level on which to relevel the factor. Check contrasts docs."
+                    "description": "Tsv indicating list of factors (conditions in the metadata table/samplesheet) and the new level on which to relevel the factor. Check contrasts docs."
                 },
                 "batch_effect": {
                     "type": "string",

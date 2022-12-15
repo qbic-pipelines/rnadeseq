@@ -16,7 +16,7 @@
 - [Mandatory arguments](#mandatory-arguments)
   - [`--gene_counts`](#--gene_counts)
   - [`--input_type`](#--input_type)
-  - [`--metadata`](#--metadata)
+  - [`--input`](#--input)
   - [`--model`](#--model)
   - [`--project_summary`](#--project_summary)
   - [`--software_versions`](#--software_versions)
@@ -80,7 +80,7 @@ NXF_OPTS='-Xms1g -Xmx4g'
 
 ## Pre-requisites
 
-The `qbic-pipelines/rnadeseq` pipeline relies on the output from the `nf-core/rnaseq` pipeline. To be able to match the results of the `nf-core/rnaseq` pipeline with the metadata sheet containing the experimental design for the differential expression analysis, **the filenames of the fastq files used as input to the `qbic-pipelines/rnadeseq` pipeline, need to start with the corresponding QBiC codes!**. _E.g. QBICKXXXXX_original_file_name.fastq_. Once the filenames are corrected if necessary, you can run the `qbic-pipelines/rnadeseq` pipeline as usual.
+The `qbic-pipelines/rnadeseq` pipeline relies on the output from the `nf-core/rnaseq` pipeline. To be able to match the results of the `nf-core/rnaseq` pipeline with the metadata samplesheet containing the experimental design for the differential expression analysis, **the filenames of the fastq files used as input to the `qbic-pipelines/rnadeseq` pipeline, need to start with the corresponding QBiC codes!**. _E.g. QBICKXXXXX_original_file_name.fastq_. Once the filenames are corrected if necessary, you can run the `qbic-pipelines/rnadeseq` pipeline as usual.
 
 ## Running the pipeline
 
@@ -89,7 +89,7 @@ The typical command for running the pipeline is as follows:
 ```bash
 nextflow run qbic-pipelines/rnadeseq -r 2.0.1 -profile docker \
 --gene_counts 'merged_gene_counts.txt' \
---metadata 'QXXXX_sample_preparations.tsv' \
+--input 'QXXXX_sample_preparations.tsv' \
 --model 'linear_model.txt' \
 --contrast_matrix 'contrasts.tsv' \
 --project_summary 'QXXXX_summary.tsv' \
@@ -151,7 +151,7 @@ This version number will be logged in reports when you run the pipeline, so that
 
 ### `--gene_counts`
 
-Gene counts. Can be a raw count table (TSV), column names must start with the QBiC code, columns are samples and rows are genes; OR a folder containing rsem output files (folder/sampleXXX.genes.results) OR a folder containing subfolders with salmon output (folder/sampleXXX/quant.sf). For rsem and salmon, the --metadata file "QBiC Code" column must provide the name of each sample (i.e. the respective folder/file name), and the --input_type parameter must be set to 'rsem' or 'salmon'.
+Gene counts. Can be a raw count table (TSV), column names must start with the QBiC code, columns are samples and rows are genes; OR a folder containing rsem output files (folder/sampleXXX.genes.results) OR a folder containing subfolders with salmon output (folder/sampleXXX/quant.sf). For rsem and salmon, the --input file "QBiC Code" column must provide the name of each sample (i.e. the respective folder/file name), and the --input_type parameter must be set to 'rsem' or 'salmon'.
 For example:
 
 ```bash
@@ -164,11 +164,11 @@ ENSG00000000003  TSPAN6  150   3000
 ENSG00000000005   TNMD    80  6
 ```
 
-### `--metadata`
+### `--input`
 
-Metadata table (TSV) is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
+Metadata table/samplesheet (TSV) is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
 
-- **QBiC Code**: is needed to match metadata with the raw counts.
+- **QBiC Code**: is needed to match metadata/samplesheet with the raw counts.
 - **Secondary Name**, samples will be named with the pattern: QBiC code + Secondary name.
 - **Condition: tag**: a separated column for each of the conditions. The headers of this columns start with "Condition: ". The values of these columns should not contain spaces.
 
@@ -180,7 +180,7 @@ QBICK00002  Sample2 untreated
 
 ### `--model`
 
-Linear model function to calculate the contrasts (TXT). Variable names should be "condition_tag", where the tag matches the "Condition: tag" headers in the metadata file. E.g.
+Linear model function to calculate the contrasts (TXT). Variable names should be "condition_tag", where the tag matches the "Condition: tag" headers in the metadata/samplesheet file. E.g.
 
 ```txt
 ~ condition_genotype + condition_treatment

@@ -11,10 +11,6 @@ class WorkflowRnadeseq {
     //
     public static void initialise(params, log) {
         genomeExistsError(params, log)
-
-
-            System.exit(1)
-        }
     }
 
     // Get workflow summary for MultiQC
