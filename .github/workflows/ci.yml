@@ -74,6 +74,7 @@ jobs:
         config:
           [
             "test",
+            "test_full",
             "test_contrast_matrix",
             "test_contrast_list",
             "test_no_multiqc",
