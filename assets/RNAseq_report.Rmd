@@ -1014,7 +1014,7 @@ dist_heatmap %>% layout(height=700, width=800) %>% config(modeBarButtonsToAdd = 
 
 After unzipping the results ZIP file, the differential expression results can be found in the directory [differential_gene_expression/](./differential_gene_expression), containing the following subfolders:
 
-<details>
+<br><details>
     <summary>Expand/collapse</summary>
     - `metadata/`
         - `metadata.tsv`: metadata sheet used by the pipeline.
@@ -1034,7 +1034,7 @@ After unzipping the results ZIP file, the differential expression results can be
         - `boxplots_example_genes/`: boxplots of the normalized gene counts for each of the sample groups for example genes.
         - `boxplots_requested_genes/`: boxplots of the normalized gene counts for each of the sample groups for the list of requested genes.
         - `further_diagnostics_plots/`: plots for diagnostics of the differential gene analysis procedure.
-</details>
+</details><br>
 
 To perform differential gene expression analysis, the gene expression data between two sample groups is compared.
 These comparisons are called _contrasts_. For this analysis, the following contrasts or comparisons were made:
@@ -1831,7 +1831,7 @@ The pathway analysis was performed with the `gProfiler2` tool.
 
 After unzipping the results ZIP file, the pathway analysis results are stored in this folder: [pathway_analysis/](./pathway_analysis), and explained in this section.
 Inside the pathway analysis results folder, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
-    <details>
+    <br><details>
     <summary>Expand/collapse</summary>
     - `*_keg_pathway_enrichment_plot.pdf/png`
         - Barplots showing the proportion of differentially expressed genes in the pathway.
@@ -1839,7 +1839,7 @@ Inside the pathway analysis results folder, a subfolder for each contrast used f
         - Contains the KEGG pathways graphs with the log fold change of the differentially expressed genes.
     - `pathway_heatmaps`
         - Contains heatmaps of the normalized gene counts for each of the differentially expressed pathways.
-    </details>\n",
+    </details><br>",
     gost_text,
 
 "
