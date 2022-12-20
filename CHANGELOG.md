@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [#176](https://github.com/qbic-pipelines/rnadeseq/pull/176) Added output description to report
 - [#173](https://github.com/qbic-pipelines/rnadeseq/pull/173) Added GMT file to testdata dir to test #172
 - [#172](https://github.com/qbic-pipelines/rnadeseq/pull/172) Added option to provide custom gost GMT, for online gost, GMT is downloaded
 - [#151](https://github.com/qbic-pipelines/rnadeseq/pull/151) Added session info to report
