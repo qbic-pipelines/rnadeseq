@@ -150,19 +150,23 @@ This version number will be logged in reports when you run the pipeline, so that
 ### `--gene_counts`
 
 Gene counts. Can be:
+
 - a raw count table (TSV), column names must start with the QBiC code, columns are samples and rows are genes, e.g.:
+
 ```bash
 --gene_counts 'path/to/raw_count_table.tsv'
 ```
+
 ```tsv
 Geneid  gene_name   QBICK00001_Sample1  QBICK00002_Sample2
 ENSG00000000003  TSPAN6  150   3000
 ENSG00000000005   TNMD    80  6
 ```
+
 - OR a folder containing rsem output files (folder/sampleXXX.genes.results)
 - OR a folder containing subfolders with salmon output (folder/sampleXXX/quant.sf).
-For rsem and salmon, the --metadata file "QBiC Code" column must provide the name of each sample (i.e. the respective folder/file name), and the --input_type parameter must be set to 'rsem' or 'salmon'.
-For example:
+  For rsem and salmon, the --metadata file "QBiC Code" column must provide the name of each sample (i.e. the respective folder/file name), and the --input_type parameter must be set to 'rsem' or 'salmon'.
+  For example:
 
 ```bash
 --gene_counts 'path/to/salmon_folder' --metadata 'path/to/salmon_metadata.tsv'
@@ -180,6 +184,7 @@ path/to/salmon_folder
 
 head 'path/to/salmon_metadata.tsv'
 ```
+
 ```tsv
 QBiC Code       Secondary Name  Condition: cellline
 QDESQ081AU      Sample1 GM12878
