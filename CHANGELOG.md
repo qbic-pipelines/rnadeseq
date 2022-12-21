@@ -3,7 +3,8 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 2.0.1 - Olive Trees hotfix I
+
+## 2.1 - Wheat Fields
 
 ### Added
 
@@ -16,10 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#147](https://github.com/qbic-pipelines/rnadeseq/pull/147) Added check for contrast list/metadata comparison
 - [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Added pval threshold param
 - [#136](https://github.com/qbic-pipelines/rnadeseq/pull/136) Added pytest checks and md5sums to make sure that output stays consistent
-- [#134](https://github.com/qbic-pipelines/rnadeseq/pull/134) Corrected some versions
-- [#132](https://github.com/qbic-pipelines/rnadeseq/pull/132) Bump version to 2.0.1
-- [#131](https://github.com/qbic-pipelines/rnadeseq/pull/131) Added design_batcheffect.txt
-- [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Added test_batcheffect to github tests
 
 ### Changed
 
@@ -32,17 +29,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#159](https://github.com/qbic-pipelines/rnadeseq/pull/159) Changed error messages for non-existing rsem/salmon files
 - [#151](https://github.com/qbic-pipelines/rnadeseq/pull/151) PCA plots and heatmap are now interactive, volcano and enrichment plots are cleaned up in their layout
 - [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Renamed versions to software_versions
-- [#131](https://github.com/qbic-pipelines/rnadeseq/pull/131) Changed Sample_preparations.tsv by adding batch column
 
-## Fixed
+### Fixed
 
 - [#167](https://github.com/qbic-pipelines/rnadeseq/pull/167) Corrected 5sum for batcheffect after container update
 - [#152](https://github.com/qbic-pipelines/rnadeseq/pull/152) Fixed empty qlist for gost query
-- [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Fixed batch effect bug
 
-## Removed
+### Removed
 
 - [#150](https://github.com/qbic-pipelines/rnadeseq/pull/150) Removed human and mouse db from env.yml, both are now installed during pipeline execution if needed
+
+## 2.0.1 - Olive Trees hotfix I
+
+### Added
+
+- [#134](https://github.com/qbic-pipelines/rnadeseq/pull/134) Corrected some versions
+- [#132](https://github.com/qbic-pipelines/rnadeseq/pull/132) Bump version to 2.0.1
+- [#131](https://github.com/qbic-pipelines/rnadeseq/pull/131) Added design_batcheffect.txt
+- [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Added test_batcheffect to github tests
+
+### Changed
+
+- [#131](https://github.com/qbic-pipelines/rnadeseq/pull/131) Changed Sample_preparations.tsv by adding batch column
+
+### Fixed
+
+- [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Fixed batch effect bug
 
 ## 2.0 - Olive Trees
 
