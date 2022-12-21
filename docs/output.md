@@ -48,7 +48,7 @@ Pathway analysis with [gProfileR](https://biit.cs.ut.ee/gprofiler/gost) R packag
 
 This directory contains the zipped pathway analysis results (`gProfileR.zip`). When unzipping them, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
 
-- `*_keg_pathway_enrichment_plot.pdf/png`
+- `*_KEGG_pathway_enrichment_plot.pdf/png`
   - Barplots showing the proportion of differentially expressed genes in the pathway.
 - `KEGG_pathways/`
   - Contains the KEGG pathways graphs with the log fold change of the differentially expressed genes.
