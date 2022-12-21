@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#180](https://github.com/qbic-pipelines/rnadeseq/pull/180) Bump version to 2.1 in some more files
+- [#179](https://github.com/qbic-pipelines/rnadeseq/pull/179) Release 2.1
+- [#178](https://github.com/qbic-pipelines/rnadeseq/pull/178) Bump version to 2.1
 - [#177](https://github.com/qbic-pipelines/rnadeseq/pull/177) Updated usage documentation
 - [#174](https://github.com/qbic-pipelines/rnadeseq/pull/174) Template update, changed param --metadata to --input
 - [#169](https://github.com/qbic-pipelines/rnadeseq/pull/169) Changed skip_pathway_analysis to run_pathway_analysis, default false
