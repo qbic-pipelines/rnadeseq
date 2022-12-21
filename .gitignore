@@ -3,10 +3,6 @@ work/
 data/
 results/
 .DS_Store
-tests/test_data
-*.pyc
-.Rhistory
-.RData
 testing/
 testing*
 *.pyc
