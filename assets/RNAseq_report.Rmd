@@ -1921,7 +1921,7 @@ An aggregation of the quality control for the RNAseq analysis was performed with
 
 ## Differential gene expression analysis
 
-The differential expression analysis was performed by the use of the `rnadeseq `r as.character(params$revision)`` pipeline [^5]. For differential expression analysis, the raw read count table resulting from `featureCounts` was processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
+The differential expression analysis was performed by the use of the `rnadeseq `r as.character(params$revision)`` pipeline [^5], which was written using the nf-core template [@ewels2020nf]. For differential expression analysis, the raw read count table resulting from `featureCounts` was processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
 
 ```{r conditional_pathway2, echo=FALSE, results='asis', eval=params$pathway_analysis}
 version_gprofiler2 = packageVersion("gprofiler2")
