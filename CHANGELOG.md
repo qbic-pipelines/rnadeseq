@@ -3,11 +3,11 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
 ## 2.1 - Wheat Fields
 
 ### Added
 
+- [#176](https://github.com/qbic-pipelines/rnadeseq/pull/176) Added output description to report
 - [#175](https://github.com/qbic-pipelines/rnadeseq/pull/175) Added nf-core citation to report
 - [#173](https://github.com/qbic-pipelines/rnadeseq/pull/173) Added GMT file to testdata dir to test #172
 - [#172](https://github.com/qbic-pipelines/rnadeseq/pull/172) Added option to provide custom gost GMT, for online gost, GMT is downloaded
@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#178](https://github.com/qbic-pipelines/rnadeseq/pull/178) Preparing release 2.1
 - [#177](https://github.com/qbic-pipelines/rnadeseq/pull/177) Updated usage documentation
 - [#174](https://github.com/qbic-pipelines/rnadeseq/pull/174) Template update, changed param --metadata to --input
 - [#169](https://github.com/qbic-pipelines/rnadeseq/pull/169) Changed skip_pathway_analysis to run_pathway_analysis, default false
