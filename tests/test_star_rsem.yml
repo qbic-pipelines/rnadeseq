@@ -1,16 +1,16 @@
 - name: Run test profile with star rsem
-  command: nextflow run main.nf -profile test_star_rsem,docker --citest true --round_DE 3
+  command: nextflow run main.nf -profile test_star_rsem,docker --citest true --round_DE 1
   tags:
     - test_star_rsem
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_H1_vs_GM12878.tsv
-      md5sum: 96ae6d749099958313b30243f10dfaa1
+      md5sum: 216106ef902281c5d7c72715583e384c
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_K562_vs_GM12878.tsv
-      md5sum: 8f968136ddd5010e38699ff34c20266c
+      md5sum: 7a4db95674a9c04aaafaef339edcfcc7
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_MCF7_vs_GM12878.tsv
-      md5sum: f199100f68731ef013f3d793a9d32025
+      md5sum: ea4b16a379f09fa44c7c541ccab64ce6
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
-      md5sum: 68ac1ee7077f19e028c659c46fa96f98
+      md5sum: f1825ed59878115a279db7151b0ed0a1
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.pdf
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.png
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.svg
