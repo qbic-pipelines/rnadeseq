@@ -267,7 +267,7 @@ for (file in contrast_files){
                 }, error = function(e) {
                     print_string <- paste0("Skipping pathway: ",pathway_kegg,". This pathway file has errors in KEGG database.")
                 }, finally = {
-                    print(print_string)
+                    print(error)
                 })
             }
             }
