@@ -11,11 +11,15 @@ on:
 env:
   NXF_ANSI_LOG: false
 
+concurrency:
+  group: "{% raw %}${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}{% endraw %}"
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Run pipeline with test data
     # Only run on push if this is the nf-core dev branch (merged PRs)
-    if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'qbic-pipelines/rnadeseq') }}"
+    if: "{% raw %}${{{% endraw %} github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'qbic-pipelines/rnadeseq') {% raw %}}}{% endraw %}"
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -117,7 +121,7 @@ jobs:
       - name: Output log on failure
         if: failure()
         run: |
-          sudo apt install bat > /dev/null
+          sudo apt install bat > /2.1/null
           batcat --decorations=always --color=always /tmp/pytest_workflow_*/*/log.{out,err}
 
       - name: Upload logs on failure
