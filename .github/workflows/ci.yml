@@ -22,7 +22,7 @@ jobs:
       matrix:
         # Nextflow versions
         NXF_VER:
-          - "22.10.4"
+          - "22.10.1"
           - "latest-everything"
     steps:
       - name: Check out pipeline code
@@ -61,7 +61,7 @@ jobs:
     name: Test workflow parameters
     runs-on: ubuntu-latest
     env:
-      NXF_VER: "22.10.4"
+      NXF_VER: "22.10.1"
       NXF_ANSI_LOG: false
     strategy:
       # This tells github to continue running other profile tests if some tests fail (default cancels all tests upon failure)
