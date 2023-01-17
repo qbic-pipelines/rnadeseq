@@ -19,7 +19,7 @@ jobs:
   test:
     name: Run pipeline with test data
     # Only run on push if this is the nf-core dev branch (merged PRs)
-    if: "{% raw %}${{{% endraw %} github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'qbic-pipelines/rnadeseq') {% raw %}}}{% endraw %}"
+    if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'qbic-pipelines/rnadeseq') }}"
     runs-on: ubuntu-latest
     strategy:
       matrix:
