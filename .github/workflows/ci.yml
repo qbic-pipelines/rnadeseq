@@ -10,23 +10,26 @@ on:
 
 env:
   NXF_ANSI_LOG: false
-  CAPSULE_LOG: none
+
+concurrency:
+  group: "{% raw %}${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}{% endraw %}"
+  cancel-in-progress: true
 
 jobs:
   test:
     name: Run pipeline with test data
     # Only run on push if this is the nf-core dev branch (merged PRs)
-    if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'qbic-pipelines/rnadeseq') }}"
+    if: "{% raw %}${{{% endraw %} github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'qbic-pipelines/rnadeseq') {% raw %}}}{% endraw %}"
     runs-on: ubuntu-latest
     strategy:
       matrix:
         # Nextflow versions
         NXF_VER:
-          - "22.10.4"
+          - "22.10.1"
           - "latest-everything"
     steps:
       - name: Check out pipeline code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Check if Dockerfile or Conda environment changed
         uses: technote-space/get-diff-action@v4
@@ -45,14 +48,9 @@ jobs:
           docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:2.1
 
       - name: Install Nextflow
-        env:
-          NXF_VER: ${{ matrix.NXF_VER }}
-          # Uncomment only if the edge release is more recent than the latest stable release
-          # See https://github.com/nextflow-io/nextflow/issues/2467
-          # NXF_EDGE: ${{ matrix.NXF_EDGE }}
-        run: |
-          wget -qO- get.nextflow.io | bash
-          sudo mv nextflow /usr/local/bin/
+        uses: nf-core/setup-nextflow@v1
+        with:
+          version: "{% raw %}${{ matrix.NXF_VER }}{% endraw %}"
 
       - name: Run pipeline with test data
         run: nextflow run ${GITHUB_WORKSPACE} -profile test,docker
@@ -61,7 +59,7 @@ jobs:
     name: Test workflow parameters
     runs-on: ubuntu-latest
     env:
-      NXF_VER: "22.10.4"
+      NXF_VER: "22.10.1"
       NXF_ANSI_LOG: false
     strategy:
       # This tells github to continue running other profile tests if some tests fail (default cancels all tests upon failure)
@@ -83,7 +81,7 @@ jobs:
           ]
     steps:
       - name: Check out pipeline code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Check if Dockerfile or Conda environment changed
         uses: technote-space/get-diff-action@v4
@@ -102,14 +100,9 @@ jobs:
           docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:2.1
 
       - name: Install Nextflow
-        env:
-          NXF_VER: ${{ matrix.NXF_VER }}
-          # Uncomment only if the edge release is more recent than the latest stable release
-          # See https://github.com/nextflow-io/nextflow/issues/2467
-          # NXF_EDGE: ${{ matrix.NXF_EDGE }}
-        run: |
-          wget -qO- get.nextflow.io | bash
-          sudo mv nextflow /usr/local/bin/
+        uses: nf-core/setup-nextflow@v1
+        with:
+          version: "{% raw %}${{ matrix.NXF_VER }}{% endraw %}"
 
       - name: Set up Python
         uses: actions/setup-python@v2
