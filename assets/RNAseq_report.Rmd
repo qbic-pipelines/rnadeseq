@@ -178,6 +178,7 @@ invisible( lapply(c(
 "genefilter",
 "DESeq2",
 "ggplot2",
+"ggrepel",
 "dplyr",
 "plyr",
 "vsn",
@@ -942,14 +943,24 @@ pca <- ggplot(pcaData, aes(PC1, PC2, color=combfactor, text=paste("Sample: ", na
     ylab(paste0("PC2: ",percentVar[2], "% variance")) +
     coord_fixed() +
     theme_bw() +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-    guides(color=guide_legend(title=NULL))
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+# Save static plot without labels
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.svg", device = "svg", dpi = 150)
 ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.png", device = "png", dpi = 150)
+
+# Save static plot with samplename labels
+pca_with_labels <- pca +
+    geom_label_repel(aes(label=name), force=2, force_pull=0, size=2.8, box.padding=0.15,show.legend  = F)
+ggsave(plot = pca_with_labels, filename = "differential_gene_expression/plots/PCA_plot_with_labels.pdf", device = "pdf", dpi = 300)
+ggsave(plot = pca_with_labels, filename = "differential_gene_expression/plots/PCA_plot_with_labels.svg", device = "svg", dpi = 150)
+ggsave(plot = pca_with_labels, filename = "differential_gene_expression/plots/PCA_plot_with_labels.png", device = "png", dpi = 150)
+
+# Create interactive plot for report
 pca <- ggplotly(pca, tooltip = "text", width=750, height=400)
 
-#add export button to plot
+#add export-as-SVG button to plot
 config(pca, modeBarButtonsToAdd = list(svg_exp)) %>% layout()
 ```
 
@@ -974,14 +985,25 @@ pca2 <- ggplot(pcaData2, aes(PC1, PC2, color=combfactor, text=paste("Sample: ", 
     ylab(paste0("PC2: ", percentVar[2], "% variance")) +
     coord_fixed() +
     theme_bw() +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-    guides(color=guide_legend(title=NULL))
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+# Save static plot without labels
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.pdf", device = "pdf", dpi=300)
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.svg", device = "svg", dpi = 150)
 ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot.png", device = "png", dpi = 150)
+
+# Save static plot with samplename labels
+
+pca2_with_labels <- pca2 +
+    geom_label_repel(aes(label=name), force=2, force_pull=0, size=2.8, box.padding=0.15,show.legend  = F)
+ggsave(plot = pca2_with_labels, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot_with_labels.pdf", device = "pdf", dpi = 300)
+ggsave(plot = pca2_with_labels, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot_with_labels.svg", device = "svg", dpi = 150)
+ggsave(plot = pca2_with_labels, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot_with_labels.png", device = "png", dpi = 150)
+
+# Create interactive plot for report
 pca2 <- ggplotly(pca2, tooltip = "text", width=750, height=400)
 
-#add export button to plot
+#add export-as-SVG button to plot
 config(pca2, modeBarButtonsToAdd = list(svg_exp)) %>% layout()
 ```
 
@@ -1721,10 +1743,10 @@ for (file in contrast_files){
                     if (!isProvided(params$citest) & nrow(mat)>1){
                         dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
                         png(filename = paste("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 3000, height = 3000, res = 300)
-                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T, fontsize=5)
+                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                         dev.off()
                         pdf(paste("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
-                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T, fontsize=5)
+                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                         dev.off()
                     }
 
@@ -1802,11 +1824,11 @@ if (isProvided(params$path_genelist)){
 
     if (nrow(mat)>1){
         png(filename = paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.png", sep=""), width = 2500, height = 3000, res = 300)
-        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T, fontsize=5)
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T)
         dev.off()
 
         pdf(paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""))
-        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T, fontsize=5)
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T)
         dev.off()
     }
 }
