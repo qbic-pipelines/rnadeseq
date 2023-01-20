@@ -37,7 +37,7 @@
                     "description": "CSV containing nf-core/rnaseq software versions."
                 }
             },
-            "required": ["input_type", "gene_counts", "input", "model", "versions"]
+            "required": ["input_type", "gene_counts", "input", "model", "software_versions"]
         },
         "deseq2_arguments": {
             "title": "DESeq2 arguments",

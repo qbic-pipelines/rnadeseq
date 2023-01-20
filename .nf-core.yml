@@ -36,6 +36,4 @@ lint:
   multiqc_config:
     - report_comment # otherwise throws error: multiqc_config: 'assets/multiqc_config.yml' does not contain a matching 'report_comment'.                                                                           │
 
-  actions_ci: false # otherwise throws error: actions_ci: '.github/workflows/ci.yml' does not check minimum NF version                                                                                            │
-
 repository_type: pipeline
