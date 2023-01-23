@@ -24,7 +24,7 @@ dependencies:
   - conda-forge::phantomjs=2.1.1 #this is necessary for exporting heatmaply plots
   - conda-forge::r-base=4.1.2
   - conda-forge::r-details=0.3.0
-  - conda-forge::r-dplyr=1.0.9
+  - conda-forge::r-dplyr=1.0.10
   - conda-forge::r-dt=0.20
   - conda-forge::r-extrafont=0.17
   - conda-forge::r-formattable=0.2.1
