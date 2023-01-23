@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [#188](https://github.com/qbic-pipelines/rnadeseq/pull/188) Added titles to static heatmaps
 - [#176](https://github.com/qbic-pipelines/rnadeseq/pull/176) Added output description to report
 - [#175](https://github.com/qbic-pipelines/rnadeseq/pull/175) Added nf-core citation to report
 - [#173](https://github.com/qbic-pipelines/rnadeseq/pull/173) Added GMT file to testdata dir to test #172
@@ -35,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- [#188](https://github.com/qbic-pipelines/rnadeseq/pull/188) Fixed cut-off enrichment legends and cut-off volcano ylabs
 - [#181](https://github.com/qbic-pipelines/rnadeseq/pull/181) Fixed nf-core version test in ci.yml, updated schema.yml
 - [#167](https://github.com/qbic-pipelines/rnadeseq/pull/167) Corrected 5sum for batcheffect after container update
 - [#152](https://github.com/qbic-pipelines/rnadeseq/pull/152) Fixed empty qlist for gost query
