@@ -77,6 +77,11 @@ svg_exp <- list(
         }"
     )
 )
+
+# Function for setting heatmap row/column label size depending on number of rows/columns
+label_size <- function(dimension_int) {
+    return(10-dimension_int/15)
+}
 ```
 
 ```{r param_validation, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
@@ -1000,7 +1005,7 @@ sampleDists <- dist(t(assay(if (params$rlog) rld else vsd)))
 sampleDistMatrix <- as.matrix(sampleDists)
 colors = colorRampPalette(rev(RColorBrewer::brewer.pal(9, "Blues")))(255)
 par(oma=c(3,3,3,3))
-dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey")
+dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey", fontsize_row=label_size(nrow(sampleDistMatrix)), fontsize_col=label_size(ncol(sampleDistMatrix)))
 export(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.png")
 export(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.pdf")
 ```
@@ -1721,10 +1726,10 @@ for (file in contrast_files){
                     if (!isProvided(params$citest) & nrow(mat)>1){
                         dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
                         png(filename = paste("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
-                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)))
                         dev.off()
                         pdf(paste("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
-                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T )
+                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste(pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)))
                         dev.off()
                     }
 
@@ -1802,17 +1807,18 @@ if (isProvided(params$path_genelist)){
 
     if (nrow(mat)>1){
         png(filename = paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.png", sep=""), width = 2500, height = 3000, res = 300)
-        pheatmap(mat = mat, annotation_col = metadata_save, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "", scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)))
         dev.off()
 
         pdf(paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""))
-        pheatmap(mat = mat, annotation_col = metadata_save, main = "", scale = "row", cluster_cols = F, cluster_rows = T )
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "", scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)))
         dev.off()
     }
 }
 ```
 
 ```{r pathway_analysis, echo=FALSE, results='asis', eval=params$pathway_analysis}
+
 if (mv_status) {
     if (isProvided(params$custom_gmt)) {
         gost_text <- "A custom GMT file was provided for the gost query; it is saved [here](./pathway_analysis/metadata). In case this GMT file contained entries from datasources other than the selected ones, it was filtered and the resulting filtered GMT was used for querying. The filtered version is also saved to the metadata folder."
