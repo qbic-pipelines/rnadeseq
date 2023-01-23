@@ -36,13 +36,13 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:2.1
+        run: docker build --no-cache . -t qbicpipelines/rnadeseq:dev
 
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
           docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:2.1
+          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:dev
 
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v1
@@ -88,13 +88,13 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:2.1
+        run: docker build --no-cache . -t qbicpipelines/rnadeseq:dev
 
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
           docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:2.1
+          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:dev
 
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v1
@@ -118,7 +118,7 @@ jobs:
       - name: Output log on failure
         if: failure()
         run: |
-          sudo apt install bat > /2.1/null
+          sudo apt install bat > /dev/null
           batcat --decorations=always --color=always /tmp/pytest_workflow_*/*/log.{out,err}
 
       - name: Upload logs on failure
