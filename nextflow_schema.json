@@ -34,7 +34,7 @@
                 "software_versions": {
                     "type": "string",
                     "default": "None",
-                    "description": "CSV containing nf-core/rnaseq software versions."
+                    "description": "CSV/YML containing nf-core/rnaseq software versions."
                 }
             },
             "required": ["input_type", "gene_counts", "input", "model", "software_versions"]
