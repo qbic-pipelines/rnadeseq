@@ -80,7 +80,7 @@ svg_exp <- list(
 
 # Function for setting heatmap row/column label size depending on number of rows/columns
 label_size <- function(dimension_int) {
-    return(1)
+    return(10-dimension_int/15)
 }
 ```
 
@@ -2038,7 +2038,7 @@ if (isProvided(params$custom_gmt)){
         database_string <- paste0(database_string, "`", db, ": ", gsub("\n", ", ", database_version_info$sources[[db]]$version), "`, ")
     }
     database_string <- paste0(strsplit(database_string, ",\\s*(?=[^,]+$)", perl=TRUE)[[1]], ".")
-    #TODO: is edgeR still relevant?
+    #TODO: is edgeR still relevant? It does not even exist in the env
 }
 
 cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2," `, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. ", database_string))
