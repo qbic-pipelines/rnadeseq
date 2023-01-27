@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [#192](https://github.com/qbic-pipelines/rnadeseq/pull/192) Added software_version yml functionality
+- [#191](https://github.com/qbic-pipelines/rnadeseq/pull/191) Added test software_versions.yml files for rsem and salmon
 - [#188](https://github.com/qbic-pipelines/rnadeseq/pull/188) Added titles to static heatmaps, added labels to static PCA plots
 - [#176](https://github.com/qbic-pipelines/rnadeseq/pull/176) Added output description to report
 - [#175](https://github.com/qbic-pipelines/rnadeseq/pull/175) Added nf-core citation to report
@@ -21,7 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- [#190](https://github.com/qbic-pipelines/rnadeseq/pull/188) Rebump version after some intermediate PRs
 - [#180](https://github.com/qbic-pipelines/rnadeseq/pull/180) Bump version to 2.1 in some more files
 - [#179](https://github.com/qbic-pipelines/rnadeseq/pull/179) Release 2.1
 - [#178](https://github.com/qbic-pipelines/rnadeseq/pull/178) Bump version to 2.1
