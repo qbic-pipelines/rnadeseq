@@ -2,7 +2,7 @@ BEDTOOLS_GENOMECOV:
   bedtools: 2.30.0
 CUSTOM_DUMPSOFTWAREVERSIONS:
   python: 3.10.6
-  yaml: '6.0'
+  yaml: "6.0"
 CUSTOM_GETCHROMSIZES:
   getchromsizes: 1.16.1
 DESEQ2_QC_SALMON:
@@ -67,19 +67,19 @@ SAMTOOLS_STATS:
   samtools: 1.16.1
 STAR_ALIGN_IGENOMES:
   gawk: 5.1.0
-  samtools: '1.10'
+  samtools: "1.10"
   star: 2.6.1d
 STRINGTIE_STRINGTIE:
   stringtie: 2.2.1
 SUBREAD_FEATURECOUNTS:
   subread: 2.0.1
 TRIMGALORE:
-  cutadapt: '3.4'
+  cutadapt: "3.4"
   trimgalore: 0.6.7
 UCSC_BEDCLIP:
-  ucsc: '377'
+  ucsc: "377"
 UCSC_BEDGRAPHTOBIGWIG:
-  ucsc: '377'
+  ucsc: "377"
 Workflow:
   Nextflow: 22.10.4
   nf-core/rnaseq: 3.10.1
