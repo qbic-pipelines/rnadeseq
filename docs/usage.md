@@ -236,6 +236,7 @@ STAR	vSTAR_2.6.1d
 ```
 
 Alternatively, the YML file should look like this:
+
 ```bash
 BEDTOOLS_GENOMECOV:
   bedtools: 2.30.0
@@ -244,7 +245,7 @@ CUSTOM_DUMPSOFTWAREVERSIONS:
   yaml: '6.0'
 CUSTOM_GETCHROMSIZES:
   custom: 1.15.1
-````
+```
 
 ## Contrasts
 
