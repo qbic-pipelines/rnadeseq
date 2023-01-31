@@ -1,5 +1,6 @@
 process SAMPLESHEET_CHECK {
     tag "$samplesheet"
+    label 'process_single'
 
     conda (params.enable_conda ? "conda-forge::python=3.8.3" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -10,8 +11,11 @@ process SAMPLESHEET_CHECK {
     path samplesheet
 
     output:
-    path '*.csv'       , emit: csv
-    path "versions.yml", emit: versions
+    path '*.csv'                , emit: csv
+    path "software_versions.yml", emit: software_versions
+
+    when:
+    task.ext.when == null || task.ext.when
 
     script: // This script is bundled with the pipeline, in nf-core/rnadeseq/bin/
     """
@@ -19,7 +23,7 @@ process SAMPLESHEET_CHECK {
         $samplesheet \\
         samplesheet.valid.csv
 
-    cat <<-END_VERSIONS > versions.yml
+    cat <<-END_VERSIONS > software_versions.yml
     "${task.process}":
         python: \$(python --version | sed 's/Python //g')
     END_VERSIONS

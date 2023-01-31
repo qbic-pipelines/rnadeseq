@@ -1,5 +1,52 @@
 # qbic-pipelines/rnadeseq: Changelog
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## 2.1 - Wheat Fields
+
+### Added
+
+- [#192](https://github.com/qbic-pipelines/rnadeseq/pull/192) Added software_version yml functionality
+- [#191](https://github.com/qbic-pipelines/rnadeseq/pull/191) Added test software_versions.yml files for rsem and salmon
+- [#188](https://github.com/qbic-pipelines/rnadeseq/pull/188) Added titles to static heatmaps, added labels to static PCA plots
+- [#176](https://github.com/qbic-pipelines/rnadeseq/pull/176) Added output description to report
+- [#175](https://github.com/qbic-pipelines/rnadeseq/pull/175) Added nf-core citation to report
+- [#173](https://github.com/qbic-pipelines/rnadeseq/pull/173) Added GMT file to testdata dir to test #172
+- [#172](https://github.com/qbic-pipelines/rnadeseq/pull/172) Added option to provide custom gost GMT, for online gost, GMT is downloaded
+- [#151](https://github.com/qbic-pipelines/rnadeseq/pull/151) Added session info to report
+- [#149](https://github.com/qbic-pipelines/rnadeseq/pull/149) Added gene names to PA tables
+- [#148](https://github.com/qbic-pipelines/rnadeseq/pull/148) Added KEGG/REAC versions to report
+- [#147](https://github.com/qbic-pipelines/rnadeseq/pull/147) Added check for contrast list/metadata comparison
+- [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Added pval threshold param
+- [#136](https://github.com/qbic-pipelines/rnadeseq/pull/136) Added pytest checks and md5sums to make sure that output stays consistent
+
+### Changed
+
+- [#180](https://github.com/qbic-pipelines/rnadeseq/pull/180) Bump version to 2.1 in some more files
+- [#179](https://github.com/qbic-pipelines/rnadeseq/pull/179) Release 2.1
+- [#178](https://github.com/qbic-pipelines/rnadeseq/pull/178) Bump version to 2.1
+- [#177](https://github.com/qbic-pipelines/rnadeseq/pull/177) Updated usage documentation
+- [#174](https://github.com/qbic-pipelines/rnadeseq/pull/174) Template update, changed param --metadata to --input
+- [#169](https://github.com/qbic-pipelines/rnadeseq/pull/169) Changed skip_pathway_analysis to run_pathway_analysis, default false
+- [#165](https://github.com/qbic-pipelines/rnadeseq/pull/165) -fw entries in multiqc stats are now merged
+- [#164](https://github.com/qbic-pipelines/rnadeseq/pull/164) Boxplots are now only generated for contrasts in list/matrix file if provided
+- [#163](https://github.com/qbic-pipelines/rnadeseq/pull/163) Template update, re-added limma, annotationdbi, colorbrewr to env (were previously incorrectly deleted), switched container to mamba
+- [#159](https://github.com/qbic-pipelines/rnadeseq/pull/159) Changed error messages for non-existing rsem/salmon files
+- [#151](https://github.com/qbic-pipelines/rnadeseq/pull/151) PCA plots and heatmap are now interactive, volcano and enrichment plots are cleaned up in their layout
+- [#145](https://github.com/qbic-pipelines/rnadeseq/pull/145) Renamed versions to software_versions
+
+### Fixed
+
+- [#188](https://github.com/qbic-pipelines/rnadeseq/pull/188) Fixed cut-off enrichment legends and cut-off volcano ylabs
+- [#181](https://github.com/qbic-pipelines/rnadeseq/pull/181) Fixed nf-core version test in ci.yml, updated schema.yml
+- [#167](https://github.com/qbic-pipelines/rnadeseq/pull/167) Corrected 5sum for batcheffect after container update
+- [#152](https://github.com/qbic-pipelines/rnadeseq/pull/152) Fixed empty qlist for gost query
+
+### Removed
+
+- [#150](https://github.com/qbic-pipelines/rnadeseq/pull/150) Removed human and mouse db from env.yml, both are now installed during pipeline execution if needed
+
 ## 2.0.1 - Olive Trees hotfix I
 
 ### Added
@@ -13,7 +60,7 @@
 
 - [#131](https://github.com/qbic-pipelines/rnadeseq/pull/131) Changed Sample_preparations.tsv by adding batch column
 
-## Fixed
+### Fixed
 
 - [#130](https://github.com/qbic-pipelines/rnadeseq/pull/130) Fixed batch effect bug
 
@@ -46,6 +93,7 @@
 - [#127](https://github.com/qbic-pipelines/rnadeseq/pull/127) Allgenes files are not introduced in the PA report section anymore except for volcano plots
 - [#126](https://github.com/qbic-pipelines/rnadeseq/pull/126) Allgenes files are not published in results anymore. Intermediate results are not zipped and published anymore
 - [#125](https://github.com/qbic-pipelines/rnadeseq/pull/125) Fixed relevel bug
+- [#124](https://github.com/qbic-pipelines/rnadeseq/pull/124) Combined the different scripts into the report. Manually added the changes from #126 and 127 to the 1script branch as at least the code part is combined from multiple previous scrips into a single one
 - [#118](https://github.com/qbic-pipelines/rnadeseq/pull/118) Removed blacklist parameter and config and instead added trycatch to ignore pathways with errors
 - [#105](https://github.com/qbic-pipelines/rnadeseq/pull/105) Fixed relevel and added test_relevel.config
 - [#106](https://github.com/qbic-pipelines/rnadeseq/pull/106) Fixed `--logFCthreshold` bug

@@ -11,15 +11,15 @@
 - [Pre-requisites](#pre-requisites)
 - [Running the pipeline](#running-the-pipeline)
   - [Updating the pipeline](#updating-the-pipeline)
+  - [Testing the pipeline](#testing-the-pipeline)
   - [Reproducibility](#reproducibility)
 - [Mandatory arguments](#mandatory-arguments)
   - [`--gene_counts`](#--gene_counts)
   - [`--input_type`](#--input_type)
-  - [`--metadata`](#--metadata)
+  - [`--input`](#--input)
   - [`--model`](#--model)
-  - [`--species`](#--species)
   - [`--project_summary`](#--project_summary)
-  - [`--versions`](#--versions)
+  - [`--software_versions`](#--software_versions)
 - [Contrasts](#contrasts)
   - [Default](#default)
   - [`--relevel`](#--relevel)
@@ -27,25 +27,26 @@
   - [`--contrast_list`](#--contrast_list)
   - [`--contrast_pairs`](#--contrast_pairs)
 - [Optional arguments](#optional-arguments)
-  - [`--logFCthreshold`](#--logfcthreshold)
+  - [`--logFC_threshold`](#--logFC_threshold)
+  - [`--pval_threshold`](#--pval_threshold)
   - [`--genelist`](#--genelist)
   - [`--batch_effect`](#--batch_effect)
-  - [`--quote`](#--quote)
   - [`--min_DEG_pathway`](#--min_deg_pathway)
   - [`--use_vst`](#--use_vst)
   - [`--vst_genes_number`](#--vst_genes_number)
-  - [`--skip_pathway_analysis`](#--skip_pathway_analysis)
+  - [`--round_DE`](#--round_DE)
+  - [`--run_pathway_analysis`](#--run_pathway_analysis)
   - [`--input_type`](#--input_type)
+  - [`--multiqc`](#--multiqc)
+  - [`--citest`](#--citest)
 - [Reference genome options](#reference-genome-options)
   - [`--genome`](#--genome)
   - [`--gtf`](#--gtf)
   - [`--organism`](#--organism)
-  - [`--library`](#--library)
+  - [`--species_library`](#--species_library)
   - [`--keytype`](#--keytype)
   - [`--igenomes_base`](#--igenomes_base)
   - [`--igenomes_ignore`](#--igenomes_ignore)
-- [Special cases](#special-cases)
-  - [Controlling for batch effects](#controlling-for-batch-effects)
 - [Job resources](#job-resources)
   - [Automatic resubmission](#automatic-resubmission)
   - [Custom resource requests](#custom-resource-requests)
@@ -62,7 +63,6 @@
   - [`--max_cpus`](#--max_cpus)
   - [`--plaintext_email`](#--plaintext_email)
   - [`--monochrome_logs`](#--monochrome_logs)
-  - [`--multiqc_config`](#--multiqc_config)
   <!-- TOC END -->
 
 ## Introduction
@@ -79,22 +79,21 @@ NXF_OPTS='-Xms1g -Xmx4g'
 
 ## Pre-requisites
 
-The `qbic-pipelines/rnadeseq` pipeline relies on the output from the `nf-core/rnaseq` pipeline. To be able to match the results of the `nf-core/rnaseq` pipeline with the metadata sheet containing the experimental design for the differential expression analysis, **the filenames of the fastq files used as input to the `qbic-pipelines/rnadeseq` pipeline, need to start with the corresponding QBiC codes!**. _E.g. QBICKXXXXX_original_file_name.fastq_. Once the filenames are corrected if necessary, you can run the `qbic-pipelines/rnadeseq` pipeline as usual.
+The `qbic-pipelines/rnadeseq` pipeline relies on the output from the `nf-core/rnaseq` pipeline. To be able to match the results of the `nf-core/rnaseq` pipeline with the metadata samplesheet containing the experimental design for the differential expression analysis, **the filenames of the fastq files used as input to the `qbic-pipelines/rnadeseq` pipeline, need to start with the corresponding QBiC codes!**. _E.g. QBICKXXXXX_original_file_name.fastq_. Once the filenames are corrected if necessary, you can run the `qbic-pipelines/rnadeseq` pipeline as usual.
 
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run qbic-pipelines/rnadeseq -r 1.1.0 -profile docker \
+nextflow run qbic-pipelines/rnadeseq -r 2.0.1 -profile docker \
 --gene_counts 'merged_gene_counts.txt' \
---metadata 'QXXXX_sample_preparations.tsv' \
+--input 'QXXXX_sample_preparations.tsv' \
 --model 'linear_model.txt' \
 --contrast_matrix 'contrasts.tsv' \
 --project_summary 'QXXXX_summary.tsv' \
 --multiqc 'MultiQC.zip' \
---quote 'QXXXX_signed_offer.pdf' \
---versions 'software_versions.csv' \
+--software_versions 'software_versions.csv' \
 --genome GRCh37
 ```
 
@@ -117,6 +116,26 @@ When you run the above command, Nextflow automatically pulls the pipeline code f
 nextflow pull qbic-pipelines/rnadeseq
 ```
 
+### Testing the pipeline
+
+A number of test profiles are prepared to allow for easy execution of the pipeline with different parameters to check if these work. Two of these, test_star_rsem and test_star_salmon, do not work by simply running from qbic-pipelines as both require a param pointing to a folder, not a file, and these folders cannot be accessed via raw.githubusercontent.com. Instead you have to either clone the repo, change into the clone and run the pipeline locally, e.g. for the rsem profile, like this:
+
+```bash
+nextflow run . -profile docker,test_star_rsem
+```
+
+Or you have to download the testdata/QDESQ folder manually, like so:
+
+```bash
+curl https://codeload.github.com/qbic-pipelines/rnadeseq/tar.gz/master | tar -xz --strip=2 rnadeseq-master/testdata/QDESQ && mkdir testdata && mv QDESQ testdata
+```
+
+Afterwards, you should be able to also run test_star_rsem and test_star_salmon from qbic-pipelines/rnadeseq without manually cloning, e.g.:
+
+```bash
+nextflow run qbic-pipelines/rnadeseq -r 2.0.1 -profile docker,test_star_salmon
+```
+
 ### Reproducibility
 
 It's a good idea to specify a pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
@@ -131,8 +150,9 @@ This version number will be logged in reports when you run the pipeline, so that
 
 ### `--gene_counts`
 
-Gene counts. Can be a raw count table (TSV), column names must start with the QBiC code, columns are samples and rows are genes; OR a folder containing rsem output files (folder/sampleXXX.genes.results) OR a folder containing subfolders with salmon output (folder/sampleXXX/quant.sf). For rsem and salmon, the --metadata file "QBiC Code" column must provide the name of each sample (i.e. the respective folder/file name), and the --input_type parameter must be set to 'rsem' or 'salmon'.
-For example:
+Gene counts. Can be:
+
+- a raw count table (TSV), column names must start with the QBiC code, columns are samples and rows are genes, e.g.:
 
 ```bash
 --gene_counts 'path/to/raw_count_table.tsv'
@@ -144,11 +164,41 @@ ENSG00000000003  TSPAN6  150   3000
 ENSG00000000005   TNMD    80  6
 ```
 
-### `--metadata`
+- OR a folder containing rsem output files (folder/sampleXXX.genes.results)
+- OR a folder containing subfolders with salmon output (folder/sampleXXX/quant.sf).
+  For rsem and salmon, the --metadata file "QBiC Code" column must provide the name of each sample (i.e. the respective folder/file name), and the --input_type parameter must be set to 'rsem' or 'salmon'.
+  For example:
 
-Metadata table (TSV) is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
+```bash
+--gene_counts 'path/to/salmon_folder' --metadata 'path/to/salmon_metadata.tsv'
 
-- **QBiC Code**: is needed to match metadata with the raw counts.
+tree 'path/to/salmon_folder'
+path/to/salmon_folder
+├── QDESQ081AU
+│   └── quant.sf
+├── QDESQ082A4
+│   └── quant.sf
+├── QDESQ083AC
+│   └── quant.sf
+├── QDESQ084AK
+│   └── quant.sf
+
+head 'path/to/salmon_metadata.tsv'
+```
+
+```tsv
+QBiC Code       Secondary Name  Condition: cellline
+QDESQ081AU      Sample1 GM12878
+QDESQ082A4      Sample2 GM12878
+QDESQ083AC      Sample3 K562
+QDESQ084AK      Sample4 K562
+```
+
+### `--input`
+
+Metadata table/samplesheet (TSV) is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
+
+- **QBiC Code**: is needed to match metadata/samplesheet with the raw counts.
 - **Secondary Name**, samples will be named with the pattern: QBiC code + Secondary name.
 - **Condition: tag**: a separated column for each of the conditions. The headers of this columns start with "Condition: ". The values of these columns should not contain spaces.
 
@@ -160,23 +210,42 @@ QBICK00002  Sample2 untreated
 
 ### `--model`
 
-Linear model function to calculate the contrasts (TXT). Variable names should be "condition_tag", where the tag matches the "Condition: tag" headers in the metadata file. E.g.
+Linear model function to calculate the contrasts (TXT). Variable names should be "condition_tag", where the tag matches the "Condition: tag" headers in the metadata/samplesheet file. E.g.
 
 ```txt
 ~ condition_genotype + condition_treatment
 ```
 
-### `--species`
-
-Species name, not necessary if --skip_pathway_analysis = true. Currently the following species are available for pathway analysis: Hsapiens, Mmusculus. To include new species, please open an issue with the species full scientific name.
-
 ### `--project_summary`
 
 Project summary as downloaded from the portal: User database portlet, Projects tab, select your project and "Download Project Information". Please check first that this information is correct in the project Browser.
 
-### `--versions`
+### `--software_versions`
 
-Path to the `Software_versions.csv` file generated by the RNAseq pipeline.
+Path to the `Software_versions.csv/.yml` file that is generated by the nf-core/rnaseq pipeline.
+
+The CSV file should be tab-separated:
+
+```bash
+nf-core/rnaseq	v1.4dev
+Nextflow	v19.01.0
+FastQC	v0.11.8
+Cutadapt	v2.1
+Trim Galore!	v0.5.0
+STAR	vSTAR_2.6.1d
+```
+
+Alternatively, the YML file should look like this:
+
+```bash
+BEDTOOLS_GENOMECOV:
+  bedtools: 2.30.0
+CUSTOM_DUMPSOFTWAREVERSIONS:
+  python: 3.10.6
+  yaml: '6.0'
+CUSTOM_GETCHROMSIZES:
+  custom: 1.15.1
+```
 
 ## Contrasts
 
@@ -199,7 +268,7 @@ condition_treatment control
 
 ### `--contrast_matrix`
 
-Table in tsv format indicating which contrasts to consider. Each contrast is specified in one column, each row corresponds to the each of the expanded terms of the linear model. If you are unsure about how the linear model expanded terms look like, run the pipeline once without specifying contrasts, then the coefficient terms for the provided model will be stored under "differential_gene_expression/metadata/DESeq2_coefficients.tsv". An example input tsv file is shown here:
+Table in tsv format indicating which contrasts to consider. Each contrast is specified in one column, the rows correspond to each of the expanded terms of the linear model. If you are unsure about how the linear model expanded terms look like, run the pipeline once without specifying contrasts, then the coefficient terms for the provided model will be stored under "differential_gene_expression/metadata/DESeq2_coefficients.tsv". An example input tsv file is shown here:
 
 ```tsv
 coefficient treatment_treated_vs_control  genotype_KO_vs_WT
@@ -232,9 +301,13 @@ interaction_effect condition_treatment_treated_vs_control  condition_genotype_KO
 
 ## Optional arguments
 
-### `--logFCthreshold`
+### `--logFC_threshold`
 
 Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed. There is no threshold applied by default to Log2 Fold Change.
+
+### `--pval_threshold`
+
+P value (float) to consider a gene as differentially expressed. The default value is 0.05.
 
 ### `--genelist`
 
@@ -242,59 +315,7 @@ List of genes (one per line) of which to plot heatmaps for normalized counts acr
 
 ### `--batch_effect`
 
-Option needed to account for batch effects in the data. Please check the section `Controlling for batch effects` to do so.
-
-### `--quote`
-
-Path to the signed copy of the QBiC offer as pdf, to be included in the report.
-
-### `--min_DEG_pathway`
-
-Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1.
-
-### `--use_vst`
-
-Consider using this parameter when the number of input samples is greater than 50. With large input sample sizes the rlog transformation becomes very time consuming. Note: If this flag is used, the pathway analysis will make use of vst transformed counts instead of rlog transformed counts. Check here for more information on [count data transformations](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#count-data-transformations).
-
-### `--vst_genes_number`
-
-This is ignored if --use_vst is set to false. If using the vst transformation, consider using this parameter for small dataset and low number of genes, e.g. with small rnaseq data. The default `vst` function for varianceStabilizingTransformation in DESeq2 is 1000, which triggers an error with small dataset. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here [DESeq2 vst function error](https://www.biostars.org/p/456209/).
-
-### `--skip_pathway_analysis`
-
-Set this flag to 'true' to skip pathway analysis and only run differential gene expression and report generation.
-
-### `--input_type`
-
-This tells the pipeline which type of input dataset is provided. Must be one of 'featurecounts', 'rsem', 'salmon', default: featurecounts.
-
-## Reference genome options
-
-### `--genome`
-
-Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available. When running the pipeline with rsem or salmon and/or with pathway analysis, this parameter is required unless you separately provide the parameters `--gtf` (if rsem/salmon), `--organism`, `--library` and `--keytype` (these three if pathway analysis). If your target genome has not been fully implemented (i.e. the entries for library, organism and keytype are missing), please open a new issue (https://github.com/qbic-pipelines/rnadeseq/issues).
-
-### `--gtf`
-
-GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts.
-
-### `--organism`
-
-Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--skip_pathway_analysis = true`.
-
-### `--library`
-
-Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --skip_pathway_analysis = true.
-
-### `--keytype`
-
-Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if `--skip_pathway_analysis = true`.
-
-## Special cases
-
-### Controlling for batch effects
-
-To control for batch effects follow ALL these steps:
+Option needed to account for batch effects in the data. To control for batch effects follow ALL these steps:
 
 - Include the batch effect in the metadata file in a column with the header `batch`.
 - Your design file needs to additionally include the batch effect in the linear model. E.g.:
@@ -307,6 +328,64 @@ To control for batch effects follow ALL these steps:
 
 Then the DESeq2 script calculates the contrasts as usual, the batch effect just needs to be considered during the design definition.
 For more information, please check the [DESeq2 vignette](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).
+
+### `--min_DEG_pathway`
+
+Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1.
+
+### `--use_vst`
+
+Consider using this parameter when the number of input samples is greater than 50. With large input sample sizes the rlog transformation becomes very time consuming. Note: If this flag is used, the pathway analysis will make use of vst transformed counts instead of rlog transformed counts. Check here for more information on [count data transformations](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#count-data-transformations).
+
+### `--vst_genes_number`
+
+This is ignored if `--use_vst` is set to false. If using the vst transformation, consider using this parameter for small datasets and low numbers of genes, e.g. with small rnaseq data. The default `vst` function for varianceStabilizingTransformation in DESeq2 is 1000, which triggers an error with small datasets. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here: [DESeq2 vst function error](https://www.biostars.org/p/456209/).
+
+### `--round_DE`
+
+Integer indicating to how many decimals to round the DE results (default: no rounding).
+
+### `--run_pathway_analysis`
+
+Set this flag to run pathway analysis, otherwise, this step will be skipped.
+
+### `--input_type`
+
+This tells the pipeline which type of input dataset is provided. Must be one of 'featurecounts', 'rsem', 'salmon', default: featurecounts.
+
+### `--multiqc`
+
+Path to the MultiQC zipped folder containing the MultiQC plots generated by the RNAseq pipeline, the MultiQC html report, and the MultiQC raw data; optional.
+
+### `--citest`
+
+Developer param, tells the pipeline it is run on a github server which affects how output files are saved.
+
+## Reference genome options
+
+### `--genome`
+
+Which genome to use for analysis, e.g. GRCh37; see `/conf/igenomes.config` for which genomes are available. When running the pipeline with rsem or salmon and/or with pathway analysis, this parameter is required unless you separately provide the parameters `--gtf` (if rsem/salmon), `--organism`, `--species_library` and `--keytype` (these three if pathway analysis is run). If your target genome has not been fully implemented (i.e. the entries for species_library, organism and keytype are missing), please open a new [issue](https://github.com/qbic-pipelines/rnadeseq/issues).
+
+### `--gtf`
+
+GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts.
+
+### `--organism`
+
+Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--run_pathway_analysis = false`.
+
+### `--species_library`
+
+Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if `--run_pathway_analysis = false`.
+
+### `--keytype`
+
+Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if `--run_pathway_analysis = false`.
+
+### `--custom_gmt`
+
+Path to custom GMT file to use instead of querying against the live gprofiler database, not necessary if `--run_pathway_analysis = false`.
 
 ## Job resources
 

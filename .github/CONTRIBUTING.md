@@ -52,9 +52,7 @@ These tests are run both with the latest available version of `Nextflow` and als
 
 ## Getting help
 
-//TODO: Delete this completely? There is no slack to join!
-
-For further information/help, please consult the [nf-core/rnadeseq documentation](https://nf-co.re/rnadeseq/usage) and don't hesitate to get in touch on the nf-core Slack [#rnadeseq](https://nfcore.slack.com/channels/rnadeseq) channel ([join our Slack here](https://nf-co.re/join/slack)).
+For further information/help, please consult the [qbic-pipelines/rnadeseq documentation](https://github.com/qbic-pipelines/rnadeseq/blob/master/docs/usage.md).
 
 ## Pipeline contribution conventions
 

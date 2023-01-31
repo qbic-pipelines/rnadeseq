@@ -5,36 +5,42 @@
     "description": "Differential gene expression analysis and pathway analysis of RNAseq data",
     "type": "object",
     "definitions": {
-        "mandatory_arguments": {
-            "title": "Mandatory arguments",
+        "main_arguments": {
+            "title": "Main input arguments",
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "properties": {
+                "input_type": {
+                    "type": "string",
+                    "default": "featurecounts",
+                    "description": "Which type of input is provided, one of featurecounts, rsem, salmon"
+                },
                 "gene_counts": {
                     "type": "string",
                     "description": "If input_type = featurecounts: Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name. If input_type = rsem or input_type = salmon: Path to rsem/salmon output folder."
                 },
-                "metadata": {
+                "input": {
                     "type": "string",
-                    "description": "Metadata table (TSV). Rows are samples and columns contain sample grouping."
+                    "description": "Metadata table/samplesheet (TSV). Rows are samples and columns contain sample grouping."
                 },
                 "model": {
                     "type": "string",
-                    "description": "Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file."
+                    "description": "Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file/samplesheet."
                 },
-                "project_summary": {
+                "gtf": {
                     "type": "string",
-                    "description": "Project summary file downloaded from the qPortal."
+                    "description": "Not necessary if genome is set or input_type is featurecounts. GTF file to be used for DESeq if input is rsem or salmon."
                 },
-                "multiqc": {
+                "software_versions": {
                     "type": "string",
-                    "description": "multiqc.zip folder containing the multiQC plots and report."
+                    "default": "None",
+                    "description": "CSV/YML containing nf-core/rnaseq software versions."
                 }
             },
-            "required": ["metadata", "model", "project_summary", "multiqc", "gene_counts"]
+            "required": ["input_type", "gene_counts", "input", "model", "software_versions"]
         },
-        "options": {
-            "title": "Options",
+        "deseq2_arguments": {
+            "title": "DESeq2 arguments",
             "type": "object",
             "description": "",
             "default": "",
@@ -54,74 +60,168 @@
                     "default": "DEFAULT2",
                     "description": "Tsv indicating list of contrast pairs to calculate. 3 columns: contrast name, numerator and denominator. Check contrasts docs."
                 },
-                "relevel": {
-                    "type": "string",
-                    "default": "NO_FILE2",
-                    "description": "Tsv indicating list of factors (conditions in the metadata table) and the new level on which to relevel the factor. Check contrasts docs."
-                },
-                "logFCthreshold": {
-                    "type": "integer",
-                    "default": 0,
-                    "description": "Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed."
-                },
                 "genelist": {
                     "type": "string",
                     "default": "NO_FILE",
                     "description": "Txt file with list of genes (one per line) of which to plot heatmaps for normalized counts across all samples."
+                },
+                "relevel": {
+                    "type": "string",
+                    "default": "NO_FILE2",
+                    "description": "Tsv indicating list of factors (conditions in the metadata table/samplesheet) and the new level on which to relevel the factor. Check contrasts docs."
                 },
                 "batch_effect": {
                     "type": "string",
                     "default": "false",
                     "description": "Turn on this flag if you wish to consider batch effects. You need to add the batch effect to the linear model too!"
                 },
-                "quote": {
-                    "type": "string",
-                    "default": "NO_FILE4",
-                    "description": "Signed copy of the offer."
-                },
-                "min_DEG_pathway": {
+                "logFC_threshold": {
                     "type": "integer",
-                    "default": 1,
-                    "description": "Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1."
+                    "default": 0,
+                    "description": "Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed."
+                },
+                "pval_threshold": {
+                    "type": "number",
+                    "default": 0.05,
+                    "description": "p value (float) to consider a gene as differentially expressed. The default value is 0.05."
+                },
+                "use_vst": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Set this flag to true to use vst transformation (recommended when >50 samples; if false, will use rlog)"
                 },
                 "vst_genes_number": {
                     "type": "integer",
                     "default": 1000,
                     "description": "Integer indicating how many genes to subset to during vst transformation (when using rlog, will ignore this number). Default: 1000."
                 },
-                "skip_pathway_analysis": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Turn on this flag if you wish to skip pathway analysis."
-                },
-                "use_vst": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Set this flag to true to use vst transformation (recommended when >50 samples; if false, will use rlog)"
+                "round_DE": {
+                    "type": "string",
+                    "default": "null",
+                    "description": "Number of decimals to which to round result tables, default: no rounding. Integer, this is only set to string in the schema to allow for a null default."
                 }
             }
         },
-        "other_options": {
-            "title": "Other options",
+        "pathway_arguments": {
+            "title": "Pathway analysis arguments",
             "type": "object",
             "description": "",
             "default": "",
             "properties": {
+                "organism": {
+                    "type": "string",
+                    "description": "Not necessary if genome is set. Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--run_pathway_analysis = false`."
+                },
+                "species_library": {
+                    "type": "string",
+                    "description": "Not necessary if genome is set. Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --run_pathway_analysis = false."
+                },
+                "keytype": {
+                    "type": "string",
+                    "description": "Not necessary if genome is set. Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if --run_pathway_analysis = false."
+                },
+                "custom_gmt": {
+                    "type": "string",
+                    "description": "Path to custom GMT file for gost query, this allows e.g. to query older versions of databases for pathway analysis, not necessary if --skip_pathway_analysis = true."
+                },
+                "run_pathway_analysis": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Turn on this flag if you wish to run pathway analysis."
+                },
+                "min_DEG_pathway": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1."
+                }
+            }
+        },
+        "report_arguments": {
+            "title": "Report arguments",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "project_summary": {
+                    "type": "string",
+                    "description": "Project summary file downloaded from the qPortal."
+                },
+                "multiqc": {
+                    "type": "string",
+                    "description": "multiqc.zip folder containing the multiQC plots and report."
+                }
+            }
+        },
+        "genome_options": {
+            "title": "Genome options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "genome": {
+                    "type": "string",
+                    "default": "None",
+                    "description": "Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available."
+                },
+                "igenomes_base": {
+                    "type": "string",
+                    "default": "s3://ngi-igenomes/igenomes",
+                    "description": "Directory / URL base for iGenomes references."
+                },
+                "igenomes_ignore": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Do not load the iGenomes reference config."
+                }
+            }
+        },
+        "github_options": {
+            "title": "Github options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "citest": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Only enable for CI tests on the github servers",
+                    "hidden": true
+                }
+            }
+        },
+        "nextflow_options": {
+            "title": "Nextflow options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "publish_dir_mode": {
+                    "type": "string",
+                    "default": "copy",
+                    "description": "Method used to save pipeline results to output directory.",
+                    "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
+                    "fa_icon": "fas fa-copy",
+                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
+                    "hidden": true
+                },
                 "outdir": {
                     "type": "string",
                     "description": "The output directory where the results will be saved",
                     "default": "./results",
                     "fa_icon": "fas fa-folder-open"
-                },
+                }
+            }
+        },
+        "boilerplate_options": {
+            "title": "Boilerplate options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
                 "email": {
                     "type": "string",
                     "description": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits",
                     "default": "false"
-                },
-                "help": {
-                    "type": "boolean",
-                    "description": "Display help text.",
-                    "fa_icon": "fas fa-question-circle"
                 },
                 "plaintext_email": {
                     "type": "boolean",
@@ -133,19 +233,15 @@
                     "description": "Do not use coloured log outputs.",
                     "hidden": true
                 },
+                "help": {
+                    "type": "boolean",
+                    "description": "Display help text.",
+                    "fa_icon": "fas fa-question-circle"
+                },
                 "tracedir": {
                     "type": "string",
                     "default": "./results/pipeline_info",
                     "description": "Directory to keep pipeline Nextflow logs and reports.",
-                    "hidden": true
-                },
-                "publish_dir_mode": {
-                    "type": "string",
-                    "default": "copy",
-                    "description": "Method used to save pipeline results to output directory.",
-                    "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
-                    "fa_icon": "fas fa-copy",
-                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
                     "hidden": true
                 },
                 "custom_config_version": {
@@ -177,62 +273,39 @@
                     "default": "false",
                     "description": "Institutional config URL link.",
                     "hidden": true
+                },
+                "show_hidden_params": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show all params when using `--help`"
                 }
             }
         }
     },
     "allOf": [
         {
-            "$ref": "#/definitions/mandatory_arguments"
+            "$ref": "#/definitions/main_arguments"
         },
         {
-            "$ref": "#/definitions/options"
+            "$ref": "#/definitions/deseq2_arguments"
         },
         {
-            "$ref": "#/definitions/other_options"
+            "$ref": "#/definitions/pathway_arguments"
+        },
+        {
+            "$ref": "#/definitions/report_arguments"
+        },
+        {
+            "$ref": "#/definitions/github_options"
+        },
+        {
+            "$ref": "#/definitions/genome_options"
+        },
+        {
+            "$ref": "#/definitions/nextflow_options"
+        },
+        {
+            "$ref": "#/definitions/boilerplate_options"
         }
-    ],
-    "properties": {
-        "show_hidden_params": {
-            "type": "boolean"
-        },
-        "input_type": {
-            "type": "string",
-            "default": "featurecounts",
-            "description": "Which type of input is provided, one of featurecounts, rsem, salmon"
-        },
-        "genome": {
-            "type": "string",
-            "default": null,
-            "description": "Which genome to use for analysis, e.g. GRCh37; see /conf/igenomes.config for which genomes are available."
-        },
-        "gtf": {
-            "type": "string",
-            "default": null,
-            "description": "Not necessary if genome is set. GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts."
-        },
-        "organism": {
-            "type": "string",
-            "default": null,
-            "description": "Not necessary if genome is set. Which organism name to use for pathway analysis, e.g. `hsapiens`, not necessary if `--skip_pathway_analysis = true`."
-        },
-        "library": {
-            "type": "string",
-            "default": null,
-            "description": "Not necessary if genome is set. Which bioconductor library to use for pathway analysis, e.g. org.Hs.eg.db, not necessary if --skip_pathway_analysis = true."
-        },
-        "keytype": {
-            "type": "string",
-            "default": null,
-            "description": "Not necessary if genome is set. Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if --skip_pathway_analysis = true."
-        },
-        "igenomes_base": {
-            "type": "string",
-            "default": "s3://ngi-igenomes/igenomes"
-        },
-        "igenomes_ignore": {
-            "type": "boolean",
-            "default": false
-        }
-    }
+    ]
 }

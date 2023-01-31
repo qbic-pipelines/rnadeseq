@@ -1,6 +1,6 @@
 # qbic-pipelines/rnadeseq: Output
 
-This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
+This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report (if provided), which summarises results at the end of the pipeline.
 
 <!-- TODO qbic-pipelines: Write this documentation describing your workflow's output -->
 
@@ -28,8 +28,8 @@ This directory contains the zipped results. When unzipping them, the following s
   - `gene_list.txt`: provided list of interesting genes (if provided).
 - `gene_counts_tables/`
   - `raw_gene_counts.txt`: raw gene counts table from the nf-core/rnaseq pipeline and used for the differential gene expression analysis.
-  - `rlog_transformed_gene_counts.tsv`: normalized gene counts with the "regularized logarithm" approach. This normalization is used prior to PCA analysis and heatmap plotting of the gene counts.
-  - `vst_transformed_gene_counts.tsv`: normalized gene counts with the "variance stabilizing" transformation.
+  - `rlog_transformed_gene_counts.tsv`: normalized gene counts with the "regularized logarithm" approach. This normalization is used prior to PCA analysis and heatmap plotting of the gene counts (only when rlog transformation is used).
+  - `vst_transformed_gene_counts.tsv`: normalized gene counts with the "variance stabilizing" transformation (only when vst transformation is used).
   - `sizeFactor_libraries.tsv`: size factors for each sample.
 - `DE_genes_tables/`: folder containing one tab-separated table for each of the contrasts in the analysis. Each table contains a list of all differentially expressed genes in the contrast, specifying the mean gene expression across all samples (baseMean), and the log2 fold change value and p-adjusted values (padj) for this contrast.
 - `final_gene_table/final_gene_list_DESeq2.tsv`: table containing a list of all genes considered in the analysis. Here a summary of the log2 Fold Change and p-adjusted values for all contrasts is displayed. Additionally, the column **filter** shows if this gene was differentially expressed (DE) in any of the contrasts, or not (not_DE). The column **contrast_vector** contains for each contrast considered in the analysis a 1 if the gene was differentially expressed for this contrast or a 0 if it was not.
@@ -48,7 +48,7 @@ Pathway analysis with [gProfileR](https://biit.cs.ut.ee/gprofiler/gost) R packag
 
 This directory contains the zipped pathway analysis results (`gProfileR.zip`). When unzipping them, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
 
-- `*_keg_pathway_enrichment_plot.pdf/png`
+- `*_KEGG_pathway_enrichment_plot.pdf/png`
   - Barplots showing the proportion of differentially expressed genes in the pathway.
 - `KEGG_pathways/`
   - Contains the KEGG pathways graphs with the log fold change of the differentially expressed genes.
@@ -67,8 +67,6 @@ In this directory the zipped report is contained. This file is ready for upload 
 
 - `Report.html`
   - QBiC report describing the RNAseq results.
-- `YYYYMMDD_PiName_QXXXX_signed.pdf`
-  - Signed quote for the QXXXX project
 - `DESeq2/`
   - DESeq2 results to be attached to the report (see DESeq2 output description).
 - `QC/`
