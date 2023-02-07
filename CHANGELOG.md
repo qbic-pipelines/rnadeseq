@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [#195](https://github.com/qbic-pipelines/rnadeseq/pull/195) Fixed section error in report
 
-
 ## 2.1 - Wheat Fields
 
 ### Added
