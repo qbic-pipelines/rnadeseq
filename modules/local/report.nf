@@ -36,7 +36,7 @@ process REPORT {
 
     def pathway_opt = params.run_pathway_analysis ? "--pathway_analysis" : ''
     def custom_gmt_opt = custom_gmt.name != 'NO_FILE3' ? "--custom_gmt $custom_gmt" : ''
-    
+
     def quote_opt = params.quote != 'NO_FILE5' ? "--path_quote $params.quote" : ''
 
     def citest_opt = params.citest ? "--citest TRUE" : ''
