@@ -149,6 +149,10 @@
                 "multiqc": {
                     "type": "string",
                     "description": "multiqc.zip folder containing the multiQC plots and report."
+                },
+                "quote": {
+                    "type": "string",
+                    "description": "Quote file to link in the report‚."
                 }
             }
         },
