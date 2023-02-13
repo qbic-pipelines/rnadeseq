@@ -4,11 +4,11 @@
     - test_star_rsem
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_H1_vs_GM12878.tsv
-      md5sum: 60aff9f171a58cd2c9db9e60eda3a506
+      md5sum: 216106ef902281c5d7c72715583e384c
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_K562_vs_GM12878.tsv
       md5sum: 7a4db95674a9c04aaafaef339edcfcc7
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_MCF7_vs_GM12878.tsv
-      md5sum: b7e914acf8a0d379e0ace343cfd1a69b
+      md5sum: ea4b16a379f09fa44c7c541ccab64ce6
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
       md5sum: f1825ed59878115a279db7151b0ed0a1
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.pdf
