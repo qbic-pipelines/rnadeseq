@@ -218,6 +218,9 @@ invisible( lapply(c(
 "tools",
 "yaml"
 ), library, character.only=T))
+
+# Import python sys so that the save_image command works
+reticulate::py_run_string("import sys")
 ```
 
 ```{r create_outdirs, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
@@ -1037,8 +1040,9 @@ sampleDistMatrix <- as.matrix(sampleDists)
 colors = colorRampPalette(rev(RColorBrewer::brewer.pal(9, "Blues")))(255)
 par(oma=c(3,3,3,3))
 dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey", fontsize_row=label_size(nrow(sampleDistMatrix)), fontsize_col=label_size(ncol(sampleDistMatrix)), show_rownames=label_size(nrow(sampleDistMatrix))>=4, show_colnames=label_size(ncol(sampleDistMatrix))>=4)
-export(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.png")
-export(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.pdf")
+save_image(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.pdf")
+save_image(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.png")
+save_image(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.svg")
 #dend <- hclust(dist(mtcars, method = "euclidean"), method = "complete")
 #capture.output(cutree(dend, k = 3))
 #write.table(make_row_col_mat(sampleDistMatrix), file="differential_gene_expression/plots/Heatmaps_of_distances_index.tsv", row.#names=F, quote=F)
@@ -1696,6 +1700,9 @@ for (file in contrast_files){
         ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.png"),
             device="png",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
+        ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.svg"),
+            device="svg",
+            height=10, width=15, units="cm", dpi=300, limitsize=F)
     }
     # Remove parents column to be able to save the table in tsv format
     pathway_gostres_table <- pathway_gostres
@@ -1739,6 +1746,7 @@ for (file in contrast_files){
                 xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
             ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
             ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
 
             # Plotting heatmaps and KEGG pathways for all pathways
             print("Plotting heatmaps...")
@@ -1763,6 +1771,11 @@ for (file in contrast_files){
                         pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)), show_rownames=(label_size(nrow(mat))>=4), show_colnames=(label_size(ncol(mat))>=4))
                         dev.off()
                         pdf(paste("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
+                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)), show_rownames=(label_size(nrow(mat))>=4), show_colnames=(label_size(ncol(mat))>=4))
+                        dev.off()
+                        svg(paste("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".svg", sep=""))
+                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)), show_rownames=(label_size(nrow(mat))>=4), show_colnames=(label_size(ncol(mat))>=4))
+                        dev.off()
                         pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)), show_rownames=(label_size(nrow(mat))>=4), show_colnames=(label_size(ncol(mat))>=4))
                         dev.off()
                         write.table(make_row_col_mat(mat), file=paste("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, "_index.tsv", sep=""), row.names=F, quote=F)
@@ -1845,6 +1858,11 @@ if (isProvided(params$path_genelist)){
         pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)), show_rownames=(label_size(nrow(mat))>=4), show_colnames=(label_size(ncol(mat))>=4))
         dev.off()
         pdf(paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""))
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)), show_rownames=(label_size(nrow(mat))>=4), show_colnames=(label_size(ncol(mat))>=4))
+        dev.off()
+        svg(paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.svg", sep=""))
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)), show_rownames=(label_size(nrow(mat))>=4), show_colnames=(label_size(ncol(mat))>=4))
+        dev.off()
         pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)), show_rownames=(label_size(nrow(mat))>=4), show_colnames=(label_size(ncol(mat))>=4))
         dev.off()
         write.table(make_row_col_mat(mat), file=paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list_index.tsv", sep=""), row.names=F, quote=F)
