@@ -3,6 +3,8 @@
   tags:
     - test_star_salmon
   files:
+    - path: results_test/differential_gene_expression/metadata/star_salmon_files.txt
+      md5sum: db1da70879624425d9908b6679572f70
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_H1_vs_GM12878.tsv
       md5sum: c80564418790c6d4a60a460f594b2934
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_K562_vs_GM12878.tsv
