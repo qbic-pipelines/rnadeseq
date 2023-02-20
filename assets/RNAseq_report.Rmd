@@ -43,6 +43,7 @@ params:
 
     #Additional args for the report
     path_proj_summary: ''
+    path_quote: ''
     path_software_versions: ''
     revision: ''
 
@@ -1976,8 +1977,16 @@ and the subfolder: `pathway_heatmaps`.
 
 # Summary and outlook
 
-\
-The results for all work packages, as described in the quote can be found in this report.
+```{r quote, echo=FALSE, results='asis'}
+# Only add hyperlink to quote file if it was provided in the params
+quote_string <- ifelse(
+    isProvided(params$path_quote),
+    paste0("The results for all work packages, as described in the [quote/offer](", params$path_quote, "), can be found in this report."),
+    paste0("The results for all work packages (no quote/offer given to describe them) can be found in this report.")
+)
+cat(quote_string)
+```
+
 Further support for this project will be restricted to the results presented in this report.
 For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.
 

@@ -35,7 +35,9 @@ process REPORT {
     def round_DE_opt = params.round_DE ? "--round_DE $params.round_DE" : ''
 
     def pathway_opt = params.run_pathway_analysis ? "--pathway_analysis" : ''
-    def custom_gmt_opt = custom_gmt.name  != 'NO_FILE3' ? "--custom_gmt $custom_gmt" : ''
+    def custom_gmt_opt = custom_gmt.name != 'NO_FILE3' ? "--custom_gmt $custom_gmt" : ''
+
+    def quote_opt = params.quote != 'NO_FILE5' ? "--path_quote $params.quote" : ''
 
     def citest_opt = params.citest ? "--citest TRUE" : ''
 
@@ -70,6 +72,7 @@ process REPORT {
         --species_library $params.species_library \
         --keytype $params.keytype \
         --min_DEG_pathway $params.min_DEG_pathway \
+        $quote_opt \
         --proj_summary $proj_summary \
         --software_versions $software_versions \
         --revision $workflow.manifest.version \
