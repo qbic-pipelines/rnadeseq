@@ -1883,7 +1883,7 @@ Inside the pathway analysis results folder, a subfolder for each contrast used f
 </details><br>",
 gost_text,
 
-"
+"\n
 ## Enriched pathways
 The plot below summarizes the pathways that were
 found significantly enriched in DE genes for each contrast (padj value < ", pval_text, ").
