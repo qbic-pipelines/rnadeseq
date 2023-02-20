@@ -26,8 +26,9 @@ This directory contains the zipped results. When unzipping them, the following s
   - `contrasts.tsv`: contrasts used for DE analysis (if provided).
   - `linear_model.txt`: linear model used for DE analysis.
   - `gene_list.txt`: provided list of interesting genes (if provided).
+  - `star_[rsem/salmon]_files.txt`: list of counts files that were provided as input (only if `--input_type` is `rsem` or `salmon`).
 - `gene_counts_tables/`
-  - `raw_gene_counts.txt`: raw gene counts table from the nf-core/rnaseq pipeline and used for the differential gene expression analysis.
+  - `raw_gene_counts.txt`: raw gene counts table from the nf-core/rnaseq pipeline and used for the differential gene expression analysis (only if `--input_type` is `featurecounts`).
   - `rlog_transformed_gene_counts.tsv`: normalized gene counts with the "regularized logarithm" approach. This normalization is used prior to PCA analysis and heatmap plotting of the gene counts (only when rlog transformation is used).
   - `vst_transformed_gene_counts.tsv`: normalized gene counts with the "variance stabilizing" transformation (only when vst transformation is used).
   - `sizeFactor_libraries.tsv`: size factors for each sample.

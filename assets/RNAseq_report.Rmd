@@ -43,6 +43,7 @@ params:
 
     #Additional args for the report
     path_proj_summary: ''
+    path_quote: ''
     path_software_versions: ''
     revision: ''
 
@@ -450,8 +451,8 @@ if (params$input_type == "featurecounts") {
     tx2gene_gtf <- distinct(tx2gene_gtf)
 
     # As the tximport parameter ignoreTxVersion=T does not reliably work (I think it only ignores the version
-    #in the input files, not in the gtf), this removes decimals from the transcript_id values,
-    #e.g. transcript_id "AT1G01010.1" --> transcript_id "AT1G01010"
+    # in the input files, not in the gtf), this removes decimals from the transcript_id values,
+    # e.g. transcript_id "AT1G01010.1" --> transcript_id "AT1G01010"
     tx2gene_gtf[] <- lapply(tx2gene_gtf, function(x) gsub("\\.\\d+", "", x))
     colnames(tx2gene_gtf) <- c("transcript_id", "gene_id") #, "TXID"
     gene_names <- gtf[c("gene_id", "gene_name")]
@@ -459,7 +460,7 @@ if (params$input_type == "featurecounts") {
     gene_names <- distinct(gene_names)
     rownames(gene_names) <- gene_names[,1]
 
-## Load Rsem count table
+## Load Rsem count files
     if (params$input_type == "rsem") {
 
         #rsem saves output into one file per sample in an output folder
@@ -551,11 +552,11 @@ write.table(sizeFactors(cds),paste("differential_gene_expression/gene_counts_tab
 # Write cds assay table to file
 write.table(counts(cds, normalized=T), paste("differential_gene_expression/gene_counts_tables/deseq2_table.tsv", sep=""), append=F, quote = F, sep = "\t", eol = "\n", na = "NA", dec = ".", row.names = T, col.names = T, qmethod = c("escape", "double"))
 
-if (params$input_type %in% c("rsem", "salmon")) {
-
-    # Else copy raw count sample files/folders
-    system("mkdir differential_gene_expression/gene_counts_tables/raw_gene_counts/")
-    system(paste0("cp -r ",params$path_gene_counts,"/* differential_gene_expression/gene_counts_tables/raw_gene_counts/"))
+# Or for rsem/salmon save folder/file names to txt file
+if (params$input_type == "rsem") {
+    write(files, file="differential_gene_expression/metadata/star_rsem_files.txt")
+} else if (params$input_type == "salmon") {
+    write(files, file="differential_gene_expression/metadata/star_salmon_files.txt")
 }
 
 ############################## TRANSFORMED AND NORMALIZED COUNTS ###################
@@ -1047,6 +1048,14 @@ dist_heatmap %>% layout(height=700, width=800) %>% config(modeBarButtonsToAdd = 
 
 After unzipping the results ZIP file, the differential expression results can be found in the directory [differential_gene_expression/](./differential_gene_expression), containing the following subfolders:
 
+```{r aligner_strings, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Change the different strings depending on which input_type was used
+    featurecounts_string <- ifelse(params$input_type == "featurecounts", "
+    - `raw_gene_counts.txt`: raw gene counts table from the nf-core/rnaseq pipeline; used for the differential gene expression analysis.", "")
+    rsem_salmon_string <- ifelse(params$input_type %in% c("rsem", "salmon"), paste0("- `star_", params$input_type, "_files.txt`: list of ", ifelse(params$input_type == "rsem", "RSEM counts files", "Salmon quantification files"), " that were provided as input; used for the differential gene expression analysis."), "")
+```
+
 <br><details>
 <summary>Expand/collapse</summary>
 - `metadata/`
@@ -1054,8 +1063,9 @@ After unzipping the results ZIP file, the differential expression results can be
     - `contrasts.tsv`: contrasts used for DE analysis (if provided).
     - `linear_model.txt`: linear model used for DE analysis.
     - `gene_list.txt`: provided list of interesting genes (if provided).
+    `r rsem_salmon_string`
 - `gene_counts_tables/`
-    - `raw_gene_counts.txt`: raw gene counts table from the nf-core/rnaseq pipeline and used for the differential gene expression analysis.
+    `r featurecounts_string`
     - `rlog_transformed_gene_counts.tsv`: normalized gene counts with the "regularized logarithm" approach. This normalization is used prior to PCA analysis and heatmap plotting of the gene counts.
     - `vst_transformed_gene_counts.tsv`: normalized gene counts with the "variance stabilizing" transformation.
     - `sizeFactor_libraries.tsv`: size factors for each sample.
@@ -1584,33 +1594,7 @@ if (isProvided(params$custom_gmt)){
             print(gmt_url)
             print("Got error:")
             print(gost_error)
-            print("For reproducibility reasons, try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'. Then provide it to the pipeline with the parameter `--custom_gmt`")
-        }
-    )
-
-    # Also try to get the version info from the current build
-    gpro_version_url <- paste0("https://biit.cs.ut.ee/gprofiler/api/util/data_versions?organism=", organism)
-    gpro_version_string <- ""
-    tryCatch(
-        {
-            gpro_command <- paste0("curl ", gpro_version_url)
-            sys_return <- system(gpro_command)
-            if ("gprofiler_version" %in% sys_return) {
-                info <- sys_return
-                sources <- info$sources
-                gpro_version_string <- paste0("`gprofiler: ", info$gprofiler_version, "`, ")
-            } else {
-                print("Failed to obtain the gprofiler version with this command:")
-                print(gpro_command)
-                print("For reproducibility reasons, find the gprofiler command on https://biit.cs.ut.ee/gprofiler/gost.")
-            }
-        },
-        error=function(version_error) {
-            print("Failed to fetch the gprofiler version with this command:")
-            print(gpro_command)
-            print("Got error:")
-            print(version_error)
-            print("For reproducibility reasons, find the gprofiler command on https://biit.cs.ut.ee/gprofiler/gost.")
+            print("For reproducibility reasons, please try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'. Then provide it to the pipeline with the parameter `--custom_gmt`")
         }
     )
 }
@@ -1885,7 +1869,7 @@ Inside the pathway analysis results folder, a subfolder for each contrast used f
 </details><br>",
 gost_text,
 
-"
+"\n
 ## Enriched pathways
 The plot below summarizes the pathways that were
 found significantly enriched in DE genes for each contrast (padj value < ", pval_text, ").
@@ -1978,8 +1962,16 @@ and the subfolder: `pathway_heatmaps`.
 
 # Summary and outlook
 
-\
-The results for all work packages, as described in the quote can be found in this report.
+```{r quote, echo=FALSE, results='asis'}
+# Only add hyperlink to quote file if it was provided in the params
+quote_string <- ifelse(
+    isProvided(params$path_quote),
+    paste0("The results for all work packages, as described in the [quote/offer](", params$path_quote, "), can be found in this report."),
+    paste0("The results for all work packages (no quote/offer given to describe them) can be found in this report.")
+)
+cat(quote_string)
+```
+
 Further support for this project will be restricted to the results presented in this report.
 For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.
 
@@ -2044,14 +2036,12 @@ if (isProvided(params$custom_gmt)){
     database_string <- paste0(database_string, "`", dbs, "`.")
 } else {
     database_string = "Also, the following databases were queried: "
-    if (gpro_version_string != "") {
-        database_string <- paste0(database_string, gpro_version_string, ",")
-    }
     database_version_info <- get_version_info(params$organism)
+    database_string <- paste0(database_string, "`gprofiler: ", database_version_info$gprofiler_version, "`")
     for (db in datasources) {
-        database_string <- paste0(database_string, "`", db, ": ", gsub("\n", ", ", database_version_info$sources[[db]]$version), "`, ")
+        database_string <- paste0(database_string, ", `", db, ": ", database_version_info$sources[[db]]$version, "`")
     }
-    database_string <- paste0(strsplit(database_string, ",\\s*(?=[^,]+$)", perl=TRUE)[[1]], ".")
+    database_string <- paste0(database_string, ".") # Add final dot to sentence
 }
 
 cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2," `, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. ", database_string))

@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 2.1.1 - Wheat Fields hotfix I
+## 2.1dev
 
 ### Added
 
@@ -16,8 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- [#195](https://github.com/qbic-pipelines/rnadeseq/pull/195) Fixed format error in report pathway section
-
+- [#195](https://github.com/qbic-pipelines/rnadeseq/pull/195) Fixed section error in report
 
 ## 2.1 - Wheat Fields
 
