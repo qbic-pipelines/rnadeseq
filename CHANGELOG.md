@@ -3,6 +3,22 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.1 - Wheat Fields hotfix I
+
+### Added
+
+- [#197](https://github.com/qbic-pipelines/rnadeseq/pull/197) Added gprofiler version string to report
+- [#196](https://github.com/qbic-pipelines/rnadeseq/pull/196) Added optional `--quote` parameter
+
+### Changed
+
+- [#198](https://github.com/qbic-pipelines/rnadeseq/pull/198) Changed heatmaps to scale in size automatically
+
+### Fixed
+
+- [#195](https://github.com/qbic-pipelines/rnadeseq/pull/195) Fixed format error in report pathway section
+
+
 ## 2.1 - Wheat Fields
 
 ### Added
