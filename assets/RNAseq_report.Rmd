@@ -1591,33 +1591,7 @@ if (isProvided(params$custom_gmt)){
             print(gmt_url)
             print("Got error:")
             print(gost_error)
-            print("For reproducibility reasons, try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'. Then provide it to the pipeline with the parameter `--custom_gmt`")
-        }
-    )
-
-    # Also try to get the version info from the current build
-    gpro_version_url <- paste0("https://biit.cs.ut.ee/gprofiler/api/util/data_versions?organism=", organism)
-    gpro_version_string <- ""
-    tryCatch(
-        {
-            gpro_command <- paste0("curl ", gpro_version_url)
-            sys_return <- system(gpro_command)
-            if ("gprofiler_version" %in% sys_return) {
-                info <- sys_return
-                sources <- info$sources
-                gpro_version_string <- paste0("`gprofiler: ", info$gprofiler_version, "`, ")
-            } else {
-                print("Failed to obtain the gprofiler version with this command:")
-                print(gpro_command)
-                print("For reproducibility reasons, find the gprofiler command on https://biit.cs.ut.ee/gprofiler/gost.")
-            }
-        },
-        error=function(version_error) {
-            print("Failed to fetch the gprofiler version with this command:")
-            print(gpro_command)
-            print("Got error:")
-            print(version_error)
-            print("For reproducibility reasons, find the gprofiler command on https://biit.cs.ut.ee/gprofiler/gost.")
+            print("For reproducibility reasons, please try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'. Then provide it to the pipeline with the parameter `--custom_gmt`")
         }
     )
 }
@@ -2051,14 +2025,12 @@ if (isProvided(params$custom_gmt)){
     database_string <- paste0(database_string, "`", dbs, "`.")
 } else {
     database_string = "Also, the following databases were queried: "
-    if (gpro_version_string != "") {
-        database_string <- paste0(database_string, gpro_version_string, ",")
-    }
     database_version_info <- get_version_info(params$organism)
+    database_string <- paste0(database_string, "`gprofiler: ", database_version_info$gprofiler_version, "`")
     for (db in datasources) {
-        database_string <- paste0(database_string, "`", db, ": ", gsub("\n", ", ", database_version_info$sources[[db]]$version), "`, ")
+        database_string <- paste0(database_string, ", `", db, ": ", database_version_info$sources[[db]]$version, "`")
     }
-    database_string <- paste0(strsplit(database_string, ",\\s*(?=[^,]+$)", perl=TRUE)[[1]], ".")
+    database_string <- paste0(database_string, ".") # Add final dot to sentence
 }
 
 cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2," `, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. ", database_string))
