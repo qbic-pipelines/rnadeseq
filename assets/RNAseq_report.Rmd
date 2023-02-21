@@ -1968,12 +1968,15 @@ quote_string <- ifelse(
     paste0("The results for all work packages (no quote/offer given to describe them) can be found in this report.")
 )
 cat(quote_string)
+
+# Initiate var in case no software_versions were provided
+is_csv <- F
 ```
 
 Further support for this project will be restricted to the results presented in this report.
 For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.
 
-```{r software_versions, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
+```{r software_versions, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, eval=isProvided(params$path_software_versions)}
 # Import the .csv or .yml file output by the rna-seq Nextflow pipeline
 is_csv <- endsWith(params$path_software_versions, ".csv") || endsWith(params$path_software_versions, ".tsv")
 if (is_csv) {
@@ -2006,23 +2009,51 @@ if (is_csv) {
 
 # Computational methods
 
-## RNAseq data analysis
+```{r software_versions_RNASeq, echo=FALSE, results='asis', eval=isProvided(params$path_software_versions)}
 
-The Nextflow-based nf-core pipeline `rnaseq `r as.character(ifelse(is_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"]))`` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC `r as.character(ifelse(is_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"]))`` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
-Subsequently, adapter trimming was conducted with `Trim Galore `r as.character(ifelse(is_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"]))`` [^4] [@krueger2012trim]. `STAR v`r as.character(ifelse(is_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"]))`` [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
-The RNA-seq data quality control was performed with `RSeQC `r as.character(ifelse(is_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"]))`` [@wang2012rseqc] and read quantification of the features (e.g. genes) with
-```{r quant_cite, echo=FALSE, results='asis', eval=T}
-cat(paste0("`", quant_tool, " ", quant_version, "` ", quant_cite, "."))
-```
-```{r MQC_cite, echo=FALSE, results='asis', eval=is_csv}
+# In the following part, I use newlines (in code) where possible whenever the paste0 function switches from a string to a variable call to better distinguish between the two so it is obvious in which lines quotes are needed and in which not --> Cannot always use newlines as this sometimes translates into the report.html
+
+cat(paste0(
+"## RNAseq data analysis
+    
+The Nextflow-based nf-core pipeline `rnaseq ", as.character(ifelse(is_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])),
+"` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC ",
+as.character(ifelse(is_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
+"` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
+Subsequently, adapter trimming was conducted with `Trim Galore ",
+as.character(ifelse(is_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"])),
+"` [^4] [@krueger2012trim]. `STAR v",
+as.character(ifelse(is_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
+"` [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
+The RNA-seq data quality control was performed with `RSeQC ",
+as.character(ifelse(is_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"])),
+"` [@wang2012rseqc] and read quantification of the features (e.g. genes) with `",
+quant_tool,
+" ",
+quant_version,
+"` ",
+quant_cite,
+"."
+))
+
+```{r MQC_cite, echo=FALSE, results='asis', eval=is_csv&isProvided(params$path_software_versions)}
 cat(paste0("\nAn aggregation of the quality control for the RNAseq analysis was performed with `MultiQC ", as.character(version["MultiQC"]), "` [^2] [@ewels2016multiqc]."))
 ```
 
-## Differential gene expression analysis
+```{r software_versions_DE, echo=FALSE, results='asis', eval=isProvided(params$path_software_versions)}
 
-The differential expression analysis was performed by the use of the `rnadeseq `r as.character(params$revision)`` pipeline [^5], which was written using the nf-core template [@ewels2020nf]. For differential expression analysis, the read quantification data resulting from `r quant_tool` were processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
+cat(paste0(
+"## Differential gene expression analysis
 
-```{r conditional_pathway2, echo=FALSE, results='asis', eval=params$pathway_analysis}
+The differential expression analysis was performed by the use of the `rnadeseq ",
+as.character(params$revision),
+"` pipeline [^5], which was written using the nf-core template [@ewels2020nf]. For differential expression analysis, the read quantification data resulting from `",
+quant_tool, "` were processed with the R package `DESeq2 v",
+packageVersion("DESeq2"),
+"` [@love2014differential]."
+))
+
+```{r conditional_pathway, echo=FALSE, results='asis', eval=params$pathway_analysis&isProvided(params$path_software_versions)}
 version_gprofiler2 = packageVersion("gprofiler2")
 version_annotation = packageVersion("AnnotationDbi")
 name_species       = params$species_library
@@ -2042,7 +2073,17 @@ if (isProvided(params$custom_gmt)){
     database_string <- paste0(database_string, ".") # Add final dot to sentence
 }
 
-cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2," `, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. ", database_string))
+cat(paste0(
+"For pathway analysis, the R packages `gprofiler2 v",
+version_gprofiler2,
+" `, `AnnotationDbi v",
+version_annotation,
+"` and `",
+name_species,
+" v",
+version_annotation,
+"` were employed. ",
+database_string))
 ```
 
 Graphs were produced in RStudio with ``r R.version.string`` mainly using the R package `ggplot2 v`r packageVersion("ggplot2")`` . Final reports were produced using the R package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages.

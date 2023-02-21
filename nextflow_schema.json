@@ -30,14 +30,9 @@
                 "gtf": {
                     "type": "string",
                     "description": "Not necessary if genome is set or input_type is featurecounts. GTF file to be used for DESeq if input is rsem or salmon."
-                },
-                "software_versions": {
-                    "type": "string",
-                    "default": "None",
-                    "description": "CSV/YML containing nf-core/rnaseq software versions."
                 }
             },
-            "required": ["input_type", "gene_counts", "input", "model", "software_versions"]
+            "required": ["input_type", "gene_counts", "input", "model"]
         },
         "deseq2_arguments": {
             "title": "DESeq2 arguments",
@@ -153,6 +148,11 @@
                 "quote": {
                     "type": "string",
                     "description": "Quote file to link in the report‚."
+                },
+                "software_versions": {
+                    "type": "string",
+                    "default": "None",
+                    "description": "CSV/YML containing nf-core/rnaseq software versions."
                 }
             }
         },

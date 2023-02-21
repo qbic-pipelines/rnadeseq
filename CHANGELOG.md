@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#200](https://github.com/qbic-pipelines/rnadeseq/pull/200) Made software_versions optional
+
 ### Fixed
 
 - [#195](https://github.com/qbic-pipelines/rnadeseq/pull/195) Fixed section error in report

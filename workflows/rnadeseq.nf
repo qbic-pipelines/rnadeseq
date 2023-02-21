@@ -13,7 +13,6 @@ WorkflowRnadeseq.initialise(params, log)
 // Check input path parameters to see if they exist
 def checkPathParamList = [
     params.input, params.model,
-    params.project_summary, params.software_versions
     ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
@@ -23,8 +22,6 @@ if (!(params.input_type in ["featurecounts", "salmon", "rsem"])) { exit 1, 'Wron
 if (params.gene_counts) { ch_counts_path = Channel.fromPath(params.gene_counts) } else { exit 1, 'Please provide input file/dir!' }
 if (params.input) { ch_metadata_file = Channel.fromPath(params.input) } else { exit 1, 'Please provide metadata file/samplesheet!' }
 if (params.model) { ch_model_file = Channel.fromPath(params.model) } else { exit 1, 'Please provide linear model file!' }
-if (params.project_summary) { ch_proj_summary_file = Channel.fromPath(params.project_summary) } else { exit 1, 'Please provide project summary file!' }
-if (params.software_versions) { ch_softwareversions_file = Channel.fromPath(params.software_versions) } else { exit 1, 'Please provide software versions file!' }
 
 // Create channel for genome parameter gtf (the other genome params are not files)
 if (params.input_type in ["rsem", "salmon"]) { ch_gtf = Channel.fromPath(params.gtf) } else { ch_gtf = Channel.fromPath("FALSE") }
@@ -37,6 +34,8 @@ ch_relevel = Channel.fromPath(params.relevel)
 ch_genes = Channel.fromPath(params.genelist)
 ch_multiqc_file = Channel.fromPath(params.multiqc)
 ch_custom_gmt = Channel.fromPath(params.custom_gmt)
+ch_proj_summary_file = Channel.fromPath(params.project_summary)
+ch_softwareversions_file = Channel.fromPath(params.software_versions)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
