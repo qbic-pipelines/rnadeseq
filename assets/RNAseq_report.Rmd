@@ -1970,7 +1970,7 @@ quote_string <- ifelse(
 cat(quote_string)
 
 # Initiate var in case no software_versions were provided
-is_csv <- F
+software_versions_csv <- F
 ```
 
 Further support for this project will be restricted to the results presented in this report.
@@ -1978,21 +1978,21 @@ For further analysis (e.g. the re-analysis of the dataset) we will generate a ne
 
 ```{r software_versions, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, eval=isProvided(params$path_software_versions)}
 # Import the .csv or .yml file output by the rna-seq Nextflow pipeline
-is_csv <- endsWith(params$path_software_versions, ".csv") || endsWith(params$path_software_versions, ".tsv")
-if (is_csv) {
+software_versions_csv <- endsWith(params$path_software_versions, ".csv") || endsWith(params$path_software_versions, ".tsv")
+if (software_versions_csv) {
     version_csv <- read.csv(file = params$path_software_versions, sep="\t", header = FALSE)
     version <- setNames(as.list(version_csv$V2), version_csv$V1)
 } else {
     version <- read_yaml(params$path_software_versions)
 }
 
-if (is_csv) {
+if (software_versions_csv) {
     if (params$input_type == "featurecounts") {
         quant_tool <- "featureCounts"
         quant_version <- as.character(version["featureCounts"])
         quant_cite <- "[@liao2014featurecounts]"
     }
-} else if (!(is_csv)) {
+} else if (!(software_versions_csv)) {
     if (params$input_type == "rsem") {
         quant_tool <- "RSEM"
         quant_version <- as.character(version["RSEM_CALCULATEEXPRESSION"][[1]]["rsem"])
@@ -2016,17 +2016,17 @@ if (is_csv) {
 cat(paste0(
 "## RNAseq data analysis
     
-The Nextflow-based nf-core pipeline `rnaseq ", as.character(ifelse(is_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])),
+The Nextflow-based nf-core pipeline `rnaseq ", as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])),
 "` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC ",
-as.character(ifelse(is_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
+as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
 "` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
 Subsequently, adapter trimming was conducted with `Trim Galore ",
-as.character(ifelse(is_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"])),
+as.character(ifelse(software_versions_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"])),
 "` [^4] [@krueger2012trim]. `STAR v",
-as.character(ifelse(is_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
+as.character(ifelse(software_versions_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
 "` [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
 The RNA-seq data quality control was performed with `RSeQC ",
-as.character(ifelse(is_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"])),
+as.character(ifelse(software_versions_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"])),
 "` [@wang2012rseqc] and read quantification of the features (e.g. genes) with `",
 quant_tool,
 " ",
@@ -2036,7 +2036,7 @@ quant_cite,
 "."
 ))
 
-```{r MQC_cite, echo=FALSE, results='asis', eval=is_csv&isProvided(params$path_software_versions)}
+```{r MQC_cite, echo=FALSE, results='asis', eval=software_versions_csv&isProvided(params$path_software_versions)}
 cat(paste0("\nAn aggregation of the quality control for the RNAseq analysis was performed with `MultiQC ", as.character(version["MultiQC"]), "` [^2] [@ewels2016multiqc]."))
 ```
 
