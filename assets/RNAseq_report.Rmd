@@ -40,6 +40,7 @@ params:
     keytype: ''
     custom_gmt: ''
     min_DEG_pathway: ''
+    custom_background: ''
 
     #Additional args for the report
     path_proj_summary: ''
@@ -1648,7 +1649,8 @@ for (file in contrast_files){
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
-            user_threshold=params$pval_threshold)
+            user_threshold=params$pval_threshold
+)
 
     # Make data frame of gost result
     pathway_gostres <- gostres$result
@@ -1908,7 +1910,8 @@ if (length(q_list) > 0) {
                 significant=T,
                 correction_method="fdr",
                 sources=datasources,
-                user_threshold=params$pval_threshold)
+                user_threshold=params$pval_threshold
+)
     path_enrich <- as.data.frame(gostres$result)
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)

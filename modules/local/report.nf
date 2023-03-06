@@ -18,6 +18,7 @@ process REPORT {
     path software_versions
     path multiqc
     path custom_gmt
+    path custom_background
 
     output:
     path "*.zip"
@@ -36,6 +37,7 @@ process REPORT {
 
     def pathway_opt = params.run_pathway_analysis ? "--pathway_analysis" : ''
     def custom_gmt_opt = custom_gmt.name != 'NO_FILE3' ? "--custom_gmt $custom_gmt" : ''
+    def custom_background_opt = custom_background.name != 'NO_FILE6' ? "--custom_background $custom_background" : ''
 
     def quote_opt = params.quote != 'NO_FILE5' ? "--path_quote $params.quote" : ''
 
@@ -68,6 +70,7 @@ process REPORT {
         $round_DE_opt \
         $pathway_opt \
         $custom_gmt_opt \
+        $custom_background_opt \
         --organism $params.organism \
         --species_library $params.species_library \
         --keytype $params.keytype \

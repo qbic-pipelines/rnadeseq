@@ -37,6 +37,7 @@ ch_relevel = Channel.fromPath(params.relevel)
 ch_genes = Channel.fromPath(params.genelist)
 ch_multiqc_file = Channel.fromPath(params.multiqc)
 ch_custom_gmt = Channel.fromPath(params.custom_gmt)
+ch_custom_background = Channel.fromPath(params.custom_background)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,7 +100,8 @@ workflow RNADESEQ {
         ch_proj_summary_file,
         ch_softwareversions_file,
         ch_multiqc_file,
-        ch_custom_gmt
+        ch_custom_gmt,
+        ch_custom_background
     )
 
     //TODO: Enable this:
