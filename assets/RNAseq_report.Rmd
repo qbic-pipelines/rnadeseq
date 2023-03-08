@@ -1649,7 +1649,8 @@ for (file in contrast_files){
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
-            user_threshold=params$pval_threshold
+            user_threshold=params$pval_threshold,
+            custom_bg=rownames(counts(cds))[notAllZero]
 )
 
     # Make data frame of gost result
@@ -1910,7 +1911,8 @@ if (length(q_list) > 0) {
                 significant=T,
                 correction_method="fdr",
                 sources=datasources,
-                user_threshold=params$pval_threshold
+                user_threshold=params$pval_threshold,
+                custom_bg=rownames(counts(cds))[notAllZero]
 )
     path_enrich <- as.data.frame(gostres$result)
     if (nrow(path_enrich) > 0){
