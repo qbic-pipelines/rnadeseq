@@ -47,7 +47,7 @@
   - [`--keytype`](#--keytype)
   - [`--custom_gmt`](#--custom_gmt)
   - [`--set_background`](#--set_background)
-  - [`--custom_background`](#--custom_background)  
+  - [`--custom_background`](#--custom_background)
   - [`--igenomes_base`](#--igenomes_base)
   - [`--igenomes_ignore`](#--igenomes_ignore)
 - [Job resources](#job-resources)
