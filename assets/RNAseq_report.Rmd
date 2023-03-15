@@ -38,9 +38,9 @@ params:
     organism: ''
     species_library: ''
     keytype: ''
-    custom_gmt: ''
     min_DEG_pathway: ''
-    custom_background: ''
+    custom_gmt: ''
+    background_list: ''
 
     #Additional args for the report
     path_proj_summary: ''
@@ -1530,7 +1530,8 @@ invisible(lapply(c(
 "reshape2",
 "pathview",
 "AnnotationDbi",
-"optparse"
+"optparse",
+"ggvenn"
 ), library, character.only=T))
 
 # Create output directory
@@ -1643,24 +1644,57 @@ for (file in contrast_files){
     q = as.character(DE_genes$Ensembl_ID)
 
     # gost query
-    gostres <- gost(query=q,
+    if (params$background_list) {
+        gostres <- gost(query=q,
             organism=gost_id,
             significant=TRUE,
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
             user_threshold=params$pval_threshold,
-            custom_bg=rownames(counts(cds))[notAllZero]
-)
+            custom_bg=rownames(counts(cds))[notAllZero],
+            domain_scope="custom_annotated"
+        )
+        
+        pathway_gostres <- gostres$result
+        pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
+        pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
+        
+        # Also run without bg for Venn diagrams
+        gostres_nobg <- gost(query=q,
+            organism=gost_id,
+            significant=TRUE,
+            correction_method="fdr",
+            sources=datasources,
+            evcodes=TRUE,
+            user_threshold=params$pval_threshold,
+            domain_scope="annotated"
+        )
+        pathway_gostres_nobg <- gostres_nobg$result
+        pathway_gostres_nobg <- as.data.frame(pathway_gostres_nobg[which(pathway_gostres_nobg$significant==TRUE),])
+        pathway_gostres_nobg <- pathway_gostres_nobg[which(pathway_gostres_nobg$intersection_size>=min_DEG_pathway),]
+
+    } else {
+        gostres <- gost(query=q,
+            organism=gost_id,
+            significant=TRUE,
+            correction_method="fdr",
+            sources=datasources,
+            evcodes=TRUE,
+            user_threshold=params$pval_threshold,
+            domain_scope="annotated"
+        )
+    }
+
 
     # Make data frame of gost result
     pathway_gostres <- gostres$result
+
     # Select only significantly enriched pathways (according to adjusted p-value)
     pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
 
     # Select only pathways with a min. number of DEG
     pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
-
     gostres$result <- pathway_gostres
 
     # Plot pathways if there were any
@@ -1680,7 +1714,23 @@ for (file in contrast_files){
         ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.svg"),
             device="svg",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
+
+        # If background list was used for main PA analysis, plot Venn diagram of the results and those from the additional PA without background list
+        if (params$background_list) {
+            pathway_gostres_nobg <- gostres_nobg$result
+            pathway_gostres_nobg <- as.data.frame(pathway_gostres_nobg[which(pathway_gostres_nobg$significant==TRUE),])
+            pathway_gostres_nobg <- pathway_gostres_nobg[which(pathway_gostres_nobg$intersection_size>=min_DEG_pathway),]
+            VennInput <- list(
+                background=pathway_gostres$term_name,
+                no_background=pathway_gostres_nobg$term_name
+            )
+            pv <- ggvenn::ggvenn(VennInput)
+            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.pdf"),pv, device="pdf", width=10, height=15)
+            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.png"),pv, device="png", width=10, height=15)
+            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.svg"),pv, device="svg", width=10, height=15)
+        }
     }
+
     # Remove parents column to be able to save the table in tsv format
     pathway_gostres_table <- pathway_gostres
     pathway_gostres_table$parents <- NULL
@@ -1906,14 +1956,28 @@ names(q_list) <- q_names
 if (length(q_list) > 0) {
 
     #gost query
-    gostres <- gost(query=q_list,
-                organism=gost_id,
-                significant=T,
-                correction_method="fdr",
-                sources=datasources,
-                user_threshold=params$pval_threshold,
-                custom_bg=rownames(counts(cds))[notAllZero]
-)
+    
+    if (params$background_list) {
+        gostres <- gost(query=q_list,
+                    organism=gost_id,
+                    significant=T,
+                    correction_method="fdr",
+                    sources=datasources,
+                    user_threshold=params$pval_threshold,
+                    custom_bg=rownames(counts(cds))[notAllZero],
+                    domain_scope="custom_annotated"
+        )
+    } else {
+        gostres <- gost(query=q_list,
+                    organism=gost_id,
+                    significant=T,
+                    correction_method="fdr",
+                    sources=datasources,
+                    user_threshold=params$pval_threshold,
+                    domain_scope="annotated"
+        )
+    }
+
     path_enrich <- as.data.frame(gostres$result)
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)
