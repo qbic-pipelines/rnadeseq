@@ -124,10 +124,14 @@
                     "type": "string",
                     "description": "Path to custom GMT file for gost query, this allows e.g. to query older versions of databases for pathway analysis, not necessary if --skip_pathway_analysis = true."
                 },
-                "background_list": {
+                "set_background": {
                     "type": "boolean",
                     "default": true,
                     "description": "Whether to limit pathway analysis to a background list of genes (i.e. those genes expressed in at least one sample), default = true."
+                },
+                "custom_background": {
+                    "type": "string",
+                    "description": "Path to custom background TXT file for gost query containing a gene ID in each line, not necessary if --skip_pathway_analysis = true or --set_background = false."
                 },
                 "min_DEG_pathway": {
                     "type": "integer",

@@ -40,7 +40,8 @@ params:
     keytype: ''
     min_DEG_pathway: ''
     custom_gmt: ''
-    background_list: ''
+    set_background: ''
+    custom_background: ''
 
     #Additional args for the report
     path_proj_summary: ''
@@ -1554,6 +1555,16 @@ datasources <- c("KEGG", "REAC")
 # Default to 1 for the nb of genes DE in a pathway
 min_DEG_pathway <- as.integer(params$min_DEG_pathway)
 
+# If background list is to be used, load custom background list
+# if provided, else use notAllZero
+if (isProvided(params$set_background)) {
+    if (isProvided(params$custom_background)) {
+        custom_background <- readLines(params$custom_background)
+    } else {
+        custom_background <- rownames(counts(cds))[notAllZero]
+    }
+}
+
 # Contrast files
 contrast_files <- list.files('differential_gene_expression/DE_genes_tables/')
 path_contrasts <- 'differential_gene_expression/DE_genes_tables/'
@@ -1644,7 +1655,7 @@ for (file in contrast_files){
     q = as.character(DE_genes$Ensembl_ID)
 
     # gost query
-    if (params$background_list) {
+    if (isProvided(params$set_background)) {
         gostres <- gost(query=q,
             organism=gost_id,
             significant=TRUE,
@@ -1652,7 +1663,7 @@ for (file in contrast_files){
             sources=datasources,
             evcodes=TRUE,
             user_threshold=params$pval_threshold,
-            custom_bg=rownames(counts(cds))[notAllZero],
+            custom_bg=custom_background,
             domain_scope="custom_annotated"
         )
         
@@ -1716,7 +1727,7 @@ for (file in contrast_files){
             height=10, width=15, units="cm", dpi=300, limitsize=F)
 
         # If background list was used for main PA analysis, plot Venn diagram of the results and those from the additional PA without background list
-        if (params$background_list) {
+        if (isProvided(params$set_background)) {
             pathway_gostres_nobg <- gostres_nobg$result
             pathway_gostres_nobg <- as.data.frame(pathway_gostres_nobg[which(pathway_gostres_nobg$significant==TRUE),])
             pathway_gostres_nobg <- pathway_gostres_nobg[which(pathway_gostres_nobg$intersection_size>=min_DEG_pathway),]
@@ -1913,6 +1924,8 @@ After unzipping the results ZIP file, the pathway analysis results are stored in
 Inside the pathway analysis results folder, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
 <br><br><details>
 <summary>Expand/collapse</summary>
+- `*_gost_pathway_venn_diagram.pdf/png`
+  - Venn diagrams showing the numbers of enriched pathways when using a background gene list vs when not using a bg list.
 - `*_KEGG_pathway_enrichment_plot.pdf/png`
     - Barplots showing the proportion of differentially expressed genes in the pathway.
 - `KEGG_pathways/`
@@ -1957,14 +1970,14 @@ if (length(q_list) > 0) {
 
     #gost query
     
-    if (params$background_list) {
+    if (isProvided(params$set_background)) {
         gostres <- gost(query=q_list,
                     organism=gost_id,
                     significant=T,
                     correction_method="fdr",
                     sources=datasources,
                     user_threshold=params$pval_threshold,
-                    custom_bg=rownames(counts(cds))[notAllZero],
+                    custom_bg=custom_background,
                     domain_scope="custom_annotated"
         )
     } else {
