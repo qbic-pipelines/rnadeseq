@@ -45,6 +45,9 @@
   - [`--organism`](#--organism)
   - [`--species_library`](#--species_library)
   - [`--keytype`](#--keytype)
+  - [`--custom_gmt`](#--custom_gmt)
+  - [`--set_background`](#--set_background)
+  - [`--custom_background`](#--custom_background)
   - [`--igenomes_base`](#--igenomes_base)
   - [`--igenomes_ignore`](#--igenomes_ignore)
 - [Job resources](#job-resources)
@@ -386,6 +389,14 @@ Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if `--run
 ### `--custom_gmt`
 
 Path to custom GMT file to use instead of querying against the live gprofiler database, not necessary if `--run_pathway_analysis = false`.
+
+### `--set_background`
+
+Whether to restrict pathway analysis to a background gene list (default: true, will restrict to those genes with an expression > 0 in at least one sample), not necessary if `--run_pathway_analysis = false`.
+
+### `--custom_background`
+
+Path to custom background TXT file with one gene ID per line to use as background genes, not necessary if `--run_pathway_analysis = false` or `--set_background = false`.
 
 ## Job resources
 

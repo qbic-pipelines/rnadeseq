@@ -115,14 +115,23 @@
                     "type": "string",
                     "description": "Not necessary if genome is set. Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if --run_pathway_analysis = false."
                 },
-                "custom_gmt": {
-                    "type": "string",
-                    "description": "Path to custom GMT file for gost query, this allows e.g. to query older versions of databases for pathway analysis, not necessary if --skip_pathway_analysis = true."
-                },
                 "run_pathway_analysis": {
                     "type": "boolean",
                     "default": false,
                     "description": "Turn on this flag if you wish to run pathway analysis."
+                },
+                "custom_gmt": {
+                    "type": "string",
+                    "description": "Path to custom GMT file for gost query, this allows e.g. to query older versions of databases for pathway analysis, not necessary if --skip_pathway_analysis = true."
+                },
+                "set_background": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to limit pathway analysis to a background list of genes (i.e. those genes expressed in at least one sample), default = true."
+                },
+                "custom_background": {
+                    "type": "string",
+                    "description": "Path to custom background TXT file for gost query containing a gene ID in each line, not necessary if --skip_pathway_analysis = true or --set_background = false."
                 },
                 "min_DEG_pathway": {
                     "type": "integer",
