@@ -14,27 +14,25 @@ jobs:
     runs-on: ubuntu-latest
     # Only run for the qbicpipelines repo, for releases and merged PRs
     if: ${{ github.repository == 'qbic-pipelines/rnadeseq' }}
-    env:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_PASS: ${{ secrets.DOCKERHUB_PASS }}
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@v2
 
       - name: Build new docker image
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:latest
+        run: docker build --no-cache . -t ghcr.io/qbicpipelines/rnadeseq:latest
 
-      - name: Push Docker image to DockerHub (dev)
+      - name: Log in to registry
+        # Update the personal access token to GITHUB_TOKEN
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: Push image to GHCR (dev)
         if: ${{ github.event_name == 'push' }}
         run: |
-          echo "$DOCKERHUB_PASS" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
-          docker tag qbicpipelines/rnadeseq:latest qbicpipelines/rnadeseq:dev
-          docker push qbicpipelines/rnadeseq:dev
+          docker tag ghcr.io/qbicpipelines/rnadeseq:latest ghcr.io/qbicpipelines/rnadeseq:dev
+          docker push ghcr.io/qbicpipelines/rnadeseq:dev
 
-      - name: Push Docker image to DockerHub (release)
+      - name: Push image to GHCR (release)
         if: ${{ github.event_name == 'release' }}
         run: |
-          echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-          docker push qbicpipelines/rnadeseq:latest
-          docker tag qbicpipelines/rnadeseq:latest qbicpipelines/rnadeseq:${{ github.event.release.tag_name }}
-          docker push qbicpipelines/rnadeseq:${{ github.event.release.tag_name }}
+          docker tag ghcr.io/qbicpipelines/rnadeseq:latest ghcr.io/qbicpipelines/rnadeseq:${{ github.event.release.tag_name }}
+          docker push ghcr.io/qbicpipelines/rnadeseq:${{ github.event.release.tag_name }}
