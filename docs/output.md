@@ -49,6 +49,8 @@ Pathway analysis with [gProfileR](https://biit.cs.ut.ee/gprofiler/gost) R packag
 
 This directory contains the zipped pathway analysis results (`gProfileR.zip`). When unzipping them, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
 
+- `*_gost_pathway_venn_diagram.pdf/png`
+  - Venn diagrams showing the numbers of enriched pathways when using a background gene list vs when not using a bg list.
 - `*_KEGG_pathway_enrichment_plot.pdf/png`
   - Barplots showing the proportion of differentially expressed genes in the pathway.
 - `KEGG_pathways/`

@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [#202](https://github.com/qbic-pipelines/rnadeseq/pull/202) Added background list to pathway analysis
 - [#197](https://github.com/qbic-pipelines/rnadeseq/pull/197) Added gprofiler version string to report
 - [#196](https://github.com/qbic-pipelines/rnadeseq/pull/196) Added optional `--quote` parameter
 
 ### Changed
 
+- [#200](https://github.com/qbic-pipelines/rnadeseq/pull/200) Made software_versions optional
 - [#198](https://github.com/qbic-pipelines/rnadeseq/pull/198) Changed heatmaps to scale in size automatically
 
 ### Fixed

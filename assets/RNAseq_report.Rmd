@@ -38,8 +38,10 @@ params:
     organism: ''
     species_library: ''
     keytype: ''
-    custom_gmt: ''
     min_DEG_pathway: ''
+    custom_gmt: ''
+    set_background: ''
+    custom_background: ''
 
     #Additional args for the report
     path_proj_summary: ''
@@ -1529,7 +1531,8 @@ invisible(lapply(c(
 "reshape2",
 "pathview",
 "AnnotationDbi",
-"optparse"
+"optparse",
+"ggvenn"
 ), library, character.only=T))
 
 # Create output directory
@@ -1551,6 +1554,16 @@ datasources <- c("KEGG", "REAC")
 
 # Default to 1 for the nb of genes DE in a pathway
 min_DEG_pathway <- as.integer(params$min_DEG_pathway)
+
+# If background list is to be used, load custom background list
+# if provided, else use notAllZero
+if (isProvided(params$set_background)) {
+    if (isProvided(params$custom_background)) {
+        custom_background <- readLines(params$custom_background)
+    } else {
+        custom_background <- rownames(counts(cds))[notAllZero]
+    }
+}
 
 # Contrast files
 contrast_files <- list.files('differential_gene_expression/DE_genes_tables/')
@@ -1642,22 +1655,57 @@ for (file in contrast_files){
     q = as.character(DE_genes$Ensembl_ID)
 
     # gost query
-    gostres <- gost(query=q,
+    if (isProvided(params$set_background)) {
+        gostres <- gost(query=q,
             organism=gost_id,
             significant=TRUE,
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
-            user_threshold=params$pval_threshold)
+            user_threshold=params$pval_threshold,
+            custom_bg=custom_background,
+            domain_scope="custom_annotated"
+        )
+        
+        pathway_gostres <- gostres$result
+        pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
+        pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
+        
+        # Also run without bg for Venn diagrams
+        gostres_nobg <- gost(query=q,
+            organism=gost_id,
+            significant=TRUE,
+            correction_method="fdr",
+            sources=datasources,
+            evcodes=TRUE,
+            user_threshold=params$pval_threshold,
+            domain_scope="annotated"
+        )
+        pathway_gostres_nobg <- gostres_nobg$result
+        pathway_gostres_nobg <- as.data.frame(pathway_gostres_nobg[which(pathway_gostres_nobg$significant==TRUE),])
+        pathway_gostres_nobg <- pathway_gostres_nobg[which(pathway_gostres_nobg$intersection_size>=min_DEG_pathway),]
+
+    } else {
+        gostres <- gost(query=q,
+            organism=gost_id,
+            significant=TRUE,
+            correction_method="fdr",
+            sources=datasources,
+            evcodes=TRUE,
+            user_threshold=params$pval_threshold,
+            domain_scope="annotated"
+        )
+    }
+
 
     # Make data frame of gost result
     pathway_gostres <- gostres$result
+
     # Select only significantly enriched pathways (according to adjusted p-value)
     pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
 
     # Select only pathways with a min. number of DEG
     pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
-
     gostres$result <- pathway_gostres
 
     # Plot pathways if there were any
@@ -1677,7 +1725,23 @@ for (file in contrast_files){
         ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.svg"),
             device="svg",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
+
+        # If background list was used for main PA analysis, plot Venn diagram of the results and those from the additional PA without background list
+        if (isProvided(params$set_background)) {
+            pathway_gostres_nobg <- gostres_nobg$result
+            pathway_gostres_nobg <- as.data.frame(pathway_gostres_nobg[which(pathway_gostres_nobg$significant==TRUE),])
+            pathway_gostres_nobg <- pathway_gostres_nobg[which(pathway_gostres_nobg$intersection_size>=min_DEG_pathway),]
+            VennInput <- list(
+                background=pathway_gostres$term_name,
+                no_background=pathway_gostres_nobg$term_name
+            )
+            pv <- ggvenn::ggvenn(VennInput)
+            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.pdf"),pv, device="pdf", width=10, height=15)
+            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.png"),pv, device="png", width=10, height=15)
+            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.svg"),pv, device="svg", width=10, height=15)
+        }
     }
+
     # Remove parents column to be able to save the table in tsv format
     pathway_gostres_table <- pathway_gostres
     pathway_gostres_table$parents <- NULL
@@ -1860,6 +1924,8 @@ After unzipping the results ZIP file, the pathway analysis results are stored in
 Inside the pathway analysis results folder, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
 <br><br><details>
 <summary>Expand/collapse</summary>
+- `*_gost_pathway_venn_diagram.pdf/png`
+  - Venn diagrams showing the numbers of enriched pathways when using a background gene list vs when not using a bg list.
 - `*_KEGG_pathway_enrichment_plot.pdf/png`
     - Barplots showing the proportion of differentially expressed genes in the pathway.
 - `KEGG_pathways/`
@@ -1903,12 +1969,28 @@ names(q_list) <- q_names
 if (length(q_list) > 0) {
 
     #gost query
-    gostres <- gost(query=q_list,
-                organism=gost_id,
-                significant=T,
-                correction_method="fdr",
-                sources=datasources,
-                user_threshold=params$pval_threshold)
+    
+    if (isProvided(params$set_background)) {
+        gostres <- gost(query=q_list,
+                    organism=gost_id,
+                    significant=T,
+                    correction_method="fdr",
+                    sources=datasources,
+                    user_threshold=params$pval_threshold,
+                    custom_bg=custom_background,
+                    domain_scope="custom_annotated"
+        )
+    } else {
+        gostres <- gost(query=q_list,
+                    organism=gost_id,
+                    significant=T,
+                    correction_method="fdr",
+                    sources=datasources,
+                    user_threshold=params$pval_threshold,
+                    domain_scope="annotated"
+        )
+    }
+
     path_enrich <- as.data.frame(gostres$result)
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)
@@ -1970,28 +2052,31 @@ quote_string <- ifelse(
     paste0("The results for all work packages (no quote/offer given to describe them) can be found in this report.")
 )
 cat(quote_string)
+
+# Initiate var in case no software_versions were provided
+software_versions_csv <- F
 ```
 
 Further support for this project will be restricted to the results presented in this report.
 For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.
 
-```{r software_versions, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
+```{r software_versions, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, eval=isProvided(params$path_software_versions)}
 # Import the .csv or .yml file output by the rna-seq Nextflow pipeline
-is_csv <- endsWith(params$path_software_versions, ".csv") || endsWith(params$path_software_versions, ".tsv")
-if (is_csv) {
+software_versions_csv <- endsWith(params$path_software_versions, ".csv") || endsWith(params$path_software_versions, ".tsv")
+if (software_versions_csv) {
     version_csv <- read.csv(file = params$path_software_versions, sep="\t", header = FALSE)
     version <- setNames(as.list(version_csv$V2), version_csv$V1)
 } else {
     version <- read_yaml(params$path_software_versions)
 }
 
-if (is_csv) {
+if (software_versions_csv) {
     if (params$input_type == "featurecounts") {
         quant_tool <- "featureCounts"
         quant_version <- as.character(version["featureCounts"])
         quant_cite <- "[@liao2014featurecounts]"
     }
-} else if (!(is_csv)) {
+} else if (!(software_versions_csv)) {
     if (params$input_type == "rsem") {
         quant_tool <- "RSEM"
         quant_version <- as.character(version["RSEM_CALCULATEEXPRESSION"][[1]]["rsem"])
@@ -2008,23 +2093,51 @@ if (is_csv) {
 
 # Computational methods
 
-## RNAseq data analysis
+```{r software_versions_RNASeq, echo=FALSE, results='asis', eval=isProvided(params$path_software_versions)}
 
-The Nextflow-based nf-core pipeline `rnaseq `r as.character(ifelse(is_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"]))`` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC `r as.character(ifelse(is_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"]))`` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
-Subsequently, adapter trimming was conducted with `Trim Galore `r as.character(ifelse(is_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"]))`` [^4] [@krueger2012trim]. `STAR v`r as.character(ifelse(is_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"]))`` [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
-The RNA-seq data quality control was performed with `RSeQC `r as.character(ifelse(is_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"]))`` [@wang2012rseqc] and read quantification of the features (e.g. genes) with
-```{r quant_cite, echo=FALSE, results='asis', eval=T}
-cat(paste0("`", quant_tool, " ", quant_version, "` ", quant_cite, "."))
-```
-```{r MQC_cite, echo=FALSE, results='asis', eval=is_csv}
+# In the following part, I use newlines (in code) where possible whenever the paste0 function switches from a string to a variable call to better distinguish between the two so it is obvious in which lines quotes are needed and in which not --> Cannot always use newlines as this sometimes translates into the report.html
+
+cat(paste0(
+"## RNAseq data analysis
+    
+The Nextflow-based nf-core pipeline `rnaseq ", as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])),
+"` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC ",
+as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
+"` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
+Subsequently, adapter trimming was conducted with `Trim Galore ",
+as.character(ifelse(software_versions_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"])),
+"` [^4] [@krueger2012trim]. `STAR v",
+as.character(ifelse(software_versions_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
+"` [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
+The RNA-seq data quality control was performed with `RSeQC ",
+as.character(ifelse(software_versions_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"])),
+"` [@wang2012rseqc] and read quantification of the features (e.g. genes) with `",
+quant_tool,
+" ",
+quant_version,
+"` ",
+quant_cite,
+"."
+))
+
+```{r MQC_cite, echo=FALSE, results='asis', eval=software_versions_csv&isProvided(params$path_software_versions)}
 cat(paste0("\nAn aggregation of the quality control for the RNAseq analysis was performed with `MultiQC ", as.character(version["MultiQC"]), "` [^2] [@ewels2016multiqc]."))
 ```
 
-## Differential gene expression analysis
+```{r software_versions_DE, echo=FALSE, results='asis', eval=isProvided(params$path_software_versions)}
 
-The differential expression analysis was performed by the use of the `rnadeseq `r as.character(params$revision)`` pipeline [^5], which was written using the nf-core template [@ewels2020nf]. For differential expression analysis, the read quantification data resulting from `r quant_tool` were processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
+cat(paste0(
+"## Differential gene expression analysis
 
-```{r conditional_pathway2, echo=FALSE, results='asis', eval=params$pathway_analysis}
+The differential expression analysis was performed by the use of the `rnadeseq ",
+as.character(params$revision),
+"` pipeline [^5], which was written using the nf-core template [@ewels2020nf]. For differential expression analysis, the read quantification data resulting from `",
+quant_tool, "` were processed with the R package `DESeq2 v",
+packageVersion("DESeq2"),
+"` [@love2014differential]."
+))
+
+```{r conditional_pathway, echo=FALSE, results='asis', eval=params$pathway_analysis&isProvided(params$path_software_versions)}
 version_gprofiler2 = packageVersion("gprofiler2")
 version_annotation = packageVersion("AnnotationDbi")
 name_species       = params$species_library
@@ -2044,7 +2157,17 @@ if (isProvided(params$custom_gmt)){
     database_string <- paste0(database_string, ".") # Add final dot to sentence
 }
 
-cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2," `, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. ", database_string))
+cat(paste0(
+"For pathway analysis, the R packages `gprofiler2 v",
+version_gprofiler2,
+" `, `AnnotationDbi v",
+version_annotation,
+"` and `",
+name_species,
+" v",
+version_annotation,
+"` were employed. ",
+database_string))
 ```
 
 Graphs were produced in RStudio with ``r R.version.string`` mainly using the R package `ggplot2 v`r packageVersion("ggplot2")`` . Final reports were produced using the R package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages.
