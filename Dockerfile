@@ -1,6 +1,8 @@
 FROM condaforge/mambaforge
-LABEL authors="Gisela Gabernet, Alexander Peltzer" \
-    description="Docker image containing all requirements for qbic-pipelines/rnadeseq pipeline"
+LABEL org.opencontainers.image.source=https://github.com/qbic-pipelines/rnadeseq
+LABEL org.opencontainers.image.description="Docker image containing all requirements for qbic-pipelines/rnadeseq pipeline"
+LABEL org.opencontainers.image.authors="Gisela Gabernet, Alexander Peltzer"
+LABEL org.opencontainers.image.licenses=MIT
 COPY environment.yml /
 #RUN conda install -c conda-forge mamba
 RUN mamba env create --file /environment.yml -p /opt/conda/envs/qbic-pipelines-rnadeseq-dev && \
@@ -14,4 +16,3 @@ RUN mamba env export --name qbic-pipelines-rnadeseq-dev > qbic-pipelines-rnadese
 # Instruct R processes to use these empty files instead of clashing with a local config
 RUN touch .Rprofile
 RUN touch .Renviron
-

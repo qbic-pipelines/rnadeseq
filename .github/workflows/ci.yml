@@ -36,13 +36,13 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:dev
+        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:dev
 
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
-          docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:dev
+          docker pull ghcr.io/qbic-pipelines/rnadeseq:dev
+          docker tag ghcr.io/qbic-pipelines/rnadeseq:dev ghcr.io/qbic-pipelines/rnadeseq:dev
 
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v1
@@ -88,13 +88,13 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:dev
+        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:dev
 
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
-          docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:dev
+          docker pull ghcr.io/qbic-pipelines/rnadeseq:dev
+          docker tag ghcr.io/qbic-pipelines/rnadeseq:dev ghcr.io/qbic-pipelines/rnadeseq:dev
 
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v1
