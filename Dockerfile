@@ -1,7 +1,7 @@
 FROM condaforge/mambaforge
 LABEL org.opencontainers.image.source=https://github.com/qbic-pipelines/rnadeseq
 LABEL org.opencontainers.image.description="Docker image containing all requirements for qbic-pipelines/rnadeseq pipeline"
-LABEL org.opencontainers.image.authors="Gisela Gabernet, Alexander Peltzer"
+LABEL org.opencontainers.image.authors="Gisela Gabernet, Alexander Peltzer, Oskar Wacker"
 LABEL org.opencontainers.image.licenses=MIT
 COPY environment.yml /
 #RUN conda install -c conda-forge mamba
