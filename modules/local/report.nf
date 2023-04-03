@@ -1,6 +1,6 @@
 process REPORT {
 
-    container 'qbicpipelines/rnadeseq:dev'
+    container 'ghcr.io/qbic-pipelines/rnadeseq:dev'
 
     input:
     path gene_counts

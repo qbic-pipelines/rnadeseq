@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#203](https://github.com/qbic-pipelines/rnadeseq/pull/203) Switched from Dockerhub to GHCR
 - [#200](https://github.com/qbic-pipelines/rnadeseq/pull/200) Made software_versions optional
 - [#198](https://github.com/qbic-pipelines/rnadeseq/pull/198) Changed heatmaps to scale in size automatically
 
