@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#205](https://github.com/qbic-pipelines/rnadeseq/pull/205) Template update
 - [#204](https://github.com/qbic-pipelines/rnadeseq/pull/204) Changed relevel path in test_relevel.config to the qbic-pipelines repo
 - [#203](https://github.com/qbic-pipelines/rnadeseq/pull/203) Switched from Dockerhub to GHCR
 - [#200](https://github.com/qbic-pipelines/rnadeseq/pull/200) Made software_versions optional
