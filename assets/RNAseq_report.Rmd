@@ -562,7 +562,7 @@ if (params$input_type == "rsem") {
 
 ############################## TRANSFORMED AND NORMALIZED COUNTS ###################
 # Prepare variables and text snippets for report
-vst_cutoff <- 0.005
+vst_cutoff <- 0.05
 var_sizeFactors <- var(sizeFactors(cds))
 run_rlog <- T
 trafo_long_text <- "regularized logarithm (rlog)"
@@ -1073,7 +1073,7 @@ After unzipping the results ZIP file, the differential expression results can be
     featurecounts_string <- ifelse(params$input_type == "featurecounts", "
     - `raw_gene_counts.txt`: raw gene counts table from the nf-core/rnaseq pipeline; used for the differential gene expression analysis.", "")
     rsem_salmon_string <- ifelse(params$input_type %in% c("rsem", "salmon"), paste0("- `star_", params$input_type, "_files.txt`: list of ", ifelse(params$input_type == "rsem", "RSEM counts files", "Salmon quantification files"), " that were provided as input; used for the differential gene expression analysis."), "")
-    genecounts_string <- ifelse(run_rlog, "- `rlog_transformed_gene_counts.tsv`: normalized gene counts with the "regularized logarithm" approach. This normalization is used prior to PCA analysis and heatmap plotting of the gene counts.", "- `vst_transformed_gene_counts.tsv`: normalized gene counts with the "variance stabilizing" transformation.")
+    genecounts_string <- ifelse(run_rlog, '- `rlog_transformed_gene_counts.tsv`: normalized gene counts with the "regularized logarithm" approach. This normalization is used prior to PCA analysis and heatmap plotting of the gene counts.', '- `vst_transformed_gene_counts.tsv`: normalized gene counts with the "variance stabilizing" transformation.')
 ```
 
 <br><details>

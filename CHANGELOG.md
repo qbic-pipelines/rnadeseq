@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Added logic to decide between rlog and vst
 - [#202](https://github.com/qbic-pipelines/rnadeseq/pull/202) Added background list to pathway analysis
 - [#197](https://github.com/qbic-pipelines/rnadeseq/pull/197) Added gprofiler version string to report
 - [#196](https://github.com/qbic-pipelines/rnadeseq/pull/196) Added optional `--quote` parameter
