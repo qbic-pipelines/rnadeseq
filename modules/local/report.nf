@@ -32,7 +32,7 @@ process REPORT {
     def genelist_opt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel $relevel" : ''
     def batch_effect_opt = params.batch_effect ? "--batch_effect TRUE" : ''
-    def rlog_opt = params.use_vst ? '--rlog FALSE' : ''
+//    def rlog_opt = params.use_vst ? '--rlog FALSE' : ''
     def round_DE_opt = params.round_DE ? "--round_DE $params.round_DE" : ''
 
     def pathway_opt = params.run_pathway_analysis ? "--pathway_analysis" : ''
@@ -67,7 +67,7 @@ process REPORT {
         $batch_effect_opt \
         --logFC_threshold $params.logFC_threshold \
         --pval_threshold $params.pval_threshold \
-        $rlog_opt \
+        --trafo $params.trafo \
         --nsub_genes $params.vst_genes_number \
         $round_DE_opt \
         $pathway_opt \
