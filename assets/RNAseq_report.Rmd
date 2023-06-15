@@ -365,23 +365,11 @@ if (params$input_type == "featurecounts"){
     # Need to order columns in count.table
     count.table <- count.table[, order(names(count.table))]
 
-
-
-    
-    write(names(count.table), file="/sfs/9/ws/iivow01-test/rnadeseq/error_missing/names_counttable")
-    write(metadata$sampleName, file="/sfs/9/ws/iivow01-test/rnadeseq/error_missing/metadata_sampleName")
-    write(row.names(metadata), file="/sfs/9/ws/iivow01-test/rnadeseq/error_missing/rownames_metatable")
-    write(qbicCodes, file="/sfs/9/ws/iivow01-test/rnadeseq/error_missing/qbicCodes")
-    
- 
-
     if (!identical(names(count.table),qbicCodes)) {
     error_out <- write_error_msg(count.table, qbicCodes)
     stop(paste0(error_out, "\n"), call.=F)
     }
-   
     names(count.table) = metadata$sampleName
-    write(names(count.table), file="/sfs/9/ws/iivow01-test/rnadeseq/error_missing/names_counttable")
 
     # Write raw counts to file
     count_table_names <- merge(x=gene_names, y=count.table, by.x = "Ensembl_ID", by.y="row.names")
