@@ -140,15 +140,15 @@ isProvided <- function(value) {
 }
 
 #this function is used to produce a more informative error message when count table and metadata table disagree
-write_error_msg <- function(counts, meta) {
+write_error_msg <- function(counts, qbicCodes) {
     error_msg <- "Count table headers do not exactly match the metadata table sample names! Offending value(s) in count table:\n"
     for (c in names(counts)) {
-        if (!(c %in% row.names(meta))) {
+        if (!(c %in% qbicCodes)) {
             error_msg <- paste0(error_msg, c, "\n")
         }
     }
     error_msg <- paste0(error_msg, "\n", "Offending value(s) in metadata table:\n")
-    for (m in row.names(meta)) {
+    for (m in qbicCodes) {
         if (!(m %in% names(counts))) {
             error_msg <- paste0(error_msg, m, "\n")
         }
@@ -358,11 +358,11 @@ if (params$input_type == "featurecounts"){
 
     # Need to order columns in count.table
     count.table <- count.table[, order(names(count.table))]
-
     names(count.table) = metadata$sampleName
+
     if (!identical(names(count.table),row.names(metadata))) {
     print("After refactoring the metadata table, count table headers do not exactly match the metadata table sample names! Offending values in count table:")
-    error_out <- write_error_msg(count.table, metadata)
+    error_out <- write_error_msg(count.table, qbicCodes)
     stop(paste0(error_out, "\n"), call.=F)
     }
 
