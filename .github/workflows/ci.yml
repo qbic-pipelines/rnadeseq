@@ -12,6 +12,10 @@ env:
   NXF_ANSI_LOG: false
   CAPSULE_LOG: none
 
+concurrency:
+  group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Run pipeline with test data
@@ -26,7 +30,7 @@ jobs:
           - "latest-everything"
     steps:
       - name: Check out pipeline code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Check if Dockerfile or Conda environment changed
         uses: technote-space/get-diff-action@v4
@@ -36,13 +40,13 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:2.1
+        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:dev
 
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
-          docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:2.1
+          docker pull ghcr.io/qbic-pipelines/rnadeseq:dev
+          docker tag ghcr.io/qbic-pipelines/rnadeseq:dev ghcr.io/qbic-pipelines/rnadeseq:dev
 
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v1
@@ -78,7 +82,7 @@ jobs:
           ]
     steps:
       - name: Check out pipeline code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Check if Dockerfile or Conda environment changed
         uses: technote-space/get-diff-action@v4
@@ -88,13 +92,13 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:2.1
+        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:dev
 
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
-          docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:2.1
+          docker pull ghcr.io/qbic-pipelines/rnadeseq:dev
+          docker tag ghcr.io/qbic-pipelines/rnadeseq:dev ghcr.io/qbic-pipelines/rnadeseq:dev
 
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v1

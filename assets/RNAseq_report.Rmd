@@ -38,11 +38,14 @@ params:
     organism: ''
     species_library: ''
     keytype: ''
-    custom_gmt: ''
     min_DEG_pathway: ''
+    custom_gmt: ''
+    set_background: ''
+    custom_background: ''
 
     #Additional args for the report
     path_proj_summary: ''
+    path_quote: ''
     path_software_versions: ''
     revision: ''
 
@@ -82,13 +85,6 @@ svg_exp <- list(
 label_size <- function(dimension_int) {
     val <- max(c(2, 10-dimension_int/15))
     return(val)
-}
-
-# Function for making a dataframe of row/column names to save to a file in case the plot labels are not readable
-make_row_col_mat <- function(mat) {
-    row_col_max_length <- max(c(length(rownames(mat)), length(colnames(mat))))
-    return(data.frame(Row.Names=c(rownames(mat), rep(NA, row_col_max_length-length(rownames(mat)))),
-                          Column.Names=c(colnames(mat), rep(NA, row_col_max_length-length(colnames(mat))))))
 }
 ```
 
@@ -225,6 +221,9 @@ invisible( lapply(c(
 "tools",
 "yaml"
 ), library, character.only=T))
+
+# Import python sys so that the save_image command works
+reticulate::py_run_string("import sys")
 ```
 
 ```{r create_outdirs, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
@@ -472,8 +471,8 @@ if (params$input_type == "featurecounts") {
     tx2gene_gtf <- distinct(tx2gene_gtf)
 
     # As the tximport parameter ignoreTxVersion=T does not reliably work (I think it only ignores the version
-    #in the input files, not in the gtf), this removes decimals from the transcript_id values,
-    #e.g. transcript_id "AT1G01010.1" --> transcript_id "AT1G01010"
+    # in the input files, not in the gtf), this removes decimals from the transcript_id values,
+    # e.g. transcript_id "AT1G01010.1" --> transcript_id "AT1G01010"
     tx2gene_gtf[] <- lapply(tx2gene_gtf, function(x) gsub("\\.\\d+", "", x))
     colnames(tx2gene_gtf) <- c("transcript_id", "gene_id") #, "TXID"
     gene_names <- gtf[c("gene_id", "gene_name")]
@@ -481,7 +480,7 @@ if (params$input_type == "featurecounts") {
     gene_names <- distinct(gene_names)
     rownames(gene_names) <- gene_names[,1]
 
-## Load Rsem count table
+## Load Rsem count files
     if (params$input_type == "rsem") {
 
         #rsem saves output into one file per sample in an output folder
@@ -573,11 +572,11 @@ write.table(sizeFactors(cds),paste("differential_gene_expression/gene_counts_tab
 # Write cds assay table to file
 write.table(counts(cds, normalized=T), paste("differential_gene_expression/gene_counts_tables/deseq2_table.tsv", sep=""), append=F, quote = F, sep = "\t", eol = "\n", na = "NA", dec = ".", row.names = T, col.names = T, qmethod = c("escape", "double"))
 
-if (params$input_type %in% c("rsem", "salmon")) {
-
-    # Else copy raw count sample files/folders
-    system("mkdir differential_gene_expression/gene_counts_tables/raw_gene_counts/")
-    system(paste0("cp -r ",params$path_gene_counts,"/* differential_gene_expression/gene_counts_tables/raw_gene_counts/"))
+# Or for rsem/salmon save folder/file names to txt file
+if (params$input_type == "rsem") {
+    write(files, file="differential_gene_expression/metadata/star_rsem_files.txt")
+} else if (params$input_type == "salmon") {
+    write(files, file="differential_gene_expression/metadata/star_salmon_files.txt")
 }
 
 ############################## TRANSFORMED AND NORMALIZED COUNTS ###################
@@ -1054,12 +1053,10 @@ sampleDists <- dist(t(assay(if (params$rlog) rld else vsd)))
 sampleDistMatrix <- as.matrix(sampleDists)
 colors = colorRampPalette(rev(RColorBrewer::brewer.pal(9, "Blues")))(255)
 par(oma=c(3,3,3,3))
-dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey", fontsize_row=label_size(nrow(sampleDistMatrix)), fontsize_col=label_size(ncol(sampleDistMatrix)), show_rownames=label_size(nrow(sampleDistMatrix))>=4, show_colnames=label_size(ncol(sampleDistMatrix))>=4)
-export(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.png")
-export(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.pdf")
-#dend <- hclust(dist(mtcars, method = "euclidean"), method = "complete")
-#capture.output(cutree(dend, k = 3))
-#write.table(make_row_col_mat(sampleDistMatrix), file="differential_gene_expression/plots/Heatmaps_of_distances_index.tsv", row.#names=F, quote=F)
+dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey")
+save_image(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.pdf")
+save_image(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.png")
+save_image(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.svg")
 ```
 
 ```{r heatmap_show, echo=FALSE, message=FALSE, warning=FALSE, out.width="90%", out.height="130%", fig.asp=1, dpi=1000, fig.align='center'}
@@ -1071,6 +1068,14 @@ dist_heatmap %>% layout(height=700, width=800) %>% config(modeBarButtonsToAdd = 
 
 After unzipping the results ZIP file, the differential expression results can be found in the directory [differential_gene_expression/](./differential_gene_expression), containing the following subfolders:
 
+```{r aligner_strings, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Change the different strings depending on which input_type was used
+    featurecounts_string <- ifelse(params$input_type == "featurecounts", "
+    - `raw_gene_counts.txt`: raw gene counts table from the nf-core/rnaseq pipeline; used for the differential gene expression analysis.", "")
+    rsem_salmon_string <- ifelse(params$input_type %in% c("rsem", "salmon"), paste0("- `star_", params$input_type, "_files.txt`: list of ", ifelse(params$input_type == "rsem", "RSEM counts files", "Salmon quantification files"), " that were provided as input; used for the differential gene expression analysis."), "")
+```
+
 <br><details>
 <summary>Expand/collapse</summary>
 - `metadata/`
@@ -1078,8 +1083,9 @@ After unzipping the results ZIP file, the differential expression results can be
     - `contrasts.tsv`: contrasts used for DE analysis (if provided).
     - `linear_model.txt`: linear model used for DE analysis.
     - `gene_list.txt`: provided list of interesting genes (if provided).
+    `r rsem_salmon_string`
 - `gene_counts_tables/`
-    - `raw_gene_counts.txt`: raw gene counts table from the nf-core/rnaseq pipeline and used for the differential gene expression analysis.
+    `r featurecounts_string`
     - `rlog_transformed_gene_counts.tsv`: normalized gene counts with the "regularized logarithm" approach. This normalization is used prior to PCA analysis and heatmap plotting of the gene counts.
     - `vst_transformed_gene_counts.tsv`: normalized gene counts with the "variance stabilizing" transformation.
     - `sizeFactor_libraries.tsv`: size factors for each sample.
@@ -1543,7 +1549,8 @@ invisible(lapply(c(
 "reshape2",
 "pathview",
 "AnnotationDbi",
-"optparse"
+"optparse",
+"ggvenn"
 ), library, character.only=T))
 
 # Create output directory
@@ -1565,6 +1572,16 @@ datasources <- c("KEGG", "REAC")
 
 # Default to 1 for the nb of genes DE in a pathway
 min_DEG_pathway <- as.integer(params$min_DEG_pathway)
+
+# If background list is to be used, load custom background list
+# if provided, else use notAllZero
+if (isProvided(params$set_background)) {
+    if (isProvided(params$custom_background)) {
+        custom_background <- readLines(params$custom_background)
+    } else {
+        custom_background <- rownames(counts(cds))[notAllZero]
+    }
+}
 
 # Contrast files
 contrast_files <- list.files('differential_gene_expression/DE_genes_tables/')
@@ -1608,33 +1625,7 @@ if (isProvided(params$custom_gmt)){
             print(gmt_url)
             print("Got error:")
             print(gost_error)
-            print("For reproducibility reasons, try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'. Then provide it to the pipeline with the parameter `--custom_gmt`")
-        }
-    )
-
-    # Also try to get the version info from the current build
-    gpro_version_url <- paste0("https://biit.cs.ut.ee/gprofiler/api/util/data_versions?organism=", organism)
-    gpro_version_string <- ""
-    tryCatch(
-        {
-            gpro_command <- paste0("curl ", gpro_version_url)
-            sys_return <- system(gpro_command)
-            if ("gprofiler_version" %in% sys_return) {
-                info <- sys_return
-                sources <- info$sources
-                gpro_version_string <- paste0("`gprofiler: ", info$gprofiler_version, "`, ")
-            } else {
-                print("Failed to obtain the gprofiler version with this command:")
-                print(gpro_command)
-                print("For reproducibility reasons, find the gprofiler command on https://biit.cs.ut.ee/gprofiler/gost.")
-            }
-        },
-        error=function(version_error) {
-            print("Failed to fetch the gprofiler version with this command:")
-            print(gpro_command)
-            print("Got error:")
-            print(version_error)
-            print("For reproducibility reasons, find the gprofiler command on https://biit.cs.ut.ee/gprofiler/gost.")
+            print("For reproducibility reasons, please try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'. Then provide it to the pipeline with the parameter `--custom_gmt`")
         }
     )
 }
@@ -1682,22 +1673,57 @@ for (file in contrast_files){
     q = as.character(DE_genes$Ensembl_ID)
 
     # gost query
-    gostres <- gost(query=q,
+    if (isProvided(params$set_background)) {
+        gostres <- gost(query=q,
             organism=gost_id,
             significant=TRUE,
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
-            user_threshold=params$pval_threshold)
+            user_threshold=params$pval_threshold,
+            custom_bg=custom_background,
+            domain_scope="custom_annotated"
+        )
+        
+        pathway_gostres <- gostres$result
+        pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
+        pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
+        
+        # Also run without bg for Venn diagrams
+        gostres_nobg <- gost(query=q,
+            organism=gost_id,
+            significant=TRUE,
+            correction_method="fdr",
+            sources=datasources,
+            evcodes=TRUE,
+            user_threshold=params$pval_threshold,
+            domain_scope="annotated"
+        )
+        pathway_gostres_nobg <- gostres_nobg$result
+        pathway_gostres_nobg <- as.data.frame(pathway_gostres_nobg[which(pathway_gostres_nobg$significant==TRUE),])
+        pathway_gostres_nobg <- pathway_gostres_nobg[which(pathway_gostres_nobg$intersection_size>=min_DEG_pathway),]
+
+    } else {
+        gostres <- gost(query=q,
+            organism=gost_id,
+            significant=TRUE,
+            correction_method="fdr",
+            sources=datasources,
+            evcodes=TRUE,
+            user_threshold=params$pval_threshold,
+            domain_scope="annotated"
+        )
+    }
+
 
     # Make data frame of gost result
     pathway_gostres <- gostres$result
+
     # Select only significantly enriched pathways (according to adjusted p-value)
     pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
 
     # Select only pathways with a min. number of DEG
     pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
-
     gostres$result <- pathway_gostres
 
     # Plot pathways if there were any
@@ -1714,7 +1740,26 @@ for (file in contrast_files){
         ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.png"),
             device="png",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
+        ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.svg"),
+            device="svg",
+            height=10, width=15, units="cm", dpi=300, limitsize=F)
+
+        # If background list was used for main PA analysis, plot Venn diagram of the results and those from the additional PA without background list
+        if (isProvided(params$set_background)) {
+            pathway_gostres_nobg <- gostres_nobg$result
+            pathway_gostres_nobg <- as.data.frame(pathway_gostres_nobg[which(pathway_gostres_nobg$significant==TRUE),])
+            pathway_gostres_nobg <- pathway_gostres_nobg[which(pathway_gostres_nobg$intersection_size>=min_DEG_pathway),]
+            VennInput <- list(
+                background=pathway_gostres$term_name,
+                no_background=pathway_gostres_nobg$term_name
+            )
+            pv <- ggvenn::ggvenn(VennInput)
+            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.pdf"),pv, device="pdf", width=10, height=15)
+            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.png"),pv, device="png", width=10, height=15)
+            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.svg"),pv, device="svg", width=10, height=15)
+        }
     }
+
     # Remove parents column to be able to save the table in tsv format
     pathway_gostres_table <- pathway_gostres
     pathway_gostres_table$parents <- NULL
@@ -1757,6 +1802,7 @@ for (file in contrast_files){
                 xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
             ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
             ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
 
             # Plotting heatmaps and KEGG pathways for all pathways
             print("Plotting heatmaps...")
@@ -1777,13 +1823,15 @@ for (file in contrast_files){
                     # Skip the heatmaps for CI tests
                     if (!isProvided(params$citest) & nrow(mat)>1){
                         dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
-                        png(filename = paste("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = 2500, height = 3000, res = 300)
-                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)), show_rownames=(label_size(nrow(mat))>=4), show_colnames=(label_size(ncol(mat))>=4))
+                        png(filename = paste("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png", sep=""), width = ifelse(nrow(mat)<=20, 200, 125)+ncol(mat)*40, height = 50+nrow(mat)*50)
+                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                         dev.off()
-                        pdf(paste("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""))
-                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)), show_rownames=(label_size(nrow(mat))>=4), show_colnames=(label_size(ncol(mat))>=4))
+                        pdf(paste("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf", sep=""), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
+                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                         dev.off()
-                        write.table(make_row_col_mat(mat), file=paste("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, "_index.tsv", sep=""), row.names=F, quote=F)
+                        svg(paste("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".svg", sep=""), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
+                        pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
+                        dev.off()
                     }
 
                     # Plotting pathway view only for kegg pathways
@@ -1859,13 +1907,15 @@ if (isProvided(params$path_genelist)){
     mat <- data.matrix(mat)
 
     if (nrow(mat)>1){
-        png(filename = paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.png", sep=""), width = 2500, height = 3000, res = 300)
-        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)), show_rownames=(label_size(nrow(mat))>=4), show_colnames=(label_size(ncol(mat))>=4))
+        png(filename = paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.png", sep=""), width = 100+ncol(mat)*50, height = 50+nrow(mat)*100)
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T)
         dev.off()
-        pdf(paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""))
-        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T, fontsize_row=label_size(nrow(mat)), fontsize_col=label_size(ncol(mat)), show_rownames=(label_size(nrow(mat))>=4), show_colnames=(label_size(ncol(mat))>=4))
+        pdf(paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf", sep=""), width = 10+ncol(mat)*0.05, height = 5+nrow(mat)*0.005)
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T)
         dev.off()
-        write.table(make_row_col_mat(mat), file=paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list_index.tsv", sep=""), row.names=F, quote=F)
+        svg(paste("pathway_analysis", "/", genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.svg", sep=""), width = 10+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T)
+        dev.off()
     }
 }
 ```
@@ -1892,6 +1942,8 @@ After unzipping the results ZIP file, the pathway analysis results are stored in
 Inside the pathway analysis results folder, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
 <br><br><details>
 <summary>Expand/collapse</summary>
+- `*_gost_pathway_venn_diagram.pdf/png`
+  - Venn diagrams showing the numbers of enriched pathways when using a background gene list vs when not using a bg list.
 - `*_KEGG_pathway_enrichment_plot.pdf/png`
     - Barplots showing the proportion of differentially expressed genes in the pathway.
 - `KEGG_pathways/`
@@ -1901,7 +1953,7 @@ Inside the pathway analysis results folder, a subfolder for each contrast used f
 </details><br>",
 gost_text,
 
-"
+"\n
 ## Enriched pathways
 The plot below summarizes the pathways that were
 found significantly enriched in DE genes for each contrast (padj value < ", pval_text, ").
@@ -1935,12 +1987,28 @@ names(q_list) <- q_names
 if (length(q_list) > 0) {
 
     #gost query
-    gostres <- gost(query=q_list,
-                organism=gost_id,
-                significant=T,
-                correction_method="fdr",
-                sources=datasources,
-                user_threshold=params$pval_threshold)
+    
+    if (isProvided(params$set_background)) {
+        gostres <- gost(query=q_list,
+                    organism=gost_id,
+                    significant=T,
+                    correction_method="fdr",
+                    sources=datasources,
+                    user_threshold=params$pval_threshold,
+                    custom_bg=custom_background,
+                    domain_scope="custom_annotated"
+        )
+    } else {
+        gostres <- gost(query=q_list,
+                    organism=gost_id,
+                    significant=T,
+                    correction_method="fdr",
+                    sources=datasources,
+                    user_threshold=params$pval_threshold,
+                    domain_scope="annotated"
+        )
+    }
+
     path_enrich <- as.data.frame(gostres$result)
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)
@@ -1994,28 +2062,39 @@ and the subfolder: `pathway_heatmaps`.
 
 # Summary and outlook
 
-\
-The results for all work packages, as described in the quote can be found in this report.
+```{r quote, echo=FALSE, results='asis'}
+# Only add hyperlink to quote file if it was provided in the params
+quote_string <- ifelse(
+    isProvided(params$path_quote),
+    paste0("The results for all work packages, as described in the [quote/offer](", params$path_quote, "), can be found in this report."),
+    paste0("The results for all work packages (no quote/offer given to describe them) can be found in this report.")
+)
+cat(quote_string)
+
+# Initiate var in case no software_versions were provided
+software_versions_csv <- F
+```
+
 Further support for this project will be restricted to the results presented in this report.
 For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.
 
-```{r software_versions, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE}
+```{r software_versions, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, eval=isProvided(params$path_software_versions)}
 # Import the .csv or .yml file output by the rna-seq Nextflow pipeline
-is_csv <- endsWith(params$path_software_versions, ".csv") || endsWith(params$path_software_versions, ".tsv")
-if (is_csv) {
+software_versions_csv <- endsWith(params$path_software_versions, ".csv") || endsWith(params$path_software_versions, ".tsv")
+if (software_versions_csv) {
     version_csv <- read.csv(file = params$path_software_versions, sep="\t", header = FALSE)
     version <- setNames(as.list(version_csv$V2), version_csv$V1)
 } else {
     version <- read_yaml(params$path_software_versions)
 }
 
-if (is_csv) {
+if (software_versions_csv) {
     if (params$input_type == "featurecounts") {
         quant_tool <- "featureCounts"
         quant_version <- as.character(version["featureCounts"])
         quant_cite <- "[@liao2014featurecounts]"
     }
-} else if (!(is_csv)) {
+} else if (!(software_versions_csv)) {
     if (params$input_type == "rsem") {
         quant_tool <- "RSEM"
         quant_version <- as.character(version["RSEM_CALCULATEEXPRESSION"][[1]]["rsem"])
@@ -2032,23 +2111,51 @@ if (is_csv) {
 
 # Computational methods
 
-## RNAseq data analysis
+```{r software_versions_RNASeq, echo=FALSE, results='asis', eval=isProvided(params$path_software_versions)}
 
-The Nextflow-based nf-core pipeline `rnaseq `r as.character(ifelse(is_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"]))`` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC `r as.character(ifelse(is_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"]))`` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
-Subsequently, adapter trimming was conducted with `Trim Galore `r as.character(ifelse(is_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"]))`` [^4] [@krueger2012trim]. `STAR v`r as.character(ifelse(is_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"]))`` [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
-The RNA-seq data quality control was performed with `RSeQC `r as.character(ifelse(is_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"]))`` [@wang2012rseqc] and read quantification of the features (e.g. genes) with
-```{r quant_cite, echo=FALSE, results='asis', eval=T}
-cat(paste0("`", quant_tool, " ", quant_version, "` ", quant_cite, "."))
-```
-```{r MQC_cite, echo=FALSE, results='asis', eval=is_csv}
+# In the following part, I use newlines (in code) where possible whenever the paste0 function switches from a string to a variable call to better distinguish between the two so it is obvious in which lines quotes are needed and in which not --> Cannot always use newlines as this sometimes translates into the report.html
+
+cat(paste0(
+"## RNAseq data analysis
+    
+The Nextflow-based nf-core pipeline `rnaseq ", as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])),
+"` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC ",
+as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
+"` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
+Subsequently, adapter trimming was conducted with `Trim Galore ",
+as.character(ifelse(software_versions_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"])),
+"` [^4] [@krueger2012trim]. `STAR v",
+as.character(ifelse(software_versions_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
+"` [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
+The RNA-seq data quality control was performed with `RSeQC ",
+as.character(ifelse(software_versions_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"])),
+"` [@wang2012rseqc] and read quantification of the features (e.g. genes) with `",
+quant_tool,
+" ",
+quant_version,
+"` ",
+quant_cite,
+"."
+))
+
+```{r MQC_cite, echo=FALSE, results='asis', eval=software_versions_csv&isProvided(params$path_software_versions)}
 cat(paste0("\nAn aggregation of the quality control for the RNAseq analysis was performed with `MultiQC ", as.character(version["MultiQC"]), "` [^2] [@ewels2016multiqc]."))
 ```
 
-## Differential gene expression analysis
+```{r software_versions_DE, echo=FALSE, results='asis', eval=isProvided(params$path_software_versions)}
 
-The differential expression analysis was performed by the use of the `rnadeseq `r as.character(params$revision)`` pipeline [^5], which was written using the nf-core template [@ewels2020nf]. For differential expression analysis, the read quantification data resulting from `r quant_tool` were processed with the R package `DESeq2 v`r packageVersion("DESeq2")`` [@love2014differential].
+cat(paste0(
+"## Differential gene expression analysis
 
-```{r conditional_pathway2, echo=FALSE, results='asis', eval=params$pathway_analysis}
+The differential expression analysis was performed by the use of the `rnadeseq ",
+as.character(params$revision),
+"` pipeline [^5], which was written using the nf-core template [@ewels2020nf]. For differential expression analysis, the read quantification data resulting from `",
+quant_tool, "` were processed with the R package `DESeq2 v",
+packageVersion("DESeq2"),
+"` [@love2014differential]."
+))
+
+```{r conditional_pathway, echo=FALSE, results='asis', eval=params$pathway_analysis&isProvided(params$path_software_versions)}
 version_gprofiler2 = packageVersion("gprofiler2")
 version_annotation = packageVersion("AnnotationDbi")
 name_species       = params$species_library
@@ -2060,17 +2167,25 @@ if (isProvided(params$custom_gmt)){
     database_string <- paste0(database_string, "`", dbs, "`.")
 } else {
     database_string = "Also, the following databases were queried: "
-    if (gpro_version_string != "") {
-        database_string <- paste0(database_string, gpro_version_string, ",")
-    }
     database_version_info <- get_version_info(params$organism)
+    database_string <- paste0(database_string, "`gprofiler: ", database_version_info$gprofiler_version, "`")
     for (db in datasources) {
-        database_string <- paste0(database_string, "`", db, ": ", gsub("\n", ", ", database_version_info$sources[[db]]$version), "`, ")
+        database_string <- paste0(database_string, ", `", db, ": ", database_version_info$sources[[db]]$version, "`")
     }
-    database_string <- paste0(strsplit(database_string, ",\\s*(?=[^,]+$)", perl=TRUE)[[1]], ".")
+    database_string <- paste0(database_string, ".") # Add final dot to sentence
 }
 
-cat(paste0("For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2," `, `AnnotationDbi v", version_annotation, "` and `", name_species, " v", version_annotation, "` were employed. ", database_string))
+cat(paste0(
+"For pathway analysis, the R packages `gprofiler2 v",
+version_gprofiler2,
+" `, `AnnotationDbi v",
+version_annotation,
+"` and `",
+name_species,
+" v",
+version_annotation,
+"` were employed. ",
+database_string))
 ```
 
 Graphs were produced in RStudio with ``r R.version.string`` mainly using the R package `ggplot2 v`r packageVersion("ggplot2")`` . Final reports were produced using the R package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages.

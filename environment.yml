@@ -1,7 +1,7 @@
 # You can use this file to create a conda environment for this pipeline:
 #   conda env create -f environment.yml
 # use this to find packages: https://anaconda.org/
-name: qbic-pipelines-rnadeseq-2.1
+name: qbic-pipelines-rnadeseq-dev
 channels:
   - bioconda
   - conda-forge
@@ -21,7 +21,8 @@ dependencies:
   - bioconda::bioconductor-tximport=1.22.0
   - bioconda::bioconductor-vsn=3.62.0
   - conda-forge::pandoc=2.17.1.1
-  - conda-forge::phantomjs=2.1.1 #this is necessary for exporting heatmaply plots
+  - conda-forge::plotly=5.13.0 #this is necessary for exporting plots with save_image()
+  - conda-forge::python-kaleido=0.2.1 #this is necessary for exporting plots with save_image()
   - conda-forge::r-base=4.1.2
   - conda-forge::r-details=0.3.0
   - conda-forge::r-dplyr=1.0.10
@@ -30,6 +31,7 @@ dependencies:
   - conda-forge::r-formattable=0.2.1
   - conda-forge::r-ggplot2=3.3.5
   - conda-forge::r-ggrepel=0.9.2
+  - conda-forge::r-ggvenn=0.1.9
   - conda-forge::r-gplots=3.1.1
   - conda-forge::r-gprofiler2=0.2.1
   - conda-forge::r-heatmaply=1.3.0
@@ -40,6 +42,7 @@ dependencies:
   - conda-forge::r-plyr=1.8.6
   - conda-forge::r-rcolorbrewer=1.1_2
   - conda-forge::r-reshape2=1.4.4
+  - conda-forge::r-reticulate=1.28 #this is necessary for exporting heatmaply plots with save_image()
   - conda-forge::r-rmarkdown=2.11
   - conda-forge::r-sessioninfo=1.2.2
   - conda-forge::r-svglite=2.1.0

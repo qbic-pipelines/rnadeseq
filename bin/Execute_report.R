@@ -26,14 +26,17 @@ option_list = list(
     make_option(c("-z", "--rlog"), action="store_true", default=TRUE, help="Use rlog instead of vst normalization."),
     make_option(c("-n", "--nsub_genes"), type="integer", default=NULL, help="Subset number of genes for vst."),
 
-    make_option(c("-a", "--pathway_analysis"), action="store_true", default=FALSE, help="Pathway analysis."),
+    make_option(c("-a", "--pathway_analysis"), action="store_true", default=FALSE, help="Whether to run pathway analysis."),
     make_option(c("-g", "--organism"), type="character", default=NULL, help="Organism, e.g. Hsapiens."),
     make_option(c("-i", "--species_library"), type="character", default=NULL, help="Library name. Example format: org.At.tair.db", metavar="character"),
     make_option(c("-u", "--keytype"), type="character", default=NULL, help="Keytype. Example format: TAIR (varies greatly depending on library!)", metavar="character"),
     make_option("--custom_gmt", type="character", default=NULL, help="Path to custom GMT file to query during pathway analysis.", metavar="character"),
+    make_option("--set_background", action="store_true", default=TRUE, help="Whether to use a background list for pathway analysis; if true, will only consider expressed genes (i.e. mean counts > 0) for PA."),
+    make_option("--custom_background", type="character", default=NULL, help="Path to a custom background list TXT for pathway analysis; if provided, will only consider genes in that list for PA."),
     make_option(c("-w", "--min_DEG_pathway"), type="integer", default=NULL, help="min. number of genes DE in a pathway for this pathway to be considered enriched.", metavar="integer"),
 
     make_option(c("-s", "--proj_summary"), type="character", default=NULL, help="Project summary file", metavar="character"),
+    make_option(c("--path_quote"), type="character", default=NULL, help="Path to the quote PDF", metavar="character"),
     make_option(c("-v", "--software_versions"), type="character", default=NULL, help="Versions file", metavar="character"),
     make_option(c("-j", "--revision"), type="character", default=NULL, help="Rnadeseq workflow revision", metavar="character"),
 
@@ -75,10 +78,13 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 organism = opt$organism,
                                 species_library = opt$species_library,
                                 custom_gmt = opt$custom_gmt,
+                                set_background = opt$set_background,
+                                custom_background = opt$custom_background,
                                 keytype = opt$keytype,
                                 min_DEG_pathway = opt$min_DEG_pathway,
 
                                 path_proj_summary = opt$proj_summary,
+                                path_quote = opt$path_quote,
                                 path_software_versions = opt$software_versions,
                                 revision = opt$revision,
 

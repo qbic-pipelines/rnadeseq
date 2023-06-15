@@ -3,6 +3,26 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.2dev
+
+### Added
+
+- [#202](https://github.com/qbic-pipelines/rnadeseq/pull/202) Added background list to pathway analysis
+- [#197](https://github.com/qbic-pipelines/rnadeseq/pull/197) Added gprofiler version string to report
+- [#196](https://github.com/qbic-pipelines/rnadeseq/pull/196) Added optional `--quote` parameter
+
+### Changed
+
+- [#205](https://github.com/qbic-pipelines/rnadeseq/pull/205) Template update
+- [#204](https://github.com/qbic-pipelines/rnadeseq/pull/204) Changed relevel path in test_relevel.config to the qbic-pipelines repo
+- [#203](https://github.com/qbic-pipelines/rnadeseq/pull/203) Switched from Dockerhub to GHCR
+- [#200](https://github.com/qbic-pipelines/rnadeseq/pull/200) Made software_versions optional
+- [#198](https://github.com/qbic-pipelines/rnadeseq/pull/198) Changed heatmaps to scale in size automatically
+
+### Fixed
+
+- [#195](https://github.com/qbic-pipelines/rnadeseq/pull/195) Fixed section error in report
+
 ## 2.1 - Wheat Fields
 
 ### Added
