@@ -550,10 +550,11 @@ if (isProvided(params$path_relevel)) {
     }
 }
 
-# SizeFactors(cds) as indicator of library sequencing depth
+# sizeFactors(cds) as indicator of library sequencing depth
 if (params$input_type == "featurecounts") {
     sf <- sizeFactors(cds)
 } else {
+    # If tximport was used, sizeFactors doesn't work, so use workaround as described here: https://support.bioconductor.org/p/97676/
     nm <- assays(cds)[["avgTxLength"]]
     sf <- estimateSizeFactorsForMatrix(counts(cds)/nm)
 }
@@ -580,7 +581,7 @@ nsub_genes_text <- ""
 if (params$trafo == "vst-force") {
     run_rlog <- F
     trafo_long_text <- "variant stabilizing transformation (vst)"
-    nsub_genes_text <- paste0("The number of subset genes for the vst transformation is ", as.character(params$nsub_genes), ".")
+    nsub_genes_text <- paste0("The number of subset genes for the vst transformation was set to ", as.character(params$nsub_genes), ".")
     if (var_sizeFactors >= vst_cutoff) {
         trafo_override_text <- paste0(" This was due to using the `vst-force` argument. It is recommended to rerun the pipeline using the rlog transformation as the size factors of the different samples have a variance of ~", round(var_sizeFactors, 4), ". For high sample variances (i.e. different sequencing depths between samples), the rlog transformation is more suitable [@love2014differential].")
         nsub_genes_text <- ""
@@ -588,7 +589,7 @@ if (params$trafo == "vst-force") {
 } else if (params$trafo == "vst") {
     run_rlog <- F
     trafo_long_text <- "variant stabilizing transformation (vst)"
-    nsub_genes_text <- paste0("The number of subset genes for the vst transformation is ", as.character(params$nsub_genes), ".")
+    nsub_genes_text <- paste0("The number of subset genes for the vst transformation was set to ", as.character(params$nsub_genes), ".")
     if (var_sizeFactors >= vst_cutoff) {
         run_rlog <- T
         trafo_long_text <- "regularized logarithm (rlog)"
@@ -847,7 +848,7 @@ Note: Duplicate intercept (%) is the percentage of duplicate reads for the inter
 
 ## Mapping statistics {.tabset}
 
-The read mapping statistics to the reference genome for each sample are shown below. Typical values for a good mapping lie at >80% uniquely mapped reads.
+The read mapping statistics to the reference genome for each sample are shown below. Typical values for a good mapping lie at > 80 % uniquely mapped reads.
 
 ### Percentages {-}
 
@@ -1391,8 +1392,8 @@ pval_text <- as.character(params$pval_threshold)
 ## List of differentially expressed genes
 
 The analysis of the differential gene expression was performed using `DESeq2`.
-Genes were considered differentially expressed (DE) when the adjusted p-value was lower than `r pval_text` (padj < `r pval_text`).
-Genes were further considered differentially expressed (DE) if the log2 Fold Change in expression between the two considered groups was above the threshold of `r logFC_text` in absolute terms.
+Genes were considered differentially expressed (DE) when the adjusted p-value was equal to or lower than `r pval_text` (padj <= `r pval_text`).
+Genes were further considered differentially expressed (DE) if the log2 Fold Change in expression between the two considered groups was equal to or above the threshold of `r logFC_text` in absolute terms.
 The adjusted p-value is calculated in the `DESeq2` package with the Benjamini-Hochberg method. P-value adjustment
 helps reduce the number of false postives (not real differentially expressed genes).
 
@@ -1412,7 +1413,7 @@ Additional tables for all individual contrasts are provided [here](./differentia
 
 Volcano plots display the DE genes in Log2 Fold Change values (x axis)
 against their adjusted p-value (y axis) in a form of a -log10. Only DE genes are colored red.
-Genes were considered DE with a padj < `r pval_text` (horizontal drawn through line) and in addition a Log2FC > `r logFC_text` or < -`r logFC_text` (vertical grey lines). Values above the horizontal dashed line were capped.
+Genes were considered DE with a padj <= `r pval_text` (horizontal drawn through line) and in addition a Log2FC >= `r logFC_text` or <= -`r logFC_text` (vertical grey lines). Values above the horizontal dashed line were capped.
 Here, volcano plots for all considered contrasts are shown. Hover over the dots to show the gene names.
 
 ```{r volcano_plot, out.width="100%", out.height="100%"}
@@ -1963,12 +1964,9 @@ gost_text,
 
 "\n
 ## Enriched pathways
-The plot below summarizes the pathways that were
-found significantly enriched in DE genes for each contrast (padj value < ", pval_text, ").
-Only contrasts for which an enriched pathway was found are shown.
-Both KEGG pathways and REACTOME (REAC) pathways are considered.
-Hover over the dots to reveal the pathway names.
-The table below provides more detail on all enriched pathways."))
+The plot below summarizes the pathways that were found significantly enriched in DE genes for each contrast (padj value <= ", pval_text, ").
+Only contrasts for which an enriched pathway was found are shown. Both KEGG pathways and REACTOME (REAC) pathways are considered.
+Hover over the dots to reveal the pathway names. The table below provides more detail on all enriched pathways."))
 ```
 
 ```{r gost, eval=params$pathway_analysis, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE}
@@ -2161,8 +2159,8 @@ as.character(params$revision),
 quant_tool, "` were processed with the R package `DESeq2 v",
 packageVersion("DESeq2"),
 "` [@love2014differential]. The thresholds for differentially expressed genes were set to ", 
-pval_text, "for the p value and",
-logFC_text, "for the log2 Fold Change."
+pval_text, " for the p value and ",
+logFC_text, " for the log2 Fold Change."
 ))
 
 ```{r conditional_pathway, echo=FALSE, results='asis', eval=isProvided(params$pathway_analysis)&isProvided(params$path_software_versions)}
@@ -2186,13 +2184,13 @@ if (isProvided(params$custom_gmt)){
 }
 
 cat(paste0(
-"## Differential gene expression analysis
+"\n## Pathway enrichment analysis
 
 For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2,
 " `, `AnnotationDbi v", version_annotation,
 "` and `", name_species, " v", version_annotation,
 "` were employed. ", database_string,
-"Pathways were classified as enriched for those genes with padj <= ", pval_text, "."
+"\nPathways were classified as enriched for those genes with padj <= ", pval_text, "."
 ))
 ```
 

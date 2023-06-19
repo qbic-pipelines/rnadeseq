@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Changed < and > to <= and => for logF/pval comparisons
 - [#205](https://github.com/qbic-pipelines/rnadeseq/pull/205) Template update
 - [#204](https://github.com/qbic-pipelines/rnadeseq/pull/204) Changed relevel path in test_relevel.config to the qbic-pipelines repo
 - [#203](https://github.com/qbic-pipelines/rnadeseq/pull/203) Switched from Dockerhub to GHCR
@@ -22,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Added correct plot titles to meanSdPlot (depending on normalization)
 - [#195](https://github.com/qbic-pipelines/rnadeseq/pull/195) Fixed section error in report
 
 ## 2.1 - Wheat Fields
