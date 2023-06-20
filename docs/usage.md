@@ -279,7 +279,7 @@ Threshold (int) to apply to Log 2 Fold Change to consider a gene as differential
 
 ### `--adj_pval_threshold`
 
-P value (float) to consider a gene as differentially expressed. The default value is 0.05.
+Adjusted p-value (float) to consider a gene as differentially expressed. The default value is 0.05.
 
 ### `--genelist`
 
