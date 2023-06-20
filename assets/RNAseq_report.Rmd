@@ -2214,7 +2214,7 @@ cat(paste0(
 For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2,
 " `, `AnnotationDbi v", version_annotation,
 "` and `", name_species, " v", version_annotation,
-"` were employed. ", database_string, ".\n",
+"` were used. ", database_string, ".\n",
 "Pathways were classified as enriched for those genes with padj <= ", pval_text, "."
 ))
 ```
