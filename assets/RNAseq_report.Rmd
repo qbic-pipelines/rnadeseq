@@ -29,7 +29,7 @@ params:
     batch_effect: ''
     logFC_threshold: ''
     adj_pval_threshold: ''
-    trafo: ''
+    norm_method: ''
     nsub_genes: ''
     round_DE: ''
 
@@ -578,29 +578,29 @@ if (params$input_type == "rsem") {
 vst_cutoff <- 0.05
 var_sizeFactors <- var(sf)
 run_rlog <- T
-trafo_long_text <- "regularized logarithm (rlog)"
-trafo_override_text <- ""
+norm_method_long_text <- "regularized logarithm (rlog)"
+norm_method_override_text <- ""
 nsub_genes_text <- ""
-if (params$trafo == "vst-force") {
+if (params$norm_method == "vst-force") {
     run_rlog <- F
-    trafo_long_text <- "variance stabilizing transformation (vst)"
+    norm_method_long_text <- "variance stabilizing transformation (vst)"
     nsub_genes_text <- paste0("The number of subset genes for the vst transformation was set to ", as.character(params$nsub_genes), ".")
     if (var_sizeFactors >= vst_cutoff) {
-        trafo_override_text <- paste0(" This was due to using the `vst-force` argument. It is recommended to rerun the pipeline using the rlog transformation as the size factors of the different samples have a variance of ~", round(var_sizeFactors, 4), ". For high sample variances (i.e. different sequencing depths between samples), the rlog transformation is more suitable [@love2014differential].")
+        norm_method_override_text <- paste0(" This was due to using the `vst-force` argument. It is recommended to rerun the pipeline using the rlog transformation as the size factors of the different samples have a variance of ~", round(var_sizeFactors, 4), ". For high sample variances (i.e. different sequencing depths between samples), the rlog transformation is more suitable [@love2014differential].")
         nsub_genes_text <- ""
     }
-} else if (params$trafo == "vst") {
+} else if (params$norm_method == "vst") {
     run_rlog <- F
-    trafo_long_text <- "variance stabilizing transformation (vst)"
+    norm_method_long_text <- "variance stabilizing transformation (vst)"
     nsub_genes_text <- paste0("The number of subset genes for the vst transformation was set to ", as.character(params$nsub_genes), ".")
     if (var_sizeFactors >= vst_cutoff) {
         run_rlog <- T
-        trafo_long_text <- "regularized logarithm (rlog)"
-        trafo_override_text <- paste0(" This was done as the size factors of the different samples have a variance of ~", round(var_sizeFactors, 4), ". For high sample variances (i.e. different sequencing depths between samples), the rlog transformation is more suitable [@love2014differential].")
+        norm_method_long_text <- "regularized logarithm (rlog)"
+        norm_method_override_text <- paste0(" This was done as the size factors of the different samples have a variance of ~", round(var_sizeFactors, 4), ". For high sample variances (i.e. different sequencing depths between samples), the rlog transformation is more suitable [@love2014differential].")
         nsub_genes_text <- ""
     }
 }
-trafo_text <- ifelse(run_rlog, "rlog", "vst")
+norm_method_text <- ifelse(run_rlog, "rlog", "vst")
 
 if (run_rlog){
 
@@ -667,21 +667,21 @@ pdf("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_tra
 par(oma=c(3,3,3,3))
 par(mfrow = c(1, 3))
 meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
-meanSdPlot(assay((if (run_rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd", trafo_text, "transformed count data"))
+meanSdPlot(assay((if (run_rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd", norm_method_text, "transformed count data"))
 dev.off()
 notAllZero <- (rowSums(counts(cds))>0)
 png("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.png")
 par(oma=c(3,3,3,3))
 par(mfrow = c(1, 3))
 meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
-meanSdPlot(assay((if (run_rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd", trafo_text, "transformed count data"))
+meanSdPlot(assay((if (run_rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd", norm_method_text, "transformed count data"))
 dev.off()
 notAllZero <- (rowSums(counts(cds))>0)
 svg("differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.svg")
 par(oma=c(3,3,3,3))
 par(mfrow = c(1, 3))
 meanSdPlot(log2(counts(cds,normalized=TRUE)[notAllZero,] + 1),ylab  = "sd raw count data")
-meanSdPlot(assay((if (run_rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd", trafo_text, "transformed count data"))
+meanSdPlot(assay((if (run_rlog) rld else vsd)[notAllZero,]),ylab  = paste("sd", norm_method_text, "transformed count data"))
 dev.off()
 
 # Further diagnostics plots
@@ -964,13 +964,13 @@ cat(paste0("***
 
 The raw count table and normalized count tables are available [here](./differential_gene_expression/gene_counts_tables).
 The differential expression analysis is performed using the raw gene count table.
-For PCA analysis and heatmap plotting, the `r trafo_long_text` normalized gene counts were used. 
-`r trafo_override_text`
+For PCA analysis and heatmap plotting, the `r norm_method_long_text` normalized gene counts were used. 
+`r norm_method_override_text`
 `r nsub_genes_text`
 
 ## Principal component analysis (PCA)
 
-A PCA plot of the `r trafo_text` normalized gene expression visualizes the clustering of samples according to their gene expression.
+A PCA plot of the `r norm_method_text` normalized gene expression visualizes the clustering of samples according to their gene expression.
 In this way, the overall effect of experimental conditions and sample grouping, and any batch effects are visualized.
 The original plot can be downloaded [here](./differential_gene_expression/plots/PCA_plot.pdf).
 
@@ -1105,8 +1105,8 @@ After unzipping the results ZIP file, the differential expression results can be
 - `DE_genes_tables/`: folder containing one tab-separated table for each of the contrasts in the analysis. Each table contains a list of all differentially expressed genes in the contrast, specifying the mean gene expression across all samples (baseMean), and the log2 fold change value and p-adjusted values (padj) for this contrast.
 - `final_gene_table/final_gene_list_DESeq2.tsv`: table containing a list of all genes considered in the analysis. Here a summary of the log2 Fold Change and p-adjusted values for all contrasts is displayed. Additionally, the column **filter** shows if this gene was differentially expressed (DE) in any of the contrasts, or not (not_DE). The column **contrast_vector** contains for each contrast considered in the analysis a 1 if the gene was differentially expressed for this contrast or a 0 if it was not.
 - `plots/`:
-    - `Heatmaps_of_distances.pdf/.svg`: heatmap of the pairwise euclidean distances among samples, when the `r trafo_text` normalized gene counts are considered.
-    - `PCA_plot.pdf`: PCA of the `r trafo_text` normalized gene counts.
+    - `Heatmaps_of_distances.pdf/.svg`: heatmap of the pairwise euclidean distances among samples, when the `r norm_method_text` normalized gene counts are considered.
+    - `PCA_plot.pdf`: PCA of the `r norm_method_text` normalized gene counts.
     - `boxplots_example_genes/`: boxplots of the normalized gene counts for each of the sample groups for example genes.
     - `boxplots_requested_genes/`: boxplots of the normalized gene counts for each of the sample groups for the list of requested genes.
     - `further_diagnostics_plots/`: plots for diagnostics of the differential gene analysis procedure.

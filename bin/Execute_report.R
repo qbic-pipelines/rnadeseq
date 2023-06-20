@@ -24,7 +24,7 @@ option_list = list(
     make_option("--round_DE", type="integer", default=NULL, help="How many decimals to keep after rounding the DE analysis values."),
 
     #make_option(c("-z", "--rlog"), action="store_true", default=TRUE, help="Use rlog instead of vst normalization."),
-    make_option(c("-z", "--trafo"), type="character", default=NULL, help="Which transformation(s) to use."),
+    make_option(c("-z", "--norm_method"), type="character", default=NULL, help="Which transformation(s) to use."),
     make_option(c("-n", "--nsub_genes"), type="integer", default=NULL, help="Subset number of genes for vst."),
 
     make_option(c("-a", "--pathway_analysis"), action="store_true", default=FALSE, help="Whether to run pathway analysis."),
@@ -71,7 +71,7 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 batch_effect = opt$batch_effect,
                                 logFC_threshold = opt$logFC_threshold,
                                 adj_pval_threshold = opt$adj_pval_threshold,
-                                trafo = opt$trafo,
+                                norm_method = opt$norm_method,
                                 nsub_genes = opt$nsub_genes,
                                 round_DE = opt$round_DE,
 

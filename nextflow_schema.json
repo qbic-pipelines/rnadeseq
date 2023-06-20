@@ -80,7 +80,7 @@
                     "default": 0.05,
                     "description": "p value (float) to consider a gene as differentially expressed. The default value is 0.05."
                 },
-                "trafo": {
+                "norm_method": {
                     "type": "string",
                     "default": "rlog",
                     "enum": ["rlog", "vst", "vst-force"],

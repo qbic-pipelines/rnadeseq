@@ -66,7 +66,7 @@ process REPORT {
         $batch_effect_opt \
         --logFC_threshold $params.logFC_threshold \
         --adj_pval_threshold $params.adj_pval_threshold \
-        --trafo $params.trafo \
+        --norm_method $params.norm_method \
         --nsub_genes $params.vst_genes_number \
         $round_DE_opt \
         $pathway_opt \
