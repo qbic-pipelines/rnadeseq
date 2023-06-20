@@ -311,7 +311,7 @@ Set  this parameter to either `vst`, `vst-force` or `rlog` (default) to control 
 
 ### `--vst_genes_number`
 
-This is ignored if `--trafo` is set to `rlog`. If using the vst transformation, consider using this parameter for small datasets and low numbers of genes, e.g. with small rnaseq data. The default `vst` function for varianceStabilizingTransformation in DESeq2 is 1000, which triggers an error with small datasets. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here: [DESeq2 vst function error](https://www.biostars.org/p/456209/).
+This is ignored if `--trafo` is set to `rlog`. If using the `vst` transformation, consider using this parameter for small datasets and low numbers of genes, e.g. with small RNA-Seq data. The default number of genes for applying the `vst` function for varianceStabilizingTransformation in DESeq2 is 1000. For smaller datasets there will be an error. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here: [DESeq2 vst function error](https://www.biostars.org/p/456209/).
 
 ### `--round_DE`
 
