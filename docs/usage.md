@@ -307,7 +307,7 @@ Integer indicating how many genes in a pathway must be differentially expressed 
 
 ### `--trafo`
 
-Set to `vst`, `vst-force` or `rlog` (default) to determine which transformation is applied to the data. If `vst`, the pipeline can still use rlog instead if the input data are found to have different size factor variances (>=0.05) which will be stated in the report. If you want to use the vst method regardless of data, use `vst-force`. Generally speaking, vst is faster but rlog is better suited to account for different sequencing depths between samples. Check here for more information on [count data transformations](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#count-data-transformations).
+Set  this parameter to either `vst`, `vst-force` or `rlog` (default) to control which transformation should be applied to the data. If the input data has too large size factor variances (>=0.05) the pipeline will override a user-specified `vst` transformation to use `rlog` instead. If this is enforced it will be stated in the report. If you still prefer to use the `vst` method regardless of the variances in the data, please use the `vst-force` parameter. While the `vst` transformation is much faster, the `rlog` is better suited to account for different sequencing depths between samples. Check here for more information on [count data transformations](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#count-data-transformations).
 
 ### `--vst_genes_number`
 
