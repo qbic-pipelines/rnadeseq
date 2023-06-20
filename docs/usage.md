@@ -307,11 +307,11 @@ Integer indicating how many genes in a pathway must be differentially expressed 
 
 ### `--trafo`
 
-Set to `vst`, `vst-force` or `rlog` (default) to determine which transformation is applied to the data. If `vst`, the pipeline can still use rlog instead if the input data are found to have different size factor variances (>=0.05) which will be stated in the report. If you want to use the vst method regardless of data, use `vst-force`. Generally speaking, vst is faster but rlog is better suited to account for different sequencing depths between samples. Check here for more information on [count data transformations](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#count-data-transformations).
+Set  this parameter to either `vst`, `vst-force` or `rlog` (default) to control which transformation should be applied to the data. If the input data has too large size factor variances (>=0.05) the pipeline will override a user-specified `vst` transformation to use `rlog` instead. If this is enforced it will be stated in the report. If you still prefer to use the `vst` method regardless of the variances in the data, please use the `vst-force` parameter. While the `vst` transformation is much faster, the `rlog` is better suited to account for different sequencing depths between samples. Check here for more information on [count data transformations](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#count-data-transformations).
 
 ### `--vst_genes_number`
 
-This is ignored if `--trafo` is set to `rlog`. If using the vst transformation, consider using this parameter for small datasets and low numbers of genes, e.g. with small rnaseq data. The default `vst` function for varianceStabilizingTransformation in DESeq2 is 1000, which triggers an error with small datasets. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here: [DESeq2 vst function error](https://www.biostars.org/p/456209/).
+This is ignored if `--trafo` is set to `rlog`. If using the `vst` transformation, consider using this parameter for small datasets and low numbers of genes, e.g. with small RNA-Seq data. The default number of genes for applying the `vst` function for varianceStabilizingTransformation in DESeq2 is 1000. For smaller datasets there will be an error. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here: [DESeq2 vst function error](https://www.biostars.org/p/456209/).
 
 ### `--round_DE`
 

@@ -583,7 +583,7 @@ trafo_override_text <- ""
 nsub_genes_text <- ""
 if (params$trafo == "vst-force") {
     run_rlog <- F
-    trafo_long_text <- "variant stabilizing transformation (vst)"
+    trafo_long_text <- "variance stabilizing transformation (vst)"
     nsub_genes_text <- paste0("The number of subset genes for the vst transformation was set to ", as.character(params$nsub_genes), ".")
     if (var_sizeFactors >= vst_cutoff) {
         trafo_override_text <- paste0(" This was due to using the `vst-force` argument. It is recommended to rerun the pipeline using the rlog transformation as the size factors of the different samples have a variance of ~", round(var_sizeFactors, 4), ". For high sample variances (i.e. different sequencing depths between samples), the rlog transformation is more suitable [@love2014differential].")
@@ -591,7 +591,7 @@ if (params$trafo == "vst-force") {
     }
 } else if (params$trafo == "vst") {
     run_rlog <- F
-    trafo_long_text <- "variant stabilizing transformation (vst)"
+    trafo_long_text <- "variance stabilizing transformation (vst)"
     nsub_genes_text <- paste0("The number of subset genes for the vst transformation was set to ", as.character(params$nsub_genes), ".")
     if (var_sizeFactors >= vst_cutoff) {
         run_rlog <- T
@@ -2215,7 +2215,7 @@ cat(paste0(
 For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2,
 " `, `AnnotationDbi v", version_annotation,
 "` and `", name_species, " v", version_annotation,
-"` were employed. ", database_string, ".\n",
+"` were used. ", database_string, ".\n",
 "Pathways were classified as enriched for those genes with an adjusted p-value <= ", pval_text, "."
 ))
 ```
