@@ -75,7 +75,7 @@
                     "default": 0,
                     "description": "Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed."
                 },
-                "pval_threshold": {
+                "adj_pval_threshold": {
                     "type": "number",
                     "default": 0.05,
                     "description": "p value (float) to consider a gene as differentially expressed. The default value is 0.05."

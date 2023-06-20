@@ -26,7 +26,7 @@
   - [`--contrast_pairs`](#--contrast_pairs)
 - [Optional arguments](#optional-arguments)
   - [`--logFC_threshold`](#--logFC_threshold)
-  - [`--pval_threshold`](#--pval_threshold)
+  - [`--adj_pval_threshold`](#--adj_pval_threshold)
   - [`--genelist`](#--genelist)
   - [`--batch_effect`](#--batch_effect)
   - [`--min_DEG_pathway`](#--min_deg_pathway)
@@ -277,7 +277,7 @@ interaction_effect condition_treatment_treated_vs_control  condition_genotype_KO
 
 Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed. There is no threshold applied by default to Log2 Fold Change.
 
-### `--pval_threshold`
+### `--adj_pval_threshold`
 
 P value (float) to consider a gene as differentially expressed. The default value is 0.05.
 

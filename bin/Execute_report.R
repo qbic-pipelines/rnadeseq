@@ -20,7 +20,7 @@ option_list = list(
     make_option(c("-e", "--relevel"), type="character", default=NULL, help="Path to factor relevel file", metavar="character"),
     make_option(c("-b", "--batch_effect"), action="store_true", default=FALSE, help="Batch effect correction."),
     make_option(c("-f", "--logFC_threshold"), type="double", default=NULL, help="Log Fold Change threshold to consider a gene DE."),
-    make_option("--pval_threshold", type="double", default=0.05, help="p value threshold to consider a gene DE."),
+    make_option("--adj_pval_threshold", type="double", default=0.05, help="p value threshold to consider a gene DE."),
     make_option("--round_DE", type="integer", default=NULL, help="How many decimals to keep after rounding the DE analysis values."),
 
     #make_option(c("-z", "--rlog"), action="store_true", default=TRUE, help="Use rlog instead of vst normalization."),
@@ -70,7 +70,7 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_relevel = opt$relevel,
                                 batch_effect = opt$batch_effect,
                                 logFC_threshold = opt$logFC_threshold,
-                                pval_threshold = opt$pval_threshold,
+                                adj_pval_threshold = opt$adj_pval_threshold,
                                 trafo = opt$trafo,
                                 nsub_genes = opt$nsub_genes,
                                 round_DE = opt$round_DE,
