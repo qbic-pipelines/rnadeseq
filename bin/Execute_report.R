@@ -23,7 +23,6 @@ option_list = list(
     make_option("--adj_pval_threshold", type="double", default=0.05, help="adjusted p value threshold to consider a gene DE."),
     make_option("--round_DE", type="integer", default=NULL, help="How many decimals to keep after rounding the DE analysis values."),
 
-    #make_option(c("-z", "--rlog"), action="store_true", default=TRUE, help="Use rlog instead of vst normalization."),
     make_option(c("-z", "--norm_method"), type="character", default=NULL, help="Which transformation(s) to use."),
     make_option(c("-n", "--nsub_genes"), type="integer", default=NULL, help="Subset number of genes for vst."),
 
