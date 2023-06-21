@@ -7,12 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Added logic to decide between rlog and vst, added tryCatch for heatmap saving because this only works unreliably
 - [#202](https://github.com/qbic-pipelines/rnadeseq/pull/202) Added background list to pathway analysis
 - [#197](https://github.com/qbic-pipelines/rnadeseq/pull/197) Added gprofiler version string to report
 - [#196](https://github.com/qbic-pipelines/rnadeseq/pull/196) Added optional `--quote` parameter
 
 ### Changed
 
+- [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Changed < and > to <= and => for logF/pval comparisons, renamed gene_counts_tables/deseq2_library_scaled_gene_counts.tsv to deseq2_library_scaled_gene_counts.tsv and added entry to the folder explanation; renamed param pval_threshold to adj_pval_threshold
 - [#205](https://github.com/qbic-pipelines/rnadeseq/pull/205) Template update
 - [#204](https://github.com/qbic-pipelines/rnadeseq/pull/204) Changed relevel path in test_relevel.config to the qbic-pipelines repo
 - [#203](https://github.com/qbic-pipelines/rnadeseq/pull/203) Switched from Dockerhub to GHCR
@@ -22,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - [#207](https://github.com/qbic-pipelines/rnadeseq/pull/207) Fixed check of samples in counts vs metadata
+- [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Added correct plot titles to meanSdPlot (depending on normalization)
 - [#195](https://github.com/qbic-pipelines/rnadeseq/pull/195) Fixed section error in report
 
 ## 2.1 - Wheat Fields

@@ -9,7 +9,7 @@
       # md5sum: 2738119f899ecd154cd5cfc40e1e24e4
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
       # md5sum: b566de65d7b6e55aad648f74c439fcea
-    - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_table.tsv
+    - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_library_scaled_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv
