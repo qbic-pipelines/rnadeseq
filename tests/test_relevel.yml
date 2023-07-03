@@ -4,7 +4,7 @@
     - test_relevel
   files:
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_genotype_KO_vs_WT.tsv
-      md5sum: d0590d6438ce02b88c58c8c9721b0740
+      md5sum: 02380f76fff2658c76cff0337fad07c9
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_treatment_Treated_vs_Control.tsv
       md5sum: cb1f49e7fe93b4ef2673eb99fd8793cd
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
