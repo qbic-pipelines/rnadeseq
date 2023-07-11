@@ -449,7 +449,6 @@ DT::datatable(df_QA_neat, options = list(scrollX  = "100%", scrollY = "400px", p
 # Run DESeq function
 if (params$input_type == "featurecounts") {
     cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
-    cds <- DESeq(cds,  parallel = FALSE)
 } else if (params$input_type %in% c("rsem", "salmon")) {
     ## Create a dataframe which consists of both the gene id and the transcript name
     gtf <- rtracklayer::import(params$path_gtf)
@@ -504,7 +503,6 @@ if (params$input_type == "featurecounts") {
 
         #dds from SummarizedExperiment <se>, then run DESeq
         cds <- DESeqDataSet(se, design = as.formula(eval(parse(text=as.character(design[[1]])))))
-        cds <- DESeq(cds)
 
 # Load salmon count files
     } else if (params$input_type == "salmon") {
@@ -537,13 +535,12 @@ if (params$input_type == "featurecounts") {
         coldata$combfactor <- metadata$combfactor
         rownames(coldata) <- qbicCodes
         cds <- DESeqDataSetFromTximport(txi=txi.salmon, colData =coldata, design = eval(parse(text=as.character(design[[1]]))))
-        cds <- DESeq(cds)
     }
 } else {
     stop(paste0("Invalid input type: ", params$input_type, "! Input type must be one of: featurecounts, rsem, salmon!"))
 }
 
-#Apply relevel if provided to metadata
+#Apply relevel if provided; this must be done before calling DESeq()
 if (isProvided(params$path_relevel)) {
     relevel_table <- read.table(params$path_relevel, sep="\t", header = T, colClasses = "character")
     write.table(relevel_table, file="differential_gene_expression/metadata/relevel.tsv")
@@ -552,6 +549,9 @@ if (isProvided(params$path_relevel)) {
         cds[[paste(relev[1])]] <- relevel(cds[[paste(relev[1])]], paste(relev[2]))
     }
 }
+
+# Run actual DESeq analysis
+cds <- DESeq(cds)
 
 # sizeFactors(cds) as indicator of library sequencing depth
 if (params$input_type == "featurecounts") {
@@ -748,21 +748,21 @@ for (i in resultsNames(cds)[-1]) {
     h1 <- hist(res$pvalue[!use], breaks=0:50/50, plot=FALSE)
     h2 <- hist(res$pvalue[use], breaks=0:50/50, plot=FALSE)
     colori <- c('do not pass'="khaki", 'pass'="powderblue")
-    pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values",i,".pdf",sep=""))
+    pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_",i,".pdf",sep=""))
     barplot(height = rbind(h1$density, h2$density), beside = FALSE,
             col = colori, space = 0, main = "", xlab="p-value",ylab="frequency")
     text(x = c(0, length(h1$counts)), y = 0, label = paste(c(0,1)),
         adj = c(0.5,1.7), xpd=NA)
     legend("topleft", fill=rev(colori), legend=rev(names(colori)))
     dev.off()
-    png(paste("differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values",i,".png",sep=""))
+    png(paste("differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_",i,".png",sep=""))
     barplot(height = rbind(h1$density, h2$density), beside = FALSE,
             col = colori, space = 0, main = "", xlab="p-value",ylab="frequency")
     text(x = c(0, length(h1$counts)), y = 0, label = paste(c(0,1)),
         adj = c(0.5,1.7), xpd=NA)
     legend("topleft", fill=rev(colori), legend=rev(names(colori)))
     dev.off()
-    svg(paste("differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values",i,".svg",sep=""))
+    svg(paste("differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_",i,".svg",sep=""))
     barplot(height = rbind(h1$density, h2$density), beside = FALSE,
             col = colori, space = 0, main = "", xlab="p-value",ylab="frequency")
     text(x = c(0, length(h1$counts)), y = 0, label = paste(c(0,1)),
