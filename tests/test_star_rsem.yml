@@ -52,15 +52,15 @@
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.pdf
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.png
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_H1_vs_GM12878.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_H1_vs_GM12878.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_H1_vs_GM12878.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_K562_vs_GM12878.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_K562_vs_GM12878.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_K562_vs_GM12878.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_MCF7_vs_GM12878.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_MCF7_vs_GM12878.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_cellline_MCF7_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_cellline_H1_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_cellline_H1_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_cellline_H1_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_cellline_K562_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_cellline_K562_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_cellline_K562_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_cellline_MCF7_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_cellline_MCF7_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_cellline_MCF7_vs_GM12878.svg
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_cellline_H1_vs_GM12878.pdf
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_cellline_H1_vs_GM12878.png
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_cellline_H1_vs_GM12878.svg
