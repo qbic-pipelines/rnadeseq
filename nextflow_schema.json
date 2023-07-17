@@ -17,14 +17,20 @@
                 },
                 "gene_counts": {
                     "type": "string",
+                    "format": "file-path",
+                    "exists": true,
                     "description": "If input_type = featurecounts: Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name. If input_type = rsem or input_type = salmon: Path to rsem/salmon output folder."
                 },
                 "input": {
                     "type": "string",
+                    "format": "file-path",
+                    "exists": true,
                     "description": "Metadata table/samplesheet (TSV). Rows are samples and columns contain sample grouping."
                 },
                 "model": {
                     "type": "string",
+                    "format": "file-path",
+                    "exists": true,
                     "description": "Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file/samplesheet."
                 },
                 "gtf": {
