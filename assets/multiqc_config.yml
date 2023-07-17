@@ -7,7 +7,7 @@ report_section_order:
     order: -1000
   software_versions:
     order: -1001
-  "nf-core-rnadeseq-summary": # this is necessary to prevent a linting error
+  "qbic-pipelines-rnadeseq-summary": # this is necessary to prevent a linting error
     order: -1002
 
 export_plots: true
