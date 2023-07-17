@@ -1168,7 +1168,7 @@ if (isProvided(params$path_contrast_matrix)){
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj <= params$adj_pval_threshold & abs(log2FoldChange) >= params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
-        if (isProvided(params$round_DE)) {
+        if (isProvided(params$round_DE) && params$round_DE>-1) {
             DE_genes_contrast <- (DE_genes_contrast  %>% mutate_if(is.numeric, round, digits=params$round_DE))
         }
         # Save table
@@ -1228,7 +1228,7 @@ if (isProvided(params$path_contrast_list)) {
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj <= params$adj_pval_threshold & abs(log2FoldChange) >= params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
-        if (isProvided(params$round_DE)) {
+        if (isProvided(params$round_DE) && params$round_DE>-1) {
             DE_genes_contrast <- (DE_genes_contrast  %>% mutate_if(is.numeric, round, digits=params$round_DE))
         }
         # Save table
@@ -1271,7 +1271,7 @@ if (isProvided(params$path_contrast_pairs)) {
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
 
         # Round table before writing
-        if (isProvided(params$round_DE)) {
+        if (isProvided(params$round_DE) && params$round_DE>-1) {
             DE_genes_contrast <- (DE_genes_contrast  %>% mutate_if(is.numeric, round, digits=params$round_DE))
         }
 
@@ -1310,7 +1310,7 @@ if (!isProvided(params$path_contrast_matrix) & !isProvided(params$path_contrast_
         DE_genes_contrast <- subset(DE_genes_contrast_genename, padj <= params$adj_pval_threshold & abs(log2FoldChange) >= params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
-        if (isProvided(params$round_DE)) {
+        if (isProvided(params$round_DE) && params$round_DE>-1) {
             DE_genes_contrast <- (DE_genes_contrast  %>% mutate_if(is.numeric, round, digits=params$round_DE))
         }
         # Save table
@@ -1373,7 +1373,7 @@ DE_genes_final_table = merge(x=DE_genes_final_table, y=gene_names, by.x="Ensembl
 DE_genes_final_table = DE_genes_final_table[,c(dim(DE_genes_final_table)[2],1:dim(DE_genes_final_table)[2]-1)]
 DE_genes_final_table = DE_genes_final_table[order(DE_genes_final_table[,"Ensembl_ID"]),]
 # Round table before writing
-if (isProvided(params$round_DE)) {
+if (isProvided(params$round_DE) && params$round_DE>-1) {
     DE_genes_final_table <- (DE_genes_final_table  %>% mutate_if(is.numeric, round, digits=params$round_DE))
 }
 

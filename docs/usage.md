@@ -336,7 +336,7 @@ This is ignored if `--norm_method` is set to `rlog`. If using the `vst` transfor
 
 ### `--round_DE`
 
-Integer indicating to how many decimals to round the DE results (default: no rounding).
+Integer indicating to how many decimals to round the DE results (default: -1, indicating no rounding).
 
 ### `--run_pathway_analysis`
 

@@ -21,7 +21,7 @@ option_list = list(
     make_option(c("-b", "--batch_effect"), action="store_true", default=FALSE, help="Batch effect correction."),
     make_option(c("-f", "--logFC_threshold"), type="double", default=NULL, help="Log Fold Change threshold to consider a gene DE."),
     make_option("--adj_pval_threshold", type="double", default=0.05, help="adjusted p value threshold to consider a gene DE."),
-    make_option("--round_DE", type="integer", default=NULL, help="How many decimals to keep after rounding the DE analysis values."),
+    make_option("--round_DE", type="integer", default=-1, help="How many decimals to keep after rounding the DE analysis values; if -1, will not round."),
 
     make_option(c("-z", "--norm_method"), type="character", default=NULL, help="Which transformation(s) to use."),
     make_option(c("-n", "--nsub_genes"), type="integer", default=NULL, help="Subset number of genes for vst."),
