@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/rnadeseq/master/assets/schema_input.json",
-    "title": "nf-core/rnadeseq pipeline - params.input schema",
+    "$id": "https://raw.githubusercontent.com/qbic-pipelines/rnadeseq/master/assets/schema_input.json",
+    "title": "qbic-pipelines/rnadeseq pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
     "items": {

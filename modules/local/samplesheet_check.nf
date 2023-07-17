@@ -17,7 +17,7 @@ process SAMPLESHEET_CHECK {
     when:
     task.ext.when == null || task.ext.when
 
-    script: // This script is bundled with the pipeline, in nf-core/rnadeseq/bin/
+    script: // This script is bundled with the pipeline, in qbic-pipelines/rnadeseq/bin/
     """
     check_samplesheet.py \\
         $samplesheet \\

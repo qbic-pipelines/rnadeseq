@@ -1,5 +1,5 @@
 //
-// This file holds several functions specific to the workflow/rnadeseq.nf in the nf-core/rnadeseq pipeline
+// This file holds several functions specific to the workflow/rnadeseq.nf in the qbic-pipelines/rnadeseq pipeline
 //
 
 import nextflow.Nextflow

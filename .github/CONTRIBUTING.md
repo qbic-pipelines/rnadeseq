@@ -1,9 +1,9 @@
 # qbic-pipelines/rnadeseq: Contributing Guidelines
 
 Hi there!
-Many thanks for taking an interest in improving nf-core/rnadeseq.
+Many thanks for taking an interest in improving qbic-pipelines/rnadeseq.
 
-We try to manage the required tasks for nf-core/rnadeseq using GitHub issues, you probably came to this page when creating one.
+We try to manage the required tasks for qbic-pipelines/rnadeseq using GitHub issues, you probably came to this page when creating one.
 Please use the pre-filled template to save time.
 
 However, don't be put off by this template - other more general issues and suggestions are welcome!
@@ -13,8 +13,8 @@ Contributions to the code are even more welcome ;)
 
 If you'd like to write some code for qbic-pipelines/rnadeseq, the standard workflow is as follows:
 
-1. Check that there isn't already an issue about your idea in the [nf-core/rnadeseq issues](https://github.com/nf-core/rnadeseq/issues) to avoid duplicating work. If there isn't one already, please create one so that others know you're working on this
-2. [Fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) the [nf-core/rnadeseq repository](https://github.com/nf-core/rnadeseq) to your GitHub account
+1. Check that there isn't already an issue about your idea in the [qbic-pipelines/rnadeseq issues](https://github.com/qbic-pipelines/rnadeseq/issues) to avoid duplicating work. If there isn't one already, please create one so that others know you're working on this
+2. [Fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) the [qbic-pipelines/rnadeseq repository](https://github.com/qbic-pipelines/rnadeseq) to your GitHub account
 3. Make the necessary changes / additions within your forked repository following [Pipeline conventions](#pipeline-contribution-conventions)
 4. Use `nf-core schema build` and add any new parameters to the pipeline JSON schema (requires [nf-core tools](https://github.com/nf-core/tools) >= 1.10).
 5. Submit a Pull Request against the `dev` branch and wait for the code to be reviewed and merged
@@ -106,7 +106,7 @@ This repo includes a devcontainer configuration which will create a GitHub Codes
 
 To get started:
 
-- Open the repo in [Codespaces](https://github.com/nf-core/rnadeseq/codespaces)
+- Open the repo in [Codespaces](https://github.com/qbic-pipelines/rnadeseq/codespaces)
 - Tools installed
   - nf-core
   - Nextflow
