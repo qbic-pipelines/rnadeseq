@@ -4,8 +4,6 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
-
 // Validate input parameters
 WorkflowRnadeseq.initialise(params, log)
 
@@ -19,9 +17,9 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 // Check mandatory parameters
 if (!(params.input_type in ["featurecounts", "salmon", "rsem"])) { exit 1, 'Wrong input type ' + params.input_type + ', must be one of "featurecounts", "salmon", "rsem"!' }
 
-if (params.gene_counts) { ch_counts_path = Channel.fromPath(params.gene_counts) } else { exit 1, 'Please provide input file/dir!' }
-if (params.input) { ch_metadata_file = Channel.fromPath(params.input) } else { exit 1, 'Please provide metadata file/samplesheet!' }
-if (params.model) { ch_model_file = Channel.fromPath(params.model) } else { exit 1, 'Please provide linear model file!' }
+ch_counts_path = Channel.fromPath(params.gene_counts)
+ch_metadata_file = Channel.fromPath(params.input)
+ch_model_file = Channel.fromPath(params.model)
 
 // Create channel for genome parameter gtf (the other genome params are not files)
 if (params.input_type in ["rsem", "salmon"]) { ch_gtf = Channel.fromPath(params.gtf) } else { ch_gtf = Channel.fromPath("FALSE") }
@@ -37,6 +35,23 @@ ch_custom_gmt = Channel.fromPath(params.custom_gmt)
 ch_custom_background = Channel.fromPath(params.custom_background)
 ch_proj_summary_file = Channel.fromPath(params.project_summary)
 ch_softwareversions_file = Channel.fromPath(params.software_versions)
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    PRINT PARAMS SUMMARY
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+include { paramsSummaryLog; paramsSummaryMap } from 'plugin/nf-validation'
+
+def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
+def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
+def summary_params = paramsSummaryMap(workflow)
+
+// Print parameter summary log to screen
+log.info logo + paramsSummaryLog(workflow) + citation
+
+WorkflowRnadeseq.initialise(params, log)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,10 +90,6 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 
 // Info required for completion email and summary
 workflow RNADESEQ {
-
-    //
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
-    //
 
 //
 //  MODULE: RNAseq Report
@@ -121,10 +132,13 @@ workflow RNADESEQ {
 
 /*
 workflow.onComplete {
-    if (params.email || param.email_on_fail) {
+    if (params.email || params.email_on_fail) {
         NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
     }
     NfcoreTemplate.summary(workflow, params, log)
+    if (params.hook_url) {
+        NfcoreTemplate.IM_notification(workflow, params, summary_params, projectDir, log)
+    }
 }
 */
 /*

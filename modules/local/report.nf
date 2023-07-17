@@ -32,7 +32,6 @@ process REPORT {
     def genelist_opt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel $relevel" : ''
     def batch_effect_opt = params.batch_effect ? "--batch_effect TRUE" : ''
-    def round_DE_opt = params.round_DE ? "--round_DE $params.round_DE" : ''
 
     def pathway_opt = params.run_pathway_analysis ? "--pathway_analysis" : ''
     def custom_gmt_opt = custom_gmt.name != 'NO_FILE3' ? "--custom_gmt $custom_gmt" : ''
@@ -68,7 +67,7 @@ process REPORT {
         --adj_pval_threshold $params.adj_pval_threshold \
         --norm_method $params.norm_method \
         --nsub_genes $params.vst_genes_number \
-        $round_DE_opt \
+        --round_DE $params.round_DE \
         $pathway_opt \
         $custom_gmt_opt \
         $set_background_opt \

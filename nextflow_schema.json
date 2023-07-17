@@ -21,10 +21,14 @@
                 },
                 "input": {
                     "type": "string",
+                    "format": "file-path",
+                    "exists": true,
                     "description": "Metadata table/samplesheet (TSV). Rows are samples and columns contain sample grouping."
                 },
                 "model": {
                     "type": "string",
+                    "format": "file-path",
+                    "exists": true,
                     "description": "Linear model function to calculate the contrasts (TXT). Variable names should be columns in metadata file/samplesheet."
                 },
                 "gtf": {
@@ -66,8 +70,7 @@
                     "description": "Tsv indicating list of factors (conditions in the metadata table/samplesheet) and the new level on which to relevel the factor. Check contrasts docs."
                 },
                 "batch_effect": {
-                    "type": "string",
-                    "default": "false",
+                    "type": "boolean",
                     "description": "Turn on this flag if you wish to consider batch effects. You need to add the batch effect to the linear model too!"
                 },
                 "logFC_threshold": {
@@ -92,9 +95,9 @@
                     "description": "Integer indicating how many genes to subset to during vst transformation (when using rlog, will ignore this number). Default: 1000."
                 },
                 "round_DE": {
-                    "type": "string",
-                    "default": "null",
-                    "description": "Number of decimals to which to round result tables, default: no rounding. Integer, this is only set to string in the schema to allow for a null default."
+                    "type": "integer",
+                    "default": -1,
+                    "description": "Number of decimals to which to round result tables, default: -1 (this means no rounding)."
                 }
             }
         },
@@ -118,7 +121,6 @@
                 },
                 "run_pathway_analysis": {
                     "type": "boolean",
-                    "default": false,
                     "description": "Turn on this flag if you wish to run pathway analysis."
                 },
                 "custom_gmt": {
@@ -184,7 +186,6 @@
                 },
                 "igenomes_ignore": {
                     "type": "boolean",
-                    "default": false,
                     "description": "Do not load the iGenomes reference config."
                 }
             }
@@ -197,7 +198,6 @@
             "properties": {
                 "citest": {
                     "type": "boolean",
-                    "default": false,
                     "description": "Only enable for CI tests on the github servers",
                     "hidden": true
                 }
@@ -237,9 +237,18 @@
                     "description": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits",
                     "default": "false"
                 },
+                "email_on_fail": {
+                    "type": "string",
+                    "description": "Email address for completion summary, only when pipeline fails.",
+                    "fa_icon": "fas fa-exclamation-triangle",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
+                    "help_text": "An email address to send a summary email to when the pipeline is completed - ONLY sent if the pipeline does not exit successfully.",
+                    "hidden": true
+                },
                 "plaintext_email": {
                     "type": "boolean",
                     "description": "Send plain-text email instead of HTML.",
+                    "fa_icon": "fas fa-remove-format",
                     "hidden": true
                 },
                 "monochrome_logs": {
@@ -288,10 +297,75 @@
                     "description": "Institutional config URL link.",
                     "hidden": true
                 },
-                "show_hidden_params": {
+                "hook_url": {
+                    "type": "string",
+                    "description": "Incoming hook URL for messaging service",
+                    "fa_icon": "fas fa-people-group",
+                    "help_text": "Incoming hook URL for messaging service. Currently, MS Teams and Slack are supported.",
+                    "hidden": true
+                },
+                "validate_params": {
                     "type": "boolean",
-                    "default": false,
-                    "description": "Show all params when using `--help`"
+                    "description": "Boolean whether to validate parameters against the schema at runtime",
+                    "default": true,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
+                },
+                "validationShowHiddenParams": {
+                    "type": "boolean",
+                    "fa_icon": "far fa-eye-slash",
+                    "description": "Show all params when using `--help`",
+                    "hidden": true,
+                    "help_text": "By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters."
+                },
+                "validationFailUnrecognisedParams": {
+                    "type": "boolean",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "Validation of parameters fails when an unrecognised parameter is found.",
+                    "hidden": true,
+                    "help_text": "By default, when an unrecognised parameter is found, it returns a warinig."
+                },
+                "validationLenientMode": {
+                    "type": "boolean",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "Validation of parameters in lenient more.",
+                    "hidden": true,
+                    "help_text": "Allows string values that are parseable as numbers or booleans. For further information see [JSONSchema docs](https://github.com/everit-org/json-schema#lenient-mode)."
+                }
+            }
+        },
+        "max_job_request_options": {
+            "title": "Max job request options",
+            "type": "object",
+            "fa_icon": "fab fa-acquisitions-incorporated",
+            "description": "Set the top limit for requested resources for any single job.",
+            "help_text": "If you are running on a smaller system, a pipeline step requesting more resources than are available may cause the Nextflow to stop the run with an error. These options allow you to cap the maximum resources requested by any single job so that the pipeline will run on your system.\n\nNote that you can not _increase_ the resources requested by any job using these options. For that you will need your own configuration file. See [the nf-core website](https://nf-co.re/usage/configuration) for details.",
+            "properties": {
+                "max_cpus": {
+                    "type": "integer",
+                    "description": "Maximum number of CPUs that can be requested for any single job.",
+                    "default": 16,
+                    "fa_icon": "fas fa-microchip",
+                    "hidden": true,
+                    "help_text": "Use to set an upper-limit for the CPU requirement for each process. Should be an integer e.g. `--max_cpus 1`"
+                },
+                "max_memory": {
+                    "type": "string",
+                    "description": "Maximum amount of memory that can be requested for any single job.",
+                    "default": "128.GB",
+                    "fa_icon": "fas fa-memory",
+                    "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
+                    "hidden": true,
+                    "help_text": "Use to set an upper-limit for the memory requirement for each process. Should be a string in the format integer-unit e.g. `--max_memory '8.GB'`"
+                },
+                "max_time": {
+                    "type": "string",
+                    "description": "Maximum amount of time that can be requested for any single job.",
+                    "default": "240.h",
+                    "fa_icon": "far fa-clock",
+                    "pattern": "^(\\d+\\.?\\s*(s|m|h|d|day)\\s*)+$",
+                    "hidden": true,
+                    "help_text": "Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`"
                 }
             }
         }
@@ -320,6 +394,9 @@
         },
         {
             "$ref": "#/definitions/boilerplate_options"
+        },
+        {
+            "$ref": "#/definitions/max_job_request_options"
         }
     ]
 }
