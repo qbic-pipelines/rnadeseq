@@ -9,8 +9,8 @@ on:
     types: [published]
 
 jobs:
-  push_dockerhub:
-    name: Push new Docker image to Docker Hub
+  push_github:
+    name: Push new Docker image to GHCR
     runs-on: ubuntu-latest
     # Only run for the qbic-pipelines repo, for releases and merged PRs
     if: ${{ github.repository == 'qbic-pipelines/rnadeseq' }}

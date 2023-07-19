@@ -220,9 +220,6 @@ invisible( lapply(c(
 "tools",
 "yaml"
 ), library, character.only=T))
-
-# Import python sys so that the save_image command works
-reticulate::py_run_string("import sys")
 ```
 
 ```{r create_outdirs, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
@@ -1065,14 +1062,24 @@ sampleDists <- dist(t(assay(if (run_rlog) rld else vsd)))
 sampleDistMatrix <- as.matrix(sampleDists)
 colors = colorRampPalette(rev(RColorBrewer::brewer.pal(9, "Blues")))(255)
 par(oma=c(3,3,3,3))
+dist_heatmap <- pheatmap(mat = sampleDistMatrix, color=colors)
+
+svg("differential_gene_expression/plots/Heatmaps_of_distances.svg")
+dist_heatmap
+dev.off()
+png("differential_gene_expression/plots/Heatmaps_of_distances.png")
+dist_heatmap
+dev.off()
+pdf("differential_gene_expression/plots/Heatmaps_of_distances.pdf")
+dist_heatmap
+dev.off()
+
+# Recompute heatmap with heatmaply for interactive plot in report
 dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey")
-save_image(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.pdf")
-save_image(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.png")
-save_image(dist_heatmap, file="differential_gene_expression/plots/Heatmaps_of_distances.svg")
 ```
 
 ```{r heatmap_show, echo=FALSE, message=FALSE, warning=FALSE, out.width="90%", out.height="130%", fig.asp=1, dpi=1000, fig.align='center'}
-#add export button to plot
+# Add export button to plot
 dist_heatmap %>% layout(height=700, width=800) %>% config(modeBarButtonsToAdd = list(svg_exp))
 ```
 
