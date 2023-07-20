@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#211](https://github.com/qbic-pipelines/rnadeseq/pull/21) Replaced heatmaply with pheatmap for static plots and removed kaleido and reticulate from container
 - [#209](https://github.com/qbic-pipelines/rnadeseq/pull/209) Template update to 2.9, Chromium Falcon; exchanged file.exists for nf-core validation checks; changed round_DE param to int
 - [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Changed < and > to <= and => for logF/pval comparisons, renamed gene_counts_tables/deseq2_library_scaled_gene_counts.tsv to deseq2_library_scaled_gene_counts.tsv and added entry to the folder explanation; renamed param pval_threshold to adj_pval_threshold
 - [#205](https://github.com/qbic-pipelines/rnadeseq/pull/205) Template update

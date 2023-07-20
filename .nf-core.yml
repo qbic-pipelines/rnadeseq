@@ -20,7 +20,6 @@ lint:
     - .github/ISSUE_TEMPLATE/config.yml
     - .github/workflows/awsfulltest.yml
     - .github/workflows/awstest.yml
-    - .github/workflows/push_dockerhub.yml
     - assets/multiqc_config.yaml
     - assets/nf-core-qbic-pipelines/rnadeseq_logo_light.png
     - bin/markdown_to_html.r
