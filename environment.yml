@@ -21,7 +21,6 @@ dependencies:
   - bioconda::bioconductor-tximport=1.22.0
   - bioconda::bioconductor-vsn=3.62.0
   - conda-forge::pandoc=2.17.1.1
-  - conda-forge::plotly=5.13.0 #this is necessary for exporting plots with save_image()
   - conda-forge::r-base=4.1.2
   - conda-forge::r-details=0.3.0
   - conda-forge::r-dplyr=1.0.10

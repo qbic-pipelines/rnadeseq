@@ -209,7 +209,6 @@ invisible( lapply(c(
 "kableExtra",
 "knitr",
 "formattable",
-"plotly",
 "webshot",
 "htmlwidgets",
 "pheatmap",
