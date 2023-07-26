@@ -2049,13 +2049,16 @@ if (length(q_list) > 0) {
     }
 
     path_enrich <- as.data.frame(gostres$result)
+
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)
         pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$adj_pval_threshold
 
         #limit gostplot y maximum
         for (counter in c(1:length(contrast_files))) {
-            pg2[['x']][['layout']][[paste0('yaxis', ifelse(counter>1, counter, ""))]][['range']] <- c(0,ceiling(2*-log10(max(gostres$p_value))))
+            expression <- parse(text=paste0("pg2 %>% layout(yaxis", ifelse(counter>1, counter, "")," = list(range = list(0, ceiling(2*-log10(max(gostres$p_value))))))"))
+            pg2 <- eval(expression)
+            pg2 %>% layout(yaxis2 = list(range = list(0, ceiling(2*-log10(max(gostres$p_value))))))
         }
 
         #add export button to plot
