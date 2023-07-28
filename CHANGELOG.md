@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [#212](https://github.com/qbic-pipelines/rnadeseq/pull/212) Added computational methods if no --software_versions
 - [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Added logic to decide between rlog and vst, added tryCatch for heatmap saving because this only works unreliably
 - [#202](https://github.com/qbic-pipelines/rnadeseq/pull/202) Added background list to pathway analysis
 - [#197](https://github.com/qbic-pipelines/rnadeseq/pull/197) Added gprofiler version string to report
@@ -25,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- [#212](https://github.com/qbic-pipelines/rnadeseq/pull/212) Fixed movability of interactive gostplots
 - [#208](https://github.com/qbic-pipelines/rnadeseq/pull/208) Fixed relevel bug, the function should now finally work!
 - [#207](https://github.com/qbic-pipelines/rnadeseq/pull/207) Fixed check of samples in counts vs metadata
 - [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Added correct plot titles to meanSdPlot (depending on normalization)
