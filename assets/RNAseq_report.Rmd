@@ -2050,15 +2050,19 @@ if (length(q_list) > 0) {
 
     path_enrich <- as.data.frame(gostres$result)
 
+    # Determine which max has to be set for the gostplot y axis: highest -log10(pval) (use min function as the smallest
+    # p value produces the highest -log10) OR 17, as the gostplot caps at 16 (values>16 are set to 17)
+    y_max <- min(ceiling(-log10(min(path_enrich$p_value, na.rm=T))), 18)
+
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)
         pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$adj_pval_threshold
 
-        #limit gostplot y maximum
+        # limit gostplot y maximum dynamically for all subplots
         for (counter in c(1:length(contrast_files))) {
-            expression <- parse(text=paste0("pg2 %>% layout(yaxis", ifelse(counter>1, counter, "")," = list(range = list(0, ceiling(2*-log10(max(gostres$p_value))))))"))
+
+            expression <- parse(text=paste0("pg2 %>% layout(yaxis", ifelse(counter>1, counter, "")," = list(range = list(0, y_max)))"))
             pg2 <- eval(expression)
-            pg2 %>% layout(yaxis2 = list(range = list(0, ceiling(2*-log10(max(gostres$p_value))))))
         }
 
         #add export button to plot
@@ -2113,8 +2117,9 @@ quote_string <- ifelse(
 )
 cat(quote_string)
 
-# Initiate var in case no software_versions were provided
+# Initiate vars in case no software_versions were provided
 software_versions_csv <- F
+quant_tool <- params$input_type
 ```
 
 Further support for this project will be restricted to the results presented in this report.
@@ -2153,6 +2158,10 @@ if (software_versions_csv) {
 
 # Computational methods
 
+```{r no_software_versions, echo=FALSE, results='asis', eval=!isProvided(params$path_software_versions)}
+cat("No software versions file was provided for primary analysis.")
+```
+
 ```{r software_versions_RNASeq, echo=FALSE, results='asis', eval=isProvided(params$path_software_versions)}
 
 # In the following part, I use newlines (in code) where possible whenever the paste0 function switches from a string to a variable call to better distinguish between the two so it is obvious in which lines quotes are needed and in which not --> Cannot always use newlines as this sometimes translates into the report.html
@@ -2181,10 +2190,12 @@ quant_cite,
 ))
 
 ```{r MQC_cite, echo=FALSE, results='asis', eval=software_versions_csv&isProvided(params$path_software_versions)}
+
 cat(paste0("\nAn aggregation of the quality control for the RNAseq analysis was performed with `MultiQC ", as.character(version["MultiQC"]), "` [^2] [@ewels2016multiqc]."))
+
 ```
 
-```{r software_versions_DE, echo=FALSE, results='asis', eval=isProvided(params$path_software_versions)}
+```{r software_versions_DE, echo=FALSE, results='asis'}
 
 cat(paste0(
 "## Differential gene expression analysis
@@ -2199,7 +2210,7 @@ pval_text, " for the p-value and ",
 logFC_text, " for the log2 Fold Change."
 ))
 
-```{r conditional_pathway, echo=FALSE, results='asis', eval=isProvided(params$pathway_analysis)&isProvided(params$path_software_versions)}
+```{r conditional_pathway, echo=FALSE, results='asis', eval=isProvided(params$pathway_analysis)}
 version_gprofiler2 = packageVersion("gprofiler2")
 version_annotation = packageVersion("AnnotationDbi")
 name_species       = params$species_library
