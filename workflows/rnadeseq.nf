@@ -15,7 +15,7 @@ def checkPathParamList = [
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-if (!(params.input_type in ["featurecounts", "salmon", "rsem"])) { exit 1, 'Wrong input type ' + params.input_type + ', must be one of "featurecounts", "salmon", "rsem"!' }
+if (!(params.input_type in ["featurecounts", "salmon", "rsem", "smrnaseq"])) { exit 1, 'Wrong input type ' + params.input_type + ', must be one of "featurecounts", "salmon", "rsem", "smrnaseq"!' }
 
 ch_counts_path = Channel.fromPath(params.gene_counts)
 ch_metadata_file = Channel.fromPath(params.input)

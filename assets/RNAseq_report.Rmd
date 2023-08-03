@@ -86,6 +86,35 @@ label_size <- function(dimension_int) {
     val <- max(c(2, 10-dimension_int/15))
     return(val)
 }
+
+# Function for creating a dataframe from smrnaseq files
+build_smrnaseq_df <- function(files) {
+    merged_mat <- F
+    for (f in files) {
+        file_tab <- read.table(f, sep="\t", row.names=1)
+        # Usually, the last row is weird and has the rowname *, remove it
+        if (grep("*", tail(rownames(file_tab), n=1), fixed=T)) {
+            file_tab <- head(file_tab, -1)
+        }
+
+        # If merged_mat already exists, add third hairpin column to it (second column after rownames)
+        if (is.data.frame(merged_mat)) {
+
+            # Check if rownames are the same
+            if (rownames(file_tab) != rownames(merged_mat)) {
+                stop(paste("Rownames of smrnaseq file", file_tab, "differ from the rownames of the other files; exiting..."))
+            }
+            merged_mat[[basename(f)]] <- file_tab[,2]
+        } else {
+
+            # Otherwise initiate it from third hairpin column and rownames
+            merged_mat <- data.frame(file_tab[,2])
+            rownames(merged_mat) <- rownames(file_tab)
+            colnames(merged_mat) <- c(basename(f))
+        }
+    }
+    merged_mat
+}
 ```
 
 ```{r param_validation, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
@@ -159,8 +188,8 @@ write_error_msg <- function(counts, qbicCodes) {
 }
 
 #Check necessary params
-if (!(params$input_type %in% c("featurecounts", "rsem", "salmon"))){
-    stop(paste0("Wrong input type ", params$input_type, ", must be one of [featurecounts, rsem, salmon]!"))
+if (!(params$input_type %in% c("featurecounts", "rsem", "salmon", "smrnaseq"))){
+    stop(paste0("Wrong input type ", params$input_type, ", must be one of [featurecounts, rsem, salmon, smrnaseq]!"))
 }
 if (params$input_type %in% c("rsem", "salmon") & !isProvided(params$path_gtf)){
     stop(paste0("For input type salmon, gtf file needs to be provided!\nIf using igenomes, please check that the entry for your genome contains a gtf file and otherwise provide one with `--gtf`."))
@@ -340,9 +369,60 @@ metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
 row.names(metadata) = metadata$sampleName
 metadata_save <- metadata
 
+if (params$input_type == "smrnaseq") {
+
+    # Prepare files from smrnaseq, start with hairpins
+    hairpin_files <- file.path(gsub("/$", "", params$path_gene_counts), "hairpin", paste0(qbicCodes, "_mature_hairpin.sorted.bam.idxstats"))
+    if (!(all(file.exists(hairpin_files)))) {
+        missing_files <- "Could not find all of the specified <QBiC-code>_mature_hairpin.sorted.bam.idxstats files! Please check that for all QBiC codes in the metadata sheet, a <QBiC-code>_mature_hairpin.sorted.bam.idxstats file is present in the gene_counts folder and make sure that no typos exist. The following file(s) could not be found: "
+        for (f in hairpin_files) {
+            if (!file.exists(f)) {
+                missing_files <- paste0(missing_files, f, ", ")
+            }
+        }
+        missing_files <- paste0(substring(missing_files, 1, nchar(missing_files)-2), ".")
+        stop(missing_files, call.=F)
+    }
+
+    # Non-hairpins next
+    other_files <- file.path(gsub("/$", "", params$path_gene_counts), "mature", paste0(qbicCodes, "_mature.sorted.bam.idxstats"))
+    if (!(all(file.exists(other_files)))) {
+        missing_files <- "Could not find all of the specified <QBiC-code>_mature.sorted.bam.idxstats files! Please check that for all QBiC codes in the metadata sheet, a <QBiC-code>_mature.sorted.bam.idxstats file is present in the gene_counts folder and make sure that no typos exist. The following file(s) could not be found: "
+        for (f in other_files) {
+            if (!file.exists(f)) {
+                missing_files <- paste0(missing_files, f, ", ")
+            }
+        }
+        missing_files <- paste0(substring(missing_files, 1, nchar(missing_files)-2), ".")
+        stop(missing_files, call.=F)
+    }
+
+    # Merge hairpins and counts
+    hairpin_df <- build_smrnaseq_df(hairpin_files)
+    other_df <- build_smrnaseq_df(other_files)
+    colnames(other_df) <- colnames(hairpin_df)
+    count.table <- rbind(hairpin_df, other_df)
+
+
+    #TODO
+    # Need to order columns in count.table
+#    count.table <- count.table[, order(names(count.table))]
+
+
+    #count.table$Ensembl_ID <- rownames(count.table)
+    count.table <- cbind(Ensembl_ID=rownames(count.table), gene_name=rownames(count.table), count.table)
+    write.table(count.table, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
+
+
+}
+
 # Load count table for FeatureCounts
 if (params$input_type == "featurecounts"){
     count.table <- read.table(params$path_gene_counts,  header = T,sep = "\t",na.strings =c("","NA"),quote=NULL,stringsAsFactors=F,dec=".",fill=TRUE,row.names=1)
+}
+
+# Processing is the same for FeatureCounts and the smrnaseq matrix that is built above
+if (params$input_type %in% c("featurecounts", "smrnaseq")) {
     count.table$Ensembl_ID <- row.names(count.table)
     drop <- c("Ensembl_ID","gene_name")
     gene_names <- count.table[,drop]
@@ -443,8 +523,10 @@ DT::datatable(df_QA_neat, options = list(scrollX  = "100%", scrollY = "400px", p
 
 ################## RUN DESEQ2 ######################################
 # Run DESeq function
-if (params$input_type == "featurecounts") {
+if (params$input_type %in% c("featurecounts", "smrnaseq")) {
+
     cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
+
 } else if (params$input_type %in% c("rsem", "salmon")) {
     ## Create a dataframe which consists of both the gene id and the transcript name
     gtf <- rtracklayer::import(params$path_gtf)
@@ -469,7 +551,7 @@ if (params$input_type == "featurecounts") {
         #-->the sample name is in the file name
         files <- file.path(gsub("/$", "", params$path_gene_counts), paste0(qbicCodes, ".genes.results"))
         if (!(all(file.exists(files)))) {
-            missing_files <- "DESeq2.R could not find all of the specified <QBiC-code>.genes.results files! Please check that for all QBiC codes in the metadata sheet, a <QBiC-code>.genes.results file is present in the gene_counts folder and make sure that no typos exist. The following file(s) could not be found: "
+            missing_files <- "Could not find all of the specified <QBiC-code>.genes.results files! Please check that for all QBiC codes in the metadata sheet, a <QBiC-code>.genes.results file is present in the gene_counts folder and make sure that no typos exist. The following file(s) could not be found: "
             for (f in files) {
                 if (!file.exists(f)) {
                     missing_files <- paste0(missing_files, f, ", ")
@@ -507,7 +589,7 @@ if (params$input_type == "featurecounts") {
         #-->the sample name is in the subfolder name, not in the file name!
         files <- file.path(gsub("/$", "", params$path_gene_counts), qbicCodes, "quant.sf")
         if (!(all(file.exists(files)))) {
-            missing_files <- "DESeq2.R could not find all of the specified <QBiC-code>/quant.sf files! Please check that for all QBiC codes in the metadata sheet, a <QBiC-code>/quant.sf file is present in the gene_counts folder and <QBiC-code> subfolder and make sure that no typos exist. The following file(s) could not be found: "
+            missing_files <- "Could not find all of the specified <QBiC-code>/quant.sf files! Please check that for all QBiC codes in the metadata sheet, a <QBiC-code>/quant.sf file is present in the gene_counts folder and <QBiC-code> subfolder and make sure that no typos exist. The following file(s) could not be found: "
             for (f in files) {
                 if (!file.exists(f)) {
                     missing_files <- paste0(missing_files, f, ", ")
@@ -533,7 +615,7 @@ if (params$input_type == "featurecounts") {
         cds <- DESeqDataSetFromTximport(txi=txi.salmon, colData =coldata, design = eval(parse(text=as.character(design[[1]]))))
     }
 } else {
-    stop(paste0("Invalid input type: ", params$input_type, "! Input type must be one of: featurecounts, rsem, salmon!"))
+    stop(paste0("Invalid input type: ", params$input_type, "! Input type must be one of: featurecounts, rsem, salmon, smrnaseq!"))
 }
 
 #Apply relevel if provided; this must be done before calling DESeq()
@@ -550,7 +632,7 @@ if (isProvided(params$path_relevel)) {
 cds <- DESeq(cds)
 
 # sizeFactors(cds) as indicator of library sequencing depth
-if (params$input_type == "featurecounts") {
+if (params$input_type %in% c("featurecounts", "smrnaseq")) {
     sf <- sizeFactors(cds)
 } else {
     # If tximport was used, sizeFactors doesn't work, so use workaround as described here: https://support.bioconductor.org/p/97676/
@@ -1171,7 +1253,7 @@ if (isProvided(params$path_contrast_matrix)){
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
 
         # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj <= params$adj_pval_threshold & abs(log2FoldChange) >= params$logFC_threshold)
+        DE_genes_contrast <- DE_genes_contrast_genename #subset(DE_genes_contrast_genename, padj <= params$adj_pval_threshold & abs(log2FoldChange) >= params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
         if (isProvided(params$round_DE) && params$round_DE>-1) {
@@ -1231,7 +1313,7 @@ if (isProvided(params$path_contrast_list)) {
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
 
         # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj <= params$adj_pval_threshold & abs(log2FoldChange) >= params$logFC_threshold)
+        DE_genes_contrast <- DE_genes_contrast_genename #subset(DE_genes_contrast_genename, padj <= params$adj_pval_threshold & abs(log2FoldChange) >= params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
         if (isProvided(params$round_DE) && params$round_DE>-1) {
@@ -1273,7 +1355,7 @@ if (isProvided(params$path_contrast_pairs)) {
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
 
         # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj <= params$adj_pval_threshold & abs(log2FoldChange) >= params$logFC_threshold)
+        DE_genes_contrast <-  DE_genes_contrast_genename #subset(DE_genes_contrast_genename, padj <= params$adj_pval_threshold & abs(log2FoldChange) >= params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
 
         # Round table before writing
@@ -1313,7 +1395,7 @@ if (!isProvided(params$path_contrast_matrix) & !isProvided(params$path_contrast_
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
 
         # Select only significantly DE
-        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj <= params$adj_pval_threshold & abs(log2FoldChange) >= params$logFC_threshold)
+        DE_genes_contrast <-  DE_genes_contrast_genename #subset(DE_genes_contrast_genename, padj <= params$adj_pval_threshold & abs(log2FoldChange) >= params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
         if (isProvided(params$round_DE) && params$round_DE>-1) {
@@ -1695,7 +1777,7 @@ for (file in contrast_files){
     if (isProvided(params$set_background)) {
         gostres <- gost(query=q,
             organism=gost_id,
-            significant=TRUE,
+            significant=F,
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
@@ -1711,7 +1793,7 @@ for (file in contrast_files){
         # Also run without bg for Venn diagrams
         gostres_nobg <- gost(query=q,
             organism=gost_id,
-            significant=TRUE,
+            significant=F,
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
@@ -1725,7 +1807,7 @@ for (file in contrast_files){
     } else {
         gostres <- gost(query=q,
             organism=gost_id,
-            significant=TRUE,
+            significant=F,
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
@@ -2000,9 +2082,12 @@ gost_text,
 The plot below summarizes the pathways that were found significantly enriched in DE genes for each contrast (padj value <= ", pval_text, ").
 Only contrasts for which an enriched pathway was found are shown. Both KEGG pathways and REACTOME (REAC) pathways are considered.
 Hover over the dots to reveal the pathway names. The table below provides more detail on all enriched pathways."))
+write(params$pathway_analysis, file="/sfs/9/ws/iivow01-test/rnadeseq/error/qw")
+
 ```
 
 ```{r gost, eval=params$pathway_analysis, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE}
+write(params$pathway_analysis, file="/sfs/9/ws/iivow01-test/rnadeseq/error/werwe")
 contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
 q_list <- list()
 q_names <- c()
@@ -2030,7 +2115,7 @@ if (length(q_list) > 0) {
     if (isProvided(params$set_background)) {
         gostres <- gost(query=q_list,
                     organism=gost_id,
-                    significant=T,
+                    significant=F,
                     correction_method="fdr",
                     sources=datasources,
                     user_threshold=params$adj_pval_threshold,
@@ -2040,7 +2125,7 @@ if (length(q_list) > 0) {
     } else {
         gostres <- gost(query=q_list,
                     organism=gost_id,
-                    significant=T,
+                    significant=F,
                     correction_method="fdr",
                     sources=datasources,
                     user_threshold=params$adj_pval_threshold,
@@ -2074,6 +2159,8 @@ if (length(q_list) > 0) {
 } else {
     cat("No DE genes were found, pathway analysis not possible.")
     path_enrich=data.frame(list())
+    write("lahdladsh", file="/sfs/9/ws/iivow01-test/rnadeseq/error/eee")
+
 }
 ```
 
@@ -2109,6 +2196,7 @@ and the subfolder: `pathway_heatmaps`.
 # Summary and outlook
 
 ```{r quote, echo=FALSE, results='asis'}
+
 # Only add hyperlink to quote file if it was provided in the params
 quote_string <- ifelse(
     isProvided(params$path_quote),
@@ -2150,6 +2238,10 @@ if (software_versions_csv) {
         quant_tool <- "Salmon"
         quant_version <- as.character(version["SALMON_QUANT"][[1]]["salmon"])
         quant_cite <- "[@patro2017salmon]"
+    } else if (params$input_type == "smrnaseq") {
+        quant_tool <- "SAMtools"
+        quant_version <- as.character(version["SAMTOOLS_IDXSTATS"][[1]]["samtools"])
+        quant_cite <- "[@li2009sequence; @li2011statistical]"
     }
 }
 ```
@@ -2164,23 +2256,50 @@ cat("No software versions file was provided for primary analysis.")
 
 ```{r software_versions_RNASeq, echo=FALSE, results='asis', eval=isProvided(params$path_software_versions)}
 
-# In the following part, I use newlines (in code) where possible whenever the paste0 function switches from a string to a variable call to better distinguish between the two so it is obvious in which lines quotes are needed and in which not --> Cannot always use newlines as this sometimes translates into the report.html
+# In the following part, I use newlines (in code) where possible whenever the paste0 function switches from a string to a variable call to better distinguish between the two so it is clearer in which lines quotes are needed and in which not --> Cannot always use newlines as this sometimes translates into the report.html
+# TODO remove F!
+if (params$input_type == "featurecounts" & F){
+    cat(paste0(
+    "## RNAseq data analysis
 
+    The Nextflow-based nf-core pipeline `rnaseq ", as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])),
+    "` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC ",
+    as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
+    "` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
+    Subsequently, adapter trimming was conducted with `Trim Galore ",
+    as.character(ifelse(software_versions_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"])),
+    "` [^4] [@krueger2012trim]. `STAR v",
+    as.character(ifelse(software_versions_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
+    "` [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
+    The RNA-seq data quality control was performed with `RSeQC ",
+    as.character(ifelse(software_versions_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"])),
+    "` [@wang2012rseqc] and read quantification of the features (e.g. genes) with `",
+    quant_tool,
+    " ",
+    quant_version,
+    "` ",
+    quant_cite,
+    "."
+    ))
+} else if (params$input_type == "smrnaseq"){
 cat(paste0(
-"## RNAseq data analysis
-    
-The Nextflow-based nf-core pipeline `rnaseq ", as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])),
-"` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC ",
-as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
-"` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
-Subsequently, adapter trimming was conducted with `Trim Galore ",
-as.character(ifelse(software_versions_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"])),
-"` [^4] [@krueger2012trim]. `STAR v",
-as.character(ifelse(software_versions_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
-"` [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
-The RNA-seq data quality control was performed with `RSeQC ",
-as.character(ifelse(software_versions_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"])),
-"` [@wang2012rseqc] and read quantification of the features (e.g. genes) with `",
+"## smRNA-seq data analysis
+
+The Nextflow-based nf-core pipeline `smrnaseq ", as.character(version["Workflow"][[1]]["nf-core/smrnaseq"]),
+"` [^6] was used for the smRNA-seq Bioinfomatics analysis. `FASTQC ",
+as.character(version["FASTQC"][[1]]["fastqc"]),
+"` [^3] [@andrews2010fastqc] was used to determine the quality of the miRNA samples. ",
+ifelse("TRIMGALORE" %in% names(version), paste0("Subsequently, adapter trimming was conducted with `Trim Galore ",
+as.character(version["TRIMGALORE"][[1]]["trimgalore"]),
+"` [^4] [@krueger2012trim]."),
+    ifelse("FASTP" %in% names(version), paste0("Subsequently, adapter trimming was conducted with `fastP ",
+    as.character(version["FASTP"][[1]]["fastp"]),
+    "` [^7] [@chen2018fastp; @chen2023ultrafast]."),
+        "")),
+" `Bowtie v", as.character(version["BOWTIE_MAP_HAIRPIN"][[1]]["bowtie"]), "` [@langmead2009ultrafast] aligner was used to map the reads that passed the quality control to the reference database.
+The smRNA-seq data quality control was performed with `miRTrace ",
+as.character(version["MIRTRACE_RUN"][[1]]["mirtrace"]),
+"` [^8] [@kang2018mirtrace] and read quantification of the features (e.g. genes) with `",
 quant_tool,
 " ",
 quant_version,
@@ -2188,15 +2307,14 @@ quant_version,
 quant_cite,
 "."
 ))
+}
+```
 
-```{r MQC_cite, echo=FALSE, results='asis', eval=software_versions_csv&isProvided(params$path_software_versions)}
-
+```{r MQC_cite, echo=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))&software_versions_csv&isProvided(params$path_software_versions)}
 cat(paste0("\nAn aggregation of the quality control for the RNAseq analysis was performed with `MultiQC ", as.character(version["MultiQC"]), "` [^2] [@ewels2016multiqc]."))
-
 ```
 
 ```{r software_versions_DE, echo=FALSE, results='asis'}
-
 cat(paste0(
 "## Differential gene expression analysis
 
@@ -2263,3 +2381,6 @@ sessioninfo::session_info()%>%
 [^4]: https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/
 [^5]: https://github.com/qbic-pipelines/rnadeseq
 
+[^6]: https://github.com/nf-core/smrnaseq
+[^7]: https://github.com/OpenGene/fastp
+[^8]: https://github.com/friedlanderlab/mirtrace
