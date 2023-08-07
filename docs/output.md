@@ -27,8 +27,9 @@ This directory contains the zipped results. When unzipping them, the following s
   - `linear_model.txt`: linear model used for DE analysis.
   - `gene_list.txt`: provided list of interesting genes (if provided).
   - `star_[rsem/salmon]_files.txt`: list of counts files that were provided as input (only if `--input_type` is `rsem` or `salmon`).
+  - `smrnaseq_files.txt`: list of counts files that were provided as input (only if `--input_type` is `smrnaseq`).
 - `gene_counts_tables/`
-  - `raw_gene_counts.txt`: raw gene counts table from the nf-core/rnaseq pipeline and used for the differential gene expression analysis (only if `--input_type` is `featurecounts`).
+  - `raw_gene_counts.txt`: raw gene counts table from the nf-core/rnaseq pipeline and used for the differential gene expression analysis (only if `--input_type` is `featurecounts` or `smrnaseq`; in the second case, will internally build a counts table from the input files, taking the third column of each .sorted.idxstats file (second column if counting rownames) and combining all values from both hairpin and non-hairpin mature files into one table).
   - `rlog_transformed_gene_counts.tsv`: normalized gene counts with the "regularized logarithm" approach. This normalization is used prior to PCA analysis and heatmap plotting of the gene counts (only when rlog transformation is used).
   - `vst_transformed_gene_counts.tsv`: normalized gene counts with the "variance stabilizing" transformation (only when vst transformation is used).
   - `sizeFactor_libraries.tsv`: size factors for each sample.
@@ -47,7 +48,7 @@ Pathway analysis with [gProfileR](https://biit.cs.ut.ee/gprofiler/gost) R packag
 
 **Output directory: `results/pathway_analysis/`**
 
-This directory contains the zipped pathway analysis results (`gProfileR.zip`). When unzipping them, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
+If pathway analysis was run, this directory contains the zipped pathway analysis results (`gProfileR.zip`). When unzipping them, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
 
 - `*_gost_pathway_venn_diagram.pdf/png`
   - Venn diagrams showing the numbers of enriched pathways when using a background gene list vs when not using a bg list.
@@ -66,8 +67,6 @@ QBiC report for RNAseq analysis.
 
 In this directory the zipped report is contained. This file is ready for upload to the project in the QBiC portal. Once unzipped, this directory contains:
 
-<!-- Here also remove the QC stuff? But then, nothing remains, right? -->
-
 - `Report.html`
   - QBiC report describing the RNAseq results.
 - `DESeq2/`
@@ -75,6 +74,6 @@ In this directory the zipped report is contained. This file is ready for upload 
 - `QC/`
   - Quality control results. Contains:
   - `fastqc.zip`: zipped fastqc results for each sample.
-  - `multiqc_data`: data from the multiQC process of the RNAseq pipeline which is incorporated into the report.
-  - `multiqc_plots`: plots from the multiQC process of the RNAseq pipeline which are incorporated into the report.
-  - `qc_summary.tsv`: summary of the multiQC process in a table format.
+  - `multiqc_data`: If multiQC input was provided: data from the multiQC process of the RNAseq pipeline which is incorporated into the report.
+  - `multiqc_plots`: If multiQC input was provided: plots from the multiQC process of the RNAseq pipeline which are incorporated into the report.
+  - `qc_summary.tsv`: If multiQC input was provided: summary of the multiQC process in a table format.
