@@ -218,8 +218,6 @@ QDESQ083AC      Sample3 K562
 QDESQ084AK      Sample4 K562
 ```
 
-
-
 - OR a folder containing files with smrnaseq output (folder/sampleXXX_mature_hairpin.sorted.idxstats, folder/sampleXXX_mature_sorted.idxstats).
   For smrnaseq, the --input_type parameter must be set to 'smrnaseq'.
   For example:
@@ -249,9 +247,6 @@ QDESQ082A4      Sample2 GM12878
 QDESQ083AC      Sample3 K562
 QDESQ084AK      Sample4 K562
 ```
-
-
-
 
 ### `--input`
 
