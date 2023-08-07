@@ -1,0 +1,89 @@
+- name: Run test profile with smrnaseq
+  command: nextflow run main.nf -profile test_smrnaseq,docker --citest true --round_DE 3
+  tags:
+    - test_star_salmon
+  files:
+    - path: results_test/differential_gene_expression/metadata/smrnaseq_files.txt
+      md5sum: ce3cc117fc953a8ff4d17d0118123faf
+    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_treatment_clone9_vs_clone1.tsv
+      md5sum: 46ca6c2ec1046e088853c96b28cd30e3
+    - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_treatment_control_vs_clone1.tsv
+      md5sum: 74214d33037aeded1bd0c839973a9e4c
+    - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
+      md5sum: 9f4950203e56a94235b00a1d554fa78c
+    - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_library_scaled_gene_counts.tsv
+    - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
+    - path: results_test/differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv
+    - path: results_test/differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-LET-7C_hsa-let-7c.pdf
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-LET-7C_hsa-let-7c.png
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-LET-7C_hsa-let-7c.svg
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-MIR-100_hsa-mir-100.pdf
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-MIR-100_hsa-mir-100.png
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-MIR-100_hsa-mir-100.svg
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-MIR-125B-1_hsa-mir-125b-1.pdf
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-MIR-125B-1_hsa-mir-125b-1.png
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-MIR-125B-1_hsa-mir-125b-1.svg
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-MIR-200A_hsa-mir-200a.pdf
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-MIR-200A_hsa-mir-200a.png
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-MIR-200A_hsa-mir-200a.svg
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-MIR-505_hsa-mir-505.pdf
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-MIR-505_hsa-mir-505.png
+    - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/HSA-MIR-505_hsa-mir-505.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_treatment_clone9_vs_clone1.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_treatment_clone9_vs_clone1.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_treatment_clone9_vs_clone1.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_treatment_control_vs_clone1.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_treatment_control_vs_clone1.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_treatment_control_vs_clone1.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_treatment_clone9_vs_clone1.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_treatment_clone9_vs_clone1.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_treatment_clone9_vs_clone1.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_treatment_control_vs_clone1.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_treatment_control_vs_clone1.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_treatment_control_vs_clone1.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_treatment_clone9_vs_clone1.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_treatment_clone9_vs_clone1.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_treatment_clone9_vs_clone1.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_treatment_control_vs_clone1.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_treatment_control_vs_clone1.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_treatment_control_vs_clone1.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Cooks-distances.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Cooks-distances.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Cooks-distances.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_treatment_clone9_vs_clone1.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_treatment_clone9_vs_clone1.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_treatment_clone9_vs_clone1.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_treatment_control_vs_clone1.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_treatment_control_vs_clone1.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/dependency_small.pval_mean_normal.counts_condition_treatment_control_vs_clone1.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Dispersion_plot.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.svg
+    - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.pdf
+    - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.png
+    - path: results_test/differential_gene_expression/plots/Heatmaps_of_distances.svg
+    - path: results_test/differential_gene_expression/plots/PCA_plot.pdf
+    - path: results_test/differential_gene_expression/plots/PCA_plot.png
+    - path: results_test/differential_gene_expression/plots/PCA_plot.svg
+    - path: results_test/differential_gene_expression/plots/PCA_plot_with_labels.pdf
+    - path: results_test/differential_gene_expression/plots/PCA_plot_with_labels.png
+    - path: results_test/differential_gene_expression/plots/PCA_plot_with_labels.svg
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/DE_contrast_condition_treatment_clone9_vs_clone1_KEGG_pathway_enrichment_plot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/DE_contrast_condition_treatment_clone9_vs_clone1_KEGG_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/DE_contrast_condition_treatment_clone9_vs_clone1_KEGG_pathway_enrichment_plot.svg
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/DE_contrast_condition_treatment_clone9_vs_clone1_KEGG_pathway_enrichment_results.tsv
+      md5sum: b5c4c68a304f08a54b2b9d8969334e8c
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/DE_contrast_condition_treatment_clone9_vs_clone1_pathway_enrichment_results.tsv
+      md5sum: ab088ff01a4e3991be8a424e676afcdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_control_vs_clone1/DE_contrast_condition_treatment_control_vs_clone1_KEGG_pathway_enrichment_plot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_control_vs_clone1/DE_contrast_condition_treatment_control_vs_clone1_KEGG_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_control_vs_clone1/DE_contrast_condition_treatment_control_vs_clone1_KEGG_pathway_enrichment_plot.svg
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_control_vs_clone1/DE_contrast_condition_treatment_control_vs_clone1_KEGG_pathway_enrichment_results.tsv
+      md5sum: 4a2ed390ae3e9fea628bd9c014e88cc6
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_control_vs_clone1/DE_contrast_condition_treatment_control_vs_clone1_pathway_enrichment_results.tsv
+      md5sum: db2149ba5f2dbb6d4aed3f6284072f39
+    - path: results_test/RNAseq_report.html

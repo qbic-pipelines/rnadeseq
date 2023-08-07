@@ -13,11 +13,11 @@
                 "input_type": {
                     "type": "string",
                     "default": "featurecounts",
-                    "description": "Which type of input is provided, one of featurecounts, rsem, salmon, smrnaseq"
+                    "description": "Which type of input is provided, one of featurecounts, rsem, salmon, smrnaseq."
                 },
                 "gene_counts": {
                     "type": "string",
-                    "description": "If input_type = featurecounts: Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name. If input_type = rsem or input_type = salmon: Path to rsem/salmon output folder. #TODO"
+                    "description": "If input_type = featurecounts: Raw count table (TSV). Columns are samples and rows are genes. 1st column Ensembl_ID, 2nd column gene_name. If input_type = rsem or input_type = salmon: Path to rsem/salmon output folder. If input_type = smrnaseq: Path to smrnaseq output folder containing hairpin and non-hairpin mature .sorted.idxstats files."
                 },
                 "input": {
                     "type": "string",

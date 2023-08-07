@@ -19,15 +19,15 @@
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/IL10_ENSG00000136634.pdf
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/IL10_ENSG00000136634.png
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/IL10_ENSG00000136634.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_H1_vs_GM12878.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_H1_vs_GM12878.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_H1_vs_GM12878.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_K562_vs_GM12878.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_K562_vs_GM12878.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_K562_vs_GM12878.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_MCF7_vs_GM12878.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_MCF7_vs_GM12878.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots//all_results_MA_plot_condition_cellline_MCF7_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_cellline_H1_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_cellline_H1_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_cellline_H1_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_cellline_K562_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_cellline_K562_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_cellline_K562_vs_GM12878.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_cellline_MCF7_vs_GM12878.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_cellline_MCF7_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_condition_cellline_MCF7_vs_GM12878.svg
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_cellline_H1_vs_GM12878.pdf
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_cellline_H1_vs_GM12878.png
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_cellline_H1_vs_GM12878.svg

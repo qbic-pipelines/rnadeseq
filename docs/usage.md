@@ -82,7 +82,7 @@ NXF_OPTS='-Xms1g -Xmx4g'
 
 ## Pre-requisites
 
-The `qbic-pipelines/rnadeseq` pipeline relies on the output from the `nf-core/rnaseq` pipeline. To be able to match the results of the `nf-core/rnaseq` pipeline with the metadata samplesheet containing the experimental design for the differential expression analysis, **the filenames of the fastq files used as input to the `qbic-pipelines/rnadeseq` pipeline, need to start with the corresponding QBiC codes!**. _E.g. QBICKXXXXX_original_file_name.fastq_. Once the filenames are corrected if necessary, you can run the `qbic-pipelines/rnadeseq` pipeline as usual.
+The `qbic-pipelines/rnadeseq` pipeline relies on the output from the `nf-core/rnaseq` pipeline or the `nf-core/smrnaseq` pipeline. To be able to match the results of the initial pipeline with the metadata samplesheet containing the experimental design for the differential expression analysis, **the filenames of the fastq files used as input to the `qbic-pipelines/rnadeseq` pipeline need to start with the corresponding QBiC codes!**. _E.g. QBICKXXXXX_original_file_name.fastq_. Once the filenames are corrected if necessary, you can run the `qbic-pipelines/rnadeseq` pipeline as usual.
 
 ## Running the pipeline
 
@@ -218,6 +218,41 @@ QDESQ083AC      Sample3 K562
 QDESQ084AK      Sample4 K562
 ```
 
+
+
+- OR a folder containing files with smrnaseq output (folder/sampleXXX_mature_hairpin.sorted.idxstats, folder/sampleXXX_mature_sorted.idxstats).
+  For smrnaseq, the --input_type parameter must be set to 'smrnaseq'.
+  For example:
+
+```bash
+--gene_counts 'path/to/smrnaseq_folder' --metadata 'path/to/smrnaseq_metadata.tsv'
+
+tree testdata/smrnaseq/counts/
+testdata/smrnaseq/counts/
+├── Clone1_NN1_mature.sorted.idxstats
+├── Clone1_NN1_mature_hairpin.sorted.idxstats
+├── Clone1_NN3_mature.sorted.idxstats
+├── Clone1_NN3_mature_hairpin.sorted.idxstats
+├── Clone9_NN1_mature.sorted.idxstats
+├── Clone9_NN1_mature_hairpin.sorted.idxstats
+.
+.
+.
+
+head 'path/to/smrnaseq_metadata.tsv'
+```
+
+```tsv
+QBiC Code       Secondary Name  Condition: cellline
+QDESQ081AU      Sample1 GM12878
+QDESQ082A4      Sample2 GM12878
+QDESQ083AC      Sample3 K562
+QDESQ084AK      Sample4 K562
+```
+
+
+
+
 ### `--input`
 
 Metadata table/samplesheet (TSV) is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
@@ -344,7 +379,7 @@ Set this flag to run pathway analysis, otherwise, this step will be skipped.
 
 ### `--input_type`
 
-This tells the pipeline which type of input dataset is provided. Must be one of 'featurecounts', 'rsem', 'salmon', default: featurecounts.
+This tells the pipeline which type of input dataset is provided. Must be one of 'featurecounts', 'rsem', 'salmon', 'smrnaseq', default: featurecounts.
 
 ### `--multiqc`
 
@@ -393,7 +428,7 @@ Which genome to use for analysis, e.g. GRCh37; see `/conf/igenomes.config` for w
 
 ### `--gtf`
 
-GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts.
+GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts or smrnaseq.
 
 ### `--organism`
 

@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [#213](https://github.com/qbic-pipelines/rnadeseq/pull/21) Added smrnaseq input support
 - [#212](https://github.com/qbic-pipelines/rnadeseq/pull/212) Added computational methods if no --software_versions
 - [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Added logic to decide between rlog and vst, added tryCatch for heatmap saving because this only works unreliably
 - [#202](https://github.com/qbic-pipelines/rnadeseq/pull/202) Added background list to pathway analysis
