@@ -1,7 +1,7 @@
 - name: Run test profile with smrnaseq
   command: nextflow run main.nf -profile test_smrnaseq,docker --citest true --round_DE 3
   tags:
-    - test_star_salmon
+    - test_smrnaseq
   files:
     - path: results_test/differential_gene_expression/metadata/smrnaseq_files.txt
       md5sum: ce3cc117fc953a8ff4d17d0118123faf
