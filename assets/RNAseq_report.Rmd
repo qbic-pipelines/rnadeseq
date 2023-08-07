@@ -1644,7 +1644,6 @@ cat("Plots for the [genes of interest](./differential_gene_expression/metadata/g
 
 <!-- In case KEGG analysis was also included; differentiating the cases with and without contrasts -->
 
-
 <!-- PA start -->
 ```{r load_PA_libs, eval=params$pathway_analysis, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
 
