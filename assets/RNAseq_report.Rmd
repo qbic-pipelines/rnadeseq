@@ -2255,8 +2255,8 @@ cat("No software versions file was provided for primary analysis.")
 ```{r software_versions_RNASeq, echo=FALSE, results='asis', eval=isProvided(params$path_software_versions)}
 
 # In the following part, I use newlines (in code) where possible whenever the paste0 function switches from a string to a variable call to better distinguish between the two so it is clearer in which lines quotes are needed and in which not --> Cannot always use newlines as this sometimes translates into the report.html
-# TODO remove F!
-if (params$input_type == "featurecounts" & F){
+
+if (params$input_type == "featurecounts"){
     cat(paste0(
     "## RNAseq data analysis
 
