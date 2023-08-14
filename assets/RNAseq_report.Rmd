@@ -104,13 +104,14 @@ build_smrnaseq_df <- function(files) {
             if (rownames(file_tab) != rownames(merged_mat)) {
                 stop(paste("Rownames of smrnaseq file", file_tab, "differ from the rownames of the other files; exiting..."))
             }
-            merged_mat[[basename(f)]] <- file_tab[,2]
+            # Create column from QBiC code of current file name (substring of length 10)
+            merged_mat[[substr(basename(f), 1, 10)]] <- file_tab[,2]
         } else {
 
-            # Otherwise initiate it from third matrix column and rownames
+            # Otherwise initiate it from third matrix column and rownames; as above, only use QBiC code, not full file name
             merged_mat <- data.frame(file_tab[,2])
             rownames(merged_mat) <- rownames(file_tab)
-            colnames(merged_mat) <- c(basename(f))
+            colnames(merged_mat) <- c(substr(basename(f), 1, 10))
         }
     }
     merged_mat
@@ -941,7 +942,9 @@ The read mapping statistics to the reference genome for each sample are shown be
 ```
 
 ```{r STAR_percentages_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1800, fig.cap="STAR: Mapping Statistics", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg"))
+# Disable auto-conversion of paths to relative paths as we provide include_graphics() with absolute paths. Also, error=F is necessary in every call to not fail with some stupid error
+knitr.graphics.rel_path = F
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg"), error=F)
 ```
 
 ```{r STAR_readnums,echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -953,7 +956,7 @@ cat(paste0("***
 ```
 
 ```{r STAR_readnums_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1800, fig.cap="STAR: Mapping Statistics", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1.svg"), error=F)
 ```
 
 ```{r FC_read_assignment, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -979,7 +982,7 @@ The statistics of read assignment to genes are shown below. Most reads should be
 ```
 
 ```{r FC_percentages_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1_pc.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1_pc.svg"), error=F)
 ```
 
 ```{r FC_readnums, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -993,7 +996,7 @@ cat(paste0("***
 ```
 
 ```{r FC_readnums_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1.svg"), error=F)
 ```
 
 ```{r read_feat_distrib, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -1013,7 +1016,7 @@ In RNAseq experiments, the majority of the reads should be assigned to CDS exons
 ```
 
 ```{r RSeqC_percentages_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap="RSeQC: Read Distribution", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1_pc.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1_pc.svg"), error=F)
 ```
 
 ```{r RSeqC_readnums, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -1027,7 +1030,7 @@ cat(paste0("***
 ```
 
 ```{r RSeqC_readnums_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap="RSeQC: Read Distribution", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1.svg"), error=F)
 ```
 
 ```{r MQC_end, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -1667,7 +1670,7 @@ short_organism_name <- substr(organism,1,3)
 if (!require("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
-BiocManager::install(params$species_library, lib=species_dir, version="3.14", force=T)
+BiocManager::install(params$species_library, lib=species_dir, version="3.17", force=T)
 library(params$species_library, lib.loc=species_dir, character.only=T)
 species_library_installed <- get(params$species_library)
 
@@ -2303,7 +2306,8 @@ quant_tool,
 quant_version,
 "` ",
 quant_cite,
-"."
+".",
+"\nThe output from `SAMtools`, more specifically the  `<QBiC-Code>_mature_hairpin.sorted.idxstats` and `<QBiC-Code>_mature.sorted.idxstats` files, were then used to create a counts matrix. This was done by combining all of these files into a single table, using only the rownames and the third column (second column after the rownames) of each file which contains the counts. The last row of each file (which always has an asterisk `*` as rowname) was excluded. The resulting counts matrix was used as input for the `rnadeseq` pipeline."
 ))
 }
 ```
