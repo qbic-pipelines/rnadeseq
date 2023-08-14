@@ -351,6 +351,7 @@ Option needed to account for batch effects in the data. To control for batch eff
 
 Then the DESeq2 script calculates the contrasts as usual, the batch effect just needs to be considered during the design definition.
 For more information, please check the [DESeq2 vignette](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).
+Please note: Setting the `--batch_effect` option will NOT remove such effects from your data. The parameter is only used to visualize the effects by generating two sets of PCA and boxplots instead of only one; one set of plots will be generated from the input data, the other from the results of the batch correction in order to illustrate how the batches affect data.
 
 ### `--min_DEG_pathway`
 
