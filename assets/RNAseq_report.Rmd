@@ -101,16 +101,17 @@ build_smrnaseq_df <- function(files) {
         if (is.data.frame(merged_mat)) {
 
             # Check if rownames are the same
-            if (rownames(file_tab) != rownames(merged_mat)) {
+            if (!identical(rownames(file_tab), rownames(merged_mat))) {
                 stop(paste("Rownames of smrnaseq file", file_tab, "differ from the rownames of the other files; exiting..."))
             }
-            merged_mat[[basename(f)]] <- file_tab[,2]
+            # Create column from QBiC code of current file name (substring of length 10)
+            merged_mat[[substr(basename(f), 1, 10)]] <- file_tab[,2]
         } else {
 
-            # Otherwise initiate it from third matrix column and rownames
+            # Otherwise initiate it from third matrix column and rownames; as above, only use QBiC code, not full file name
             merged_mat <- data.frame(file_tab[,2])
             rownames(merged_mat) <- rownames(file_tab)
-            colnames(merged_mat) <- c(basename(f))
+            colnames(merged_mat) <- c(substr(basename(f), 1, 10))
         }
     }
     merged_mat
@@ -941,7 +942,9 @@ The read mapping statistics to the reference genome for each sample are shown be
 ```
 
 ```{r STAR_percentages_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1800, fig.cap="STAR: Mapping Statistics", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg"))
+# Disable auto-conversion of paths to relative paths as we provide include_graphics() with absolute paths. Also, error=F is necessary in every call to not fail with some stupid error
+knitr.graphics.rel_path = F
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg"), error=F)
 ```
 
 ```{r STAR_readnums,echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -953,7 +956,7 @@ cat(paste0("***
 ```
 
 ```{r STAR_readnums_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1800, fig.cap="STAR: Mapping Statistics", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1.svg"), error=F)
 ```
 
 ```{r FC_read_assignment, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -979,7 +982,7 @@ The statistics of read assignment to genes are shown below. Most reads should be
 ```
 
 ```{r FC_percentages_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1_pc.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1_pc.svg"), error=F)
 ```
 
 ```{r FC_readnums, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -993,7 +996,7 @@ cat(paste0("***
 ```
 
 ```{r FC_readnums_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1.svg"), error=F)
 ```
 
 ```{r read_feat_distrib, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -1013,7 +1016,7 @@ In RNAseq experiments, the majority of the reads should be assigned to CDS exons
 ```
 
 ```{r RSeqC_percentages_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap="RSeQC: Read Distribution", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1_pc.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1_pc.svg"), error=F)
 ```
 
 ```{r RSeqC_readnums, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -1027,7 +1030,7 @@ cat(paste0("***
 ```
 
 ```{r RSeqC_readnums_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap="RSeQC: Read Distribution", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1.svg"))
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1.svg"), error=F)
 ```
 
 ```{r MQC_end, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -1143,10 +1146,11 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 ##################  SAMPLE DISTANCES HEATMAP ##################
 # Sample distances, this chunk is hidden as otherwise, the heatmap is shown multiple times
 sampleDists <- dist(t(assay(if (run_rlog) rld else vsd)))
+sampleDistClust <- hclust(sampleDists)  # Do clustering as input for heatmaps so that their column orders are the same
 sampleDistMatrix <- as.matrix(sampleDists)
 colors = colorRampPalette(rev(RColorBrewer::brewer.pal(9, "Blues")))(255)
 par(oma=c(3,3,3,3))
-dist_heatmap <- pheatmap(mat = sampleDistMatrix, color=colors)
+dist_heatmap <- pheatmap(mat = sampleDistMatrix, color=colors, cluster_rows = sampleDistClust, cluster_cols = sampleDistClust)
 
 svg("differential_gene_expression/plots/Heatmaps_of_distances.svg")
 dist_heatmap
@@ -1159,7 +1163,7 @@ dist_heatmap
 dev.off()
 
 # Recompute heatmap with heatmaply for interactive plot in report
-dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey")
+dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey", Rowv = sampleDistClust, Colv = "Rowv")
 ```
 
 ```{r heatmap_show, echo=FALSE, message=FALSE, warning=FALSE, out.width="90%", out.height="130%", fig.asp=1, dpi=1000, fig.align='center'}
@@ -1644,7 +1648,6 @@ cat("Plots for the [genes of interest](./differential_gene_expression/metadata/g
 
 <!-- In case KEGG analysis was also included; differentiating the cases with and without contrasts -->
 
-
 <!-- PA start -->
 ```{r load_PA_libs, eval=params$pathway_analysis, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
 
@@ -1668,7 +1671,7 @@ short_organism_name <- substr(organism,1,3)
 if (!require("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
-BiocManager::install(params$species_library, lib=species_dir, version="3.14", force=T)
+BiocManager::install(params$species_library, lib=species_dir, version="3.17", force=T)
 library(params$species_library, lib.loc=species_dir, character.only=T)
 species_library_installed <- get(params$species_library)
 
@@ -2256,30 +2259,30 @@ cat("No software versions file was provided for primary analysis.")
 ```{r software_versions_RNASeq, echo=FALSE, results='asis', eval=isProvided(params$path_software_versions)}
 
 # In the following part, I use newlines (in code) where possible whenever the paste0 function switches from a string to a variable call to better distinguish between the two so it is clearer in which lines quotes are needed and in which not --> Cannot always use newlines as this sometimes translates into the report.html
-# TODO remove F!
-if (params$input_type == "featurecounts" & F){
-    cat(paste0(
-    "## RNAseq data analysis
 
-    The Nextflow-based nf-core pipeline `rnaseq ", as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])),
-    "` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC ",
-    as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
-    "` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
-    Subsequently, adapter trimming was conducted with `Trim Galore ",
-    as.character(ifelse(software_versions_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"])),
-    "` [^4] [@krueger2012trim]. `STAR v",
-    as.character(ifelse(software_versions_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
-    "` [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
-    The RNA-seq data quality control was performed with `RSeQC ",
-    as.character(ifelse(software_versions_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"])),
-    "` [@wang2012rseqc] and read quantification of the features (e.g. genes) with `",
-    quant_tool,
-    " ",
-    quant_version,
-    "` ",
-    quant_cite,
-    "."
-    ))
+if (params$input_type == "featurecounts"){
+cat(paste0(
+"## RNAseq data analysis
+
+The Nextflow-based nf-core pipeline `rnaseq ", as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])),
+"` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC ",
+as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
+"` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
+Subsequently, adapter trimming was conducted with `Trim Galore ",
+as.character(ifelse(software_versions_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"])),
+"` [^4] [@krueger2012trim]. `STAR v",
+as.character(ifelse(software_versions_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
+"` [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
+The RNA-seq data quality control was performed with `RSeQC ",
+as.character(ifelse(software_versions_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"])),
+"` [@wang2012rseqc] and read quantification of the features (e.g. genes) with `",
+quant_tool,
+" ",
+quant_version,
+"` ",
+quant_cite,
+"."
+))
 } else if (params$input_type == "smrnaseq"){
 cat(paste0(
 "## smRNA-seq data analysis
@@ -2304,7 +2307,8 @@ quant_tool,
 quant_version,
 "` ",
 quant_cite,
-"."
+".",
+"\nThe output from `SAMtools`, more specifically the  `<QBiC-Code>_mature_hairpin.sorted.idxstats` and `<QBiC-Code>_mature.sorted.idxstats` files, were then used to create a counts matrix. This was done by combining all of these files into a single table, using only the rownames and the third column (second column after the rownames) of each file which contains the counts. The last row of each file (which always has an asterisk `*` as rowname) was excluded. The resulting counts matrix was used as input for the `rnadeseq` pipeline."
 ))
 }
 ```
