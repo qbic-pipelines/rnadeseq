@@ -101,7 +101,7 @@ build_smrnaseq_df <- function(files) {
         if (is.data.frame(merged_mat)) {
 
             # Check if rownames are the same
-            if (rownames(file_tab) != rownames(merged_mat)) {
+            if (!identical(rownames(file_tab), rownames(merged_mat))) {
                 stop(paste("Rownames of smrnaseq file", file_tab, "differ from the rownames of the other files; exiting..."))
             }
             # Create column from QBiC code of current file name (substring of length 10)
@@ -1146,10 +1146,11 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 ##################  SAMPLE DISTANCES HEATMAP ##################
 # Sample distances, this chunk is hidden as otherwise, the heatmap is shown multiple times
 sampleDists <- dist(t(assay(if (run_rlog) rld else vsd)))
+sampleDistClust <- hclust(sampleDists)  # Do clustering as input for heatmaps so that their column orders are the same
 sampleDistMatrix <- as.matrix(sampleDists)
 colors = colorRampPalette(rev(RColorBrewer::brewer.pal(9, "Blues")))(255)
 par(oma=c(3,3,3,3))
-dist_heatmap <- pheatmap(mat = sampleDistMatrix, color=colors)
+dist_heatmap <- pheatmap(mat = sampleDistMatrix, color=colors, cluster_rows = sampleDistClust, cluster_cols = sampleDistClust)
 
 svg("differential_gene_expression/plots/Heatmaps_of_distances.svg")
 dist_heatmap
@@ -1162,7 +1163,7 @@ dist_heatmap
 dev.off()
 
 # Recompute heatmap with heatmaply for interactive plot in report
-dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey")
+dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey", Rowv = sampleDistClust, Colv = "Rowv")
 ```
 
 ```{r heatmap_show, echo=FALSE, message=FALSE, warning=FALSE, out.width="90%", out.height="130%", fig.asp=1, dpi=1000, fig.align='center'}
