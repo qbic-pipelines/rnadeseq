@@ -4,7 +4,7 @@
     - test_smrnaseq
   files:
     - path: results_test/differential_gene_expression/metadata/smrnaseq_files.txt
-      md5sum: ce3cc117fc953a8ff4d17d0118123faf
+      md5sum: 80efe9419bec686191344c6ce9a4ece7
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_treatment_clone9_vs_clone1.tsv
       md5sum: 9526e0b2be54b49a8d1694b6cdd939b7
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_treatment_control_vs_clone1.tsv

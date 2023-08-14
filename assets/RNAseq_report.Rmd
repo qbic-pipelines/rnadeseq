@@ -2261,28 +2261,28 @@ cat("No software versions file was provided for primary analysis.")
 # In the following part, I use newlines (in code) where possible whenever the paste0 function switches from a string to a variable call to better distinguish between the two so it is clearer in which lines quotes are needed and in which not --> Cannot always use newlines as this sometimes translates into the report.html
 
 if (params$input_type == "featurecounts"){
-    cat(paste0(
-    "## RNAseq data analysis
+cat(paste0(
+"## RNAseq data analysis
 
-    The Nextflow-based nf-core pipeline `rnaseq ", as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])),
-    "` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC ",
-    as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
-    "` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
-    Subsequently, adapter trimming was conducted with `Trim Galore ",
-    as.character(ifelse(software_versions_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"])),
-    "` [^4] [@krueger2012trim]. `STAR v",
-    as.character(ifelse(software_versions_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
-    "` [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
-    The RNA-seq data quality control was performed with `RSeQC ",
-    as.character(ifelse(software_versions_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"])),
-    "` [@wang2012rseqc] and read quantification of the features (e.g. genes) with `",
-    quant_tool,
-    " ",
-    quant_version,
-    "` ",
-    quant_cite,
-    "."
-    ))
+The Nextflow-based nf-core pipeline `rnaseq ", as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])),
+"` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC ",
+as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
+"` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
+Subsequently, adapter trimming was conducted with `Trim Galore ",
+as.character(ifelse(software_versions_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"])),
+"` [^4] [@krueger2012trim]. `STAR v",
+as.character(ifelse(software_versions_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
+"` [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
+The RNA-seq data quality control was performed with `RSeQC ",
+as.character(ifelse(software_versions_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"])),
+"` [@wang2012rseqc] and read quantification of the features (e.g. genes) with `",
+quant_tool,
+" ",
+quant_version,
+"` ",
+quant_cite,
+"."
+))
 } else if (params$input_type == "smrnaseq"){
 cat(paste0(
 "## smRNA-seq data analysis
