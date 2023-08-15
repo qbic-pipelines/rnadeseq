@@ -1649,7 +1649,7 @@ if (isProvided(params$path_genelist)) {
 }
 ```
 
-```{r box_plots_Batch, echo=F, message=F}
+```{r box_plots_Batch, echo=F, message=F, eval=params$batch_effect}
 # Decide which object to use for boxplots without batch correction
 if (run_rlog) {
     box_object <- rld_corrected
@@ -1684,7 +1684,7 @@ for (i in random_DE_genes_plot) {
 # make boxplots of interesting genes in gene list
 if (isProvided(params$path_genelist)) {
     gene_ids <- read.table(params$path_genelist, col.names = "requested_gene_name")
-    write.table(gene_ids, file="differential_gene_expression/metadata/requested_gene_list.txt", col.names=F, row.names=F, sep="\t")
+    write.table(gene_ids, file="differential_gene_expression/metadata/requested_gene_list.txt", col.names=F, row.names=F, sep="\t", quote=F)
     gene_ids$requested_gene_name <- sapply(gene_ids$requested_gene_name, toupper)
     gene_names$gene_name <- sapply(gene_names$gene_name, toupper)
 
