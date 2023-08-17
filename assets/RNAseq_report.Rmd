@@ -1082,7 +1082,7 @@ ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.png",
 
 # Save static plot with samplename labels
 pca_with_labels <- pca +
-    geom_label_repel(aes(label=name), force=2, force_pull=0, size=2.8, box.padding=0.15,show.legend  = F)
+    geom_label_repel(aes(label=name), force=2, force_pull=0, size=2.8, box.padding=0.15,show.legend  = F, max.overlaps=20)
 ggsave(plot = pca_with_labels, filename = "differential_gene_expression/plots/PCA_plot_with_labels.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca_with_labels, filename = "differential_gene_expression/plots/PCA_plot_with_labels.svg", device = "svg", dpi = 150)
 ggsave(plot = pca_with_labels, filename = "differential_gene_expression/plots/PCA_plot_with_labels.png", device = "png", dpi = 150)
@@ -1090,8 +1090,15 @@ ggsave(plot = pca_with_labels, filename = "differential_gene_expression/plots/PC
 # Create interactive plot for report
 pca <- ggplotly(pca, tooltip = "text", width=750, height=400)
 
-#add export-as-SVG button to plot
+# Add export-as-SVG button to plot
 config(pca, modeBarButtonsToAdd = list(svg_exp)) %>% layout()
+
+# Save non-corrected normalized object for boxplots
+if (run_rlog) {
+    rld_noncorrected <- rld
+} else {
+    vsd_noncorrected <- vsd
+}
 ```
 
 \
@@ -1104,8 +1111,10 @@ A PCA of the batch-effect corrected data is shown below and can be found [here](
 ```{r PCA_ifBatch_plot, echo=F, message=F, warning=F, dpi=1200, fig.align='center', eval=params$batch_effect}
 if (run_rlog) {
     assay(rld) <- limma::removeBatchEffect(assay(rld), rld$batch)
+    rld_corrected <- rld
 } else {
     assay(vsd) <- limma::removeBatchEffect(assay(vsd), vsd$batch)
+    vsd_corrected <- vsd
 }
 pcaData2 <- plotPCA(if (run_rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (run_rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
@@ -1125,7 +1134,7 @@ ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_cor
 # Save static plot with samplename labels
 
 pca2_with_labels <- pca2 +
-    geom_label_repel(aes(label=name), force=2, force_pull=0, size=2.8, box.padding=0.15,show.legend  = F)
+    geom_label_repel(aes(label=name), force=2, force_pull=0, size=2.8, box.padding=0.15,show.legend  = F, max.overlaps=20)
 ggsave(plot = pca2_with_labels, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot_with_labels.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca2_with_labels, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot_with_labels.svg", device = "svg", dpi = 150)
 ggsave(plot = pca2_with_labels, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot_with_labels.png", device = "png", dpi = 150)
@@ -1166,7 +1175,7 @@ dist_heatmap
 dev.off()
 
 # Recompute heatmap with heatmaply for interactive plot in report
-dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey", Rowv = sampleDistClust, Colv = "Rowv")
+dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col = colors, grid_color = "grey", Rowv = sampleDistClust, Colv = "Rowv")
 ```
 
 ```{r heatmap_show, echo=FALSE, message=FALSE, warning=FALSE, out.width="90%", out.height="130%", fig.asp=1, dpi=1000, fig.align='center'}
@@ -1572,34 +1581,48 @@ pg[['x']][['layout']][['annotations']][[1]][['y']] <- -params$adj_pval_threshold
 config(pg, modeBarButtonsToAdd = list(svg_exp)) %>% layout(margin = list(l=80, b = ifelse(length(allgenes_files)>2, 150, 100)), width=700, height = 500*length(allgenes_files))
 ```
 
-```{r box_plots, echo=F, message =F}
+```{r box_plots_noBatch, echo=F, message=F}
+# Decide which object to use for boxplots without batch correction
+if (run_rlog) {
+    box_object <- rld_noncorrected
+} else {
+    box_object <- vsd_noncorrected
+}
 
 ############### BOXPLOTS GENE EXPRESSION PER CONDITION ##########################
 # extract ID for genes to plot, make 20 plots:
 DE_genes_plot <- subset(DE_genes_final_table, outcome == "DE")
-DE_genes_plot = unique(DE_genes_plot$Ensembl_ID)
+DE_genes_plot = unique(DE_genes_plot[c("Ensembl_ID", "gene_name")])
 if (length(DE_genes_plot) > 20) {
     random_DE_genes_plot = sample(DE_genes_plot,size = 2)
 } else {
     random_DE_genes_plot = DE_genes_plot
 }
-for (i in random_DE_genes_plot){
-    colData(cds)$combfactor_contrasts <- apply(as.data.frame(metadata_save[ ,conditions_contrasts]),1,paste, collapse = "_")
-    boxplot_counts <- plotCounts(cds, gene=i, intgroup=c("combfactor_contrasts"), returnData=TRUE, normalized = T)
-    boxplot_counts$variable = row.names(boxplot_counts)
-    plot <- ggplot(data=boxplot_counts, aes(x=combfactor_contrasts, y=count, fill=combfactor_contrasts)) +
+
+colData(box_object)$combfactor_contrasts <- apply(as.data.frame(metadata_save[ ,conditions_contrasts]),1,paste, collapse = "_")
+
+# Previously, the function plotCounts was used here before ggplot. In PR #215, this was changed in order to allow for plotting the rlog/vst-normalized counts before/after batch correction (plotCounts can only do a normalization by sizeFactors). This was done following the instructions here: https://support.bioconductor.org/p/68859/
+# 1. Get columns from coldata
+box_df <-  data.frame(colData(box_object))
+for (i in nrow(random_DE_genes_plot)) {
+    ensid <- random_DE_genes_plot$Ensembl_ID[i]
+    genename <- random_DE_genes_plot$gene_name[i]
+
+    # 2. Get 1 column from assay; this column will correspond to the target gene
+    box_df$count <- assay(box_object)[ensid,]
+    plot <- ggplot(data=box_df, aes(x=combfactor_contrasts, y=count, fill=combfactor_contrasts)) +
                 geom_boxplot(position=position_dodge()) +
                 geom_jitter(position=position_dodge(.8)) +
-                ggtitle(paste("Gene ",i,sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
+                ggtitle(paste0("Gene ",genename,"/",ensid)) + xlab("") + ylab(paste0(ifelse(run_rlog, "rlog", "vst"), "-normalized gene counts")) + theme_bw() +
                 theme(text = element_text(size=12),
                 axis.text.x = element_text(angle=45, vjust=1,hjust=1))
-    ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".svg",sep=""), width=10, height=5, plot=plot)
-    ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".png",sep=""), width=10, height=5, plot=plot)
-    ggsave(filename=paste("differential_gene_expression/plots/boxplots_example_genes/",i,".pdf",sep=""), width=10, height=5, plot=plot)
+    ggsave(filename=paste0("differential_gene_expression/plots/boxplots_example_genes/",genename,"_",ensid,".svg"), width=10, height=5, plot=plot)
+    ggsave(filename=paste0("differential_gene_expression/plots/boxplots_example_genes/",genename,"_",ensid,".png"), width=10, height=5, plot=plot)
+    ggsave(filename=paste0("differential_gene_expression/plots/boxplots_example_genes/",genename,"_",ensid,".pdf"), width=10, height=5, plot=plot)
 }
 
 # make boxplots of interesting genes in gene list
-if (isProvided(params$path_genelist)){
+if (isProvided(params$path_genelist)) {
     gene_ids <- read.table(params$path_genelist, col.names = "requested_gene_name")
     write.table(gene_ids, file="differential_gene_expression/metadata/requested_gene_list.txt", col.names=F, row.names=F, sep="\t")
     gene_ids$requested_gene_name <- sapply(gene_ids$requested_gene_name, toupper)
@@ -1608,23 +1631,92 @@ if (isProvided(params$path_genelist)){
     # get Ensemble IDs from requested genes
     requested_genes_plot <- subset(gene_names, gene_name %in% gene_ids$requested_gene_name)
 
-    # Check that genes are in the cds table
-    requested_genes_plot <- subset(requested_genes_plot, requested_genes_plot$Ensembl_ID %in% row.names(cds))
+    # Check that genes are in the box_object table
+    requested_genes_plot <- subset(requested_genes_plot, requested_genes_plot$Ensembl_ID %in% row.names(box_object))
     requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
     requested_genes_plot_gene_name <- requested_genes_plot$gene_name
+
     for (i in seq_along(requested_genes_plot_Ensembl)) {
-        boxplot_counts <- plotCounts(cds, gene=requested_genes_plot_Ensembl[i], intgroup=c("combfactor_contrasts"), returnData=TRUE, normalized = T)
-        boxplot_counts$variable = row.names(boxplot_counts)
-        plot <- ggplot(data=boxplot_counts, aes(x=combfactor_contrasts, y=count, fill=combfactor_contrasts)) +
-        geom_boxplot(position=position_dodge()) +
-        geom_jitter(position=position_dodge(.8)) +
-        ggtitle(paste("Gene ",requested_genes_plot_gene_name[i],sep="")) + xlab("") + ylab("Normalized gene counts") + theme_bw() +
-        theme(text = element_text(size=12),
-                axis.text.x = element_text(angle=45, vjust=1,hjust=1))
+
+        # As above
+        box_df$count <- assay(box_object)[requested_genes_plot_Ensembl[i],]
+        plot <- ggplot(data=box_df, aes(x=combfactor_contrasts, y=count, fill=combfactor_contrasts)) +
+                    geom_boxplot(position=position_dodge()) +
+                    geom_jitter(position=position_dodge(.8)) +
+                    ggtitle(paste0("Gene ",requested_genes_plot_gene_name[i],"/",requested_genes_plot_Ensembl[i])) + xlab("") + ylab(paste0(ifelse(run_rlog, "rlog", "vst"), "-normalized gene counts")) + theme_bw() +
+                    theme(text = element_text(size=12),
+                    axis.text.x = element_text(angle=45, vjust=1,hjust=1))
         ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".svg",sep=""), width=10, height=5, plot=plot)
         ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".png",sep=""), width=10, height=5, plot=plot)
         ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".pdf",sep=""), width=10, height=5, plot=plot)
-    }
+    }    
+}
+```
+
+```{r box_plots_Batch, echo=F, message=F, eval=params$batch_effect}
+# Decide which object to use for boxplots without batch correction
+if (run_rlog) {
+    box_object <- rld_corrected
+} else {
+    box_object <- vsd_corrected
+}
+
+############### BOXPLOTS GENE EXPRESSION PER CONDITION ##########################
+
+
+colData(box_object)$combfactor_contrasts <- apply(as.data.frame(metadata_save[ ,conditions_contrasts]),1,paste, collapse = "_")
+
+# Previously, the function plotCounts was used here before ggplot. In PR #215, this was changed in order to allow for plotting the rlog/vst-normalized counts before/after batch correction (plotCounts can only do a normalization by sizeFactors). This was done following the instructions here: https://support.bioconductor.org/p/68859/
+# 1. Get columns from coldata
+box_df <-  data.frame(colData(box_object))
+
+for (i in nrow(random_DE_genes_plot)) {
+    ensid <- random_DE_genes_plot$Ensembl_ID[i]
+    genename <- random_DE_genes_plot$gene_name[i]
+
+
+    # 2. Get 1 column from assay; this column will correspond to the target gene
+    box_df$count <- assay(box_object)[ensid,]
+    plot <- ggplot(data=box_df, aes(x=combfactor_contrasts, y=count, fill=combfactor_contrasts)) +
+                geom_boxplot(position=position_dodge()) +
+                geom_jitter(position=position_dodge(.8)) +
+                ggtitle(paste0("Gene ",genename,"/",ensid)) + xlab("") + ylab(paste0(ifelse(run_rlog, "rlog", "vst"), "-normalized gene counts")) + theme_bw() +
+                theme(text = element_text(size=12),
+                axis.text.x = element_text(angle=45, vjust=1,hjust=1))
+    ggsave(filename=paste0("differential_gene_expression/plots/boxplots_example_genes/",genename,"_",ensid,"_after_batchcorrect.svg"), width=10, height=5, plot=plot)
+    ggsave(filename=paste0("differential_gene_expression/plots/boxplots_example_genes/",genename,"_",ensid,"_after_batchcorrect.png"), width=10, height=5, plot=plot)
+    ggsave(filename=paste0("differential_gene_expression/plots/boxplots_example_genes/",genename,"_",ensid,"_after_batchcorrect.pdf"), width=10, height=5, plot=plot)
+}
+
+# make boxplots of interesting genes in gene list
+if (isProvided(params$path_genelist)) {
+    gene_ids <- read.table(params$path_genelist, col.names = "requested_gene_name")
+    write.table(gene_ids, file="differential_gene_expression/metadata/requested_gene_list.txt", col.names=F, row.names=F, sep="\t", quote=F)
+    gene_ids$requested_gene_name <- sapply(gene_ids$requested_gene_name, toupper)
+    gene_names$gene_name <- sapply(gene_names$gene_name, toupper)
+
+    # get Ensemble IDs from requested genes
+    requested_genes_plot <- subset(gene_names, gene_name %in% gene_ids$requested_gene_name)
+
+    # Check that genes are in the box_object table
+    requested_genes_plot <- subset(requested_genes_plot, requested_genes_plot$Ensembl_ID %in% row.names(box_object))
+    requested_genes_plot_Ensembl <- requested_genes_plot$Ensembl_ID
+    requested_genes_plot_gene_name <- requested_genes_plot$gene_name
+
+    for (i in seq_along(requested_genes_plot_Ensembl)) {
+
+        # As above
+        box_df$count <- assay(box_object)[requested_genes_plot_Ensembl[i],]
+        plot <- ggplot(data=box_df, aes(x=combfactor_contrasts, y=count, fill=combfactor_contrasts)) +
+                    geom_boxplot(position=position_dodge()) +
+                    geom_jitter(position=position_dodge(.8)) +
+                    ggtitle(paste0("Gene ",requested_genes_plot_gene_name[i],"/",requested_genes_plot_Ensembl[i])) + xlab("") + ylab(paste0(ifelse(run_rlog, "rlog", "vst"), "-normalized gene counts")) + theme_bw() +
+                    theme(text = element_text(size=12),
+                    axis.text.x = element_text(angle=45, vjust=1,hjust=1))
+        ggsave(filename=paste0("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],"_after_batchcorrect.svg"), width=10, height=5, plot=plot)
+        ggsave(filename=paste0("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],"_after_batchcorrect.png"), width=10, height=5, plot=plot)
+        ggsave(filename=paste0("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],"_after_batchcorrect.pdf"), width=10, height=5, plot=plot)
+    }    
 }
 ```
 

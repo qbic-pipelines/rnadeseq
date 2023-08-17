@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- [#214](https://github.com/qbic-pipelines/rnadeseq/pull/214) Added smrnaseq input support -->follow-up to check that the CI test works. Modified smrnaseq testdata to be like QBiC datasets. Updated container env and fixed a resulting bug with include_graphics. Heatmaps are now equally ordered in zip and report
+- [#215](https://github.com/qbic-pipelines/rnadeseq/pull/215) Added gene_name to boxplot titles and filenames; increased threshold before overlapping PCA labels are hidden
 - [#213](https://github.com/qbic-pipelines/rnadeseq/pull/213) Added smrnaseq input support
 - [#212](https://github.com/qbic-pipelines/rnadeseq/pull/212) Added computational methods if no --software_versions
 - [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Added logic to decide between rlog and vst, added tryCatch for heatmap saving because this only works unreliably
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - [#216](https://github.com/qbic-pipelines/rnadeseq/pull/216) For rsem/salmon-imports, when a GTF is sometimes missing gene_names, these are now replaced by gene_ids instead
+- [#215](https://github.com/qbic-pipelines/rnadeseq/pull/215) Boxplots of genes are now generated from rlog/vst counts instead of raw counts. Also, if batch effect correction is enabled, boxplots will be generated before and after correction
+- [#214](https://github.com/qbic-pipelines/rnadeseq/pull/214) Added smrnaseq input support -->follow-up to check that the CI test works. Modified smrnaseq testdata to be like QBiC datasets. Updated container env and fixed a resulting bug with include_graphics. Heatmaps are now equally ordered in zip and report
 - [#211](https://github.com/qbic-pipelines/rnadeseq/pull/21) Replaced heatmaply with pheatmap for static plots and removed kaleido and reticulate from container
 - [#209](https://github.com/qbic-pipelines/rnadeseq/pull/209) Template update to 2.9, Chromium Falcon; exchanged file.exists for nf-core validation checks; changed round_DE param to int
 - [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Changed < and > to <= and => for logF/pval comparisons, renamed gene_counts_tables/deseq2_library_scaled_gene_counts.tsv to deseq2_library_scaled_gene_counts.tsv and added entry to the folder explanation; renamed param pval_threshold to adj_pval_threshold
