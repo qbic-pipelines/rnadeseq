@@ -1079,7 +1079,7 @@ ggsave(plot = pca, filename = "differential_gene_expression/plots/PCA_plot.png",
 
 # Save static plot with samplename labels
 pca_with_labels <- pca +
-    geom_label_repel(aes(label=name), force=2, force_pull=0, size=2.8, box.padding=0.15,show.legend  = F)
+    geom_label_repel(aes(label=name), force=2, force_pull=0, size=2.8, box.padding=0.15,show.legend  = F, max.overlaps=20)
 ggsave(plot = pca_with_labels, filename = "differential_gene_expression/plots/PCA_plot_with_labels.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca_with_labels, filename = "differential_gene_expression/plots/PCA_plot_with_labels.svg", device = "svg", dpi = 150)
 ggsave(plot = pca_with_labels, filename = "differential_gene_expression/plots/PCA_plot_with_labels.png", device = "png", dpi = 150)
@@ -1131,7 +1131,7 @@ ggsave(plot = pca2, filename = "differential_gene_expression/plots/PCA_batch_cor
 # Save static plot with samplename labels
 
 pca2_with_labels <- pca2 +
-    geom_label_repel(aes(label=name), force=2, force_pull=0, size=2.8, box.padding=0.15,show.legend  = F)
+    geom_label_repel(aes(label=name), force=2, force_pull=0, size=2.8, box.padding=0.15,show.legend  = F, max.overlaps=20)
 ggsave(plot = pca2_with_labels, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot_with_labels.pdf", device = "pdf", dpi = 300)
 ggsave(plot = pca2_with_labels, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot_with_labels.svg", device = "svg", dpi = 150)
 ggsave(plot = pca2_with_labels, filename = "differential_gene_expression/plots/PCA_batch_corrected_plot_with_labels.png", device = "png", dpi = 150)
@@ -1172,7 +1172,7 @@ dist_heatmap
 dev.off()
 
 # Recompute heatmap with heatmaply for interactive plot in report
-dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col=colors, grid_color = "grey", Rowv = sampleDistClust, Colv = "Rowv")
+dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col = colors, grid_color = "grey", Rowv = sampleDistClust, Colv = "Rowv")
 ```
 
 ```{r heatmap_show, echo=FALSE, message=FALSE, warning=FALSE, out.width="90%", out.height="130%", fig.asp=1, dpi=1000, fig.align='center'}
