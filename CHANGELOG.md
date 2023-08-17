@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#216](https://github.com/qbic-pipelines/rnadeseq/pull/216) For rsem/salmon-imports, when a GTF is sometimes missing gene_names, these are now replaced by gene_ids instead
 - [#215](https://github.com/qbic-pipelines/rnadeseq/pull/215) Boxplots of genes are now generated from rlog/vst counts instead of raw counts. Also, if batch effect correction is enabled, boxplots will be generated before and after correction
 - [#214](https://github.com/qbic-pipelines/rnadeseq/pull/214) Added smrnaseq input support -->follow-up to check that the CI test works. Modified smrnaseq testdata to be like QBiC datasets. Updated container env and fixed a resulting bug with include_graphics. Heatmaps are now equally ordered in zip and report
 - [#211](https://github.com/qbic-pipelines/rnadeseq/pull/21) Replaced heatmaply with pheatmap for static plots and removed kaleido and reticulate from container

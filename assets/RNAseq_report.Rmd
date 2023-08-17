@@ -539,6 +539,9 @@ if (params$input_type %in% c("featurecounts", "smrnaseq")) {
     tx2gene_gtf[] <- lapply(tx2gene_gtf, function(x) gsub("\\.\\d+", "", x))
     colnames(tx2gene_gtf) <- c("transcript_id", "gene_id") #, "TXID"
     gene_names <- gtf[c("gene_id", "gene_name")]
+
+    # Where no gene_name is available, use gene_id instead
+    gene_names$gene_name <- ifelse(is.na(gene_names$gene_name), gene_names$gene_id, gene_names$gene_name)
     colnames(gene_names) <- c("Ensembl_ID", "gene_name")
     gene_names <- distinct(gene_names)
     rownames(gene_names) <- gene_names[,1]
