@@ -40,9 +40,9 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:2.2 # Change this version before/after release
+        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:2.2
 
-      # Change the third version here before/after release
+      # Change the version above and the third version below before/after release
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
@@ -94,9 +94,9 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:2.2 # Change this version before/after release
+        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:2.2
 
-       # Change the third version here before/after release
+      # Change the version above and the third version below before/after release
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
