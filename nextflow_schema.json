@@ -159,7 +159,7 @@
                 },
                 "quote": {
                     "type": "string",
-                    "description": "Quote file to link in the report‚."
+                    "description": "Quote file to link in the report."
                 },
                 "software_versions": {
                     "type": "string",
