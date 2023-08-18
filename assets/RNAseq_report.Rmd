@@ -1,4 +1,5 @@
 ---
+# Written by Gisela Gabernet, Stefan Czemmel, Silvia Morini, Oskar Wacker, QBiC and released under the MIT License
 output:
     html_document:
         toc: true # table of contents
@@ -671,7 +672,7 @@ if (params$norm_method == "vst-force") {
     norm_method_long_text <- "variance stabilizing transformation (vst)"
     nsub_genes_text <- paste0("The number of subset genes for the vst transformation was set to ", as.character(params$nsub_genes), ".")
     if (var_sizeFactors >= vst_cutoff) {
-        norm_method_override_text <- paste0(" This was due to using the `vst-force` argument. It is recommended to rerun the pipeline using the rlog transformation as the size factors of the different samples have a variance of ~", round(var_sizeFactors, 4), ". For high sample variances (i.e. different sequencing depths between samples), the rlog transformation is more suitable [@love2014differential].")
+        norm_method_override_text <- paste0(" This was due to using the `--norm_method vst-force` argument. It is recommended to rerun the pipeline using the rlog transformation as the size factors of the different samples have a variance of ~", round(var_sizeFactors, 4), ". For high sample variances (i.e. different sequencing depths between samples), the rlog transformation is more suitable [@love2014differential].")
         nsub_genes_text <- ""
     }
 } else if (params$norm_method == "vst") {
@@ -945,7 +946,7 @@ The read mapping statistics to the reference genome for each sample are shown be
 ```
 
 ```{r STAR_percentages_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1800, fig.cap="STAR: Mapping Statistics", fig.align='center'}
-# Disable auto-conversion of paths to relative paths as we provide include_graphics() with absolute paths. Also, error=F is necessary in every call to not fail with some stupid error
+# Disable auto-conversion of paths to relative paths as we provide include_graphics() with absolute paths. Also, error=F is necessary in every include_graphic() call to not fail with an error
 knitr.graphics.rel_path = F
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg"), error=F)
 ```
@@ -1415,7 +1416,7 @@ if (!isProvided(params$path_contrast_matrix) & !isProvided(params$path_contrast_
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
 
         # Select only significantly DE
-        DE_genes_contrast <-  subset(DE_genes_contrast_genename, padj <= params$adj_pval_threshold & abs(log2FoldChange) >= params$logFC_threshold)
+        DE_genes_contrast <- subset(DE_genes_contrast_genename, padj <= params$adj_pval_threshold & abs(log2FoldChange) >= params$logFC_threshold)
         DE_genes_contrast <- DE_genes_contrast[order(DE_genes_contrast$padj),]
         # Round table before writing
         if (isProvided(params$round_DE) && params$round_DE>-1) {
@@ -1574,8 +1575,8 @@ pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_
         scale_x_continuous(breaks = seq(-200, 200, ifelse(log2FoldChange_quotient<3, 1, 5)))
 
 pg <- ggplotly(pg, tooltip = "text")
-pg[['x']][['layout']][['annotations']][[2]][['x']] <- -params$adj_pval_threshold #-0.05 TODO: what do these two lines do?
-pg[['x']][['layout']][['annotations']][[1]][['y']] <- -params$adj_pval_threshold
+pg[['x']][['layout']][['annotations']][[2]][['x']] <- -0.05 # These lines add a bit of additional space between the x/y axis labels and the plot
+pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
 
 #add export button to plot
 config(pg, modeBarButtonsToAdd = list(svg_exp)) %>% layout(margin = list(l=80, b = ifelse(length(allgenes_files)>2, 150, 100)), width=700, height = 500*length(allgenes_files))
@@ -2326,7 +2327,7 @@ if (software_versions_csv) {
         quant_version <- as.character(version["featureCounts"])
         quant_cite <- "[@liao2014featurecounts]"
     }
-} else if (!(software_versions_csv)) {
+} else {
     if (params$input_type == "rsem") {
         quant_tool <- "RSEM"
         quant_version <- as.character(version["RSEM_CALCULATEEXPRESSION"][[1]]["rsem"])
