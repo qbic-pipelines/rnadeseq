@@ -1,3 +1,5 @@
+repository_type: pipeline
+
 lint:
   files_unchanged:
     - .github/CONTRIBUTING.md
@@ -18,7 +20,6 @@ lint:
     - .github/ISSUE_TEMPLATE/config.yml
     - .github/workflows/awsfulltest.yml
     - .github/workflows/awstest.yml
-    - .github/workflows/push_dockerhub.yml
     - assets/multiqc_config.yaml
     - assets/nf-core-qbic-pipelines/rnadeseq_logo_light.png
     - bin/markdown_to_html.r
@@ -35,5 +36,3 @@ lint:
 
   multiqc_config:
     - report_comment # otherwise throws error: multiqc_config: 'assets/multiqc_config.yml' does not contain a matching 'report_comment'.                                                                           │
-
-repository_type: pipeline

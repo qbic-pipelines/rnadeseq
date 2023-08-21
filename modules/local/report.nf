@@ -1,6 +1,6 @@
 process REPORT {
 
-    container 'qbicpipelines/rnadeseq:2.1'
+    container 'ghcr.io/qbic-pipelines/rnadeseq:2.2'
 
     input:
     path gene_counts
@@ -18,6 +18,7 @@ process REPORT {
     path software_versions
     path multiqc
     path custom_gmt
+    path custom_background
 
     output:
     path "*.zip"
@@ -31,11 +32,14 @@ process REPORT {
     def genelist_opt = genelist.name != 'NO_FILE' ? "--genelist $genelist" : ''
     def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel $relevel" : ''
     def batch_effect_opt = params.batch_effect ? "--batch_effect TRUE" : ''
-    def rlog_opt = params.use_vst ? '--rlog FALSE' : ''
-    def round_DE_opt = params.round_DE ? "--round_DE $params.round_DE" : ''
 
     def pathway_opt = params.run_pathway_analysis ? "--pathway_analysis" : ''
-    def custom_gmt_opt = custom_gmt.name  != 'NO_FILE3' ? "--custom_gmt $custom_gmt" : ''
+    def custom_gmt_opt = custom_gmt.name != 'NO_FILE3' ? "--custom_gmt $custom_gmt" : ''
+    def set_background_opt = params.set_background ? "--set_background TRUE" : "--set_background FALSE"
+    def custom_background_opt = custom_background.name != 'NO_FILE7' ? "--custom_background $custom_background" : ''
+
+    def quote_opt = params.quote != 'NO_FILE5' ? "--path_quote $params.quote" : ''
+    def software_versions_opt = params.software_versions != 'NO_FILE6' ? "--software_versions $params.software_versions" : ''
 
     def citest_opt = params.citest ? "--citest TRUE" : ''
 
@@ -60,18 +64,21 @@ process REPORT {
         $relevel_opt \
         $batch_effect_opt \
         --logFC_threshold $params.logFC_threshold \
-        --pval_threshold $params.pval_threshold \
-        $rlog_opt \
+        --adj_pval_threshold $params.adj_pval_threshold \
+        --norm_method $params.norm_method \
         --nsub_genes $params.vst_genes_number \
-        $round_DE_opt \
+        --round_DE $params.round_DE \
         $pathway_opt \
         $custom_gmt_opt \
+        $set_background_opt \
+        $custom_background_opt \
         --organism $params.organism \
         --species_library $params.species_library \
         --keytype $params.keytype \
         --min_DEG_pathway $params.min_DEG_pathway \
+        $quote_opt \
+        $software_versions_opt \
         --proj_summary $proj_summary \
-        --software_versions $software_versions \
         --revision $workflow.manifest.version \
         $citest_opt
 

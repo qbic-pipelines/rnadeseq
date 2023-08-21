@@ -1,5 +1,5 @@
 - name: Run test profile with batcheffect correction
-  command: nextflow run main.nf -profile test_batcheffect,docker --citest true --round_DE 3
+  command: nextflow run main.nf -profile test_batcheffect,docker --citest true --round_DE 3 --set_background false
   tags:
     - test_batcheffect
   files:
@@ -9,7 +9,7 @@
       # md5sum: 2738119f899ecd154cd5cfc40e1e24e4
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
       # md5sum: b566de65d7b6e55aad648f74c439fcea
-    - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_table.tsv
+    - path: results_test/differential_gene_expression/gene_counts_tables/deseq2_library_scaled_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv
@@ -43,12 +43,12 @@
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.pdf
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.png
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/Effects_of_transformations_on_the_variance.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_genotype_WT_vs_KO.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_genotype_WT_vs_KO.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_genotype_WT_vs_KO.svg
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_treatment_Treated_vs_Control.pdf
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_treatment_Treated_vs_Control.png
-    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.valuescondition_treatment_Treated_vs_Control.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_genotype_WT_vs_KO.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_genotype_WT_vs_KO.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_genotype_WT_vs_KO.svg
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_treatment_Treated_vs_Control.pdf
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_treatment_Treated_vs_Control.png
+    - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/histogram_of_p.values_condition_treatment_Treated_vs_Control.svg
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_genotype_WT_vs_KO.pdf
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_genotype_WT_vs_KO.png
     - path: results_test/differential_gene_expression/plots/further_diagnostics_plots/number.of.rejections_condition_genotype_WT_vs_KO.svg

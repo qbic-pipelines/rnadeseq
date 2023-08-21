@@ -12,6 +12,10 @@ env:
   NXF_ANSI_LOG: false
   CAPSULE_LOG: none
 
+concurrency:
+  group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Run pipeline with test data
@@ -22,11 +26,11 @@ jobs:
       matrix:
         # Nextflow versions
         NXF_VER:
-          - "22.10.1"
+          - "23.04.0"
           - "latest-everything"
     steps:
       - name: Check out pipeline code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Check if Dockerfile or Conda environment changed
         uses: technote-space/get-diff-action@v4
@@ -36,13 +40,14 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:2.1
+        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:2.2
 
+      # Change the version above and the third version below before/after release
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
-          docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:2.1
+          docker pull ghcr.io/qbic-pipelines/rnadeseq:dev
+          docker tag ghcr.io/qbic-pipelines/rnadeseq:dev ghcr.io/qbic-pipelines/rnadeseq:2.2
 
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v1
@@ -56,7 +61,7 @@ jobs:
     name: Test workflow parameters
     runs-on: ubuntu-latest
     env:
-      NXF_VER: "22.10.1"
+      NXF_VER: "23.04.0"
       NXF_ANSI_LOG: false
     strategy:
       # This tells github to continue running other profile tests if some tests fail (default cancels all tests upon failure)
@@ -70,6 +75,7 @@ jobs:
             "test_contrast_list",
             "test_no_multiqc",
             "test_relevel",
+            "test_smrnaseq",
             "test_star_rsem",
             "test_star_salmon",
             "test_use_vst",
@@ -78,7 +84,7 @@ jobs:
           ]
     steps:
       - name: Check out pipeline code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Check if Dockerfile or Conda environment changed
         uses: technote-space/get-diff-action@v4
@@ -88,13 +94,14 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t qbicpipelines/rnadeseq:2.1
+        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:2.2
 
+      # Change the version above and the third version below before/after release
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
-          docker pull qbicpipelines/rnadeseq:dev
-          docker tag qbicpipelines/rnadeseq:dev qbicpipelines/rnadeseq:2.1
+          docker pull ghcr.io/qbic-pipelines/rnadeseq:dev
+          docker tag ghcr.io/qbic-pipelines/rnadeseq:dev ghcr.io/qbic-pipelines/rnadeseq:2.2
 
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v1

@@ -3,6 +3,43 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.2 Avenue of Poplars
+
+### Added
+
+- [#215](https://github.com/qbic-pipelines/rnadeseq/pull/215) Added gene_name to boxplot titles and filenames; increased threshold before overlapping PCA labels are hidden
+- [#213](https://github.com/qbic-pipelines/rnadeseq/pull/213) Added smrnaseq input support
+- [#212](https://github.com/qbic-pipelines/rnadeseq/pull/212) Added computational methods if no --software_versions
+- [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Added logic to decide between rlog and vst, added tryCatch for heatmap saving because this only works unreliably
+- [#202](https://github.com/qbic-pipelines/rnadeseq/pull/202) Added background list to pathway analysis
+- [#197](https://github.com/qbic-pipelines/rnadeseq/pull/197) Added gprofiler version string to report
+- [#196](https://github.com/qbic-pipelines/rnadeseq/pull/196) Added optional `--quote` parameter
+
+### Changed
+
+- [#219](https://github.com/qbic-pipelines/rnadeseq/pull/219) Release 2.2 to master
+- [#220](https://github.com/qbic-pipelines/rnadeseq/pull/220) Commit suggestions from PR review for release 2.2
+- [#218](https://github.com/qbic-pipelines/rnadeseq/pull/218) Preparing release 2.2 with version bumps
+- [#217](https://github.com/qbic-pipelines/rnadeseq/pull/217) For rsem/salmon-imports, when a GTF is sometimes missing gene_names, these are now replaced by gene_ids instead
+- [#215](https://github.com/qbic-pipelines/rnadeseq/pull/215) Boxplots of genes are now generated from rlog/vst counts instead of raw counts. Also, if batch effect correction is enabled, boxplots will be generated before and after correction
+- [#214](https://github.com/qbic-pipelines/rnadeseq/pull/214) Added smrnaseq input support -->follow-up to check that the CI test works. Modified smrnaseq testdata to be like QBiC datasets. Updated container env and fixed a resulting bug with include_graphics. Heatmaps are now equally ordered in zip and report
+- [#211](https://github.com/qbic-pipelines/rnadeseq/pull/21) Replaced heatmaply with pheatmap for static plots and removed kaleido and reticulate from container
+- [#209](https://github.com/qbic-pipelines/rnadeseq/pull/209) Template update to 2.9, Chromium Falcon; exchanged file.exists for nf-core validation checks; changed round_DE param to int
+- [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Changed < and > to <= and => for logF/pval comparisons, renamed gene_counts_tables/deseq2_library_scaled_gene_counts.tsv to deseq2_library_scaled_gene_counts.tsv and added entry to the folder explanation; renamed param pval_threshold to adj_pval_threshold
+- [#205](https://github.com/qbic-pipelines/rnadeseq/pull/205) Template update
+- [#204](https://github.com/qbic-pipelines/rnadeseq/pull/204) Changed relevel path in test_relevel.config to the qbic-pipelines repo
+- [#203](https://github.com/qbic-pipelines/rnadeseq/pull/203) Switched from Dockerhub to GHCR
+- [#200](https://github.com/qbic-pipelines/rnadeseq/pull/200) Made software_versions optional
+- [#198](https://github.com/qbic-pipelines/rnadeseq/pull/198) Changed heatmaps to scale in size automatically
+
+### Fixed
+
+- [#212](https://github.com/qbic-pipelines/rnadeseq/pull/212) Fixed movability of interactive gostplots
+- [#208](https://github.com/qbic-pipelines/rnadeseq/pull/208) Fixed relevel bug, the function should now finally work!
+- [#207](https://github.com/qbic-pipelines/rnadeseq/pull/207) Fixed check of samples in counts vs metadata
+- [#206](https://github.com/qbic-pipelines/rnadeseq/pull/206) Added correct plot titles to meanSdPlot (depending on normalization)
+- [#195](https://github.com/qbic-pipelines/rnadeseq/pull/195) Fixed section error in report
+
 ## 2.1 - Wheat Fields
 
 ### Added

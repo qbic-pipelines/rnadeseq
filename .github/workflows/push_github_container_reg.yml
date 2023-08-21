@@ -1,0 +1,38 @@
+name: Docker push
+# This builds the docker image and pushes it to GHCR
+# Runs on qbic-pipelines repo releases and push event to 'dev' branch (PR merges)
+on:
+  push:
+    branches:
+      - dev
+  release:
+    types: [published]
+
+jobs:
+  push_github:
+    name: Push new Docker image to GHCR
+    runs-on: ubuntu-latest
+    # Only run for the qbic-pipelines repo, for releases and merged PRs
+    if: ${{ github.repository == 'qbic-pipelines/rnadeseq' }}
+    steps:
+      - name: Check out pipeline code
+        uses: actions/checkout@v2
+
+      - name: Build new docker image
+        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:latest
+
+      - name: Log in to registry
+        # Update the personal access token to GITHUB_TOKEN
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: Push image to GHCR (dev)
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          docker tag ghcr.io/qbic-pipelines/rnadeseq:latest ghcr.io/qbic-pipelines/rnadeseq:dev
+          docker push ghcr.io/qbic-pipelines/rnadeseq:dev
+
+      - name: Push image to GHCR (release)
+        if: ${{ github.event_name == 'release' }}
+        run: |
+          docker tag ghcr.io/qbic-pipelines/rnadeseq:latest ghcr.io/qbic-pipelines/rnadeseq:${{ github.event.release.tag_name }}
+          docker push ghcr.io/qbic-pipelines/rnadeseq:${{ github.event.release.tag_name }}

@@ -18,8 +18,6 @@
   - [`--input_type`](#--input_type)
   - [`--input`](#--input)
   - [`--model`](#--model)
-  - [`--project_summary`](#--project_summary)
-  - [`--software_versions`](#--software_versions)
 - [Contrasts](#contrasts)
   - [Default](#default)
   - [`--relevel`](#--relevel)
@@ -28,16 +26,18 @@
   - [`--contrast_pairs`](#--contrast_pairs)
 - [Optional arguments](#optional-arguments)
   - [`--logFC_threshold`](#--logFC_threshold)
-  - [`--pval_threshold`](#--pval_threshold)
+  - [`--adj_pval_threshold`](#--adj_pval_threshold)
   - [`--genelist`](#--genelist)
   - [`--batch_effect`](#--batch_effect)
   - [`--min_DEG_pathway`](#--min_deg_pathway)
-  - [`--use_vst`](#--use_vst)
+  - [`--norm_method`](#--norm_method)
   - [`--vst_genes_number`](#--vst_genes_number)
   - [`--round_DE`](#--round_DE)
   - [`--run_pathway_analysis`](#--run_pathway_analysis)
   - [`--input_type`](#--input_type)
   - [`--multiqc`](#--multiqc)
+  - [`--project_summary`](#--project_summary)
+  - [`--software_versions`](#--software_versions)
   - [`--citest`](#--citest)
 - [Reference genome options](#reference-genome-options)
   - [`--genome`](#--genome)
@@ -45,6 +45,9 @@
   - [`--organism`](#--organism)
   - [`--species_library`](#--species_library)
   - [`--keytype`](#--keytype)
+  - [`--custom_gmt`](#--custom_gmt)
+  - [`--set_background`](#--set_background)
+  - [`--custom_background`](#--custom_background)
   - [`--igenomes_base`](#--igenomes_base)
   - [`--igenomes_ignore`](#--igenomes_ignore)
 - [Job resources](#job-resources)
@@ -79,7 +82,7 @@ NXF_OPTS='-Xms1g -Xmx4g'
 
 ## Pre-requisites
 
-The `qbic-pipelines/rnadeseq` pipeline relies on the output from the `nf-core/rnaseq` pipeline. To be able to match the results of the `nf-core/rnaseq` pipeline with the metadata samplesheet containing the experimental design for the differential expression analysis, **the filenames of the fastq files used as input to the `qbic-pipelines/rnadeseq` pipeline, need to start with the corresponding QBiC codes!**. _E.g. QBICKXXXXX_original_file_name.fastq_. Once the filenames are corrected if necessary, you can run the `qbic-pipelines/rnadeseq` pipeline as usual.
+The `qbic-pipelines/rnadeseq` pipeline relies on the output from the `nf-core/rnaseq` pipeline or the `nf-core/smrnaseq` pipeline. To be able to match the results of the initial pipeline with the metadata samplesheet containing the experimental design for the differential expression analysis, **the filenames of the fastq files used as input to the `qbic-pipelines/rnadeseq` pipeline need to start with the corresponding QBiC codes!**. _E.g. QBICKXXXXX_original_file_name.fastq_. Once the filenames are corrected if necessary, you can run the `qbic-pipelines/rnadeseq` pipeline as usual.
 
 ## Running the pipeline
 
@@ -102,10 +105,31 @@ This will launch the pipeline with the `docker` configuration profile. See below
 Note that the pipeline will create the following files in your working directory:
 
 ```bash
-work            # Directory containing the nextflow working files
-results         # Finished results (configurable, see below)
-.nextflow_log   # Log file from Nextflow
+work                # Directory containing the nextflow working files
+results             # Finished results (configurable, see below)
+.nextflow_log       # Log file from Nextflow
 # Other nextflow hidden files, eg. history of pipeline runs and old logs.
+```
+
+If you wish to repeatedly use the same parameters for multiple runs, rather than specifying each flag in the command, you can specify these in a params file.
+
+Pipeline settings can be provided in a `yaml` or `json` file via `-params-file <file>`.
+
+> ⚠️ Do not use `-c <file>` to specify parameters as this will result in errors. Custom config files specified with `-c` must only be used for [tuning process resource specifications](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources), other infrastructural tweaks (such as output directories), or module arguments (args).
+
+The above pipeline run specified with a params file in yaml format:
+
+```bash
+nextflow run qbic-pipelines/rnadeseq -profile docker -params-file params.yaml
+```
+
+with `params.yaml` containing:
+
+```yaml
+input: './samplesheet.csv'
+gene_counts: 'merged_gene_counts.txt'
+model: 'linear_model.txt'
+<...>
 ```
 
 ### Updating the pipeline
@@ -194,6 +218,36 @@ QDESQ083AC      Sample3 K562
 QDESQ084AK      Sample4 K562
 ```
 
+- OR a folder containing files with smrnaseq output (folder/sampleXXX_mature_hairpin.sorted.idxstats, folder/sampleXXX_mature_sorted.idxstats).
+  For smrnaseq, the --input_type parameter must be set to 'smrnaseq'.
+  For example:
+
+```bash
+--gene_counts 'path/to/smrnaseq_folder' --metadata 'path/to/smrnaseq_metadata.tsv'
+
+tree testdata/smrnaseq/counts/
+testdata/smrnaseq/counts/
+├── Clone1_NN1_mature.sorted.idxstats
+├── Clone1_NN1_mature_hairpin.sorted.idxstats
+├── Clone1_NN3_mature.sorted.idxstats
+├── Clone1_NN3_mature_hairpin.sorted.idxstats
+├── Clone9_NN1_mature.sorted.idxstats
+├── Clone9_NN1_mature_hairpin.sorted.idxstats
+.
+.
+.
+
+head 'path/to/smrnaseq_metadata.tsv'
+```
+
+```tsv
+QBiC Code       Secondary Name  Condition: cellline
+QDESQ081AU      Sample1 GM12878
+QDESQ082A4      Sample2 GM12878
+QDESQ083AC      Sample3 K562
+QDESQ084AK      Sample4 K562
+```
+
 ### `--input`
 
 Metadata table/samplesheet (TSV) is the "Sample_preparations_sheet.tsv" that can be directly downloaded from the qPortal --> Browser. Rows are samples and columns contain sample grouping. Important columns are:
@@ -214,37 +268,6 @@ Linear model function to calculate the contrasts (TXT). Variable names should be
 
 ```txt
 ~ condition_genotype + condition_treatment
-```
-
-### `--project_summary`
-
-Project summary as downloaded from the portal: User database portlet, Projects tab, select your project and "Download Project Information". Please check first that this information is correct in the project Browser.
-
-### `--software_versions`
-
-Path to the `Software_versions.csv/.yml` file that is generated by the nf-core/rnaseq pipeline.
-
-The CSV file should be tab-separated:
-
-```bash
-nf-core/rnaseq	v1.4dev
-Nextflow	v19.01.0
-FastQC	v0.11.8
-Cutadapt	v2.1
-Trim Galore!	v0.5.0
-STAR	vSTAR_2.6.1d
-```
-
-Alternatively, the YML file should look like this:
-
-```bash
-BEDTOOLS_GENOMECOV:
-  bedtools: 2.30.0
-CUSTOM_DUMPSOFTWAREVERSIONS:
-  python: 3.10.6
-  yaml: '6.0'
-CUSTOM_GETCHROMSIZES:
-  custom: 1.15.1
 ```
 
 ## Contrasts
@@ -305,9 +328,9 @@ interaction_effect condition_treatment_treated_vs_control  condition_genotype_KO
 
 Threshold (int) to apply to Log 2 Fold Change to consider a gene as differentially expressed. There is no threshold applied by default to Log2 Fold Change.
 
-### `--pval_threshold`
+### `--adj_pval_threshold`
 
-P value (float) to consider a gene as differentially expressed. The default value is 0.05.
+Adjusted p-value (float) to consider a gene as differentially expressed. The default value is 0.05.
 
 ### `--genelist`
 
@@ -328,22 +351,23 @@ Option needed to account for batch effects in the data. To control for batch eff
 
 Then the DESeq2 script calculates the contrasts as usual, the batch effect just needs to be considered during the design definition.
 For more information, please check the [DESeq2 vignette](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).
+Please note: Setting the `--batch_effect` option will NOT remove such effects from your data. The parameter is only used to visualize the effects by generating two sets of PCA and boxplots instead of only one; one set of plots will be generated from the input data, the other from the results of the batch correction in order to illustrate how the batches affect data.
 
 ### `--min_DEG_pathway`
 
 Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1.
 
-### `--use_vst`
+### `--norm_method`
 
-Consider using this parameter when the number of input samples is greater than 50. With large input sample sizes the rlog transformation becomes very time consuming. Note: If this flag is used, the pathway analysis will make use of vst transformed counts instead of rlog transformed counts. Check here for more information on [count data transformations](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#count-data-transformations).
+Set this parameter to either `vst`, `vst-force` or `rlog` (default) to control which transformation should be applied to the data. If the input data has too large size factor variances (>=0.05) the pipeline will override a user-specified `vst` transformation to use `rlog` instead. If this is enforced it will be stated in the report. If you still prefer to use the `vst` method regardless of the variances in the data, please use the `vst-force` parameter. While the `vst` transformation is much faster, the `rlog` is better suited to account for different sequencing depths between samples. Check here for more information on [count data transformations](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#count-data-transformations).
 
 ### `--vst_genes_number`
 
-This is ignored if `--use_vst` is set to false. If using the vst transformation, consider using this parameter for small datasets and low numbers of genes, e.g. with small rnaseq data. The default `vst` function for varianceStabilizingTransformation in DESeq2 is 1000, which triggers an error with small datasets. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here: [DESeq2 vst function error](https://www.biostars.org/p/456209/).
+This is ignored if `--norm_method` is set to `rlog`. If using the `vst` transformation, consider using this parameter for small datasets and low numbers of genes, e.g. with small RNA-Seq data. The default number of genes for applying the `vst` function for varianceStabilizingTransformation in DESeq2 is 1000. For smaller datasets there will be an error. The solution is to reduce the number of genes to sample for the transformation ( < 1000 ). More information/solution here: [DESeq2 vst function error](https://www.biostars.org/p/456209/).
 
 ### `--round_DE`
 
-Integer indicating to how many decimals to round the DE results (default: no rounding).
+Integer indicating to how many decimals to round the DE results (default: -1, indicating no rounding).
 
 ### `--run_pathway_analysis`
 
@@ -351,11 +375,42 @@ Set this flag to run pathway analysis, otherwise, this step will be skipped.
 
 ### `--input_type`
 
-This tells the pipeline which type of input dataset is provided. Must be one of 'featurecounts', 'rsem', 'salmon', default: featurecounts.
+This tells the pipeline which type of input dataset is provided. Must be one of 'featurecounts', 'rsem', 'salmon', 'smrnaseq', default: featurecounts.
 
 ### `--multiqc`
 
 Path to the MultiQC zipped folder containing the MultiQC plots generated by the RNAseq pipeline, the MultiQC html report, and the MultiQC raw data; optional.
+
+### `--project_summary`
+
+Project summary as downloaded from the portal: User database portlet, Projects tab, select your project and "Download Project Information". Please check first that this information is correct in the project Browser.
+
+### `--software_versions`
+
+Path to the `Software_versions.csv/.yml` file that is generated by the nf-core/rnaseq pipeline.
+
+The CSV file should be tab-separated:
+
+```bash
+nf-core/rnaseq	v1.4dev
+Nextflow	v19.01.0
+FastQC	v0.11.8
+Cutadapt	v2.1
+Trim Galore!	v0.5.0
+STAR	vSTAR_2.6.1d
+```
+
+Alternatively, the YML file should look like this:
+
+```bash
+BEDTOOLS_GENOMECOV:
+  bedtools: 2.30.0
+CUSTOM_DUMPSOFTWAREVERSIONS:
+  python: 3.10.6
+  yaml: '6.0'
+CUSTOM_GETCHROMSIZES:
+  custom: 1.15.1
+```
 
 ### `--citest`
 
@@ -369,7 +424,7 @@ Which genome to use for analysis, e.g. GRCh37; see `/conf/igenomes.config` for w
 
 ### `--gtf`
 
-GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts.
+GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts or smrnaseq.
 
 ### `--organism`
 
@@ -386,6 +441,14 @@ Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if `--run
 ### `--custom_gmt`
 
 Path to custom GMT file to use instead of querying against the live gprofiler database, not necessary if `--run_pathway_analysis = false`.
+
+### `--set_background`
+
+Whether to restrict pathway analysis to a background gene list (default: true, will restrict to those genes with an expression > 0 in at least one sample), not necessary if `--run_pathway_analysis = false`.
+
+### `--custom_background`
+
+Path to custom background TXT file with one gene ID per line to use as background genes, not necessary if `--run_pathway_analysis = false` or `--set_background = false`.
 
 ## Job resources
 
@@ -466,7 +529,7 @@ Set to disable colourful command line output and live life in monochrome.
 
 Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments.
 
-Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud, Conda) - see below. When using Biocontainers, most of these software packaging methods pull Docker containers from quay.io e.g [FastQC](https://quay.io/repository/biocontainers/fastqc) except for Singularity which directly downloads Singularity images via https hosted by the [Galaxy project](https://depot.galaxyproject.org/singularity/) and Conda which downloads and installs software locally from [Bioconda](https://bioconda.github.io/).
+Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud, Apptainer, Conda) - see below.
 
 > We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
 
@@ -475,8 +538,11 @@ The pipeline also dynamically loads configurations from [https://github.com/nf-c
 Note that multiple profiles can be loaded, for example: `-profile test,docker` - the order of arguments is important!
 They are loaded in sequence, so later profiles can overwrite earlier profiles.
 
-If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
+If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended, since it can lead to different results on different machines dependent on the computer environment.
 
+- `test`
+  - A profile with a complete configuration for automated testing
+  - Includes links to test data, therefore needs no other parameters
 - `docker`
   - A generic configuration profile to be used with [Docker](https://docker.com/)
 - `singularity`
@@ -487,11 +553,10 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
   - A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
 - `charliecloud`
   - A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
+- `apptainer`
+  - A generic configuration profile to be used with [Apptainer](https://apptainer.org/)
 - `conda`
-  - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter or Charliecloud.
-- `test`
-  - A profile with a complete configuration for automated testing
-  - Includes links to test data so needs no other parameters
+  - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter, Charliecloud, or Apptainer.
 
 ### `-resume`
 
@@ -602,6 +667,14 @@ See the main [Nextflow documentation](https://www.nextflow.io/docs/latest/config
 
 If you have any questions or issues please send us a message on [Slack](https://nf-co.re/join/slack) on the [`#configs` channel](https://nfcore.slack.com/channels/configs).
 
+## Azure Resource Requests
+
+To be used with the `azurebatch` profile by specifying the `-profile azurebatch`.
+We recommend providing a compute `params.vm_type` of `Standard_D16_v3` VMs by default but these options can be changed if required.
+
+Note that the choice of VM size depends on your quota and the overall workload during the analysis.
+For a thorough list, please refer the [Azure Sizes for virtual machines in Azure](https://docs.microsoft.com/en-us/azure/virtual-machines/sizes).
+
 ## Running in the background
 
 Nextflow handles job submissions and supervises the running jobs. The Nextflow process must run until the pipeline is finished.
@@ -616,6 +689,6 @@ Some HPC setups also allow you to run nextflow within a cluster job submitted yo
 In some cases, the Nextflow Java virtual machines can start to request a large amount of memory.
 We recommend adding the following line to your environment to limit this (typically in `~/.bashrc` or `~./bash_profile`):
 
-```console
+```bash
 NXF_OPTS='-Xms1g -Xmx4g'
 ```
