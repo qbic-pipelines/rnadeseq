@@ -87,7 +87,7 @@
                     "type": "string",
                     "default": "rlog",
                     "enum": ["rlog", "vst", "vst-force"],
-                    "description": "Which transformation to use during DE analysis; either rlog or vst or vst-force . If vst: the pipeline will override this and run rlog if it detects a strong variation in size factors in the input data (this will be stated in the report). To disable this behavior, set to vst-force."
+                    "description": "Which transformation to use during DE analysis; either rlog or vst or vst-force. If vst: the pipeline will override this and run rlog if it detects a strong variation in size factors in the input data (this will be stated in the report). To disable this behavior, set to vst-force."
                 },
                 "vst_genes_number": {
                     "type": "integer",
@@ -159,7 +159,7 @@
                 },
                 "quote": {
                     "type": "string",
-                    "description": "Quote file to link in the report‚."
+                    "description": "Quote file to link in the report."
                 },
                 "software_versions": {
                     "type": "string",
