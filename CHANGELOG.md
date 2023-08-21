@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - [#219](https://github.com/qbic-pipelines/rnadeseq/pull/219) Release 2.2 to master
+- [#220](https://github.com/qbic-pipelines/rnadeseq/pull/220) Commit suggestions from PR review for release 2.2
 - [#218](https://github.com/qbic-pipelines/rnadeseq/pull/218) Preparing release 2.2 with version bumps
 - [#217](https://github.com/qbic-pipelines/rnadeseq/pull/217) For rsem/salmon-imports, when a GTF is sometimes missing gene_names, these are now replaced by gene_ids instead
 - [#215](https://github.com/qbic-pipelines/rnadeseq/pull/215) Boxplots of genes are now generated from rlog/vst counts instead of raw counts. Also, if batch effect correction is enabled, boxplots will be generated before and after correction

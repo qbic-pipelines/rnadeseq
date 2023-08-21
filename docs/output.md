@@ -29,7 +29,7 @@ This directory contains the zipped results. When unzipping them, the following s
   - `star_[rsem/salmon]_files.txt`: list of counts files that were provided as input (only if `--input_type` is `rsem` or `salmon`).
   - `smrnaseq_files.txt`: list of counts files that were provided as input (only if `--input_type` is `smrnaseq`).
 - `gene_counts_tables/`
-  - `raw_gene_counts.txt`: raw gene counts table from the nf-core/rnaseq pipeline and used for the differential gene expression analysis (only if `--input_type` is `featurecounts` or `smrnaseq`; in the second case, will internally build a counts table from the input files, taking the third column of each .sorted.idxstats file (second column if counting rownames) and combining all values from both hairpin and non-hairpin mature files into one table).
+  - `raw_gene_counts.txt`: raw gene counts table from the nf-core/rnaseq pipeline and used for the differential gene expression analysis (only if `--input_type` is `featurecounts` or `smrnaseq`; in the second case, the pipeline will internally build a counts table from the input files, taking the third column of each .sorted.idxstats file (second column if counting rownames) and combining all values from both hairpin and non-hairpin mature files into one table).
   - `rlog_transformed_gene_counts.tsv`: normalized gene counts with the "regularized logarithm" approach. This normalization is used prior to PCA analysis and heatmap plotting of the gene counts (only when rlog transformation is used).
   - `vst_transformed_gene_counts.tsv`: normalized gene counts with the "variance stabilizing" transformation (only when vst transformation is used).
   - `sizeFactor_libraries.tsv`: size factors for each sample.
