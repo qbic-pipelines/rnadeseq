@@ -1437,6 +1437,11 @@ write(contrast_names, file="contrast_names.txt", sep="\t")
 # Remove identical columns of DE_genes_df
 DE_genes_df$DE_genes_df <- NULL
 idx <- duplicated(t(DE_genes_df))
+
+# If any padj or logFC columns were marked for removal (TRUE), undo that by setting FALSE as we need these cols
+idx[grepl("padj", as.character(names(idx)))] <- FALSE
+idx[grepl("log2FoldChange", as.character(names(idx)))] <- FALSE
+
 DE_genes_df <- DE_genes_df[, !idx]
 DE_genes_df$Ensembl_ID <- row.names(DE_genes_df)
 DE_genes_df <- DE_genes_df[,c(dim(DE_genes_df)[2],1:dim(DE_genes_df)[2]-1)]
