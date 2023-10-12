@@ -1557,17 +1557,21 @@ for (file in allgenes_files){
 }
 DE_all <- ldply(table_list, rbind)
 DE_all$logpval <- -log10(DE_all$padj)
+DE_all$truelogpval <- DE_all$logpval # Save true value for hovertext
 DE_all$logpval[DE_all$logpval > 16] <- 17
 DE_all <- na.omit(DE_all)
+DE_all <- DE_all %>% mutate(color = ifelse(abs(DE_all$log2FoldChange) >= params$logFC_threshold & DE_all$logpval >= -log10(params$adj_pval_threshold), "red", "black")) # Create column which assigns each entry a plot color so that coloring is consistent even when no DE genes are found
 log2FoldChange_min <- min(DE_all$log2FoldChange)
 log2FoldChange_max <- max(DE_all$log2FoldChange)
 
 # get quotient of log2FoldChange range and 10 to determine if xticks of plot need to be scaled discretely (otherwise, for large FC ranges, there will be too many xticks and they will overlap)
 log2FoldChange_quotient <- length(seq(log2FoldChange_min, log2FoldChange_max, 10))
 
-pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
+pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name,
+                                                                    "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2),
+                                                                    "<br>", "-Log10padj: ", formatC(truelogpval, digits=2)))) +
         #this goes after alpha=0.5:
-        geom_jitter(alpha=0.5, width = 0.2, aes(color=ifelse(abs(DE_all$log2FoldChange) >= params$logFC_threshold &  DE_all$logpval >= -log10(params$adj_pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
+        geom_jitter(alpha=0.5, width = 0.2, aes(color=ifelse(DE_all$color == "red", "Differentially expressed genes", "Non-differentially expressed genes"))) +
         geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
         geom_hline(yintercept = -log10(params$adj_pval_threshold), size = 0.2, color = "grey") +
         geom_vline(xintercept = -params$logFC_threshold, size = 0.2, color = "grey") +
