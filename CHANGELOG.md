@@ -3,6 +3,17 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3dev
+
+### Added
+
+- [#221](https://github.com/qbic-pipelines/rnadeseq/pull/221) Add padj to volcano hovertext
+
+### Fixed
+
+- [#221](https://github.com/qbic-pipelines/rnadeseq/pull/221) Fix non-conformable arrays bug, fix wrong volcano colors when no DE genes
+
+
 ## 2.2 Avenue of Poplars
 
 ### Added
