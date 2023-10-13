@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [#221](https://github.com/qbic-pipelines/rnadeseq/pull/221) Fix non-conformable arrays bug, fix wrong volcano colors when no DE genes
 
-
 ## 2.2 Avenue of Poplars
 
 ### Added
