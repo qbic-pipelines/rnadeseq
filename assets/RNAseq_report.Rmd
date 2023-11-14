@@ -693,6 +693,7 @@ if (run_rlog){
     # rlog transformation
     rld <- rlog(cds, blind=FALSE)
     rld_names <- merge(x=gene_names, y=assay(rld), by.x = "Ensembl_ID", by.y="row.names")
+    rld_names <- rld_names[order(rld_names$Ensembl_ID),]
     write.table(rld_names, "differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  qmethod = c("escape", "double"))
 
     # save table to another variable if pathway analysis
@@ -706,6 +707,7 @@ if (run_rlog){
     # vst transformation
     vsd <- vst(cds, blind=FALSE, nsub = params$nsub_genes)
     vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
+    vsd_names <- vsd_names[order(vsd_names$Ensembl_ID),]
     write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
     # save table to another variable if pathway analysis
@@ -1113,9 +1115,20 @@ A PCA of the batch-effect corrected data is shown below and can be found [here](
 if (run_rlog) {
     assay(rld) <- limma::removeBatchEffect(assay(rld), rld$batch)
     rld_corrected <- rld
+    out_rld <- as.data.frame(assay(rld_corrected))
+    out_rld <- out_rld[order(rownames(out_rld)),]
+    out_rld <- cbind(Ensembl_ID = rownames(out_rld), gene_name = rld_names$gene_name, out_rld[,!names(out_rld) %in% c("gene_name")])
+
+    write.table(out_rld, file="differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts_batchcorrected.tsv", quote=F, sep="\t", row.names=F)
 } else {
     assay(vsd) <- limma::removeBatchEffect(assay(vsd), vsd$batch)
     vsd_corrected <- vsd
+
+    out_vsd <- as.data.frame(assay(vsd_corrected))
+    out_vsd <- out_vsd[order(rownames(out_vsd)),]
+    out_vsd <- cbind(Ensembl_ID = rownames(out_vsd), gene_name = vsd_names$gene_name, out_vsd[,!names(out_vsd) %in% c("gene_name")])
+
+    write.table(out_vsd, file="differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts_batchcorrected.tsv", quote=F, sep="\t", row.names=F)
 }
 pcaData2 <- plotPCA(if (run_rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (run_rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
