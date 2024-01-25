@@ -881,14 +881,29 @@ Note: Duplicate intercept (%) is the percentage of duplicate reads for the inter
 df_DE <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"), header=TRUE, sep="\t")
 is.num <- sapply(df_DE, is.numeric)
 df_DE[is.num] <- lapply(df_DE[is.num], round, 2)
-columns <- c("Sample",
+write.table(df_DE, file=file.path("/sfs/9/ws/iivow01-test/rnadeseq/mqc_new/error", "df_DE1.tsv"), row.names=F, sep="\t", quote=F)
+mqc_version <- ifelse("FastQC..raw._mqc.generalstats.fastqc_raw.total_sequences" %in% colnames(df_DE), "new_mqc", 'old_mqc')
+if (mqc_version == 'old_mqc') {
+    columns <- c("Sample",
             "FastQC_mqc.generalstats.fastqc.total_sequences",
             "FastQC_mqc.generalstats.fastqc.percent_duplicates",
             "FastQC_mqc.generalstats.fastqc.percent_gc",
             "Cutadapt_mqc.generalstats.cutadapt.percent_trimmed",
             "STAR_mqc.generalstats.star.uniquely_mapped_percent",
             "featureCounts_mqc.generalstats.featurecounts.percent_assigned")
+} else {
+    columns <- c("Sample",
+            "FastQC..raw._mqc.generalstats.fastqc_raw.total_sequences",
+            "FastQC..raw._mqc.generalstats.fastqc_raw.percent_duplicates",
+            "FastQC..raw._mqc.generalstats.fastqc_raw.percent_gc",
+            "FastQC..trimmed._mqc.generalstats.fastqc_trimmed.total_sequences",
+            "FastQC..trimmed._mqc.generalstats.fastqc_trimmed.percent_duplicates",
+            "FastQC..trimmed._mqc.generalstats.fastqc_trimmed.percent_gc",
+            "Cutadapt_mqc.generalstats.cutadapt.percent_trimmed",
+            "STAR_mqc.generalstats.star.uniquely_mapped_percent")
+}
 df_DE_selected <- df_DE[,columns]
+write.table(df_DE_selected, file=file.path("/sfs/9/ws/iivow01-test/rnadeseq/mqc_new/error", "df_DE2.tsv"), row.names=F, sep="\t", quote=F)
 
 # The following gets rid of multiQC entries that are spread across two rows, one ending with -fw (see https://github.com/qbic-pipelines/rnadeseq/issues/114)
 sum_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else sum(x, na.rm = TRUE)}
@@ -897,7 +912,6 @@ df_DE_selected <- df_DE_selected %>% group_by(Sample) %>% summarise_all(sum_NA)
 
 
 df_DE_selected$Sample <- substr(df_DE_selected$Sample, 1, 10)
-colnames(df_DE_selected) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
 n_rows = nrow(df_DE_selected)
 
 metadata <- read.table((paste0(wd, "/differential_gene_expression/metadata/metadata.tsv")), header=TRUE, sep="\t")
@@ -907,25 +921,57 @@ metadata = metadata[,c("QBiC.Code")]
 metadata <- data.frame(matrix(unlist(metadata)))
 colnames(metadata) <- c("Sample")
 table_complete = merge(metadata,df_DE_selected,by="Sample")
-colnames = c("Sample", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
-colnames(table_complete) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
-table_complete %>%
-    mutate(
-        Sample = Sample,
-        ReadNumber = color_bar("lightblue")(round((C1/1000000),2)),
-        DuplicateReadsIntercept = ifelse(C2 > 1,
-                                        cell_spec(C2, color="orange", bold=T),
-                                        cell_spec(C2, color="black")),
-        GCcontent = C3,
-        TrimmedReads = C4,
-        MappedReads =  ifelse(C5 > 80,
-                            color_bar("lightblue")(C5),
-                            color_bar("orange")(C5)),
-        AssignedReads = ifelse(C6 > 60,
-                            color_bar("lightblue")(C6),
-                            color_bar("orange")(C6))
-    ) %>%
-    dplyr::select(1,8:13) %>%
+
+if (mqc_version == 'old_mqc') {
+    colnames = c("Sample", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
+    colnames(table_complete) <- c("Sample", "ReadNumber", "DuplicateReadsIntercept", "GCcontent", "TrimmedReads", "MappedReads", "AssignedReads")
+    table_complete <- table_complete %>%
+        mutate(
+            Sample = Sample,
+            ReadNumber = color_bar("lightblue")(round((ReadNumber/1000000),2)),
+            DuplicateReadsIntercept = ifelse(DuplicateReadsIntercept > 1,
+                                            cell_spec(DuplicateReadsIntercept, color="orange", bold=T),
+                                            cell_spec(DuplicateReadsIntercept, color="black")),
+            GCcontent = GCcontent,
+            TrimmedReads = TrimmedReads,
+            MappedReads =  ifelse(MappedReads > 80,
+                                color_bar("lightblue")(MappedReads),
+                                color_bar("orange")(MappedReads)),
+            AssignedReads = ifelse(AssignedReads > 60,
+                                color_bar("lightblue")(AssignedReads),
+                                color_bar("orange")(AssignedReads))
+        )
+} else {
+    colnames = c("Sample", "Number of reads/raw (M)", "Duplicates/raw (%)", "GC/raw (%)", "Number of reads/trimmed (M)", "Duplicates/trimmed (%)", "GC/trimmed (%)", "Trimmed reads (%)", "Mapped reads (%)")
+    colnames(table_complete) <- c("Sample", "ReadNumberRaw", "DuplicateReadsInterceptRaw", "GCcontentRaw", "ReadNumberTrimmed", "DuplicateReadsInterceptTrimmed", "GCcontentTrimmed", "TrimmedReads", "MappedReads")
+    table_complete <- table_complete %>%
+        mutate(
+            Sample = Sample,
+            ReadNumberRaw = color_bar("lightblue")(round((ReadNumberRaw/1000000),2)),
+            DuplicateReadsInterceptRaw = ifelse(DuplicateReadsInterceptRaw > 1,
+                                            cell_spec(DuplicateReadsInterceptRaw, color="orange", bold=T),
+                                            cell_spec(DuplicateReadsInterceptRaw, color="black")),
+            GCcontentRaw = GCcontentRaw,
+            ReadNumberTrimmed = color_bar("lightblue")(round((ReadNumberTrimmed/1000000),2)),
+            DuplicateReadsInterceptTrimmed = ifelse(DuplicateReadsInterceptTrimmed > 1,
+                                            cell_spec(DuplicateReadsInterceptTrimmed, color="orange", bold=T),
+                                            cell_spec(DuplicateReadsInterceptTrimmed, color="black")),
+            GCcontentTrimmed = GCcontentTrimmed,
+            TrimmedReads = TrimmedReads,
+            MappedReads =  ifelse(MappedReads > 80,
+                                color_bar("lightblue")(MappedReads),
+                                color_bar("orange")(MappedReads))
+        )
+}
+    
+    
+write.table(table_complete, file=file.path("/sfs/9/ws/iivow01-test/rnadeseq/mqc_new/error", "table_complete3_before.tsv"), row.names=F, sep="\t", quote=F)
+
+#table_complete <- table_complete %>%
+#    dplyr::select(1,8:13)
+#write.table(table_complete, file=file.path("/sfs/9/ws/iivow01-test/rnadeseq/mqc_new/error", "table_complete3_after.tsv"), row.names=F, sep="\t", quote=F)
+
+table_complete <- table_complete %>%
     kable(escape=F,row.names=F, col.names=colnames) %>%
     kable_styling("hover") %>%
     scroll_box(width = "100%", height = "400px")
@@ -967,7 +1013,7 @@ knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plo
 cat(paste0("***
 </center>
 \
-
+", ifelse(mqc_version == 'old_mqc', "
 ## Read assignment statistics {.tabset}
 
 The statistics of read assignment to genes are shown below. Most reads should be assigned. Interpretation of the different assignment types:
@@ -978,15 +1024,29 @@ The statistics of read assignment to genes are shown below. Most reads should be
     to two different genes at the same time making the assignment ambiguous. \
 -   **Unassigned MultiMapping:** The reads could not be assigned to any gene because they map to several distinct locations on the reference genome. \
 -   **Unassigned NoFeatures:** The reads could not be assigned to any gene because their mapping position in the reference genome is not annotated.
+", "
+## Read alignment statistics {.tabset}
 
+The statistics of read alignment to genes are shown below. Most reads should be aligned. Interpretation of the different alignment types:
+
+-   **Uniquely mapped:** The reads could properly be aligned to a gene or feature. \
+-   **Mapped to multiple/too many loci:** The reads could be aligned to multiple genes because of its ambiguous character. \
+-   **Unmapped: too short/other:** The reads could not be aligned to any gene, e.g. because they were too short. \
+")
+
+,"
 ### Percentages {-}
 
 <center>
 "))
 ```
 
-```{r FC_percentages_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1_pc.svg"), error=F)
+```{r FC_percentages_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap=ifelse(mqc_version == 'old_mqc', "featureCounts: Assignments", "STAR: Alignments"), fig.align='center'}
+if (mqc_version == 'old_mqc') {
+    knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1_pc.svg"), error=F)
+} else {
+    knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg"), error=F)
+}
 ```
 
 ```{r FC_readnums, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -999,8 +1059,12 @@ cat(paste0("***
 "))
 ```
 
-```{r FC_readnums_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1.svg"), error=F)
+```{r FC_readnums_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap=ifelse(mqc_version == 'old_mqc', "featureCounts: Assignments", "STAR: Alignments"), fig.align='center'}
+if (mqc_version == 'old_mqc') {
+    knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1.svg"), error=F)
+} else {
+    knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1.svg"), error=F)
+}
 ```
 
 ```{r read_feat_distrib, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}

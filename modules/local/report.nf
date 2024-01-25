@@ -47,7 +47,7 @@ process REPORT {
     if [ "$multiqc" != "NO_FILE4" ]; then
         unzip $multiqc
         mkdir QC
-        mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
+        mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/ || mv multiqc/star_salmon/multiqc_plots/ multiqc/star_salmon/multiqc_data/ multiqc/star_salmon/multiqc_report.html QC/
     fi
     Execute_report.R \
         --report '$baseDir/assets/RNAseq_report.Rmd' \
