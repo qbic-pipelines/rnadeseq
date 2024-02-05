@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- [#222](https://github.com/qbic-pipelines/rnadeseq/pull/222) Fixed too many devices error from tryCatch around normalized heatmaps
 - [#212](https://github.com/qbic-pipelines/rnadeseq/pull/212) Fixed movability of interactive gostplots
 - [#208](https://github.com/qbic-pipelines/rnadeseq/pull/208) Fixed relevel bug, the function should now finally work!
 - [#207](https://github.com/qbic-pipelines/rnadeseq/pull/207) Fixed check of samples in counts vs metadata
