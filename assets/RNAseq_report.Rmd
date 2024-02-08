@@ -945,8 +945,8 @@ if (mqc_version == 'old_mqc') {
                                 color_bar("orange")(AssignedReads))
         )
 } else {
-    colnames = c("Sample", "Number of reads/raw (M)", "Duplicates/raw (%)", "GC/raw (%)", "Number of reads/trimmed (M)", "Duplicates/trimmed (%)", "GC/trimmed (%)", "Trimmed reads (%)", "Mapped reads (%)")
-    colnames(table_complete) <- c("Sample", "ReadNumberRaw", "DuplicateReadsInterceptRaw", "GCcontentRaw", "ReadNumberTrimmed", "DuplicateReadsInterceptTrimmed", "GCcontentTrimmed", "TrimmedReads", "MappedReads")
+    colnames = c("Sample", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed basepairs (%)", "Mapped reads (%)")
+    colnames(table_complete) <- c("Sample", "ReadNumberRaw", "DuplicateReadsInterceptRaw", "GCcontentRaw", "ReadNumberTrimmed", "DuplicateReadsInterceptTrimmed", "GCcontentTrimmed", "TrimmedBP", "MappedReads")
     table_complete <- table_complete %>%
         mutate(
             Sample = Sample,
@@ -960,19 +960,21 @@ if (mqc_version == 'old_mqc') {
                                             cell_spec(DuplicateReadsInterceptTrimmed, color="orange", bold=T),
                                             cell_spec(DuplicateReadsInterceptTrimmed, color="black")),
             GCcontentTrimmed = GCcontentTrimmed,
-            TrimmedReads = TrimmedReads,
+            TrimmedBP = TrimmedBP,
             MappedReads =  ifelse(MappedReads > 80,
                                 color_bar("lightblue")(MappedReads),
                                 color_bar("orange")(MappedReads))
         )
 }
 
-#table_complete <- table_complete %>%
-#    dplyr::select(1,8:13)
-#write.table(table_complete, file=file.path("/sfs/9/ws/iivow01-test/rnadeseq/mqc_new/error", "table_complete3_after.tsv"), row.names=F, sep="\t", quote=F)
-
+# This does some final formatting of the table in the report
+table_complete <- table_complete %>%
+    kable(escape=F,row.names=F, col.names=colnames)
+if (mqc_version == 'new_mqc') {
+    table_complete <- table_complete %>%
+        add_header_above(c(" " = 1, "raw" = 3, "trimmed" = 3, " " = 2))   # For new MQC, add header columns raw and trimmed
+}
 table_complete %>%
-    kable(escape=F,row.names=F, col.names=colnames) %>%
     kable_styling("hover") %>%
     scroll_box(width = "100%", height = "400px")
 
