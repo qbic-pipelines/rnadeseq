@@ -599,7 +599,8 @@ if (params$input_type %in% c("featurecounts", "smrnaseq")) {
                 }
             }
             missing_files <- paste0(substring(missing_files, 1, nchar(missing_files)-2), ".")
-            stop(missing_files, call.=F)        }
+            stop(missing_files, call.=F)
+        }
 
         #The following steps are necessary for the processing of salmon output as the files do
         # not contain integer counts and can therefore not be directly used for cds
@@ -719,7 +720,7 @@ if (run_rlog){
 # Cooks distances: get important for example when checking knock-out and overexpression studies
 pdf("differential_gene_expression/plots/further_diagnostics_plots/Cooks-distances.pdf")
 par(mar=c(10,3,3,3))
-par( mfrow = c(1,2))
+par(mfrow = c(1,2))
 boxplot(log10(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log10-Cooks")
 boxplot(log2(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log2-Cooks")
 dev.off()
@@ -1348,6 +1349,7 @@ if (isProvided(params$path_contrast_list)) {
         contrast_names <- append(contrast_names, contname)
     }
 }
+
 if (isProvided(params$path_contrast_pairs)) {
     contrasts <- read.table(path_contrast_pairs, sep="\t", header = T, colClasses = "character")
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_pairs.tsv", sep="\t", quote=F, col.names = T, row.names = F)
@@ -2027,39 +2029,42 @@ for (file in contrast_files){
                     # Skip the heatmaps for CI tests because especially png() works only very unreliably for the heatmaps for some reason
                     if (!isProvided(params$citest) & nrow(mat)>1){
                         dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
-                        
+
                         # Because the image devices sometimes don't work here, surround them with a tryCatch so that the code continues even if a certain heatmap is not saved                         
                         tryCatch(
                             {
                                 png(filename = paste0("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png"), width = ifelse(nrow(mat)<=20, 200, 125)+ncol(mat)*40, height = 50+nrow(mat)*50)
-                                dev.off()
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                             },
                             error=function(e) {
-                                dev.off()
                                 print(paste0("Could not save Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png because of the following error:\n", e))
+                            },
+                            finally={
+                                dev.off()
                             }
                         )
                         tryCatch(
                             {
                                 pdf(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
-                                dev.off()
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                             },
                             error=function(e) {
-                                dev.off()
                                 print(paste0("Could not save Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf because of the following error:\n", e))
+                            },
+                            finally={
+                                dev.off()
                             }
                         )
                         tryCatch(
                             {
                                 svg(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".svg"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
-                                dev.off()
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                             },
                             error=function(e) {
-                                dev.off()
                                 print(paste0("Could not save Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".svg because of the following error:\n", e))
+                            },
+                            finally={
+                                dev.off()
                             }
                         )
                     }
@@ -2073,9 +2078,7 @@ for (file in contrast_files){
                             print_string <- paste0("Plotting pathway: ", pathway_kegg)
                             gene.data = DE_genes
                             gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
-
                             entrez_ids = AnnotationDbi::mapIds(species_library_installed, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=params$keytype, multiVals="first")
-
                             gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
 
                             if (length(entrez_ids)!=length(unique(entrez_ids))) {
