@@ -43,6 +43,7 @@ params:
     custom_gmt: ''
     set_background: ''
     custom_background: ''
+    datasources: ''
 
     #Additional args for the report
     path_proj_summary: ''
@@ -1773,8 +1774,12 @@ BiocManager::install(params$species_library, lib=species_dir, version="3.17", fo
 library(params$species_library, lib.loc=species_dir, character.only=T)
 species_library_installed <- get(params$species_library)
 
-# gprofiler pathway / term sources parameters
-datasources <- c("KEGG", "REAC")
+# If provided, prepare datasources from comma-separated string
+if (isProvided(params$datasources)) {
+    datasources <- unlist(strsplit(params$datasources, ','))
+} else {
+    datasources <- c()
+}
 
 # Default to 1 for the nb of genes DE in a pathway
 min_DEG_pathway <- as.integer(params$min_DEG_pathway)
@@ -1804,7 +1809,18 @@ mv_status <- F
 if (isProvided(params$custom_gmt)){
 
     # If custom GMT file was provided, filter it before uploading to use in gost queries (gprofiler will NOT filter itself, so otherwise the output will contain all kinds of datasources, not just the selected ones)
-    out_gmt <- (Filter(function(line) any(startsWith(line, datasources)), readLines(params$custom_gmt)))
+    out_gmt <- readLines(params$custom_gmt)
+
+    # If datasources are also provided, filter the GMT
+    if (isProvided(params$datasources)) {
+        go_positions <- grep("^GO", datasources)
+        if (length(go_positions)) {
+            datasources <- my_vector[-go_positions]     # If there are any datasources starting with GO, remove them (gets rid of GO:BP etc.)
+            datasources <- append(datasources, "GO")    # Then add the single entry GO, as otherwise, the filtering might not recognize these datasources
+        }
+        out_gmt <- (Filter(function(line) any(startsWith(line, datasources)), out_gmt)) # Remove GMT lines that don't start with a datasource
+    }
+
     out_path <- paste0(tools::file_path_sans_ext(basename(params$custom_gmt)), "_filtered.gmt")
     writeLines(out_gmt, out_path)
     gost_id <- upload_GMT_file(out_path)
@@ -1940,13 +1956,13 @@ for (file in contrast_files){
 
         # Generate non-interactive pathway dotplots in the folder
         pg <- gostplot(gostres, capped=T, interactive=F)
-        ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.pdf"),
+        ggsave(pg, filename = "pathway_analysis/gost_pathway_enrichment_plot.pdf",
             device="pdf",
             height=10, width=15, units="cm", limitsize=F)
-        ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.png"),
+        ggsave(pg, filename = "pathway_analysis/gost_pathway_enrichment_plot.png",
             device="png",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
-        ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.svg"),
+        ggsave(pg, filename = "pathway_analysis/gost_pathway_enrichment_plot.svg",
             device="svg",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
 
@@ -1972,7 +1988,7 @@ for (file in contrast_files){
 
     # Save pathway enrichment table in tsv format
     write.table(pathway_gostres_table,
-                file = paste0("pathway_analysis", "/", fname, "/", fname, "_pathway_enrichment_results.tsv"),
+                file = paste0("pathway_analysis", "/", fname, "/", "pathway_enrichment_results.tsv"),
                 sep="\t", quote = F, col.names = T, row.names = F)
 
     print("------------------------------------")
@@ -1994,7 +2010,7 @@ for (file in contrast_files){
             # Plotting results for df
             df_subset <- data.frame(Pathway_name = df$short_name, Pathway_code = df$term_id, DE_genes = df$intersection_size, Pathway_size = df$term_size, Fraction_DE = (df$intersection_size / df$term_size), Padj = df$p_value, DE_genes_names = df$intersection)
             write.table(df_subset,
-                        file = paste0("pathway_analysis", "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"),
+                        file = paste0("pathway_analysis", "/", fname, "/", db_source, "_pathway_enrichment_results.tsv"),
                         sep="\t", quote = F, col.names = T, row.names = F)
 
             # Enriched pathways horizontal barplots of padj values
@@ -2006,9 +2022,9 @@ for (file in contrast_files){
                 scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
                 ggtitle("Enriched pathways") +
                 xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", db_source, "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
 
             # Plotting heatmaps and KEGG pathways for all pathways
             print("Plotting heatmaps...")
@@ -2033,11 +2049,11 @@ for (file in contrast_files){
                         # Because the image devices sometimes don't work here, surround them with a tryCatch so that the code continues even if a certain heatmap is not saved                         
                         tryCatch(
                             {
-                                png(filename = paste0("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png"), width = ifelse(nrow(mat)<=20, 200, 125)+ncol(mat)*40, height = 50+nrow(mat)*50)
+                                png(filename = paste0("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, ".png"), width = ifelse(nrow(mat)<=20, 200, 125)+ncol(mat)*40, height = 50+nrow(mat)*50)
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                             },
                             error=function(e) {
-                                print(paste0("Could not save Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png because of the following error:\n", e))
+                                print(paste0("Could not save pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, ".png because of the following error:\n", e))
                             },
                             finally={
                                 dev.off()
@@ -2045,11 +2061,11 @@ for (file in contrast_files){
                         )
                         tryCatch(
                             {
-                                pdf(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
+                                pdf(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, ".pdf"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                             },
                             error=function(e) {
-                                print(paste0("Could not save Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf because of the following error:\n", e))
+                                print(paste0("Could not save pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, ".pdf because of the following error:\n", e))
                             },
                             finally={
                                 dev.off()
@@ -2057,11 +2073,11 @@ for (file in contrast_files){
                         )
                         tryCatch(
                             {
-                                svg(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".svg"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
+                                svg(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, ".svg"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                             },
                             error=function(e) {
-                                print(paste0("Could not save Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".svg because of the following error:\n", e))
+                                print(paste0("Could not save pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, ".svg because of the following error:\n", e))
                             },
                             finally={
                                 dev.off()
@@ -2440,16 +2456,25 @@ name_species       = params$species_library
 version_species    = packageVersion(name_species)
 
 if (isProvided(params$custom_gmt)){
-    database_string <- paste0("Also, a gprofiler query with this custom GMT file was done: `", basename(params$custom_gmt), "`. Entries of the following datasources were considered: ")
-    dbs <- paste(datasources, collapse="`, `")
-    database_string <- paste0(database_string, "`", dbs, "`.")
-} else {
+    database_string <- paste0("Also, a gprofiler query with this custom GMT file was done: `", basename(params$custom_gmt), "`.")
+
+    if (isProvided(params$datasources)) {
+        database_string <- paste(database_string, "Entries of the following datasources were considered: ")
+        dbs <- paste(datasources, collapse="`, `")
+        database_string <- paste0(database_string, "`", dbs, "`.")
+    } else {
+        database_string <- ""
+    }
+
+} else if (isProvided(params$datasources)) {
     database_string = "Also, the following databases were queried: "
     database_version_info <- get_version_info(params$organism)
     database_string <- paste0(database_string, "`gprofiler: ", database_version_info$gprofiler_version, "`")
     for (db in datasources) {
         database_string <- paste0(database_string, ", `", db, ": ", database_version_info$sources[[db]]$version, "`")
     }
+} else {
+    database_string <- paste(database_string, "All datasources available in g:Profiler were considered (check https://biit.cs.ut.ee/gprofiler/gost and https://biit.cs.ut.ee/gprofiler/page/docs for more info).")
 }
 
 cat(paste0(
