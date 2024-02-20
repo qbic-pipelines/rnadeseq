@@ -1882,11 +1882,12 @@ theme_set(theme_classic())
 
 for (file in contrast_files){
 
-    #Reading DE genes list
+    # Reading DE genes list
     fname <- tools::file_path_sans_ext(basename(file))
 
     dir.create(paste("pathway_analysis", fname, sep="/"))
     dir.create(paste("pathway_analysis", fname, "KEGG_pathways", sep="/"))
+    dir.create(paste("pathway_analysis", fname, "enrichment_plots", sep="/"))
     DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
     DE_genes <- as.data.frame(DE_genes)
 
@@ -1961,13 +1962,13 @@ for (file in contrast_files){
 
         # Generate non-interactive pathway dotplots in the folder
         pg <- gostplot(gostres, capped=T, interactive=F)
-        ggsave(pg, filename = "pathway_analysis/gost_pathway_enrichment_plot.pdf",
+        ggsave(pg, filename = paste0("pathway_analysis/", "/", fname, "/gost_pathway_gostplot.pdf"),
             device="pdf",
             height=10, width=15, units="cm", limitsize=F)
-        ggsave(pg, filename = "pathway_analysis/gost_pathway_enrichment_plot.png",
+        ggsave(pg, filename = paste0("pathway_analysis/", "/", fname, "/gost_pathway_gostplot.png"),
             device="png",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
-        ggsave(pg, filename = "pathway_analysis/gost_pathway_enrichment_plot.svg",
+        ggsave(pg, filename = paste0("pathway_analysis/", "/", fname, "/gost_pathway_gostplot.svg"),
             device="svg",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
 
@@ -1993,7 +1994,7 @@ for (file in contrast_files){
 
     # Save pathway enrichment table in tsv format
     write.table(pathway_gostres_table,
-                file = paste0("pathway_analysis", "/", fname, "/", "pathway_enrichment_results.tsv"),
+                file = paste0("pathway_analysis", "/", fname, "/pathway_enrichment_results.tsv"),
                 sep="\t", quote = F, col.names = T, row.names = F)
 
     print("------------------------------------")
@@ -2027,9 +2028,9 @@ for (file in contrast_files){
                 scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
                 ggtitle("Enriched pathways") +
                 xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", make.names(db_source), "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", make.names(db_source), "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", make.names(db_source), "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
 
             # Plotting heatmaps and KEGG pathways for all pathways
             print("Plotting heatmaps...")
@@ -2054,11 +2055,11 @@ for (file in contrast_files){
                         # Because the image devices sometimes don't work here, surround them with a tryCatch so that the code continues even if a certain heatmap is not saved                         
                         tryCatch(
                             {
-                                png(filename = paste0("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, ".png"), width = ifelse(nrow(mat)<=20, 200, 125)+ncol(mat)*40, height = 50+nrow(mat)*50)
+                                png(filename = paste0("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".png"), width = ifelse(nrow(mat)<=20, 200, 125)+ncol(mat)*40, height = 50+nrow(mat)*50)
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                             },
                             error=function(e) {
-                                print(paste0("Could not save pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, ".png because of the following error:\n", e))
+                                print(paste0("Could not save pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".png because of the following error:\n", e))
                             },
                             finally={
                                 dev.off()
@@ -2066,11 +2067,11 @@ for (file in contrast_files){
                         )
                         tryCatch(
                             {
-                                pdf(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, ".pdf"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
+                                pdf(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".pdf"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                             },
                             error=function(e) {
-                                print(paste0("Could not save pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, ".pdf because of the following error:\n", e))
+                                print(paste0("Could not save pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".pdf because of the following error:\n", e))
                             },
                             finally={
                                 dev.off()
@@ -2078,11 +2079,11 @@ for (file in contrast_files){
                         )
                         tryCatch(
                             {
-                                svg(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, ".svg"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
+                                svg(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".svg"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                             },
                             error=function(e) {
-                                print(paste0("Could not save pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, ".svg because of the following error:\n", e))
+                                print(paste0("Could not save pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".svg because of the following error:\n", e))
                             },
                             finally={
                                 dev.off()
@@ -2197,9 +2198,11 @@ Inside the pathway analysis results folder, a subfolder for each contrast used f
 <br><br><details>
 <summary>Expand/collapse</summary>
 - `*_gost_pathway_venn_diagram.pdf/png`
-  - Venn diagrams showing the numbers of enriched pathways when using a background gene list vs when not using a bg list.
-- `*_pathway_enrichment_plot.pdf/png`
-    - Barplots showing the proportion of differentially expressed genes in the pathway.
+    - Venn diagrams showing the numbers of enriched pathways when using a background gene list vs when not using a bg list.
+- `enrichment_plots/*_pathway_enrichment_plot.{pdf/png/svg}`
+    - Barplots showing the proportion of differentially expressed genes in the pathway for a certain pathway database.
+- `gost_pathway_gostplot.{pdf/png/svg}`
+    - Manhattan plots displaying all enriched pathways.
 - `KEGG_pathways/`
     - Contains the KEGG pathways graphs with the log fold change of the differentially expressed genes.
 - `pathway_heatmaps`

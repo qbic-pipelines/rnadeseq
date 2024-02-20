@@ -52,8 +52,10 @@ If pathway analysis was run, this directory contains the zipped pathway analysis
 
 - `*_gost_pathway_venn_diagram.pdf/png`
   - Venn diagrams showing the numbers of enriched pathways when using a background gene list vs when not using a bg list.
-- `*_pathway_enrichment_plot.pdf/png`
-  - Barplots showing the proportion of differentially expressed genes in the pathway.
+- `enrichment_plots/*_pathway_enrichment_plot.{pdf/png/svg}`
+  - Barplots showing the proportion of differentially expressed genes in the pathway for a certain pathway database.
+- `gost_pathway_gostplot.{pdf/png/svg}`
+  - Manhattan plots displaying all enriched pathways.
 - `KEGG_pathways/`
   - Contains the KEGG pathways graphs with the log fold change of the differentially expressed genes.
 - `pathway_heatmaps`
