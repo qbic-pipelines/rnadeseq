@@ -169,7 +169,7 @@ isProvided <- function(value) {
 #this function is used to produce a more informative error message when count table and metadata table disagree
 write_error_msg <- function(counts, qbicCodes) {
     error_msg <- "Count table headers do not exactly match the metadata table sample names!\n"
-    
+
     counts_msg <- ""
     counts_offending <- ""
     for (c in names(counts)) {
@@ -178,7 +178,7 @@ write_error_msg <- function(counts, qbicCodes) {
             counts_offending <- paste0(counts_offending, c, "\n")
         }
     }
-    
+
     meta_msg <- ""
     meta_offending <- ""
     for (m in qbicCodes) {
@@ -399,7 +399,7 @@ if (params$input_type == "smrnaseq") {
         missing_files <- paste0(substring(missing_files, 1, nchar(missing_files)-2), ".")
         stop(missing_files, call.=F)
     }
-    
+
     # Combine files for later
     files <- c(hairpin_files, other_files)
 
@@ -1054,7 +1054,7 @@ cat(paste0("***
 
 The raw count table and normalized count tables are available [here](./differential_gene_expression/gene_counts_tables).
 The differential expression analysis is performed using the raw gene count table.
-For PCA analysis and heatmap plotting, the `r norm_method_long_text` normalized gene counts were used. 
+For PCA analysis and heatmap plotting, the `r norm_method_long_text` normalized gene counts were used.
 `r norm_method_override_text`
 `r nsub_genes_text`
 
@@ -1653,7 +1653,7 @@ if (isProvided(params$path_genelist)) {
         ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".svg",sep=""), width=10, height=5, plot=plot)
         ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".png",sep=""), width=10, height=5, plot=plot)
         ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".pdf",sep=""), width=10, height=5, plot=plot)
-    }    
+    }
 }
 ```
 
@@ -1720,7 +1720,7 @@ if (isProvided(params$path_genelist)) {
         ggsave(filename=paste0("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],"_after_batchcorrect.svg"), width=10, height=5, plot=plot)
         ggsave(filename=paste0("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],"_after_batchcorrect.png"), width=10, height=5, plot=plot)
         ggsave(filename=paste0("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],"_after_batchcorrect.pdf"), width=10, height=5, plot=plot)
-    }    
+    }
 }
 ```
 
@@ -1912,11 +1912,11 @@ for (file in contrast_files){
             custom_bg=custom_background,
             domain_scope="custom_annotated"
         )
-        
+
         pathway_gostres <- gostres$result
         pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
         pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
-        
+
         # Also run without bg for Venn diagrams
         gostres_nobg <- gost(query=q,
             organism=gost_id,
@@ -1982,9 +1982,9 @@ for (file in contrast_files){
                 no_background=pathway_gostres_nobg$term_name
             )
             pv <- ggvenn::ggvenn(VennInput)
-            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.pdf"),pv, device="pdf", width=10, height=15)
-            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.png"),pv, device="png", width=10, height=15)
-            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.svg"),pv, device="svg", width=10, height=15)
+            ggsave(paste0("pathway_analysis", "/", fname, "/gost_pathway_venn_diagram.pdf"),pv, device="pdf", width=10, height=15)
+            ggsave(paste0("pathway_analysis", "/", fname, "/gost_pathway_venn_diagram.png"),pv, device="png", width=10, height=15)
+            ggsave(paste0("pathway_analysis", "/", fname, "/gost_pathway_venn_diagram.svg"),pv, device="svg", width=10, height=15)
         }
     }
 
@@ -2052,7 +2052,7 @@ for (file in contrast_files){
                     if (!isProvided(params$citest) & nrow(mat)>1){
                         dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
 
-                        # Because the image devices sometimes don't work here, surround them with a tryCatch so that the code continues even if a certain heatmap is not saved                         
+                        # Because the image devices sometimes don't work here, surround them with a tryCatch so that the code continues even if a certain heatmap is not saved
                         tryCatch(
                             {
                                 png(filename = paste0("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".png"), width = ifelse(nrow(mat)<=20, 200, 125)+ncol(mat)*40, height = 50+nrow(mat)*50)
@@ -2241,7 +2241,7 @@ names(q_list) <- q_names
 if (length(q_list) > 0) {
 
     #gost query
-    
+
     if (isProvided(params$set_background)) {
         gostres <- gost(query=q_list,
                     organism=gost_id,
@@ -2452,7 +2452,7 @@ as.character(params$revision),
 "` pipeline [^5], which was written using the nf-core template [@ewels2020nf]. For differential expression analysis, the read quantification data resulting from `",
 quant_tool, "` were processed with the R package `DESeq2 v",
 packageVersion("DESeq2"),
-"` [@love2014differential]. The thresholds for differentially expressed genes were set to ", 
+"` [@love2014differential]. The thresholds for differentially expressed genes were set to ",
 pval_text, " for the p-value and ",
 logFC_text, " for the log2 Fold Change."
 ))

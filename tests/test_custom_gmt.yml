@@ -60,8 +60,12 @@
     - path: results_test/differential_gene_expression/plots/PCA_plot.pdf
     - path: results_test/differential_gene_expression/plots/PCA_plot.png
     - path: results_test/differential_gene_expression/plots/PCA_plot.svg
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO_gost_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO_gost_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/gost_pathway_gostplot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/gost_pathway_gostplot.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/gost_pathway_gostplot.svg
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/gost_pathway_venn_diagram.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/gost_pathway_venn_diagram.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/gost_pathway_venn_diagram.svg
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_enrichment_results.tsv
       md5sum: eae154d9c7a526cc8c3fcd1a586fa0ed
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_enrichment_results.tsv
