@@ -2015,7 +2015,7 @@ for (file in contrast_files){
             # Plotting results for df
             df_subset <- data.frame(Pathway_name = df$short_name, Pathway_code = df$term_id, DE_genes = df$intersection_size, Pathway_size = df$term_size, Fraction_DE = (df$intersection_size / df$term_size), Padj = df$p_value, DE_genes_names = df$intersection)
             write.table(df_subset,
-                        file = paste0("pathway_analysis", "/", fname, "/", db_source, "_pathway_enrichment_results.tsv"),
+                        file = paste0("pathway_analysis", "/", fname, "/", make.names(db_source), "_pathway_enrichment_results.tsv"),
                         sep="\t", quote = F, col.names = T, row.names = F)
 
             # Enriched pathways horizontal barplots of padj values
