@@ -2027,9 +2027,9 @@ for (file in contrast_files){
                 scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
                 ggtitle("Enriched pathways") +
                 xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", db_source, "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", make.names(db_source), "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", make.names(db_source), "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", make.names(db_source), "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
 
             # Plotting heatmaps and KEGG pathways for all pathways
             print("Plotting heatmaps...")
@@ -2198,7 +2198,7 @@ Inside the pathway analysis results folder, a subfolder for each contrast used f
 <summary>Expand/collapse</summary>
 - `*_gost_pathway_venn_diagram.pdf/png`
   - Venn diagrams showing the numbers of enriched pathways when using a background gene list vs when not using a bg list.
-- `*_KEGG_pathway_enrichment_plot.pdf/png`
+- `*_pathway_enrichment_plot.pdf/png`
     - Barplots showing the proportion of differentially expressed genes in the pathway.
 - `KEGG_pathways/`
     - Contains the KEGG pathways graphs with the log fold change of the differentially expressed genes.
