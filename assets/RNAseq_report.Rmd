@@ -1862,6 +1862,11 @@ if (mv_status) {
     }
 }
 
+# Set datasources to NULL instead of c() to ensure that the gost queries work
+if (!isProvided(params$datasources)) {
+    datasources <- NULL
+}
+
 # ------------------
 # Set default params
 # ------------------
@@ -2474,7 +2479,7 @@ if (isProvided(params$custom_gmt)){
         database_string <- paste0(database_string, ", `", db, ": ", database_version_info$sources[[db]]$version, "`")
     }
 } else {
-    database_string <- paste(database_string, "All datasources available in g:Profiler were considered (check https://biit.cs.ut.ee/gprofiler/gost and https://biit.cs.ut.ee/gprofiler/page/docs for more info).")
+    database_string <- paste("All datasources available in g:Profiler were considered (check https://biit.cs.ut.ee/gprofiler/gost and https://biit.cs.ut.ee/gprofiler/page/docs for more info).")
 }
 
 cat(paste0(
