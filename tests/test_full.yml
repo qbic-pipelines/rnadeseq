@@ -76,10 +76,10 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04360.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04360.xml
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_enrichment_results.tsv
-      md5sum: 0bd6dfd32bad6f5292f6cde91f019844
+      md5sum: bdc0167b8b33a0da44e34768eead8376
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/REAC_pathway_enrichment_results.tsv
-      md5sum: 452ca5dd8d5f190648988502f85d3ef1
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/REAC_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/REAC_pathway_enrichment_plot.png
+      md5sum: 6594fdb8c0eb591fa131982a8be00877
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/enrichment_plots/REAC_pathway_enrichment_plot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/enrichment_plots/REAC_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/heatmap_gene_list/Heatmap_normalized_counts_gene_list.pdf
     - path: results_test/RNAseq_report.html
