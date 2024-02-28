@@ -90,9 +90,9 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/DE_contrast_condition_cellline_H1_vs_GM12878_pathway_enrichment_results.tsv
       md5sum: 26c6860ecfde94a912df6916f6394e50
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_pathway_enrichment_results.tsv
-      md5sum: 631e89b4de9042936fa2652bde036e7d
+      md5sum: 48b5b0c510c0044777c93f40dba36947
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/DE_contrast_condition_cellline_MCF7_vs_GM12878_pathway_enrichment_results.tsv
-      md5sum: 80123c4ba2c97eaa0217816f41122855
+      md5sum: 2a2be5e1b9a1e75dd9b2102ca61cd98d
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/DE_contrast_condition_cellline_H1_vs_GM12878_KEGG_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/DE_contrast_condition_cellline_H1_vs_GM12878_KEGG_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_KEGG_pathway_enrichment_plot.pdf
@@ -106,7 +106,7 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/DE_contrast_condition_cellline_MCF7_vs_GM12878_REAC_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/DE_contrast_condition_cellline_MCF7_vs_GM12878_REAC_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_KEGG_pathway_enrichment_results.tsv
-      md5sum: 276e871c81e85217bbd7eef951676084
+      md5sum: 20a44dd906096309df177c65f4f9a881
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/DE_contrast_condition_cellline_K562_vs_GM12878_REAC_pathway_enrichment_results.tsv
-      md5sum: 9e6847fe5d631f09305dfa00dd3472d1
+      md5sum: c77a3ffd60bc5d899f5f5948f444b9b0
     - path: results_test/RNAseq_report.html
