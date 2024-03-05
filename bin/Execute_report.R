@@ -34,6 +34,7 @@ option_list = list(
     make_option("--set_background", action="store_true", default=TRUE, help="Whether to use a background list for pathway analysis; if true, will only consider expressed genes (i.e. mean counts > 0) for PA."),
     make_option("--custom_background", type="character", default=NULL, help="Path to a custom background list TXT for pathway analysis; if provided, will only consider genes in that list for PA."),
     make_option(c("-w", "--min_DEG_pathway"), type="integer", default=NULL, help="min. number of genes DE in a pathway for this pathway to be considered enriched.", metavar="integer"),
+    make_option("--datasources", type="character", default=NULL, help="Which datasources to use for pathway analysis.", metavar="character"),
 
     make_option(c("-s", "--proj_summary"), type="character", default=NULL, help="Project summary file", metavar="character"),
     make_option(c("--path_quote"), type="character", default=NULL, help="Path to the quote PDF", metavar="character"),
@@ -82,6 +83,7 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 custom_background = opt$custom_background,
                                 keytype = opt$keytype,
                                 min_DEG_pathway = opt$min_DEG_pathway,
+                                datasources = opt$datasources,
 
                                 path_proj_summary = opt$proj_summary,
                                 path_quote = opt$path_quote,
