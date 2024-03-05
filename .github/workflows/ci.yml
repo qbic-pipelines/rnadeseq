@@ -40,14 +40,14 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:2.2
+        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:2.3dev
 
       # Change the version above and the third version below before/after release
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
           docker pull ghcr.io/qbic-pipelines/rnadeseq:dev
-          docker tag ghcr.io/qbic-pipelines/rnadeseq:dev ghcr.io/qbic-pipelines/rnadeseq:2.2
+          docker tag ghcr.io/qbic-pipelines/rnadeseq:dev ghcr.io/qbic-pipelines/rnadeseq:2.3dev
 
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v1
@@ -94,14 +94,14 @@ jobs:
             environment.yml
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:2.2
+        run: docker build --no-cache . -t ghcr.io/qbic-pipelines/rnadeseq:2.3dev
 
       # Change the version above and the third version below before/after release
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
           docker pull ghcr.io/qbic-pipelines/rnadeseq:dev
-          docker tag ghcr.io/qbic-pipelines/rnadeseq:dev ghcr.io/qbic-pipelines/rnadeseq:2.2
+          docker tag ghcr.io/qbic-pipelines/rnadeseq:dev ghcr.io/qbic-pipelines/rnadeseq:2.3dev
 
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v1
