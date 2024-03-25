@@ -43,6 +43,7 @@ params:
     custom_gmt: ''
     set_background: ''
     custom_background: ''
+    datasources: ''
 
     #Additional args for the report
     path_proj_summary: ''
@@ -168,7 +169,7 @@ isProvided <- function(value) {
 #this function is used to produce a more informative error message when count table and metadata table disagree
 write_error_msg <- function(counts, qbicCodes) {
     error_msg <- "Count table headers do not exactly match the metadata table sample names!\n"
-    
+
     counts_msg <- ""
     counts_offending <- ""
     for (c in names(counts)) {
@@ -177,7 +178,7 @@ write_error_msg <- function(counts, qbicCodes) {
             counts_offending <- paste0(counts_offending, c, "\n")
         }
     }
-    
+
     meta_msg <- ""
     meta_offending <- ""
     for (m in qbicCodes) {
@@ -398,7 +399,7 @@ if (params$input_type == "smrnaseq") {
         missing_files <- paste0(substring(missing_files, 1, nchar(missing_files)-2), ".")
         stop(missing_files, call.=F)
     }
-    
+
     # Combine files for later
     files <- c(hairpin_files, other_files)
 
@@ -528,6 +529,7 @@ DT::datatable(df_QA_neat, options = list(scrollX  = "100%", scrollY = "400px", p
 if (params$input_type %in% c("featurecounts", "smrnaseq")) {
     cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
 } else if (params$input_type %in% c("rsem", "salmon")) {
+
     ## Create a dataframe which consists of both the gene id and the transcript name
     gtf <- rtracklayer::import(params$path_gtf)
     gtf <- as.data.frame(gtf, header=T)
@@ -599,7 +601,8 @@ if (params$input_type %in% c("featurecounts", "smrnaseq")) {
                 }
             }
             missing_files <- paste0(substring(missing_files, 1, nchar(missing_files)-2), ".")
-            stop(missing_files, call.=F)        }
+            stop(missing_files, call.=F)
+        }
 
         #The following steps are necessary for the processing of salmon output as the files do
         # not contain integer counts and can therefore not be directly used for cds
@@ -642,6 +645,7 @@ if (params$input_type %in% c("featurecounts", "smrnaseq")) {
     nm <- assays(cds)[["avgTxLength"]]
     sf <- estimateSizeFactorsForMatrix(counts(cds)/nm)
 }
+
 write.table(sf,paste("differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = T,  col.names = F, qmethod = c("escape", "double"))
 
 # Write cds assay table to file
@@ -721,7 +725,7 @@ if (run_rlog){
 # Cooks distances: get important for example when checking knock-out and overexpression studies
 pdf("differential_gene_expression/plots/further_diagnostics_plots/Cooks-distances.pdf")
 par(mar=c(10,3,3,3))
-par( mfrow = c(1,2))
+par(mfrow = c(1,2))
 boxplot(log10(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log10-Cooks")
 boxplot(log2(assays(cds)[["cooks"]]), range=0, las=2,ylim = c(-15, 15),main="log2-Cooks")
 dev.off()
@@ -1054,7 +1058,7 @@ cat(paste0("***
 
 The raw count table and normalized count tables are available [here](./differential_gene_expression/gene_counts_tables).
 The differential expression analysis is performed using the raw gene count table.
-For PCA analysis and heatmap plotting, the `r norm_method_long_text` normalized gene counts were used. 
+For PCA analysis and heatmap plotting, the `r norm_method_long_text` normalized gene counts were used.
 `r norm_method_override_text`
 `r nsub_genes_text`
 
@@ -1361,6 +1365,7 @@ if (isProvided(params$path_contrast_list)) {
         contrast_names <- append(contrast_names, contname)
     }
 }
+
 if (isProvided(params$path_contrast_pairs)) {
     contrasts <- read.table(path_contrast_pairs, sep="\t", header = T, colClasses = "character")
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_pairs.tsv", sep="\t", quote=F, col.names = T, row.names = F)
@@ -1672,7 +1677,7 @@ if (isProvided(params$path_genelist)) {
         ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".svg",sep=""), width=10, height=5, plot=plot)
         ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".png",sep=""), width=10, height=5, plot=plot)
         ggsave(filename=paste("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],".pdf",sep=""), width=10, height=5, plot=plot)
-    }    
+    }
 }
 ```
 
@@ -1739,7 +1744,7 @@ if (isProvided(params$path_genelist)) {
         ggsave(filename=paste0("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],"_after_batchcorrect.svg"), width=10, height=5, plot=plot)
         ggsave(filename=paste0("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],"_after_batchcorrect.png"), width=10, height=5, plot=plot)
         ggsave(filename=paste0("differential_gene_expression/plots/boxplots_requested_genes/",requested_genes_plot_gene_name[i],"_",requested_genes_plot_Ensembl[i],"_after_batchcorrect.pdf"), width=10, height=5, plot=plot)
-    }    
+    }
 }
 ```
 
@@ -1793,8 +1798,12 @@ BiocManager::install(params$species_library, lib=species_dir, version="3.17", fo
 library(params$species_library, lib.loc=species_dir, character.only=T)
 species_library_installed <- get(params$species_library)
 
-# gprofiler pathway / term sources parameters
-datasources <- c("KEGG", "REAC")
+# If provided, prepare datasources from comma-separated string
+if (isProvided(params$datasources)) {
+    datasources <- unlist(strsplit(params$datasources, ','))
+} else {
+    datasources <- c()
+}
 
 # Default to 1 for the nb of genes DE in a pathway
 min_DEG_pathway <- as.integer(params$min_DEG_pathway)
@@ -1824,7 +1833,18 @@ mv_status <- F
 if (isProvided(params$custom_gmt)){
 
     # If custom GMT file was provided, filter it before uploading to use in gost queries (gprofiler will NOT filter itself, so otherwise the output will contain all kinds of datasources, not just the selected ones)
-    out_gmt <- (Filter(function(line) any(startsWith(line, datasources)), readLines(params$custom_gmt)))
+    out_gmt <- readLines(params$custom_gmt)
+
+    # If datasources are also provided, filter the GMT
+    if (isProvided(params$datasources)) {
+        go_positions <- grep("^GO", datasources)
+        if (length(go_positions)) {
+            datasources <- my_vector[-go_positions]     # If there are any datasources starting with GO, remove them (gets rid of GO:BP etc.)
+            datasources <- append(datasources, "GO")    # Then add the single entry GO, as otherwise, the filtering might not recognize these datasources
+        }
+        out_gmt <- (Filter(function(line) any(startsWith(line, datasources)), out_gmt)) # Remove GMT lines that don't start with a datasource
+    }
+
     out_path <- paste0(tools::file_path_sans_ext(basename(params$custom_gmt)), "_filtered.gmt")
     writeLines(out_gmt, out_path)
     gost_id <- upload_GMT_file(out_path)
@@ -1866,6 +1886,11 @@ if (mv_status) {
     }
 }
 
+# Set datasources to NULL instead of c() to ensure that the gost queries work
+if (!isProvided(params$datasources)) {
+    datasources <- NULL
+}
+
 # ------------------
 # Set default params
 # ------------------
@@ -1881,11 +1906,12 @@ theme_set(theme_classic())
 
 for (file in contrast_files){
 
-    #Reading DE genes list
+    # Reading DE genes list
     fname <- tools::file_path_sans_ext(basename(file))
 
     dir.create(paste("pathway_analysis", fname, sep="/"))
     dir.create(paste("pathway_analysis", fname, "KEGG_pathways", sep="/"))
+    dir.create(paste("pathway_analysis", fname, "enrichment_plots", sep="/"))
     DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
     DE_genes <- as.data.frame(DE_genes)
 
@@ -1910,11 +1936,11 @@ for (file in contrast_files){
             custom_bg=custom_background,
             domain_scope="custom_annotated"
         )
-        
+
         pathway_gostres <- gostres$result
         pathway_gostres <- as.data.frame(pathway_gostres[which(pathway_gostres$significant==TRUE),])
         pathway_gostres <- pathway_gostres[which(pathway_gostres$intersection_size>=min_DEG_pathway),]
-        
+
         # Also run without bg for Venn diagrams
         gostres_nobg <- gost(query=q,
             organism=gost_id,
@@ -1941,7 +1967,6 @@ for (file in contrast_files){
         )
     }
 
-
     # Make data frame of gost result
     pathway_gostres <- gostres$result
 
@@ -1960,13 +1985,13 @@ for (file in contrast_files){
 
         # Generate non-interactive pathway dotplots in the folder
         pg <- gostplot(gostres, capped=T, interactive=F)
-        ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.pdf"),
+        ggsave(pg, filename = paste0("pathway_analysis/", "/", fname, "/gost_pathway_gostplot.pdf"),
             device="pdf",
             height=10, width=15, units="cm", limitsize=F)
-        ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.png"),
+        ggsave(pg, filename = paste0("pathway_analysis/", "/", fname, "/gost_pathway_gostplot.png"),
             device="png",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
-        ggsave(pg, filename = paste0("pathway_analysis", "/", fname, "_gost_pathway_enrichment_plot.svg"),
+        ggsave(pg, filename = paste0("pathway_analysis/", "/", fname, "/gost_pathway_gostplot.svg"),
             device="svg",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
 
@@ -1980,9 +2005,9 @@ for (file in contrast_files){
                 no_background=pathway_gostres_nobg$term_name
             )
             pv <- ggvenn::ggvenn(VennInput)
-            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.pdf"),pv, device="pdf", width=10, height=15)
-            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.png"),pv, device="png", width=10, height=15)
-            ggsave(paste0("pathway_analysis", "/", fname, "_gost_pathway_venn_diagram.svg"),pv, device="svg", width=10, height=15)
+            ggsave(paste0("pathway_analysis", "/", fname, "/gost_pathway_venn_diagram.pdf"),pv, device="pdf", width=10, height=15)
+            ggsave(paste0("pathway_analysis", "/", fname, "/gost_pathway_venn_diagram.png"),pv, device="png", width=10, height=15)
+            ggsave(paste0("pathway_analysis", "/", fname, "/gost_pathway_venn_diagram.svg"),pv, device="svg", width=10, height=15)
         }
     }
 
@@ -1992,7 +2017,7 @@ for (file in contrast_files){
 
     # Save pathway enrichment table in tsv format
     write.table(pathway_gostres_table,
-                file = paste0("pathway_analysis", "/", fname, "/", fname, "_pathway_enrichment_results.tsv"),
+                file = paste0("pathway_analysis", "/", fname, "/pathway_enrichment_results.tsv"),
                 sep="\t", quote = F, col.names = T, row.names = F)
 
     print("------------------------------------")
@@ -2014,7 +2039,7 @@ for (file in contrast_files){
             # Plotting results for df
             df_subset <- data.frame(Pathway_name = df$short_name, Pathway_code = df$term_id, DE_genes = df$intersection_size, Pathway_size = df$term_size, Fraction_DE = (df$intersection_size / df$term_size), Padj = df$p_value, DE_genes_names = df$intersection)
             write.table(df_subset,
-                        file = paste0("pathway_analysis", "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_results.tsv"),
+                        file = paste0("pathway_analysis", "/", fname, "/", make.names(db_source), "_pathway_enrichment_results.tsv"),
                         sep="\t", quote = F, col.names = T, row.names = F)
 
             # Enriched pathways horizontal barplots of padj values
@@ -2026,9 +2051,9 @@ for (file in contrast_files){
                 scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
                 ggtitle("Enriched pathways") +
                 xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname, "_", db_source, "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/", fname,"_", db_source, "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
 
             # Plotting heatmaps and KEGG pathways for all pathways
             print("Plotting heatmaps...")
@@ -2049,38 +2074,39 @@ for (file in contrast_files){
                     # Skip the heatmaps for CI tests because especially png() works only very unreliably for the heatmaps for some reason
                     if (!isProvided(params$citest) & nrow(mat)>1){
                         dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
-                        
-                        # Because the image devices sometimes don't work here, surround them with a tryCatch so that the code continues even if a certain heatmap is not saved                         
+
+                        # Because the image devices sometimes don't work here, surround them with a tryCatch so that the code continues even if a certain heatmap is not saved
                         tryCatch(
                             {
-                                png(filename = paste0("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png"), width = ifelse(nrow(mat)<=20, 200, 125)+ncol(mat)*40, height = 50+nrow(mat)*50)
+                                png(filename = paste0("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".png"), width = ifelse(nrow(mat)<=20, 200, 125)+ncol(mat)*40, height = 50+nrow(mat)*50)
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                                 dev.off()
                             },
                             error=function(e) {
-                                print(paste0("Could not save Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_",fname, ".png because of the following error:\n", e))
+                                print(paste0("Could not save pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".png because of the following error:\n", e))
                             }
                         )
                         tryCatch(
                             {
-                                pdf(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
+                                pdf(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".pdf"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                                 dev.off()
                             },
                             error=function(e) {
-                                print(paste0("Could not save Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".pdf because of the following error:\n", e))
+                                print(paste0("Could not save pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".pdf because of the following error:\n", e))
                             }
                         )
                         tryCatch(
                             {
-                                svg(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".svg"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
+                                svg(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".svg"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
                                 dev.off()
                             },
                             error=function(e) {
-                                print(paste0("Could not save Heatmap_normalized_counts_", pathway$source, "_", pathway$term_id, "_", fname, ".svg because of the following error:\n", e))
+                                print(paste0("Could not save pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".svg because of the following error:\n", e))
                             }
                         )
+                        graphics.off() # Close all still open devices from errors. Tried doing this in finally, but that doesn't work
                     }
 
                     # Plotting pathway view only for kegg pathways
@@ -2092,9 +2118,7 @@ for (file in contrast_files){
                             print_string <- paste0("Plotting pathway: ", pathway_kegg)
                             gene.data = DE_genes
                             gene.data.subset = gene.data[gene.data$Ensembl_ID %in% gene_list, c("Ensembl_ID","log2FoldChange")]
-
                             entrez_ids = AnnotationDbi::mapIds(species_library_installed, keys=as.character(gene.data.subset$Ensembl_ID), column = "ENTREZID", keytype=params$keytype, multiVals="first")
-
                             gene.data.subset <- gene.data.subset[!(is.na(entrez_ids)),]
 
                             if (length(entrez_ids)!=length(unique(entrez_ids))) {
@@ -2192,9 +2216,11 @@ Inside the pathway analysis results folder, a subfolder for each contrast used f
 <br><br><details>
 <summary>Expand/collapse</summary>
 - `*_gost_pathway_venn_diagram.pdf/png`
-  - Venn diagrams showing the numbers of enriched pathways when using a background gene list vs when not using a bg list.
-- `*_KEGG_pathway_enrichment_plot.pdf/png`
-    - Barplots showing the proportion of differentially expressed genes in the pathway.
+    - Venn diagrams showing the numbers of enriched pathways when using a background gene list vs when not using a bg list.
+- `enrichment_plots/*_pathway_enrichment_plot.{pdf/png/svg}`
+    - Barplots showing the proportion of differentially expressed genes in the pathway for a certain pathway database.
+- `gost_pathway_gostplot.{pdf/png/svg}`
+    - Manhattan plots displaying all enriched pathways.
 - `KEGG_pathways/`
     - Contains the KEGG pathways graphs with the log fold change of the differentially expressed genes.
 - `pathway_heatmaps`
@@ -2233,7 +2259,7 @@ names(q_list) <- q_names
 if (length(q_list) > 0) {
 
     #gost query
-    
+
     if (isProvided(params$set_background)) {
         gostres <- gost(query=q_list,
                     organism=gost_id,
@@ -2444,7 +2470,7 @@ as.character(params$revision),
 "` pipeline [^5], which was written using the nf-core template [@ewels2020nf]. For differential expression analysis, the read quantification data resulting from `",
 quant_tool, "` were processed with the R package `DESeq2 v",
 packageVersion("DESeq2"),
-"` [@love2014differential]. The thresholds for differentially expressed genes were set to ", 
+"` [@love2014differential]. The thresholds for differentially expressed genes were set to ",
 pval_text, " for the p-value and ",
 logFC_text, " for the log2 Fold Change."
 ))
@@ -2456,16 +2482,25 @@ name_species       = params$species_library
 version_species    = packageVersion(name_species)
 
 if (isProvided(params$custom_gmt)){
-    database_string <- paste0("Also, a gprofiler query with this custom GMT file was done: `", basename(params$custom_gmt), "`. Entries of the following datasources were considered: ")
-    dbs <- paste(datasources, collapse="`, `")
-    database_string <- paste0(database_string, "`", dbs, "`.")
-} else {
+    database_string <- paste0("Also, a gprofiler query with this custom GMT file was done: `", basename(params$custom_gmt), "`.")
+
+    if (isProvided(params$datasources)) {
+        database_string <- paste(database_string, "Entries of the following datasources were considered: ")
+        dbs <- paste(datasources, collapse="`, `")
+        database_string <- paste0(database_string, "`", dbs, "`.")
+    } else {
+        database_string <- ""
+    }
+
+} else if (isProvided(params$datasources)) {
     database_string = "Also, the following databases were queried: "
     database_version_info <- get_version_info(params$organism)
     database_string <- paste0(database_string, "`gprofiler: ", database_version_info$gprofiler_version, "`")
     for (db in datasources) {
         database_string <- paste0(database_string, ", `", db, ": ", database_version_info$sources[[db]]$version, "`")
     }
+} else {
+    database_string <- paste("All datasources available in g:Profiler were considered (check https://biit.cs.ut.ee/gprofiler/gost and https://biit.cs.ut.ee/gprofiler/page/docs for more info).")
 }
 
 cat(paste0(

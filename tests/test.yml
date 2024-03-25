@@ -60,36 +60,36 @@
     - path: results_test/differential_gene_expression/plots/PCA_plot.pdf
     - path: results_test/differential_gene_expression/plots/PCA_plot.png
     - path: results_test/differential_gene_expression/plots/PCA_plot.svg
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO_gost_pathway_venn_diagram.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO_gost_pathway_venn_diagram.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO_gost_pathway_venn_diagram.svg
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO_gost_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO_gost_pathway_enrichment_plot.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_pathway_enrichment_results.tsv
-      contains: ["Complement and coagulation cascades", "Muscle contraction", "Hemostasis"]
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_KEGG_pathway_enrichment_results.tsv
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_REAC_pathway_enrichment_results.tsv
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_KEGG_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_REAC_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_KEGG_pathway_enrichment_plot.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/DE_contrast_condition_genotype_WT_vs_KO_REAC_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/gost_pathway_venn_diagram.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/gost_pathway_venn_diagram.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/gost_pathway_venn_diagram.svg
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/gost_pathway_gostplot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/gost_pathway_gostplot.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/gost_pathway_gostplot.svg
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_enrichment_results.tsv
+      md5sum: 21b907d52008f66f9a85190400fd211e
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathway_enrichment_results.tsv
+      md5sum: 92115e662e0e2489ad05d28f3981fa3a
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/REAC_pathway_enrichment_results.tsv
+      md5sum: 9077c63139668fd01d3f4086e6acb7bc
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/enrichment_plots/KEGG_pathway_enrichment_plot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/enrichment_plots/KEGG_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/enrichment_plots/REAC_pathway_enrichment_plot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/enrichment_plots/REAC_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04360.DE_contrast_condition_genotype_WT_vs_KO.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04360.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04360.xml
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04610.DE_contrast_condition_genotype_WT_vs_KO.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04610.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04610.xml
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_pathway_enrichment_results.tsv
-      contains: ["IL-17 signaling pathway", "RAF-independent MAPK1/3 activation"]
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_results.tsv
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_KEGG_pathway_enrichment_results.tsv
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_results.tsv
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_KEGG_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_KEGG_pathway_enrichment_plot.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/DE_contrast_condition_treatment_Treated_vs_Control_REAC_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_enrichment_results.tsv
+      md5sum: bdc0167b8b33a0da44e34768eead8376
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/REAC_pathway_enrichment_results.tsv
+      md5sum: 6594fdb8c0eb591fa131982a8be00877
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/gost_pathway_venn_diagram.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/gost_pathway_venn_diagram.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/gost_pathway_venn_diagram.svg
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/enrichment_plots/REAC_pathway_enrichment_plot.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/enrichment_plots/REAC_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/heatmap_gene_list/Heatmap_normalized_counts_gene_list.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control_gost_pathway_venn_diagram.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control_gost_pathway_venn_diagram.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control_gost_pathway_venn_diagram.svg
     - path: results_test/RNAseq_report.html
