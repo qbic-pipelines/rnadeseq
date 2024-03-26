@@ -2423,7 +2423,7 @@ as.character(params$revision),
 quant_tool, "` were processed with the R package `DESeq2 v",
 packageVersion("DESeq2"),
 "` [@love2014differential]. The thresholds for differentially expressed genes were set to ", 
-pval_text, " for the p-value and ",
+pval_text, " for the adjusted p-value and ",
 logFC_text, " for the log2 Fold Change."
 ))
 
