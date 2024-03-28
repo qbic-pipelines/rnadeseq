@@ -878,29 +878,48 @@ The read mapping and gene assignment statistics, together with other quality con
 The table below, extracted from the `MultiQC` report, shows a summary of the bioinformatics analysis quality control.
 Note: Duplicate intercept (%) is the percentage of duplicate reads for the intercept of a linear model of duplicate reads vs read counts. High numbers of duplicates at low read counts can indicate low library complexity with technical duplication."
 ))
-df_DE <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"), header=TRUE, sep="\t")
+
+
+
+if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"))) {
+    df_DE <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"), header=TRUE, sep="\t")
+    mqc_version <- 'old_mqc'
+} else if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_samtools_flagstat.txt"))) {
+    df_DE <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_samtools_flagstat.txt"), header=TRUE, sep="\t")
+    mqc_version <- 'old_mqc'
+} else {
+    stop("Could not find a suitable multiqc table; please provide a correct multiqc.zip file or omit the parameter altogether")
+}
+capture.output(colnames(df_DE), file="/sfs/9/ws/iivow01-test/rnadeseq/error/colnames")
+
 is.num <- sapply(df_DE, is.numeric)
 df_DE[is.num] <- lapply(df_DE[is.num], round, 2)
 
-mqc_version <- ifelse("FastQC..raw._mqc.generalstats.fastqc_raw.total_sequences" %in% colnames(df_DE), "new_mqc", 'old_mqc')
+
+
+
+
+
+
+
+
 if (mqc_version == 'old_mqc') {
-    columns <- c("Sample",
-            "FastQC_mqc.generalstats.fastqc.total_sequences",
+    columns <- c(
+            "Sample",
+            "raw_total_sequences",
             "FastQC_mqc.generalstats.fastqc.percent_duplicates",
             "FastQC_mqc.generalstats.fastqc.percent_gc",
             "Cutadapt_mqc.generalstats.cutadapt.percent_trimmed",
             "STAR_mqc.generalstats.star.uniquely_mapped_percent",
-            "featureCounts_mqc.generalstats.featurecounts.percent_assigned")
+            "featureCounts_mqc.generalstats.featurecounts.percent_assigned"
+        )
 } else {
-    columns <- c("Sample",
-            "FastQC..raw._mqc.generalstats.fastqc_raw.total_sequences",
-            "FastQC..raw._mqc.generalstats.fastqc_raw.percent_duplicates",
-            "FastQC..raw._mqc.generalstats.fastqc_raw.percent_gc",
-            "FastQC..trimmed._mqc.generalstats.fastqc_trimmed.total_sequences",
-            "FastQC..trimmed._mqc.generalstats.fastqc_trimmed.percent_duplicates",
-            "FastQC..trimmed._mqc.generalstats.fastqc_trimmed.percent_gc",
-            "Cutadapt_mqc.generalstats.cutadapt.percent_trimmed",
-            "STAR_mqc.generalstats.star.uniquely_mapped_percent")
+    columns <- c(
+            "Sample",
+            "raw_total_sequences",
+            "reads_duplicated_percent",
+            "reads_mapped_percent"
+        )
 }
 df_DE_selected <- df_DE[,columns]
 
@@ -924,6 +943,7 @@ metadata = metadata[,c("QBiC.Code")]
 metadata <- data.frame(matrix(unlist(metadata)))
 colnames(metadata) <- c("Sample")
 table_complete = merge(metadata,df_DE_selected,by="Sample")
+write.table(table_complete, file="/sfs/9/ws/iivow01-test/rnadeseq/error/table_complete1", sep="\t", quote=F)
 
 if (mqc_version == 'old_mqc') {
     colnames = c("Sample", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
@@ -945,36 +965,24 @@ if (mqc_version == 'old_mqc') {
                                 color_bar("orange")(AssignedReads))
         )
 } else {
-    colnames = c("Sample", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed basepairs (%)", "Mapped reads (%)")
-    colnames(table_complete) <- c("Sample", "ReadNumberRaw", "DuplicateReadsInterceptRaw", "GCcontentRaw", "ReadNumberTrimmed", "DuplicateReadsInterceptTrimmed", "GCcontentTrimmed", "TrimmedBP", "MappedReads")
+    colnames = c("Sample", "Number of reads (M)", "Duplicates (%)", "Mapped reads (%)")
+    colnames(table_complete) <- c("Sample", "ReadNumber", "DuplicateReadsIntercept", "MappedReads")
     table_complete <- table_complete %>%
         mutate(
             Sample = Sample,
-            ReadNumberRaw = color_bar("lightblue")(round((ReadNumberRaw/1000000),2)),
-            DuplicateReadsInterceptRaw = ifelse(DuplicateReadsInterceptRaw > 1,
-                                            cell_spec(DuplicateReadsInterceptRaw, color="orange", bold=T),
-                                            cell_spec(DuplicateReadsInterceptRaw, color="black")),
-            GCcontentRaw = GCcontentRaw,
-            ReadNumberTrimmed = color_bar("lightblue")(round((ReadNumberTrimmed/1000000),2)),
-            DuplicateReadsInterceptTrimmed = ifelse(DuplicateReadsInterceptTrimmed > 1,
-                                            cell_spec(DuplicateReadsInterceptTrimmed, color="orange", bold=T),
-                                            cell_spec(DuplicateReadsInterceptTrimmed, color="black")),
-            GCcontentTrimmed = GCcontentTrimmed,
-            TrimmedBP = TrimmedBP,
-            MappedReads =  ifelse(MappedReads > 80,
-                                color_bar("lightblue")(MappedReads),
-                                color_bar("orange")(MappedReads))
+            ReadNumber = color_bar("lightblue")(round((ReadNumber/1000000),2)),
+            DuplicateReadsIntercept = ifelse(DuplicateReadsIntercept > 1,
+                                            cell_spec(DuplicateReadsIntercept, color="orange", bold=T),
+                                            cell_spec(DuplicateReadsIntercept, color="black")),
+            MappedReads =  ifelse(MappedReads > 80, color_bar("lightblue")(MappedReads), color_bar("orange")(MappedReads))
         )
+    write.table(table_complete, file="/sfs/9/ws/iivow01-test/rnadeseq/error/table_complete2", sep="\t", quote=F)
 }
-
+write.table(table_complete, file="/sfs/9/ws/iivow01-test/rnadeseq/error/table_complete3", sep="\t", quote=F)
+capture.output(colnames, file="/sfs/9/ws/iivow01-test/rnadeseq/error/colnames")
 # This does some final formatting of the table in the report
-table_complete <- table_complete %>%
-    kable(escape=F,row.names=F, col.names=colnames)
-if (mqc_version == 'new_mqc') {
-    table_complete <- table_complete %>%
-        add_header_above(c(" " = 1, "raw" = 3, "trimmed" = 3, " " = 2))   # For new MQC, add header columns raw and trimmed
-}
 table_complete %>%
+    kable(escape=F,row.names=F, col.names=colnames) %>%
     kable_styling("hover") %>%
     scroll_box(width = "100%", height = "400px")
 
@@ -1320,7 +1328,7 @@ if (isProvided(params$path_contrast_matrix)){
 
     # Check that contrast matrix is valid
     if (length(coefficients) != nrow(contrasts)){
-        stop("Error: Your contrast table has a different number of rows than the number of coefficients in the DESeq2 model.")
+        stop("Your contrast table has a different number of rows than the number of coefficients in the DESeq2 model.")
     }
 
     ## Contrast calculation for contrast matrix
