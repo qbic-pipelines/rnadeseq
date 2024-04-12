@@ -349,7 +349,6 @@ Auf der Morgenstelle 10, 72076 Tuebingen
 <!-- metadata start -->
 
 ```{r read_metadata, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
-now <- Sys.time()
 # Load metadata: sample preparations tsv file from qPortal
 metadata <- read.table(params$path_metadata, sep="\t", header=TRUE,na.strings =c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
 if (params$pathway_analysis) {
@@ -496,7 +495,6 @@ if(file.exists(QAfile)){
 } else {
     no_RIN <- TRUE
 }
-write(paste((Sys.time() - now)/60, "min used for read_metadata"), file="/home-link/iivow01/git/rnadeseq/error/times", append=F)
 ```
 
 ```{r RIN_block, echo=FALSE, results='asis', eval=RIN}
@@ -525,7 +523,7 @@ DT::datatable(df_QA_neat, options = list(scrollX  = "100%", scrollY = "400px", p
 <!-- This block needs to be executed before the rest of the code as the variables will be needed -->
 
 ```{r DESeq, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
-now <- Sys.time()
+
 ################## RUN DESEQ2 ######################################
 # Run DESeq function
 if (params$input_type %in% c("featurecounts", "smrnaseq")) {
@@ -639,8 +637,6 @@ if (isProvided(params$path_relevel)) {
 # Run actual DESeq analysis
 cds <- DESeq(cds)
 
-write(paste((Sys.time() - now)/60, "min used for run DESeq2"), file="/home-link/iivow01/git/rnadeseq/error/times", append=T)
-now <- Sys.time()
 # sizeFactors(cds) as indicator of library sequencing depth
 if (params$input_type %in% c("featurecounts", "smrnaseq")) {
     sf <- sizeFactors(cds)
@@ -699,38 +695,30 @@ norm_method_text <- ifelse(run_rlog, "rlog", "vst")
 if (run_rlog){
 
     # rlog transformation
-    write.table(assays(cds)[["counts"]], file="/home-link/iivow01/git/rnadeseq/error/counts_before_rlog.tsv", sep="\t", quote=F)
     rld <- rlog(cds, blind=FALSE)
     rld_names <- merge(x=gene_names, y=assay(rld), by.x = "Ensembl_ID", by.y="row.names")
     write.table(rld_names, "differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  qmethod = c("escape", "double"))
-    write.table(rld_names, "/home-link/iivow01/git/rnadeseq/error/rld.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  qmethod = c("escape", "double"))
 
     # save table to another variable if pathway analysis
     if (params$pathway_analysis) {
         norm_counts <- rld_names
         rownames(norm_counts) <- norm_counts$Ensembl_ID
-        write.table(norm_counts, file="/home-link/iivow01/git/rnadeseq/error/norm_countsxy.tsv", sep="\t", quote=F)
     }
 
 } else {
 
     # vst transformation
-    write.table(assays(cds)[["counts"]], file="/home-link/iivow01/git/rnadeseq/error/counts_before_vst.tsv", sep="\t", quote=F)
     vsd <- vst(cds, blind=FALSE, nsub = params$nsub_genes)
     vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
     write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
-    write.table(vsd_names, "/home-link/iivow01/git/rnadeseq/error/vsd.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
     # save table to another variable if pathway analysis
     if (params$pathway_analysis) {
         norm_counts <- vsd_names
         rownames(norm_counts) <- norm_counts$Ensembl_ID
-        write.table(norm_counts, file="/home-link/iivow01/git/rnadeseq/error/norm_countsxy.tsv", sep="\t", quote=F)
-
     }
 }
-write(paste((Sys.time() - now)/60, "min used for transform and bla"), file="/home-link/iivow01/git/rnadeseq/error/times", append=T)
-now <- Sys.time()
+
 ############################## DIAGNOSTICS AND QUALITY CONTROL PLOTS ###############################
 # Cooks distances: get important for example when checking knock-out and overexpression studies
 pdf("differential_gene_expression/plots/further_diagnostics_plots/Cooks-distances.pdf")
@@ -873,8 +861,6 @@ for (i in resultsNames(cds)[-1]) {
     dev.off()
     rm(res,qs,bins,ratios,use,h1,h2,colori)
 }
-write(paste((Sys.time() - now)/60, "min used for diag. plots"), file="/home-link/iivow01/git/rnadeseq/error/times", append=T)
-
 ```
 <!-- DESeq2 end -->
 
@@ -882,7 +868,6 @@ write(paste((Sys.time() - now)/60, "min used for diag. plots"), file="/home-link
 <!-- multiQC start -->
 
 ```{r summary_stats, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), results = 'asis'}
-now <- Sys.time()
 cat(paste0("***
 # Read mapping and assignment
 
@@ -1126,8 +1111,6 @@ cat(paste0("***
 </center>
 \
 "))
-write(paste((Sys.time() - now)/60, "min used for mqc"), file="/home-link/iivow01/git/rnadeseq/error/times", append=T)
-
 ```
 
 <!-- multiQC end -->
@@ -1151,7 +1134,6 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 \
 
 ```{r PCA_ifNoBatch_plot, echo=F, message=F, warning=F, out.width="80%", dpi=1200, fig.align='center'}
-now <- Sys.time()
 ############################ PCA PLOTS ########################
 pcaData <- plotPCA(if (run_rlog) rld else vsd,intgroup=c("combfactor"), ntop=dim(if (run_rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
@@ -1243,8 +1225,6 @@ Two samples have more similar gene expression if their distance is closer to 0 (
 The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances.pdf).
 
 ```{r heatmap_calculate, include=FALSE}
-write(paste((Sys.time() - now)/60, "min used for PCA"), file="/home-link/iivow01/git/rnadeseq/error/times", append=T)
-
 ##################  SAMPLE DISTANCES HEATMAP ##################
 # Sample distances, this chunk is hidden as otherwise, the heatmap is shown multiple times
 sampleDists <- dist(t(assay(if (run_rlog) rld else vsd)))
@@ -1314,7 +1294,7 @@ These comparisons are called _contrasts_. For this analysis, the following contr
 
 <!-- contrast calculation start -->
 ```{r contrast_calc, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
-now <-  Sys.time()
+
 # Contrasts coefficient table write in metadata
 coefficients <- resultsNames(cds)
 coef_tab <- data.frame(coef=coefficients)
@@ -1578,8 +1558,6 @@ if (isProvided(params$round_DE) && params$round_DE>-1) {
 
 #write to file
 write.table(DE_genes_final_table, "differential_gene_expression/final_gene_table/final_DE_gene_list.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
-write(paste((Sys.time() - now)/60, "min used for contrast calc"), file="/home-link/iivow01/git/rnadeseq/error/times", append=T)
-
 ```
 <!-- contrast calculation end -->
 
@@ -1675,7 +1653,6 @@ config(pg, modeBarButtonsToAdd = list(svg_exp)) %>% layout(margin = list(l=80, b
 ```
 
 ```{r box_plots_noBatch, echo=F, message=F}
-now <- Sys.time()
 # Decide which object to use for boxplots without batch correction
 if (run_rlog) {
     box_object <- rld_noncorrected
@@ -1827,8 +1804,6 @@ if (!inherits(df_gene, 'try-error')){
     names = rownames(df_gene)
     gene = TRUE
 }
-write(paste((Sys.time() - now)/60, "min used for boxplot stuff"), file="/home-link/iivow01/git/rnadeseq/error/times", append=T)
-nownow <- Sys.time()
 ```
 
 ```{r genes_block, echo=FALSE, results='asis', eval=gene}
@@ -1841,7 +1816,7 @@ cat("Plots for the [genes of interest](./differential_gene_expression/metadata/g
 
 <!-- PA start -->
 ```{r load_PA_libs, eval=params$pathway_analysis, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
-now <- Sys.time()
+
 # Load libs invisibly
 invisible(lapply(c(
 "gprofiler2",
@@ -1870,7 +1845,7 @@ species_library_installed <- get(params$species_library)
 if (isProvided(params$datasources)) {
     datasources <- unlist(strsplit(params$datasources, ','))
 } else {
-    datasources <- c("KEGG", "REAC")
+    datasources <- c()
 }
 
 # Default to 1 for the nb of genes DE in a pathway
@@ -1991,7 +1966,6 @@ for (file in contrast_files){
 
     # Define list of Ensemble IDs (q) to run the pathway analysis
     q = as.character(DE_genes$Ensembl_ID)
-    write(paste((Sys.time() - nownow)/60, "min used for weird slow stuff"), file="/home-link/iivow01/git/rnadeseq/error/times", append=T)
 
     # gost query
     if (isProvided(params$set_background)) {
@@ -2127,7 +2101,6 @@ for (file in contrast_files){
             # Plotting heatmaps and KEGG pathways for all pathways
             print("Plotting heatmaps...")
             if (nrow(df) <= 100 & nrow(df) > 0) {
-                capture.output(df, file="/home-link/iivow01/git/rnadeseq/error/df.tsv", sep="\t", quote=F)
                 conditions <- grepl("Condition", colnames(metadata))
                 metadata_save <- as.data.frame(metadata[,conditions])
                 metadata_name <- metadata[,c("QBiC.Code", "Secondary.Name")]
@@ -2135,15 +2108,8 @@ for (file in contrast_files){
 
                 for (i in c(1:nrow(df))){
                     pathway <- df[i,]
-                    capture.output(pathway, file="/home-link/iivow01/git/rnadeseq/error/pathway.tsv", sep="\t", quote=F)
-
                     gene_list <- unlist(strsplit(pathway$intersection, ","))
-                    write(paste((Sys.time() - now)/60, "min used for PA before mat stuff"), file="/home-link/iivow01/git/rnadeseq/error/times", append=T)
-
-                    capture.output(gene_list, file="/home-link/iivow01/git/rnadeseq/error/gene_list")
-                    mat <- norm_counts[gene_list, ]
-                    write.table(mat, file="/home-link/iivow01/git/rnadeseq/error/mat.tsv", sep="\t", quote=F)
-                    write.table(norm_counts, file="/home-link/iivow01/git/rnadeseq/error/norm_countsss.tsv", sep="\t", quote=F)
+                    mat <- norm_counts[which(norm_counts$Ensembl_ID %in% gene_list), ]
                     rownames(mat) <- mat$gene_name
                     mat$gene_name <- NULL
                     mat <- data.matrix(mat)
@@ -2250,8 +2216,7 @@ if (isProvided(params$path_genelist)){
     gene_list <- na.omit(gene_list)
 
     rownames(norm_counts) <- norm_counts$Ensembl_ID
-    mat <- norm_counts[gene_list, ]
-
+    mat <- norm_counts[which(norm_counts$Ensembl_ID %in% gene_list), ]
     rownames(mat) <- mat$gene_name
     mat$gene_name <- NULL
     mat$Ensembl_ID <- NULL
@@ -2414,8 +2379,6 @@ You can find these heatmaps inside the [pathway_analysis](./pathway_analysis) fo
 and the subfolder: `pathway_heatmaps`.
 \
 "))
-write(paste((Sys.time() - now)/60, "min used for all PA stuff"), file="/home-link/iivow01/git/rnadeseq/error/times", append=T)
-
 ```
 <!-- PA end -->
 

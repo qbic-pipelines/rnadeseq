@@ -37,6 +37,7 @@ process REPORT {
     def custom_gmt_opt = custom_gmt.name != 'NO_FILE3' ? "--custom_gmt $custom_gmt" : ''
     def set_background_opt = params.set_background ? "--set_background TRUE" : "--set_background FALSE"
     def custom_background_opt = custom_background.name != 'NO_FILE7' ? "--custom_background $custom_background" : ''
+    def datasources_opt = params.datasources ? "--datasources $params.datasources" : ''
 
     def quote_opt = params.quote != 'NO_FILE5' ? "--path_quote $params.quote" : ''
     def software_versions_opt = params.software_versions != 'NO_FILE6' ? "--software_versions $params.software_versions" : ''
@@ -47,7 +48,7 @@ process REPORT {
     if [ "$multiqc" != "NO_FILE4" ]; then
         unzip $multiqc
         mkdir QC
-        mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
+        mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/ || mv multiqc/*/multiqc_plots/ multiqc/*/multiqc_data/ multiqc/*/multiqc_report.html QC/ || mv multiqc_plots/ multiqc_data/ multiqc_report.html QC/
     fi
     Execute_report.R \
         --report '$baseDir/assets/RNAseq_report.Rmd' \
@@ -76,6 +77,7 @@ process REPORT {
         --species_library $params.species_library \
         --keytype $params.keytype \
         --min_DEG_pathway $params.min_DEG_pathway \
+        $datasources_opt \
         $quote_opt \
         $software_versions_opt \
         --proj_summary $proj_summary \
@@ -100,4 +102,3 @@ process REPORT {
     """
 
 }
-
