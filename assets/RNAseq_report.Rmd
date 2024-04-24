@@ -2047,6 +2047,7 @@ for (file in contrast_files){
                     mat <- norm_counts[gene_list, ]
                     rownames(mat) <- mat$gene_name
                     mat$gene_name <- NULL
+                    mat$Ensembl_ID <- NULL
                     mat <- data.matrix(mat)
 
                     # Skip the heatmaps for CI tests because especially png() works only very unreliably for the heatmaps for some reason
