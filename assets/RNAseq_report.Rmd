@@ -896,6 +896,17 @@ if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"))) {
 is.num <- sapply(mqc_stats, is.numeric)
 mqc_stats[is.num] <- lapply(mqc_stats[is.num], round, 2)
 
+# The following gets rid of multiQC entries that are spread across two rows, one ending with -fw (see https://github.com/qbic-pipelines/rnadeseq/issues/114)
+sum_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else sum(x, na.rm = TRUE)} # Function to sum across rows if available, else NA
+mqc_stats$Sample <- gsub("-fw", "", mqc_stats$Sample) # Remove -fw to produce duplicate rows for summarising
+mqc_stats <- mqc_stats %>% group_by(Sample) %>% summarise_all(sum_NA)
+
+# In newer RNASeq versions (after 1.4.2?), duplicate rows might not end with -fw, but with _1 and _2 instead; deal with those in the following lines
+avg_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else mean(x, na.rm = TRUE)} # Function to average across rows if available, else NA
+mqc_stats$Sample <- sub("_[0-9]+$", "", mqc_stats$Sample) # Remove _1 etc. to produce duplicate rows for summarising
+mqc_stats <- mqc_stats %>% group_by(Sample) %>% summarise_all(avg_NA)
+
+
 if (mqc_version == 'old_mqc') {
     columns <- c(
             "Sample",
@@ -910,37 +921,77 @@ if (mqc_version == 'old_mqc') {
     columns <- c(
             "Sample",
             "raw_total_sequences",
-            "reads_duplicated_percent",
-            "reads_mapped_percent"
+            "reads_mapped_percent",
+            "reads_duplicated_percent"
         )
+
+    # For the new version, some more tables need to be read
+    if (params$input_type == "salmon" && file.exists(paste0(wd,"/QC/multiqc_data/multiqc_star.txt"))) {
+        star <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_star.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "uniquely_mapped_percent")]
+    } else if (params$input_type == "rsem" && file.exists(paste0(wd,"/QC/multiqc_data/multiqc_rsem.txt"))) {
+        star <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_rsem.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "Alignable", "Unique")]
+        star$uniquely_mapped_percent <- star$Unique/star$Alignable
+        star$Unique <- NULL
+        star$Alignable <- NULL
+    } else {
+        star <- NULL
+    }
+    if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_cutadapt.txt"))) {
+        cutadapt <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_cutadapt.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "percent_trimmed")]
+        cutadapt$Sample <- sub("_[0-9]+$", "", cutadapt$Sample) # Remove _1 etc. to produce duplicate rows for summarising
+        cutadapt <- cutadapt %>% group_by(Sample) %>% summarise_all(sum_NA)
+    } else {
+        cutadapt <- NULL
+    }
+    if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_rseqc_read_distribution.txt"))) {
+        rseqc <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_rseqc_read_distribution.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "total_tags", "total_assigned_tags")]
+    } else {
+        rseqc <- NULL
+    }
+    if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_fastqc.txt"))) {
+        fastqc_untrimmed <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_fastqc.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "%GC")]
+        colnames(fastqc_untrimmed)[colnames(fastqc_untrimmed) == "%GC"] <- "GC_untrimmed"
+        fastqc_untrimmed$Sample <- sub("_[0-9]+$", "", fastqc_untrimmed$Sample) # Remove _1 etc. to produce duplicate rows for summarising
+        fastqc_untrimmed <- fastqc_untrimmed %>% group_by(Sample) %>% summarise_all(sum_NA)
+    } else {
+        fastqc_untrimmed <- NULL
+    }
+    if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_fastqc_1.txt"))) {
+        fastqc_trimmed <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_fastqc_1.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "%GC")]
+        colnames(fastqc_trimmed)[colnames(fastqc_trimmed) == "%GC"] <- "GC_trimmed"
+        fastqc_trimmed$Sample <- sub("_[0-9]+$", "", fastqc_trimmed$Sample) # Remove _1 etc. to produce duplicate rows for summarising
+        fastqc_trimmed <- fastqc_trimmed %>% group_by(Sample) %>% summarise_all(sum_NA)
+    } else {
+        fastqc_trimmed <- NULL
+    }
 }
-mqc_stats_selected <- mqc_stats[,columns]
 
-# The following gets rid of multiQC entries that are spread across two rows, one ending with -fw (see https://github.com/qbic-pipelines/rnadeseq/issues/114)
-sum_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else sum(x, na.rm = TRUE)} # Function to sum across rows if available, else NA
-mqc_stats_selected$Sample <- gsub("-fw", "", mqc_stats_selected$Sample) # Remove -fw to produce duplicate rows for summarising
-mqc_stats_selected <- mqc_stats_selected %>% group_by(Sample) %>% summarise_all(sum_NA)
+table_complete <- mqc_stats[,columns]
 
-# In newer RNASeq versions (after 1.4.2?), duplicate rows might not end with -fw, but with _1 and _2 instead; deal with those in the following lines
-avg_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else mean(x, na.rm = TRUE)} # Function to average across rows if available, else NA
-mqc_stats_selected$Sample <- sub("_[0-9]+$", "", mqc_stats_selected$Sample) # Remove _1 etc. to produce duplicate rows for summarising
-mqc_stats_selected <- mqc_stats_selected %>% group_by(Sample) %>% summarise_all(avg_NA)
+if (mqc_version == 'new_mqc') {
 
-mqc_stats_selected$Sample <- substr(mqc_stats_selected$Sample, 1, 10)
-n_rows = nrow(mqc_stats_selected)
+    # Merge the additional tables into the stats
+    if (!is.null(cutadapt))         table_complete <- merge(table_complete,cutadapt,by="Sample")
+    if (!is.null(rseqc))            table_complete <- merge(table_complete,rseqc,by="Sample")
+    if (!is.null(star))             table_complete <- merge(table_complete,star,by="Sample")
+    if (!is.null(fastqc_untrimmed)) table_complete <- merge(table_complete,fastqc_untrimmed,by="Sample")
+    if (!is.null(fastqc_trimmed))   table_complete <- merge(table_complete,fastqc_trimmed,by="Sample")
+}
+
+# Reduce to QBiC code
+table_complete$Sample <- substr(table_complete$Sample, 1, 10)
 
 metadata <- read.table((paste0(wd, "/differential_gene_expression/metadata/metadata.tsv")), header=TRUE, sep="\t")
-metadata = metadata[,c("QBiC.Code")]
+metadata <- metadata[,c("QBiC.Code")]
 
 #the following makes metadata a df again (in R, when extracting only 1 column from a df, it becomes a list)
 metadata <- data.frame(matrix(unlist(metadata)))
 colnames(metadata) <- c("Sample")
-
-table_complete = merge(metadata,mqc_stats_selected,by="Sample")
-
+table_complete <- merge(metadata,table_complete,by="Sample")
 if (mqc_version == 'old_mqc') {
-    colnames = c("Sample", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
+    colnames <- c("Sample", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
     colnames(table_complete) <- c("Sample", "ReadNumber", "DuplicateReadsIntercept", "GCcontent", "TrimmedReads", "MappedReads", "AssignedReads")
+
     table_complete <- table_complete %>%
         mutate(
             Sample = Sample,
@@ -958,16 +1009,25 @@ if (mqc_version == 'old_mqc') {
                                 color_bar("orange")(AssignedReads))
         )
 } else {
-    colnames = c("Sample", "Number of reads (M)", "Duplicates (%)", "Mapped reads (%)")
-    colnames(table_complete) <- c("Sample", "ReadNumber", "DuplicateReadsIntercept", "MappedReads")
+    colnames <- c("Sample", "Number of reads (M)", "Duplicates (%)", "Untrimmed GC (%)", "Trimmed GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
+    #colnames(table_complete) <- c("Sample", "ReadNumber", "DuplicateReadsIntercept")
+
     table_complete <- table_complete %>%
-        mutate(
+        transmute(
             Sample = Sample,
-            ReadNumber = color_bar("lightblue")(round((ReadNumber/1000000),2)),
-            DuplicateReadsIntercept = ifelse(DuplicateReadsIntercept > 1,
-                                            cell_spec(DuplicateReadsIntercept, color="orange", bold=T),
-                                            cell_spec(DuplicateReadsIntercept, color="black")),
-            MappedReads =  ifelse(MappedReads > 80, color_bar("lightblue")(MappedReads), color_bar("orange")(MappedReads))
+            ReadNumber = color_bar("lightblue")(round((raw_total_sequences/1000000),2)),
+            DuplicateReadsIntercept = ifelse(reads_duplicated_percent > 1,
+                                            cell_spec(reads_duplicated_percent, color="orange", bold=T),
+                                            cell_spec(reads_duplicated_percent, color="black")),
+            GC_untrimmed = GC_untrimmed,
+            GC_trimmed = GC_trimmed,
+            TrimmedReads = percent_trimmed,
+            MappedReads =  ifelse(uniquely_mapped_percent > 80,
+                                color_bar("lightblue")(uniquely_mapped_percent),
+                                color_bar("orange")(uniquely_mapped_percent)),
+            AssignedReads = ifelse(total_assigned_tags/total_tags > 60,
+                                color_bar("lightblue")(total_assigned_tags/total_tags),
+                                color_bar("orange")(total_assigned_tags/total_tags))
         )
 }
 
