@@ -38,6 +38,9 @@ process REPORT {
     def set_background_opt = params.set_background ? "--set_background TRUE" : "--set_background FALSE"
     def custom_background_opt = custom_background.name != 'NO_FILE7' ? "--custom_background $custom_background" : ''
     def datasources_opt = params.datasources ? "--datasources $params.datasources" : ''
+    def heatmaps_cluster_rows_opt = params.heatmaps_cluster_rows ? "--heatmaps_cluster_rows TRUE" : ''
+    def heatmaps_cluster_cols_opt = params.heatmaps_cluster_cols ? "--heatmaps_cluster_cols TRUE" : ''
+
 
     def quote_opt = params.quote != 'NO_FILE5' ? "--path_quote $params.quote" : ''
     def software_versions_opt = params.software_versions != 'NO_FILE6' ? "--software_versions $params.software_versions" : ''
@@ -78,6 +81,8 @@ process REPORT {
         --keytype $params.keytype \
         --min_DEG_pathway $params.min_DEG_pathway \
         $datasources_opt \
+        $heatmaps_cluster_rows_opt \
+        $heatmaps_cluster_cols_opt \
         $quote_opt \
         $software_versions_opt \
         --proj_summary $proj_summary \

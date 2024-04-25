@@ -44,6 +44,8 @@ params:
     set_background: ''
     custom_background: ''
     datasources: ''
+    heatmaps_cluster_rows: ''
+    heatmaps_cluster_cols: ''
 
     #Additional args for the report
     path_proj_summary: ''
@@ -254,7 +256,6 @@ invisible( lapply(c(
 ```
 
 ```{r create_outdirs, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
-
 # create directories needed
 ifelse(!dir.exists("differential_gene_expression"), dir.create("differential_gene_expression"), FALSE)
 dir.create("differential_gene_expression/metadata")
@@ -779,13 +780,13 @@ res=0
 for (i in resultsNames(cds)[-1]) {
     res = results(cds,name = i)
     pdf(paste("differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_",i,".pdf",sep=""))
-    plotMA(res,ylim = c(-4, 4))
+    DESeq2::plotMA(res,ylim = c(-4, 4))
     dev.off()
     png(paste("differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_",i,".png",sep=""))
-    plotMA(res,ylim = c(-4, 4))
+    DESeq2::plotMA(res,ylim = c(-4, 4))
     dev.off()
     svg(paste("differential_gene_expression/plots/further_diagnostics_plots/all_results_MA_plot_",i,".svg",sep=""))
-    plotMA(res,ylim = c(-4, 4))
+    DESeq2::plotMA(res,ylim = c(-4, 4))
     dev.off()
 
     # multiple hyptothesis testing
@@ -2058,7 +2059,7 @@ for (file in contrast_files){
                         tryCatch(
                             {
                                 png(filename = paste0("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".png"), width = ifelse(nrow(mat)<=20, 200, 125)+ncol(mat)*40, height = 50+nrow(mat)*50)
-                                pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
+                                pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = params$heatmaps_cluster_cols, cluster_rows = params$heatmaps_cluster_rows)
                                 dev.off()
                             },
                             error=function(e) {
@@ -2068,7 +2069,7 @@ for (file in contrast_files){
                         tryCatch(
                             {
                                 pdf(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".pdf"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
-                                pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
+                                pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = params$heatmaps_cluster_cols, cluster_rows = params$heatmaps_cluster_rows)
                                 dev.off()
                             },
                             error=function(e) {
@@ -2078,7 +2079,7 @@ for (file in contrast_files){
                         tryCatch(
                             {
                                 svg(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".svg"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
-                                pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = F, cluster_rows = T)
+                                pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = params$heatmaps_cluster_cols, cluster_rows = params$heatmaps_cluster_rows)
                                 dev.off()
                             },
                             error=function(e) {
@@ -2160,13 +2161,13 @@ if (isProvided(params$path_genelist)){
 
     if (nrow(mat)>1){
         png(filename = paste0(genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.png"), width = 100+ncol(mat)*50, height = 50+nrow(mat)*100)
-        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T)
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = params$heatmaps_cluster_cols, cluster_rows = params$heatmaps_cluster_rows)
         dev.off()
         pdf(paste0(genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.pdf"), width = 10+ncol(mat)*0.05, height = 5+nrow(mat)*0.005)
-        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T)
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = params$heatmaps_cluster_cols, cluster_rows = params$heatmaps_cluster_rows)
         dev.off()
         svg(paste0(genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.svg"), width = 10+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
-        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = F, cluster_rows = T)
+        pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = params$heatmaps_cluster_cols, cluster_rows = params$heatmaps_cluster_rows)
         dev.off()
     }
 }
