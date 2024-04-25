@@ -67,7 +67,7 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/gost_pathway_gostplot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/gost_pathway_gostplot.svg
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/pathway_enrichment_results.tsv
-      md5sum: 21b907d52008f66f9a85190400fd211e
+      md5sum: 92736a4c802ebd4e644682308ecf46dc
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathway_enrichment_results.tsv
       md5sum: 92115e662e0e2489ad05d28f3981fa3a
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/REAC_pathway_enrichment_results.tsv
@@ -83,7 +83,7 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04610.png
     - path: results_test/pathway_analysis/DE_contrast_condition_genotype_WT_vs_KO/KEGG_pathways/mmu04610.xml
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/pathway_enrichment_results.tsv
-      md5sum: bdc0167b8b33a0da44e34768eead8376
+      md5sum: 0a425c10e229bb775597be176c414705
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/REAC_pathway_enrichment_results.tsv
       md5sum: 6594fdb8c0eb591fa131982a8be00877
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/gost_pathway_venn_diagram.pdf
