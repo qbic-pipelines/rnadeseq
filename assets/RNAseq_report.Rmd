@@ -897,15 +897,14 @@ is.num <- sapply(mqc_stats, is.numeric)
 mqc_stats[is.num] <- lapply(mqc_stats[is.num], round, 2)
 
 # The following gets rid of multiQC entries that are spread across two rows, one ending with -fw (see https://github.com/qbic-pipelines/rnadeseq/issues/114)
-sum_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else sum(x, na.rm = TRUE)} # Function to sum across rows if available, else NA
 mqc_stats$Sample <- gsub("-fw", "", mqc_stats$Sample) # Remove -fw to produce duplicate rows for summarising
-mqc_stats <- mqc_stats %>% group_by(Sample) %>% summarise_all(sum_NA)
 
 # In newer RNASeq versions (after 1.4.2?), duplicate rows might not end with -fw, but with _1 and _2 instead; deal with those in the following lines
-avg_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else mean(x, na.rm = TRUE)} # Function to average across rows if available, else NA
 mqc_stats$Sample <- sub("_[0-9]+$", "", mqc_stats$Sample) # Remove _1 etc. to produce duplicate rows for summarising
-mqc_stats <- mqc_stats %>% group_by(Sample) %>% summarise_all(avg_NA)
 
+# Now that the duplicate columns have been given the same names, we can group and collapse them with the appropriate functions
+sum_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else sum(x, na.rm = TRUE)} # Function to sum across rows if available, else NA
+avg_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else mean(x, na.rm = TRUE)} # Function to average across rows if available, else NA
 
 if (mqc_version == 'old_mqc') {
     columns <- c(
@@ -917,6 +916,13 @@ if (mqc_version == 'old_mqc') {
             "STAR_mqc.generalstats.star.uniquely_mapped_percent",
             "featureCounts_mqc.generalstats.featurecounts.percent_assigned"
         )
+
+    table_complete <- mqc_stats[,columns] %>%
+        group_by(Sample) %>%
+        dplyr::summarize(
+            across(matches("FastQC_mqc.generalstats.fastqc.total_sequences"), sum_NA),
+            across(everything(), avg_NA)
+        )
 } else {
     columns <- c(
             "Sample",
@@ -925,21 +931,28 @@ if (mqc_version == 'old_mqc') {
             "reads_duplicated_percent"
         )
 
+    table_complete <- mqc_stats[,columns] %>%
+        group_by(Sample) %>%
+        dplyr::summarize(
+            across(matches("raw_total_sequences"), sum_NA),
+            across(everything(), avg_NA)
+        )
+
     # For the new version, some more tables need to be read
     if (params$input_type == "salmon" && file.exists(paste0(wd,"/QC/multiqc_data/multiqc_star.txt"))) {
         star <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_star.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "uniquely_mapped_percent")]
     } else if (params$input_type == "rsem" && file.exists(paste0(wd,"/QC/multiqc_data/multiqc_rsem.txt"))) {
-        star <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_rsem.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "Alignable", "Unique")]
-        star$uniquely_mapped_percent <- star$Unique/star$Alignable
+        star <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_rsem.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "Total", "Unique")]
+        star$uniquely_mapped_percent <- star$Unique/star$Total
         star$Unique <- NULL
-        star$Alignable <- NULL
+        star$Total <- NULL
     } else {
         star <- NULL
     }
     if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_cutadapt.txt"))) {
         cutadapt <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_cutadapt.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "percent_trimmed")]
         cutadapt$Sample <- sub("_[0-9]+$", "", cutadapt$Sample) # Remove _1 etc. to produce duplicate rows for summarising
-        cutadapt <- cutadapt %>% group_by(Sample) %>% summarise_all(sum_NA)
+        cutadapt <- cutadapt %>% group_by(Sample) %>% summarise_all(avg_NA)
     } else {
         cutadapt <- NULL
     }
@@ -952,7 +965,7 @@ if (mqc_version == 'old_mqc') {
         fastqc_untrimmed <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_fastqc.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "%GC")]
         colnames(fastqc_untrimmed)[colnames(fastqc_untrimmed) == "%GC"] <- "GC_untrimmed"
         fastqc_untrimmed$Sample <- sub("_[0-9]+$", "", fastqc_untrimmed$Sample) # Remove _1 etc. to produce duplicate rows for summarising
-        fastqc_untrimmed <- fastqc_untrimmed %>% group_by(Sample) %>% summarise_all(sum_NA)
+        fastqc_untrimmed <- fastqc_untrimmed %>% group_by(Sample) %>% summarise_all(avg_NA)
     } else {
         fastqc_untrimmed <- NULL
     }
@@ -960,13 +973,11 @@ if (mqc_version == 'old_mqc') {
         fastqc_trimmed <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_fastqc_1.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "%GC")]
         colnames(fastqc_trimmed)[colnames(fastqc_trimmed) == "%GC"] <- "GC_trimmed"
         fastqc_trimmed$Sample <- sub("_[0-9]+$", "", fastqc_trimmed$Sample) # Remove _1 etc. to produce duplicate rows for summarising
-        fastqc_trimmed <- fastqc_trimmed %>% group_by(Sample) %>% summarise_all(sum_NA)
+        fastqc_trimmed <- fastqc_trimmed %>% group_by(Sample) %>% summarise_all(avg_NA)
     } else {
         fastqc_trimmed <- NULL
     }
 }
-
-table_complete <- mqc_stats[,columns]
 
 if (mqc_version == 'new_mqc') {
 
