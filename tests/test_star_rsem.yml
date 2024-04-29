@@ -75,6 +75,8 @@
     - path: results_test/differential_gene_expression/plots/PCA_plot.pdf
     - path: results_test/differential_gene_expression/plots/PCA_plot.png
     - path: results_test/differential_gene_expression/plots/PCA_plot.svg
+    - path: results_test/differential_gene_expression/plots/heatmap_gene_list/Heatmap_normalized_counts_gene_list.pdf
+    - path: results_test/pathway_analysis/heatmap_gene_list/Heatmap_normalized_counts_gene_list.svg
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.svg
@@ -112,6 +114,4 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/gost_pathway_venn_diagram.svg
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/pathway_enrichment_results.tsv
       md5sum: 68f919b58d7fe5cc1b9a38665abccf78
-    - path: results_test/pathway_analysis/heatmap_gene_list/Heatmap_normalized_counts_gene_list.pdf
-    - path: results_test/pathway_analysis/heatmap_gene_list/Heatmap_normalized_counts_gene_list.svg
     - path: results_test/pathway_analysis/metadata/gprofiler_full_hsapiens.ENSG.gmt
