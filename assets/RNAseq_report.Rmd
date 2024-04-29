@@ -2026,7 +2026,7 @@ for (file in contrast_files){
                 geom_bar(aes(fill=Padj), stat="identity", width = 0.7) +
                 geom_text(aes(label=paste0(df_subset$DE_genes, "/", df_subset$Pathway_size)), vjust=0.4, hjust=-0.5, size=3) +
                 coord_flip() +
-                scale_y_continuous(limits = c(0.00, 1.00)) +
+                scale_y_continuous(limits = c(0.00, 1.00), expand=expansion(mult=c(0,0.2))) +
                 scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
                 ggtitle("Enriched pathways") +
                 xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
