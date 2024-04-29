@@ -1885,8 +1885,15 @@ theme_set(theme_classic())
 
 for (file in contrast_files){
 
-    # Reading DE genes list
+    # Read DE genes list
     fname <- tools::file_path_sans_ext(basename(file))
+
+    # Find out which conditions are being compared in the current contrast to filter the heatmaps matrix
+    comparison <- unlist(strsplit(fname, "_", fixed=T))
+    vs <- which(comparison == "vs") # Get position of 'vs', e.g. DE_contrast_condition_cellline_H1_vs_H2 --> vs = 6
+    cond0 <- comparison[vs-2] # Get contrast, e.g. cellline
+    cond1 <- comparison[vs-1] # Get first condition, e.g. H1
+    cond2 <- comparison[vs+1] # Get second condition, e.g. H2
 
     dir.create(paste("pathway_analysis", fname, sep="/"))
     dir.create(paste("pathway_analysis", fname, "KEGG_pathways", sep="/"))
@@ -2050,6 +2057,30 @@ for (file in contrast_files){
                     mat$gene_name <- NULL
                     mat$Ensembl_ID <- NULL
                     mat <- data.matrix(mat)
+    capture.output(fname, file="/home-link/iivow01/git/rnadeseq/error/fname", append=F)
+    capture.output(vs, file="/home-link/iivow01/git/rnadeseq/error/fname", append=T)
+    capture.output(cond0, file="/home-link/iivow01/git/rnadeseq/error/fname", append=T)
+    capture.output(cond1, file="/home-link/iivow01/git/rnadeseq/error/fname", append=T)
+    capture.output(cond2, file="/home-link/iivow01/git/rnadeseq/error/fname", append=T)
+    write.table(mat, file="/home-link/iivow01/git/rnadeseq/error/mat.tsv", quote=F, sep="\t")
+    write.table(metadata_save, file="/home-link/iivow01/git/rnadeseq/error/metadata_save.tsv", quote=F, sep="\t")
+
+                    # Find metadata column name of the current contrast
+                    cond0_keep <- unlist(grep(paste0("(", cond0, ")$"), colnames(metadata_save), value=T))[1]
+                    capture.output(grep(paste0("(", cond0, ")$"), colnames(metadata_save), value=T), file="/home-link/iivow01/git/rnadeseq/error/grep", append=F)
+                    capture.output(cond0_keep, file="/home-link/iivow01/git/rnadeseq/error/cond0_keep", append=F)
+                    # Subset metadata to those samples that have the current conditions in the current contrast, e.g. genotype is H1 or H2
+                    metadata_keep <- metadata_save[metadata_save[,cond0_keep] %in% c(cond1,cond2),]
+                        write.table(metadata_keep, file="/home-link/iivow01/git/rnadeseq/error/metadata_keep.tsv", quote=F, sep="\t")
+# Subset matrix accordingly
+                    capture.output(rownames(metadata_keep), file="/home-link/iivow01/git/rnadeseq/error/row_met", append=F)
+                    capture.output(colnames(mat), file="/home-link/iivow01/git/rnadeseq/error/cols_mat", append=F)
+                    capture.output(typeof(mat), file="/home-link/iivow01/git/rnadeseq/error/type_mat", append=F)
+
+                    mat <- as.data.frame(mat[,rownames(metadata_keep)])
+                    capture.output(typeof(mat), file="/home-link/iivow01/git/rnadeseq/error/type_mat", append=T)
+                        write.table(mat, file="/home-link/iivow01/git/rnadeseq/error/mat2.tsv", quote=F, sep="\t")
+
 
                     # Skip the heatmaps for CI tests because especially png() works only very unreliably for the heatmaps for some reason
                     if (!isProvided(params$citest) & nrow(mat)>1){
