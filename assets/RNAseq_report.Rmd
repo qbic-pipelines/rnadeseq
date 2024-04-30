@@ -883,54 +883,168 @@ The read mapping and gene assignment statistics, together with other quality con
 The table below, extracted from the `MultiQC` report, shows a summary of the bioinformatics analysis quality control.
 Note: Duplicate intercept (%) is the percentage of duplicate reads for the intercept of a linear model of duplicate reads vs read counts. High numbers of duplicates at low read counts can indicate low library complexity with technical duplication."
 ))
-df_DE <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"), header=TRUE, sep="\t")
-is.num <- sapply(df_DE, is.numeric)
-df_DE[is.num] <- lapply(df_DE[is.num], round, 2)
-columns <- c("Sample",
+
+if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"))) {
+    mqc_stats <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"), header=TRUE, sep="\t")
+    mqc_version <- 'old_mqc'
+} else if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_samtools_stats.txt"))) {
+    mqc_stats <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_samtools_stats.txt"), header=TRUE, sep="\t")
+    mqc_version <- 'new_mqc'
+} else {
+    stop("Could not find a suitable multiqc table; please provide a correct multiqc.zip file or omit the parameter altogether")
+}
+
+is.num <- sapply(mqc_stats, is.numeric)
+mqc_stats[is.num] <- lapply(mqc_stats[is.num], round, 2)
+
+# The following gets rid of multiQC entries that are spread across two rows, one ending with -fw (see https://github.com/qbic-pipelines/rnadeseq/issues/114)
+mqc_stats$Sample <- gsub("-fw", "", mqc_stats$Sample) # Remove -fw to produce duplicate rows for summarising
+
+# In newer RNASeq versions (after 1.4.2?), duplicate rows might not end with -fw, but with _1 and _2 instead; deal with those in the following lines
+mqc_stats$Sample <- sub("_[0-9]+$", "", mqc_stats$Sample) # Remove _1 etc. to produce duplicate rows for summarising
+
+# Now that the duplicate columns have been given the same names, we can group and collapse them with the appropriate functions
+sum_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else sum(x, na.rm = TRUE)} # Function to sum across rows if available, else NA
+avg_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else mean(x, na.rm = TRUE)} # Function to average across rows if available, else NA
+
+if (mqc_version == 'old_mqc') {
+    columns <- c(
+            "Sample",
             "FastQC_mqc.generalstats.fastqc.total_sequences",
             "FastQC_mqc.generalstats.fastqc.percent_duplicates",
             "FastQC_mqc.generalstats.fastqc.percent_gc",
             "Cutadapt_mqc.generalstats.cutadapt.percent_trimmed",
             "STAR_mqc.generalstats.star.uniquely_mapped_percent",
-            "featureCounts_mqc.generalstats.featurecounts.percent_assigned")
-df_DE_selected <- df_DE[,columns]
+            "featureCounts_mqc.generalstats.featurecounts.percent_assigned"
+        )
 
-# The following gets rid of multiQC entries that are spread across two rows, one ending with -fw (see https://github.com/qbic-pipelines/rnadeseq/issues/114)
-sum_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else sum(x, na.rm = TRUE)}
-df_DE_selected$Sample <- gsub("-fw", "", df_DE_selected$Sample)
-df_DE_selected <- df_DE_selected %>% group_by(Sample) %>% summarise_all(sum_NA)
+    table_complete <- mqc_stats[,columns] %>%
+        group_by(Sample) %>%
+        dplyr::summarize(
+            across(matches("FastQC_mqc.generalstats.fastqc.total_sequences"), sum_NA),
+            across(everything(), avg_NA)
+        )
+} else {
+    columns <- c(
+            "Sample",
+            "raw_total_sequences",
+            "reads_mapped_percent",
+            "reads_duplicated_percent"
+        )
 
+    table_complete <- mqc_stats[,columns] %>%
+        group_by(Sample) %>%
+        dplyr::summarize(
+            across(matches("raw_total_sequences"), sum_NA),
+            across(everything(), avg_NA)
+        )
 
-df_DE_selected$Sample <- substr(df_DE_selected$Sample, 1, 10)
-colnames(df_DE_selected) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
-n_rows = nrow(df_DE_selected)
+    # For the new version, some more tables need to be read
+    if (params$input_type == "salmon" && file.exists(paste0(wd,"/QC/multiqc_data/multiqc_star.txt"))) {
+        star <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_star.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "uniquely_mapped_percent")]
+    } else if (params$input_type == "rsem" && file.exists(paste0(wd,"/QC/multiqc_data/multiqc_rsem.txt"))) {
+        star <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_rsem.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "Total", "Unique")]
+        star$uniquely_mapped_percent <- star$Unique/star$Total
+        star$Unique <- NULL
+        star$Total <- NULL
+    } else {
+        star <- NULL
+    }
+    if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_cutadapt.txt"))) {
+        cutadapt <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_cutadapt.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "percent_trimmed")]
+        cutadapt$Sample <- sub("_[0-9]+$", "", cutadapt$Sample) # Remove _1 etc. to produce duplicate rows for summarising
+        cutadapt <- cutadapt %>% group_by(Sample) %>% summarise_all(avg_NA)
+    } else {
+        cutadapt <- NULL
+    }
+    if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_rseqc_read_distribution.txt"))) {
+        rseqc <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_rseqc_read_distribution.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "total_tags", "total_assigned_tags")]
+    } else {
+        rseqc <- NULL
+    }
+    if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_fastqc.txt"))) {
+        fastqc_untrimmed <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_fastqc.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "%GC")]
+        colnames(fastqc_untrimmed)[colnames(fastqc_untrimmed) == "%GC"] <- "GC_untrimmed"
+        fastqc_untrimmed$Sample <- sub("_[0-9]+$", "", fastqc_untrimmed$Sample) # Remove _1 etc. to produce duplicate rows for summarising
+        fastqc_untrimmed <- fastqc_untrimmed %>% group_by(Sample) %>% summarise_all(avg_NA)
+    } else {
+        fastqc_untrimmed <- NULL
+    }
+    if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_fastqc_1.txt"))) {
+        fastqc_trimmed <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_fastqc_1.txt"), header=TRUE, sep="\t", check.names = F)[,c("Sample", "%GC")]
+        colnames(fastqc_trimmed)[colnames(fastqc_trimmed) == "%GC"] <- "GC_trimmed"
+        fastqc_trimmed$Sample <- sub("_[0-9]+$", "", fastqc_trimmed$Sample) # Remove _1 etc. to produce duplicate rows for summarising
+        fastqc_trimmed <- fastqc_trimmed %>% group_by(Sample) %>% summarise_all(avg_NA)
+    } else {
+        fastqc_trimmed <- NULL
+    }
+}
+
+if (mqc_version == 'new_mqc') {
+
+    # Merge the additional tables into the stats
+    if (!is.null(cutadapt))         table_complete <- merge(table_complete,cutadapt,by="Sample")
+    if (!is.null(rseqc))            table_complete <- merge(table_complete,rseqc,by="Sample")
+    if (!is.null(star))             table_complete <- merge(table_complete,star,by="Sample")
+    if (!is.null(fastqc_untrimmed)) table_complete <- merge(table_complete,fastqc_untrimmed,by="Sample")
+    if (!is.null(fastqc_trimmed))   table_complete <- merge(table_complete,fastqc_trimmed,by="Sample")
+}
+
+# Reduce to QBiC code
+table_complete$Sample <- substr(table_complete$Sample, 1, 10)
 
 metadata <- read.table((paste0(wd, "/differential_gene_expression/metadata/metadata.tsv")), header=TRUE, sep="\t")
-metadata = metadata[,c("QBiC.Code")]
+metadata <- metadata[,c("QBiC.Code")]
 
 #the following makes metadata a df again (in R, when extracting only 1 column from a df, it becomes a list)
 metadata <- data.frame(matrix(unlist(metadata)))
 colnames(metadata) <- c("Sample")
-table_complete = merge(metadata,df_DE_selected,by="Sample")
-colnames = c("Sample", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
-colnames(table_complete) <- c("Sample", "C1", "C2", "C3", "C4", "C5", "C6")
+table_complete <- merge(metadata,table_complete,by="Sample")
+if (mqc_version == 'old_mqc') {
+    colnames <- c("Sample", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
+    colnames(table_complete) <- c("Sample", "ReadNumber", "DuplicateReadsIntercept", "GCcontent", "TrimmedReads", "MappedReads", "AssignedReads")
+
+    table_complete <- table_complete %>%
+        mutate(
+            Sample = Sample,
+            ReadNumber = color_bar("lightblue")(round((ReadNumber/1000000),2)),
+            DuplicateReadsIntercept = ifelse(DuplicateReadsIntercept > 1,
+                                            cell_spec(DuplicateReadsIntercept, color="orange", bold=T),
+                                            cell_spec(DuplicateReadsIntercept, color="black")),
+            GCcontent = GCcontent,
+            TrimmedReads = TrimmedReads,
+            MappedReads =  ifelse(MappedReads > 80,
+                                color_bar("lightblue")(MappedReads),
+                                color_bar("orange")(MappedReads)),
+            AssignedReads = ifelse(AssignedReads > 60,
+                                color_bar("lightblue")(AssignedReads),
+                                color_bar("orange")(AssignedReads))
+        )
+} else {
+    colnames <- c("Sample", "Number of reads (M)", "Duplicates (%)", "Untrimmed GC (%)", "Trimmed GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
+    #colnames(table_complete) <- c("Sample", "ReadNumber", "DuplicateReadsIntercept")
+
+    table_complete <- table_complete %>%
+        transmute(
+            Sample = Sample,
+            ReadNumber = color_bar("lightblue")(round((raw_total_sequences/1000000),2)),
+            DuplicateReadsIntercept = ifelse(reads_duplicated_percent > 1,
+                                            cell_spec(reads_duplicated_percent, color="orange", bold=T),
+                                            cell_spec(reads_duplicated_percent, color="black")),
+            GC_untrimmed = GC_untrimmed,
+            GC_trimmed = GC_trimmed,
+            TrimmedReads = percent_trimmed,
+            MappedReads =  ifelse(uniquely_mapped_percent > 80,
+                                color_bar("lightblue")(uniquely_mapped_percent),
+                                color_bar("orange")(uniquely_mapped_percent)),
+            AssignedReads = ifelse(total_assigned_tags/total_tags > 60,
+                                color_bar("lightblue")(total_assigned_tags/total_tags),
+                                color_bar("orange")(total_assigned_tags/total_tags))
+        )
+}
+
+# This does some final formatting of the table in the report
 table_complete %>%
-    mutate(
-        Sample = Sample,
-        ReadNumber = color_bar("lightblue")(round((C1/1000000),2)),
-        DuplicateReadsIntercept = ifelse(C2 > 1,
-                                        cell_spec(C2, color="orange", bold=T),
-                                        cell_spec(C2, color="black")),
-        GCcontent = C3,
-        TrimmedReads = C4,
-        MappedReads =  ifelse(C5 > 80,
-                            color_bar("lightblue")(C5),
-                            color_bar("orange")(C5)),
-        AssignedReads = ifelse(C6 > 60,
-                            color_bar("lightblue")(C6),
-                            color_bar("orange")(C6))
-    ) %>%
-    dplyr::select(1,8:13) %>%
     kable(escape=F,row.names=F, col.names=colnames) %>%
     kable_styling("hover") %>%
     scroll_box(width = "100%", height = "400px")
@@ -953,7 +1067,7 @@ The read mapping statistics to the reference genome for each sample are shown be
 ```{r STAR_percentages_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1800, fig.cap="STAR: Mapping Statistics", fig.align='center'}
 # Disable auto-conversion of paths to relative paths as we provide include_graphics() with absolute paths. Also, error=F is necessary in every include_graphic() call to not fail with an error
 knitr.graphics.rel_path = F
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1_pc.svg"), error=F)
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/", ifelse(mqc_version == 'old_mqc',"mqc_star_alignment_plot_1_pc.svg", "mqc_samtools_alignment_plot_1_pc.svg")), error=F)
 ```
 
 ```{r STAR_readnums,echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -965,14 +1079,15 @@ cat(paste0("***
 ```
 
 ```{r STAR_readnums_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1800, fig.cap="STAR: Mapping Statistics", fig.align='center'}
-knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_star_alignment_plot_1.svg"), error=F)
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/", ifelse(mqc_version == 'old_mqc',"mqc_star_alignment_plot_1.svg", "mqc_samtools_alignment_plot_1.svg")), error=F)
+
 ```
 
 ```{r FC_read_assignment, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
 cat(paste0("***
 </center>
 \
-
+", ifelse(mqc_version == 'old_mqc', "
 ## Read assignment statistics {.tabset}
 
 The statistics of read assignment to genes are shown below. Most reads should be assigned. Interpretation of the different assignment types:
@@ -987,14 +1102,18 @@ The statistics of read assignment to genes are shown below. Most reads should be
 ### Percentages {-}
 
 <center>
-"))
+", "
+## Read alignment statistics {.tabset}
+
+The statistics of read alignment to genes are shown below for pipeline runs on data produced by `rnaseq <= v1.4.2`. If a later version was used, these plots are not generated by rnaseq anymore. However, you can find `star/featurecounts/<sample>.featureCounts.txt.summary` or `star_salmon/featurecounts/<sample>.featureCounts.txt.summary` files in the rnaseq output folder which contain the necessary information for creating such plots.
+")))
 ```
 
-```{r FC_percentages_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
+```{r FC_percentages_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")) && mqc_version == 'old_mqc', out.width="160%", dpi=1200, fig.cap=ifelse(mqc_version == 'old_mqc', "featureCounts: Assignments", "STAR: Alignments"), fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1_pc.svg"), error=F)
 ```
 
-```{r FC_readnums, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
+```{r FC_readnums, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")) && mqc_version == 'old_mqc'}
 cat(paste0("***
 </center>
 
@@ -1004,7 +1123,7 @@ cat(paste0("***
 "))
 ```
 
-```{r FC_readnums_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap="featureCounts: Assignments", fig.align='center'}
+```{r FC_readnums_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")) && mqc_version == 'old_mqc', out.width="160%", dpi=1200, fig.cap=ifelse(mqc_version == 'old_mqc', "featureCounts: Assignments", "STAR: Alignments"), fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_featureCounts_assignment_plot_1.svg"), error=F)
 ```
 
@@ -1040,6 +1159,23 @@ cat(paste0("***
 
 ```{r RSeqC_readnums_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap="RSeQC: Read Distribution", fig.align='center'}
 knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_read_distribution_plot_1.svg"), error=F)
+```
+
+```{r Read_strand, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
+cat(paste0("***
+</center>
+\
+
+## Read strandedness {.tabset}
+
+The following plots show the number/percentage of reads that match the strandedness of overlapping transcripts. It can be used to infer whether RNA-seq library preps are stranded (sense or antisense).
+
+<center>
+"))
+```
+
+```{r Read_strandpercentages_plot, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), out.width="160%", dpi=1200, fig.cap="RSeQC: Read Distribution", fig.align='center'}
+knitr::include_graphics(paste0(wd, "/QC/multiqc_plots/svg/mqc_rseqc_infer_experiment_plot_1.svg"), error=F)
 ```
 
 ```{r MQC_end, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))}
@@ -1256,7 +1392,7 @@ if (isProvided(params$path_contrast_matrix)){
 
     # Check that contrast matrix is valid
     if (length(coefficients) != nrow(contrasts)){
-        stop("Error: Your contrast table has a different number of rows than the number of coefficients in the DESeq2 model.")
+        stop("Your contrast table has a different number of rows than the number of coefficients in the DESeq2 model.")
     }
 
     ## Contrast calculation for contrast matrix
@@ -2031,8 +2167,8 @@ for (file in contrast_files){
                 ggtitle("Enriched pathways") +
                 xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
             ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", dpi = 300, limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
+            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
 
             # Plotting heatmaps and KEGG pathways for all pathways
             print("Plotting heatmaps...")
@@ -2045,7 +2181,7 @@ for (file in contrast_files){
                 for (i in c(1:nrow(df))){
                     pathway <- df[i,]
                     gene_list <- unlist(strsplit(pathway$intersection, ","))
-                    mat <- norm_counts[gene_list, ]
+                    mat <- norm_counts[which(norm_counts$Ensembl_ID %in% gene_list), ]
                     rownames(mat) <- mat$gene_name
                     mat$gene_name <- NULL
                     mat$Ensembl_ID <- NULL
@@ -2153,7 +2289,7 @@ if (isProvided(params$path_genelist)){
     gene_list <- na.omit(gene_list)
 
     rownames(norm_counts) <- norm_counts$Ensembl_ID
-    mat <- norm_counts[gene_list, ]
+    mat <- norm_counts[which(norm_counts$Ensembl_ID %in% gene_list), ]
     rownames(mat) <- mat$gene_name
     mat$gene_name <- NULL
     mat$Ensembl_ID <- NULL

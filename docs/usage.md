@@ -89,7 +89,7 @@ The `qbic-pipelines/rnadeseq` pipeline relies on the output from the `nf-core/rn
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run qbic-pipelines/rnadeseq -r 2.0.1 -profile docker \
+nextflow run qbic-pipelines/rnadeseq -r 2.2 -profile docker \
 --gene_counts 'merged_gene_counts.txt' \
 --input 'QXXXX_sample_preparations.tsv' \
 --model 'linear_model.txt' \
@@ -157,7 +157,7 @@ curl https://codeload.github.com/qbic-pipelines/rnadeseq/tar.gz/master | tar -xz
 Afterwards, you should be able to also run test_star_rsem and test_star_salmon from qbic-pipelines/rnadeseq without manually cloning, e.g.:
 
 ```bash
-nextflow run qbic-pipelines/rnadeseq -r 2.0.1 -profile docker,test_star_salmon
+nextflow run qbic-pipelines/rnadeseq -r 2.2 -profile docker,test_star_salmon
 ```
 
 ### Reproducibility
