@@ -1,6 +1,6 @@
 process REPORT {
 
-    container 'ghcr.io/qbic-pipelines/rnadeseq:2.3dev'
+    container 'ghcr.io/qbic-pipelines/rnadeseq:dev'
 
     input:
     path gene_counts
@@ -48,7 +48,7 @@ process REPORT {
     if [ "$multiqc" != "NO_FILE4" ]; then
         unzip $multiqc
         mkdir QC
-        mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/
+        mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/ || mv multiqc/*/multiqc_plots/ multiqc/*/multiqc_data/ multiqc/*/multiqc_report.html QC/ || mv multiqc_plots/ multiqc_data/ multiqc_report.html QC/
     fi
     Execute_report.R \
         --report '$baseDir/assets/RNAseq_report.Rmd' \
@@ -102,4 +102,3 @@ process REPORT {
     """
 
 }
-
