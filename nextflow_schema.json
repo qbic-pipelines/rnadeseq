@@ -144,6 +144,16 @@
                 "datasources": {
                     "type": "string",
                     "description": "Which datasources to use for pathway analysis, comma-separated string like 'KEGG,REAC'. See param 'sources' on https://rdrr.io/cran/gprofiler2/man/gost.html for a list of available sources. If not set, will use all sources. If set while a --custom_gmt is provided, will filter the GMT for these datasources (will not filter for the GO subtypes like GO:BP, just for GO)."
+                },
+                "heatmaps_cluster_rows": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to activate row clustering when generating heatmaps of gene expression in enriched pathways."
+                },
+                "heatmaps_cluster_cols": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether to activate column clustering when generating heatmaps of gene expression in enriched pathways."
                 }
             }
         },

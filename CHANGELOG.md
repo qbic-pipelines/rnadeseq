@@ -7,17 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- [#221](https://github.com/qbic-pipelines/rnadeseq/pull/221) Add padj to volcano hovertext
+- [#229](https://github.com/qbic-pipelines/rnadeseq/pull/229) Added param for clustering (or not) the heatmaps
+- [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Added param for pathway analysis datasources
+- [#221](https://github.com/qbic-pipelines/rnadeseq/pull/221) Added padj to volcano hovertext
+
+### Changed
+
+- [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Shortened names of some output files
 
 ### Fixed
 
-- [#221](https://github.com/qbic-pipelines/rnadeseq/pull/221) Fix non-conformable arrays bug, fix wrong volcano colors when no DE genes
+- [#229](https://github.com/qbic-pipelines/rnadeseq/pull/229) Fixed cutoff enrichment plot labels, fixed wrong plotMA function being called (also fixed this changelog)
+- [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Fixed too many devices error from tryCatch around normalized heatmaps
+- [#221](https://github.com/qbic-pipelines/rnadeseq/pull/221) Fixed non-conformable arrays bug, fix wrong volcano colors when no DE genes
 
 ## 2.2 Avenue of Poplars
 
 ### Added
 
-- [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Added param for pathway analysis datasources
 - [#215](https://github.com/qbic-pipelines/rnadeseq/pull/215) Added gene_name to boxplot titles and filenames; increased threshold before overlapping PCA labels are hidden
 - [#213](https://github.com/qbic-pipelines/rnadeseq/pull/213) Added smrnaseq input support
 - [#212](https://github.com/qbic-pipelines/rnadeseq/pull/212) Added computational methods if no --software_versions
@@ -28,7 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Shortened names of some output files
 - [#219](https://github.com/qbic-pipelines/rnadeseq/pull/219) Release 2.2 to master
 - [#220](https://github.com/qbic-pipelines/rnadeseq/pull/220) Commit suggestions from PR review for release 2.2
 - [#218](https://github.com/qbic-pipelines/rnadeseq/pull/218) Preparing release 2.2 with version bumps
@@ -46,7 +52,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Fixed too many devices error from tryCatch around normalized heatmaps
 - [#212](https://github.com/qbic-pipelines/rnadeseq/pull/212) Fixed movability of interactive gostplots
 - [#208](https://github.com/qbic-pipelines/rnadeseq/pull/208) Fixed relevel bug, the function should now finally work!
 - [#207](https://github.com/qbic-pipelines/rnadeseq/pull/207) Fixed check of samples in counts vs metadata
