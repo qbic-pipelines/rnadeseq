@@ -83,7 +83,7 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/enrichment_plots/REAC_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/enrichment_plots/REAC_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/heatmap_gene_list/Heatmap_normalized_counts_gene_list.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control_gost_pathway_venn_diagram.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control_gost_pathway_venn_diagram.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control_gost_pathway_venn_diagram.svg
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/gost_pathway_venn_diagram.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/gost_pathway_venn_diagram.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/gost_pathway_venn_diagram.svg
     - path: results_test/RNAseq_report.html
