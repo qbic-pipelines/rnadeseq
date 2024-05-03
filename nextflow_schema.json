@@ -125,7 +125,7 @@
                 },
                 "custom_gmt": {
                     "type": "string",
-                    "description": "Path to custom GMT file for gost query, this allows e.g. to query older versions of databases for pathway analysis, not necessary if --skip_pathway_analysis = true."
+                    "description": "Path to custom GMT file for gost query, this allows e.g. to query older versions of databases for pathway analysis, not necessary if --skip_pathway_analysis = true. If --datasources is set, the GMT file will be filtered for these datasources."
                 },
                 "set_background": {
                     "type": "boolean",
@@ -140,6 +140,20 @@
                     "type": "integer",
                     "default": 1,
                     "description": "Integer indicating how many genes in a pathway must be differentially expressed to be considered as enriched, and report these pathways in tables and the final report. The default value is 1."
+                },
+                "datasources": {
+                    "type": "string",
+                    "description": "Which datasources to use for pathway analysis, comma-separated string like 'KEGG,REAC'. See param 'sources' on https://rdrr.io/cran/gprofiler2/man/gost.html for a list of available sources. If not set, will use all sources. If set while a --custom_gmt is provided, will filter the GMT for these datasources (will not filter for the GO subtypes like GO:BP, just for GO)."
+                },
+                "heatmaps_cluster_rows": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to activate row clustering when generating heatmaps of gene expression in enriched pathways."
+                },
+                "heatmaps_cluster_cols": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether to activate column clustering when generating heatmaps of gene expression in enriched pathways."
                 }
             }
         },

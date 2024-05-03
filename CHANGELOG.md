@@ -3,6 +3,24 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3dev
+
+### Added
+
+- [#229](https://github.com/qbic-pipelines/rnadeseq/pull/229) Added param for clustering (or not) the heatmaps
+- [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Added param for pathway analysis datasources
+- [#221](https://github.com/qbic-pipelines/rnadeseq/pull/221) Added padj to volcano hovertext
+
+### Changed
+
+- [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Shortened names of some output files
+
+### Fixed
+
+- [#229](https://github.com/qbic-pipelines/rnadeseq/pull/229) Fixed cutoff enrichment plot labels, fixed wrong plotMA function being called (also fixed this changelog)
+- [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Fixed too many devices error from tryCatch around normalized heatmaps
+- [#221](https://github.com/qbic-pipelines/rnadeseq/pull/221) Fixed non-conformable arrays bug, fix wrong volcano colors when no DE genes
+
 ## 2.2 Avenue of Poplars
 
 ### Added
