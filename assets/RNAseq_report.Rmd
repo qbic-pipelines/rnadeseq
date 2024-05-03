@@ -2608,8 +2608,8 @@ as.character(params$revision),
 "` pipeline [^5], which was written using the nf-core template [@ewels2020nf]. For differential expression analysis, the read quantification data resulting from `",
 quant_tool, "` were processed with the R package `DESeq2 v",
 packageVersion("DESeq2"),
-"` [@love2014differential]. The thresholds for differentially expressed genes were set to ",
-pval_text, " for the p-value and ",
+"` [@love2014differential]. The thresholds for differentially expressed genes were set to ", 
+pval_text, " for the adjusted p-value and ",
 logFC_text, " for the log2 Fold Change."
 ))
 
