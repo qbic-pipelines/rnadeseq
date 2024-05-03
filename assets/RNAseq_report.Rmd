@@ -698,6 +698,7 @@ if (run_rlog){
     # rlog transformation
     rld <- rlog(cds, blind=FALSE)
     rld_names <- merge(x=gene_names, y=assay(rld), by.x = "Ensembl_ID", by.y="row.names")
+    rld_names <- rld_names[order(rld_names$Ensembl_ID),]
     write.table(rld_names, "differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  qmethod = c("escape", "double"))
 
     # save table to another variable if pathway analysis
@@ -711,6 +712,7 @@ if (run_rlog){
     # vst transformation
     vsd <- vst(cds, blind=FALSE, nsub = params$nsub_genes)
     vsd_names <- merge(x=gene_names, y=assay(vsd), by.x = "Ensembl_ID", by.y="row.names")
+    vsd_names <- vsd_names[order(vsd_names$Ensembl_ID),]
     write.table(vsd_names, "differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
     # save table to another variable if pathway analysis
@@ -1256,9 +1258,20 @@ A PCA of the batch-effect corrected data is shown below and can be found [here](
 if (run_rlog) {
     assay(rld) <- limma::removeBatchEffect(assay(rld), rld$batch)
     rld_corrected <- rld
+    out_rld <- as.data.frame(assay(rld_corrected))
+    out_rld <- out_rld[order(rownames(out_rld)),]
+    out_rld <- cbind(Ensembl_ID = rownames(out_rld), gene_name = rld_names$gene_name, out_rld[,!names(out_rld) %in% c("gene_name")])
+
+    write.table(out_rld, file="differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts_batchcorrected.tsv", quote=F, sep="\t", row.names=F)
 } else {
     assay(vsd) <- limma::removeBatchEffect(assay(vsd), vsd$batch)
     vsd_corrected <- vsd
+
+    out_vsd <- as.data.frame(assay(vsd_corrected))
+    out_vsd <- out_vsd[order(rownames(out_vsd)),]
+    out_vsd <- cbind(Ensembl_ID = rownames(out_vsd), gene_name = vsd_names$gene_name, out_vsd[,!names(out_vsd) %in% c("gene_name")])
+
+    write.table(out_vsd, file="differential_gene_expression/gene_counts_tables/vst_transformed_gene_counts_batchcorrected.tsv", quote=F, sep="\t", row.names=F)
 }
 pcaData2 <- plotPCA(if (run_rlog) rld else vsd, intgroup=c("combfactor"), ntop = dim(if (run_rlog) rld else vsd)[1], returnData=TRUE)
 percentVar <- round(100*attr(pcaData, "percentVar"))
@@ -1581,6 +1594,11 @@ write(contrast_names, file="contrast_names.txt", sep="\t")
 # Remove identical columns of DE_genes_df
 DE_genes_df$DE_genes_df <- NULL
 idx <- duplicated(t(DE_genes_df))
+
+# If any padj or logFC columns were marked for removal (TRUE), undo that by setting FALSE as we need these cols
+idx[grepl("padj", as.character(names(idx)))] <- FALSE
+idx[grepl("log2FoldChange", as.character(names(idx)))] <- FALSE
+
 DE_genes_df <- DE_genes_df[, !idx]
 DE_genes_df$Ensembl_ID <- row.names(DE_genes_df)
 DE_genes_df <- DE_genes_df[,c(dim(DE_genes_df)[2],1:dim(DE_genes_df)[2]-1)]
@@ -1696,17 +1714,21 @@ for (file in allgenes_files){
 }
 DE_all <- ldply(table_list, rbind)
 DE_all$logpval <- -log10(DE_all$padj)
+DE_all$truelogpval <- DE_all$logpval # Save true value for hovertext
 DE_all$logpval[DE_all$logpval > 16] <- 17
 DE_all <- na.omit(DE_all)
+DE_all <- DE_all %>% mutate(color = ifelse(abs(DE_all$log2FoldChange) >= params$logFC_threshold & DE_all$logpval >= -log10(params$adj_pval_threshold), "red", "black")) # Create column which assigns each entry a plot color so that coloring is consistent even when no DE genes are found
 log2FoldChange_min <- min(DE_all$log2FoldChange)
 log2FoldChange_max <- max(DE_all$log2FoldChange)
 
 # get quotient of log2FoldChange range and 10 to determine if xticks of plot need to be scaled discretely (otherwise, for large FC ranges, there will be too many xticks and they will overlap)
 log2FoldChange_quotient <- length(seq(log2FoldChange_min, log2FoldChange_max, 10))
 
-pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name, "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2)))) +
+pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name,
+                                                                    "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2),
+                                                                    "<br>", "-Log10padj: ", formatC(truelogpval, digits=2)))) +
         #this goes after alpha=0.5:
-        geom_jitter(alpha=0.5, width = 0.2, aes(color=ifelse(abs(DE_all$log2FoldChange) >= params$logFC_threshold &  DE_all$logpval >= -log10(params$adj_pval_threshold), "Differentially expressed genes", "Non-differentially expressed genes"))) +
+        geom_jitter(alpha=0.5, width = 0.2, aes(color=ifelse(DE_all$color == "red", "Differentially expressed genes", "Non-differentially expressed genes"))) +
         geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
         geom_hline(yintercept = -log10(params$adj_pval_threshold), size = 0.2, color = "grey") +
         geom_vline(xintercept = -params$logFC_threshold, size = 0.2, color = "grey") +
@@ -2588,8 +2610,8 @@ as.character(params$revision),
 "` pipeline [^5], which was written using the nf-core template [@ewels2020nf]. For differential expression analysis, the read quantification data resulting from `",
 quant_tool, "` were processed with the R package `DESeq2 v",
 packageVersion("DESeq2"),
-"` [@love2014differential]. The thresholds for differentially expressed genes were set to ",
-pval_text, " for the p-value and ",
+"` [@love2014differential]. The thresholds for differentially expressed genes were set to ", 
+pval_text, " for the adjusted p-value and ",
 logFC_text, " for the log2 Fold Change."
 ))
 

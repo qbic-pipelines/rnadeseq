@@ -82,4 +82,7 @@
       md5sum: 6594fdb8c0eb591fa131982a8be00877
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/enrichment_plots/REAC_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/enrichment_plots/REAC_pathway_enrichment_plot.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/gost_pathway_venn_diagram.pdf
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/gost_pathway_venn_diagram.png
+    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/gost_pathway_venn_diagram.svg
     - path: results_test/RNAseq_report.html
