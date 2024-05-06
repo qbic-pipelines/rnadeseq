@@ -416,8 +416,6 @@ if (params$input_type == "smrnaseq") {
     count.table$Ensembl_ID <- rownames(count.table)
     count.table <- cbind(Ensembl_ID=rownames(count.table), gene_name=rownames(count.table), count.table)
     write.table(count.table, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
-
-
 }
 
 # Load count table for FeatureCounts
