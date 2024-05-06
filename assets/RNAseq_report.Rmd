@@ -416,8 +416,6 @@ if (params$input_type == "smrnaseq") {
     count.table$Ensembl_ID <- rownames(count.table)
     count.table <- cbind(Ensembl_ID=rownames(count.table), gene_name=rownames(count.table), count.table)
     write.table(count.table, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
-
-
 }
 
 # Load count table for FeatureCounts
@@ -871,6 +869,17 @@ for (i in resultsNames(cds)[-1]) {
 <!-- multiQC start -->
 
 ```{r summary_stats, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), results = 'asis'}
+# Check first if a new or old multiqc file was provided
+if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"))) {
+    mqc_stats <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"), header=TRUE, sep="\t")
+    mqc_version <- 'old_mqc'
+} else if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_samtools_stats.txt"))) {
+    mqc_stats <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_samtools_stats.txt"), header=TRUE, sep="\t")
+    mqc_version <- 'new_mqc'
+} else {
+    stop("Could not find a suitable multiqc table; please provide a correct multiqc.zip file or omit the parameter altogether")
+}
+
 cat(paste0("***
 # Read mapping and assignment
 
@@ -882,19 +891,11 @@ The read sequencing quality was analyzed using `FASTQC`. More detailed informati
 
 The read mapping and gene assignment statistics, together with other quality control parameters are summarized here.
 
-The table below, extracted from the `MultiQC` report, shows a summary of the bioinformatics analysis quality control.
-Note: Duplicate intercept (%) is the percentage of duplicate reads for the intercept of a linear model of duplicate reads vs read counts. High numbers of duplicates at low read counts can indicate low library complexity with technical duplication."
+The table below, extracted from the `MultiQC` report, shows a summary of the bioinformatics analysis quality control.",
+ifelse(mqc_version == 'old_mqc',
+"Note: Duplicate intercept (%) is the percentage of duplicate reads for the intercept of a linear model of duplicate reads vs read counts. High numbers of duplicates at low read counts can indicate low library complexity with technical duplication.",
+"")
 ))
-
-if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"))) {
-    mqc_stats <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"), header=TRUE, sep="\t")
-    mqc_version <- 'old_mqc'
-} else if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_samtools_stats.txt"))) {
-    mqc_stats <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_samtools_stats.txt"), header=TRUE, sep="\t")
-    mqc_version <- 'new_mqc'
-} else {
-    stop("Could not find a suitable multiqc table; please provide a correct multiqc.zip file or omit the parameter altogether")
-}
 
 is.num <- sapply(mqc_stats, is.numeric)
 mqc_stats[is.num] <- lapply(mqc_stats[is.num], round, 2)
@@ -1009,7 +1010,7 @@ if (mqc_version == 'old_mqc') {
     table_complete <- table_complete %>%
         mutate(
             Sample = Sample,
-            ReadNumber = color_bar("lightblue")(round((ReadNumber/1000000),2)),
+            ReadNumber = round((ReadNumber/1000000),2),
             DuplicateReadsIntercept = ifelse(DuplicateReadsIntercept > 1,
                                             cell_spec(DuplicateReadsIntercept, color="orange", bold=T),
                                             cell_spec(DuplicateReadsIntercept, color="black")),
@@ -1024,7 +1025,6 @@ if (mqc_version == 'old_mqc') {
         )
 } else {
     colnames <- c("Sample", "Number of reads (M)", "Duplicates (%)", "Untrimmed GC (%)", "Trimmed GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
-    #colnames(table_complete) <- c("Sample", "ReadNumber", "DuplicateReadsIntercept")
 
     table_complete <- table_complete %>%
         transmute(
@@ -1039,9 +1039,9 @@ if (mqc_version == 'old_mqc') {
             MappedReads =  ifelse(uniquely_mapped_percent > 80,
                                 color_bar("lightblue")(uniquely_mapped_percent),
                                 color_bar("orange")(uniquely_mapped_percent)),
-            AssignedReads = ifelse(total_assigned_tags/total_tags > 60,
-                                color_bar("lightblue")(total_assigned_tags/total_tags),
-                                color_bar("orange")(total_assigned_tags/total_tags))
+            AssignedReads = ifelse((total_assigned_tags/total_tags*100) > 60,
+                                color_bar("lightblue")((total_assigned_tags/total_tags)*100),
+                                color_bar("orange")((total_assigned_tags/total_tags)*100))
         )
 }
 
@@ -1105,9 +1105,9 @@ The statistics of read assignment to genes are shown below. Most reads should be
 
 <center>
 ", "
-## Read alignment statistics {.tabset}
+## Read assignment statistics {.tabset}
 
-The statistics of read alignment to genes are shown below for pipeline runs on data produced by `rnaseq <= v1.4.2`. If a later version was used, these plots are not generated by rnaseq anymore. However, you can find `star/featurecounts/<sample>.featureCounts.txt.summary` or `star_salmon/featurecounts/<sample>.featureCounts.txt.summary` files in the rnaseq output folder which contain the necessary information for creating such plots.
+The statistics of read assignment to genes are shown below for pipeline runs on data produced by `rnaseq <= v1.4.2`. If a later version was used, these plots are not generated by rnaseq anymore. However, you can find `star/featurecounts/<sample>.featureCounts.txt.summary` or `star_salmon/featurecounts/<sample>.featureCounts.txt.summary` files in the rnaseq output folder which contain the necessary information for creating such plots.
 ")))
 ```
 
