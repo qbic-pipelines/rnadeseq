@@ -10,7 +10,6 @@ on:
 
 env:
   NXF_ANSI_LOG: false
-  CAPSULE_LOG: none
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
