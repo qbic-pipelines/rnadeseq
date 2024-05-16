@@ -20,4 +20,4 @@ lint:
       - params.custom_config_base
 
   multiqc_config:
-    - report_comment # otherwise throws error: multiqc_config: 'assets/multiqc_config.yml' does not contain a matching 'report_comment'.            
+    - report_comment # otherwise throws error: multiqc_config: 'assets/multiqc_config.yml' does not contain a matching 'report_comment'.
