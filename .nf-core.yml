@@ -5,35 +5,19 @@ lint:
   files_unchanged:
     - .github/CONTRIBUTING.md
     - .github/ISSUE_TEMPLATE/bug_report.yml
-    - .github/ISSUE_TEMPLATE/config.yml
-    - .github/ISSUE_TEMPLATE/feature_request.yml
     - .github/PULL_REQUEST_TEMPLATE.md
     - .github/workflows/branch.yml
-    - .github/workflows/linting.yml
     - .gitignore
-    - assets/email_template.html
     - assets/email_template.txt
     - assets/sendmail_template.txt
     - docs/README.md
     - LICENSE
 
-  files_exist:
-    - .github/ISSUE_TEMPLATE/config.yml
-    - .github/workflows/awsfulltest.yml
-    - .github/workflows/awstest.yml
-    - assets/multiqc_config.yaml
-    - assets/nf-core-qbic-pipelines/rnadeseq_logo_light.png
-    - bin/markdown_to_html.r
-    - conf/test_full.config
-    - docs/images/nf-core-qbic-pipelines/rnadeseq_logo_dark.png
-    - docs/images/nf-core-qbic-pipelines/rnadeseq_logo_light.png
-    - lib/WorkflowQbic-pipelines/rnadeseq.groovy
-
   nextflow_config:
-    - manifest.homePage
     - manifest.name
-    - params.input
-    - show_hidden_params
+    - manifest.homePage
+    - config_defaults:
+      - params.custom_config_base
 
   multiqc_config:
-    - report_comment # otherwise throws error: multiqc_config: 'assets/multiqc_config.yml' does not contain a matching 'report_comment'.                                                                           │
+    - report_comment # otherwise throws error: multiqc_config: 'assets/multiqc_config.yml' does not contain a matching 'report_comment'.            
