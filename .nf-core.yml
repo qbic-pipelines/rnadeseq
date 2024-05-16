@@ -13,6 +13,9 @@ lint:
     - docs/README.md
     - LICENSE
 
+  files_exist:
+    - lib/nfcore_external_java_deps.jar
+
   nextflow_config:
     - manifest.name
     - manifest.homePage
