@@ -17,7 +17,7 @@ lint:
     - manifest.name
     - manifest.homePage
     - config_defaults:
-      - params.custom_config_base
+        - params.custom_config_base
 
   multiqc_config:
     - report_comment # otherwise throws error: multiqc_config: 'assets/multiqc_config.yml' does not contain a matching 'report_comment'.
