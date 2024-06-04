@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- [#236](https://github.com/qbic-pipelines/rnadeseq/pull/236) Fixed new multiqc check (in case both the files of the old and new mqc version are present)
 - [#234](https://github.com/qbic-pipelines/rnadeseq/pull/234) Fixed unnecessary file permission changes from #225
 - [#228](https://github.com/qbic-pipelines/rnadeseq/pull/228) Fixed text in report
 - [#229](https://github.com/qbic-pipelines/rnadeseq/pull/229) Fixed cutoff enrichment plot labels, fixed wrong plotMA function being called (also fixed this changelog)
