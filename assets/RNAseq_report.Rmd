@@ -1305,9 +1305,9 @@ config(pca2, modeBarButtonsToAdd = list(svg_exp)) %>% layout()
 
 A sample distance heatmap was generated from the distances of the normalized expression values for all samples.
 
-This visualizes how similar the samples are to each other according to gene expression.
+This visualizes how similar the samples are to each other according to the Euclidean distance of gene expression.
 Two samples have more similar gene expression if their distance is closer to 0 (darker blue).
-The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances.pdf).
+The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances_euclidean.pdf).
 
 ```{r heatmap_calculate, include=FALSE}
 ##################  SAMPLE DISTANCES HEATMAP ##################
@@ -1317,15 +1317,16 @@ sampleDistClust <- hclust(sampleDists)  # Do clustering as input for heatmaps so
 sampleDistMatrix <- as.matrix(sampleDists)
 colors = colorRampPalette(rev(RColorBrewer::brewer.pal(9, "Blues")))(255)
 par(oma=c(3,3,3,3))
+write.table(sampleDistMatrix, file="differential_gene_expression/plots/Heatmaps_of_distances_euclidean.tsv", sep="\t", quote=F)
 dist_heatmap <- pheatmap(mat = sampleDistMatrix, color=colors, cluster_rows = sampleDistClust, cluster_cols = sampleDistClust)
 
-svg("differential_gene_expression/plots/Heatmaps_of_distances.svg")
+svg("differential_gene_expression/plots/Heatmaps_of_distances_euclidean.svg")
 dist_heatmap
 dev.off()
-png("differential_gene_expression/plots/Heatmaps_of_distances.png")
+png("differential_gene_expression/plots/Heatmaps_of_distances_euclidean.png")
 dist_heatmap
 dev.off()
-pdf("differential_gene_expression/plots/Heatmaps_of_distances.pdf")
+pdf("differential_gene_expression/plots/Heatmaps_of_distances_euclidean.pdf")
 dist_heatmap
 dev.off()
 
@@ -1367,7 +1368,7 @@ After unzipping the results ZIP file, the differential expression results can be
 - `DE_genes_tables/`: folder containing one tab-separated table for each of the contrasts in the analysis. Each table contains a list of all differentially expressed genes in the contrast, specifying the mean gene expression across all samples (baseMean), and the log2 fold change value and p-adjusted values (padj) for this contrast.
 - `final_gene_table/final_gene_list_DESeq2.tsv`: table containing a list of all genes considered in the analysis. Here a summary of the log2 Fold Change and p-adjusted values for all contrasts is displayed. Additionally, the column **filter** shows if this gene was differentially expressed (DE) in any of the contrasts, or not (not_DE). The column **contrast_vector** contains for each contrast considered in the analysis a 1 if the gene was differentially expressed for this contrast or a 0 if it was not.
 - `plots/`:
-    - `Heatmaps_of_distances.pdf/.svg`: heatmap of the pairwise euclidean distances among samples, when the `r norm_method_text` normalized gene counts are considered.
+    - `Heatmaps_of_distances_euclidean.pdf/.svg`: heatmap of the pairwise euclidean distances among samples, when the `r norm_method_text` normalized gene counts are considered.
     - `PCA_plot.pdf`: PCA of the `r norm_method_text` normalized gene counts.
     - `boxplots_example_genes/`: boxplots of the normalized gene counts for each of the sample groups for example genes.
     - `boxplots_requested_genes/`: boxplots of the normalized gene counts for each of the sample groups for the list of requested genes.
@@ -1725,8 +1726,7 @@ log2FoldChange_quotient <- length(seq(log2FoldChange_min, log2FoldChange_max, 10
 pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name,
                                                                     "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2),
                                                                     "<br>", "-Log10padj: ", formatC(truelogpval, digits=2)))) +
-        #this goes after alpha=0.5:
-        geom_jitter(alpha=0.5, width = 0.2, aes(color=ifelse(DE_all$color == "red", "Differentially expressed genes", "Non-differentially expressed genes"))) +
+        geom_point(alpha=0.5, width = 0.2, aes(color=ifelse(DE_all$color == "red", "Differentially expressed genes", "Non-differentially expressed genes"))) +
         geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
         geom_hline(yintercept = -log10(params$adj_pval_threshold), size = 0.2, color = "grey") +
         geom_vline(xintercept = -params$logFC_threshold, size = 0.2, color = "grey") +
@@ -2166,10 +2166,12 @@ for (file in contrast_files){
     print("------------------------------------")
 
     if (nrow(pathway_gostres) > 0){ #if there are enriched pathways
-
+capture.output(pathway_gostres, file=paste0("pathway_analysis", "/", fname, "/pathway_gostres.tsv"))
         # Splitting results according to pathway resources (KEGG / REACTOME / GO)
         res <- split(pathway_gostres, pathway_gostres$source)
         for (df in res){
+            capture.output(df, file=paste0("pathway_analysis", "/", fname, "/df.tsv"))
+
             db_source <- df$source[1]
             df$short_name <- sapply(df$term_name, substr, start=1, stop=50)
 
@@ -2204,14 +2206,20 @@ for (file in contrast_files){
                     pathway <- df[i,]
                     gene_list <- unlist(strsplit(pathway$intersection, ","))
                     mat <- norm_counts[which(norm_counts$Ensembl_ID %in% gene_list), ]
-                    rownames(mat) <- mat$gene_name
-                    mat$gene_name <- NULL
-                    mat$Ensembl_ID <- NULL
-                    mat <- data.matrix(mat)
 
                     # Skip the heatmaps for CI tests because especially png() works only very unreliably for the heatmaps for some reason
                     if (!isProvided(params$citest) & nrow(mat)>1){
                         dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
+
+                        # Save matrix as table so that the values are accessible if heatmap plotting does not work properly
+                        write.table(mat, file=paste0("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".tsv"), sep="\t", quote=F, row.names=F)
+                        write.table(norm_counts, file=paste0("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "norm_counts", pathway$source, "_", make.names(pathway$term_id), ".tsv"), sep="\t", quote=F, row.names=F)
+
+                        # Reformat matrix so that it can be used by pheatmap (throws error if String columns/IDs are in the table)
+                        rownames(mat) <- mat$gene_name
+                        mat$gene_name <- NULL
+                        mat$Ensembl_ID <- NULL
+                        mat <- data.matrix(mat)
 
                         # Because the image devices sometimes don't work here, surround them with a tryCatch so that the code continues even if a certain heatmap is not saved
                         tryCatch(
@@ -2312,12 +2320,20 @@ if (isProvided(params$path_genelist)){
 
     rownames(norm_counts) <- norm_counts$Ensembl_ID
     mat <- norm_counts[which(norm_counts$Ensembl_ID %in% gene_list), ]
-    rownames(mat) <- mat$gene_name
-    mat$gene_name <- NULL
-    mat$Ensembl_ID <- NULL
-    mat <- data.matrix(mat)
+    write.table(norm_counts, file=paste0(genelist_heatmaps_dir, "/", "norm_counts.tsv"), sep="\t", quote=F, row.names=T)
 
     if (nrow(mat)>1){
+        write.table(mat, file=paste0(genelist_heatmaps_dir, "/", "mat.tsv"), sep="\t", quote=F, row.names=F)
+
+        # Reformat matrix so that it can be used by pheatmap (throws error if String columns/IDs are in the table)
+        rownames(mat) <- mat$gene_name
+        mat$gene_name <- NULL
+        mat$Ensembl_ID <- NULL
+        mat <- data.matrix(mat)
+
+        # Save matrix as table so that the values are accessible if heatmap plotting does not work properly
+        write.table(mat, file=paste0(genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.tsv"), sep="\t", quote=F, row.names=F)
+
         png(filename = paste0(genelist_heatmaps_dir, "/", "Heatmap_normalized_counts_gene_list.png"), width = 100+ncol(mat)*50, height = 50+nrow(mat)*100)
         pheatmap(mat = mat, annotation_col = metadata_save, main = "Genelist-specific heatmap of normalized expression values for genes", scale = "row", cluster_cols = params$heatmaps_cluster_cols, cluster_rows = params$heatmaps_cluster_rows)
         dev.off()
