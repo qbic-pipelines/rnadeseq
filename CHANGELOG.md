@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [#236](https://github.com/qbic-pipelines/rnadeseq/pull/236) Added Euclidian distance/z-score info to report text/heatmaps; added tables next to heatmaps in case the heatmap plotting does not work
 - [#229](https://github.com/qbic-pipelines/rnadeseq/pull/229) Added param for clustering (or not) the heatmaps
 - [#226](https://github.com/qbic-pipelines/rnadeseq/pull/226) Added logic to read newer multiqc files from rnaseq 3.12
 - [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Added param for pathway analysis datasources
@@ -14,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#236](https://github.com/qbic-pipelines/rnadeseq/pull/236) Changed geom_jitter to geom_point for volcano plot so that points are accurate
 - [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Shortened names of some output files
 
 ### Fixed
