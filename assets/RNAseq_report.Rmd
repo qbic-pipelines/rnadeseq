@@ -371,7 +371,7 @@ metadata$Secondary.Name <- gsub(" ; ", "_", metadata$Secondary.Name)
 metadata$Secondary.Name <- gsub(" ", "_", metadata$Secondary.Name)
 metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
 row.names(metadata) = metadata$sampleName
-metadata_save <- metadata
+metadata_save <- metadata # save copy so that original metadata object can be changed
 
 if (params$input_type == "smrnaseq") {
 
@@ -872,12 +872,46 @@ for (i in resultsNames(cds)[-1]) {
 # Check first if a new or old multiqc file was provided
 if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"))) {
     mqc_stats <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"), header=TRUE, sep="\t")
-    mqc_version <- 'old_mqc'
+    columns <- c(
+            "Sample",
+            "FastQC_mqc.generalstats.fastqc.total_sequences",
+            "FastQC_mqc.generalstats.fastqc.percent_duplicates",
+            "FastQC_mqc.generalstats.fastqc.percent_gc",
+            "Cutadapt_mqc.generalstats.cutadapt.percent_trimmed",
+            "STAR_mqc.generalstats.star.uniquely_mapped_percent",
+            "featureCounts_mqc.generalstats.featurecounts.percent_assigned"
+        )
+    if (all(columns %in% colnames(mqc_stats))) {
+        mqc_version <- 'old_mqc'
+    } else if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_samtools_stats.txt"))) {
+        mqc_stats <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_samtools_stats.txt"), header=TRUE, sep="\t")
+        columns <- c(
+                "Sample",
+                "raw_total_sequences",
+                "reads_mapped_percent",
+                "reads_duplicated_percent"
+            )
+        if (all(columns %in% colnames(mqc_stats))) {
+            mqc_version <- 'new_mqc'
+        } else {
+            stop("Could not find a suitable multiqc table; please provide a correct multiqc.zip file or omit the parameter --multiqc altogether.")
+        }
+    }
 } else if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_samtools_stats.txt"))) {
     mqc_stats <- read.table(file = paste0(wd,"/QC/multiqc_data/multiqc_samtools_stats.txt"), header=TRUE, sep="\t")
-    mqc_version <- 'new_mqc'
+    columns <- c(
+            "Sample",
+            "raw_total_sequences",
+            "reads_mapped_percent",
+            "reads_duplicated_percent"
+        )
+    if (all(columns %in% colnames(mqc_stats))) {
+        mqc_version <- 'new_mqc'
+    } else {
+        stop("Could not find a suitable multiqc table; please provide a correct multiqc.zip file or omit the parameter --multiqc altogether.")
+    }
 } else {
-    stop("Could not find a suitable multiqc table; please provide a correct multiqc.zip file or omit the parameter altogether")
+    stop("Could not find a suitable multiqc table; please provide a correct multiqc.zip file or omit the parameter --multiqc altogether.")
 }
 
 cat(paste0("***
@@ -911,16 +945,6 @@ sum_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else sum(x, na.rm = TRU
 avg_NA <- function(x) {if (all(is.na(x))) x[NA_integer_] else mean(x, na.rm = TRUE)} # Function to average across rows if available, else NA
 
 if (mqc_version == 'old_mqc') {
-    columns <- c(
-            "Sample",
-            "FastQC_mqc.generalstats.fastqc.total_sequences",
-            "FastQC_mqc.generalstats.fastqc.percent_duplicates",
-            "FastQC_mqc.generalstats.fastqc.percent_gc",
-            "Cutadapt_mqc.generalstats.cutadapt.percent_trimmed",
-            "STAR_mqc.generalstats.star.uniquely_mapped_percent",
-            "featureCounts_mqc.generalstats.featurecounts.percent_assigned"
-        )
-
     table_complete <- mqc_stats[,columns] %>%
         group_by(Sample) %>%
         dplyr::summarize(
@@ -928,13 +952,6 @@ if (mqc_version == 'old_mqc') {
             across(everything(), avg_NA)
         )
 } else {
-    columns <- c(
-            "Sample",
-            "raw_total_sequences",
-            "reads_mapped_percent",
-            "reads_duplicated_percent"
-        )
-
     table_complete <- mqc_stats[,columns] %>%
         group_by(Sample) %>%
         dplyr::summarize(
