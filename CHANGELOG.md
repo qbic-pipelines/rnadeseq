@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- [#237](https://github.com/qbic-pipelines/rnadeseq/pull/237) Fix version in usage docs and remove duplicate datasources in test_custom_gmt.config
 - [#236](https://github.com/qbic-pipelines/rnadeseq/pull/236) Fix new multiqc (add logic to better check which multiqc version is provided (sometimes both the old and the new table file are present in the mqc))
 - [#228](https://github.com/qbic-pipelines/rnadeseq/pull/228) Fixed text in report
 - [#229](https://github.com/qbic-pipelines/rnadeseq/pull/229) Fixed cutoff enrichment plot labels, fixed wrong plotMA function being called (also fixed this changelog)
