@@ -3,10 +3,11 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 2.3dev
+## 2.3
 
 ### Added
 
+- [#237](https://github.com/qbic-pipelines/rnadeseq/pull/237) Added Euclidian distance/z-score info to report text/heatmaps; added tables next to heatmaps in case the heatmap plotting does not work
 - [#229](https://github.com/qbic-pipelines/rnadeseq/pull/229) Added param for clustering (or not) the heatmaps
 - [#226](https://github.com/qbic-pipelines/rnadeseq/pull/226) Added logic to read newer multiqc files from rnaseq 3.12
 - [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Added param for pathway analysis datasources
@@ -14,10 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#237](https://github.com/qbic-pipelines/rnadeseq/pull/237) Changed geom_jitter to geom_point for volcano plot so that points are accurate
 - [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Shortened names of some output files
 
 ### Fixed
 
+- [#237](https://github.com/qbic-pipelines/rnadeseq/pull/237) Fix version in usage docs and remove duplicate datasources in test_custom_gmt.config
 - [#236](https://github.com/qbic-pipelines/rnadeseq/pull/236) Fixed new multiqc check (in case both the files of the old and new mqc version are present)
 - [#234](https://github.com/qbic-pipelines/rnadeseq/pull/234) Fixed unnecessary file permission changes from #225
 - [#228](https://github.com/qbic-pipelines/rnadeseq/pull/228) Fixed text in report
