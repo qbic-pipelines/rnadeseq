@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- [#238](https://github.com/qbic-pipelines/rnadeseq/pull/238) Fix branch protection bug
 - [#237](https://github.com/qbic-pipelines/rnadeseq/pull/237) Fix version in usage docs and remove duplicate datasources in test_custom_gmt.config
 - [#236](https://github.com/qbic-pipelines/rnadeseq/pull/236) Fixed new multiqc check (in case both the files of the old and new mqc version are present)
 - [#234](https://github.com/qbic-pipelines/rnadeseq/pull/234) Fixed unnecessary file permission changes from #225
