@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- [#241](https://github.com/qbic-pipelines/rnadeseq/pull/241) Undo fix branch protection bug in order to get precommit test to run
 - [#240](https://github.com/qbic-pipelines/rnadeseq/pull/240) Fix branch protection bug --> third attempt
 - [#239](https://github.com/qbic-pipelines/rnadeseq/pull/239) Fix branch protection bug --> second attempt
 - [#238](https://github.com/qbic-pipelines/rnadeseq/pull/238) Fix branch protection bug
