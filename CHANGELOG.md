@@ -3,6 +3,35 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3
+
+### Added
+
+- [#237](https://github.com/qbic-pipelines/rnadeseq/pull/237) Added Euclidian distance/z-score info to report text/heatmaps; added tables next to heatmaps in case the heatmap plotting does not work
+- [#229](https://github.com/qbic-pipelines/rnadeseq/pull/229) Added param for clustering (or not) the heatmaps
+- [#226](https://github.com/qbic-pipelines/rnadeseq/pull/226) Added logic to read newer multiqc files from rnaseq 3.12
+- [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Added param for pathway analysis datasources
+- [#221](https://github.com/qbic-pipelines/rnadeseq/pull/221) Added padj to volcano hovertext
+
+### Changed
+
+- [#237](https://github.com/qbic-pipelines/rnadeseq/pull/237) Changed geom_jitter to geom_point for volcano plot so that points are accurate
+- [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Shortened names of some output files
+
+### Fixed
+
+- [#241](https://github.com/qbic-pipelines/rnadeseq/pull/241) Undo fix branch protection bug in order to get precommit test to run
+- [#240](https://github.com/qbic-pipelines/rnadeseq/pull/240) Fix branch protection bug --> third attempt
+- [#239](https://github.com/qbic-pipelines/rnadeseq/pull/239) Fix branch protection bug --> second attempt
+- [#238](https://github.com/qbic-pipelines/rnadeseq/pull/238) Fix branch protection bug
+- [#237](https://github.com/qbic-pipelines/rnadeseq/pull/237) Fix version in usage docs and remove duplicate datasources in test_custom_gmt.config
+- [#236](https://github.com/qbic-pipelines/rnadeseq/pull/236) Fixed new multiqc check (in case both the files of the old and new mqc version are present)
+- [#234](https://github.com/qbic-pipelines/rnadeseq/pull/234) Fixed unnecessary file permission changes from #225
+- [#228](https://github.com/qbic-pipelines/rnadeseq/pull/228) Fixed text in report
+- [#229](https://github.com/qbic-pipelines/rnadeseq/pull/229) Fixed cutoff enrichment plot labels, fixed wrong plotMA function being called (also fixed this changelog)
+- [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Fixed too many devices error from tryCatch around normalized heatmaps
+- [#221](https://github.com/qbic-pipelines/rnadeseq/pull/221) Fixed non-conformable arrays bug, fix wrong volcano colors when no DE genes
+
 ## 2.2 Avenue of Poplars
 
 ### Added

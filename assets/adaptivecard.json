@@ -17,7 +17,7 @@
                         "size": "Large",
                         "weight": "Bolder",
                         "color": "<% if (success) { %>Good<% } else { %>Attention<%} %>",
-                        "text": "nf-core/rnadeseq v${version} - ${runName}",
+                        "text": "qbic-pipelines/rnadeseq v${version} - ${runName}",
                         "wrap": true
                     },
                     {
