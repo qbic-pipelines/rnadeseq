@@ -31,6 +31,8 @@ ch_custom_gmt = Channel.fromPath(params.custom_gmt)
 ch_custom_background = Channel.fromPath(params.custom_background)
 ch_proj_summary_file = Channel.fromPath(params.project_summary)
 ch_softwareversions_file = Channel.fromPath(params.software_versions)
+ch_report_file = Channel.fromPath(params.report_file)
+ch_references_file = Channel.fromPath(params.references_file)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,7 +76,9 @@ workflow RNADESEQ {
         ch_softwareversions_file,
         ch_multiqc_file,
         ch_custom_gmt,
-        ch_custom_background
+        ch_custom_background,
+        ch_report_file,
+        ch_references_file
     )
 
     //TODO: Enable this:

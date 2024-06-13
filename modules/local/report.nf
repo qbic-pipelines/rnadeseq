@@ -19,6 +19,8 @@ process REPORT {
     path multiqc
     path custom_gmt
     path custom_background
+    path report_file
+    path references_file
 
     output:
     path "*.zip"
@@ -54,7 +56,7 @@ process REPORT {
         mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/ || mv multiqc/*/multiqc_plots/ multiqc/*/multiqc_data/ multiqc/*/multiqc_report.html QC/ || mv multiqc_plots/ multiqc_data/ multiqc_report.html QC/
     fi
     Execute_report.R \
-        --report '$baseDir/assets/RNAseq_report.Rmd' \
+        --report '$report_file' \
         --output 'RNAseq_report.html' \
         --input_type $params.input_type \
         --gene_counts $gene_counts \
