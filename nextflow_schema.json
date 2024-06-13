@@ -183,6 +183,16 @@
                     "type": "string",
                     "default": "NO_FILE6",
                     "description": "CSV/YML containing nf-core/rnaseq software versions."
+                },
+                "report_file": {
+                    "type": "string",
+                    "default": "$projectDir/assets/RNAseq_report.Rmd",
+                    "description": "Report Rmd file, should not be changed."
+                },
+                "references_file": {
+                    "type": "string",
+                    "default": "$projectDir/assets/references.bibtex",
+                    "description": "Reference bibtex file for the report, should not be changed."
                 }
             }
         },
