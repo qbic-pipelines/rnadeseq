@@ -21,6 +21,8 @@ process REPORT {
     path custom_background
     path report_file
     path references_file
+    path css
+    path logo
 
     output:
     path "*.zip"
