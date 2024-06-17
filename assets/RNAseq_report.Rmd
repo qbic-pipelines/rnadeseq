@@ -52,6 +52,7 @@ params:
     path_quote: ''
     path_software_versions: ''
     revision: ''
+    logo: ''
 
     #Additional arg to indicate that a github test is run
     citest: ''
@@ -301,7 +302,12 @@ author: "`r PM`, Bioinformatics Research Scientist"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
 
-<img src="./logo.png" style="position:absolute;top:0px;right:0px;" height="200" width="200" />
+```{r logo, echo=FALSE, results='asis'}
+logo_file = file.path(getwd(), "logo.png")
+img_data <- base64enc::dataURI(file = logo_file, mime = "image/png") # Need to use base64 because the logo will otherwise for some reason not be loaded correctly
+cat(sprintf('<img src="%s" style="position:absolute;top:0px;right:0px;" height="200" width="200" />', img_data))
+```
+
 <div class="watermark">QBiC</div>
 
 ```{r docSetup, bootstrap.show.code = FALSE, dev = c('png'), bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
@@ -1027,7 +1033,7 @@ if (mqc_version == 'old_mqc') {
     table_complete <- table_complete %>%
         mutate(
             Sample = Sample,
-            ReadNumber = round((ReadNumber/1000000),2),
+            ReadNumber = color_bar("lightblue")(round((ReadNumber/1000000),2)),
             DuplicateReadsIntercept = ifelse(DuplicateReadsIntercept > 1,
                                             cell_spec(DuplicateReadsIntercept, color="orange", bold=T),
                                             cell_spec(DuplicateReadsIntercept, color="black")),

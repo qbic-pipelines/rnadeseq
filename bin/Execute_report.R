@@ -42,6 +42,7 @@ option_list = list(
     make_option(c("--path_quote"), type="character", default=NULL, help="Path to the quote PDF", metavar="character"),
     make_option(c("-v", "--software_versions"), type="character", default=NULL, help="Versions file", metavar="character"),
     make_option(c("-j", "--revision"), type="character", default=NULL, help="Rnadeseq workflow revision", metavar="character"),
+    make_option("--logo", type="character", default=NULL, help="Logo image file", metavar="character"),
 
     make_option("--citest", action="store_true", default=FALSE, help="Run github test and don't save pathway heatmaps.")
 )
@@ -93,5 +94,6 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 path_quote = opt$path_quote,
                                 path_software_versions = opt$software_versions,
                                 revision = opt$revision,
+                                logo = opt$logo,
 
                                 citest = opt$citest))

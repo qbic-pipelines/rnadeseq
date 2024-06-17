@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 2.3
+## 2.3 - Flowering Orchards
 
 ### Added
 
@@ -15,11 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#243](https://github.com/qbic-pipelines/rnadeseq/pull/243) Release 2.3 to master, part II (found a bug before actual release)
 - [#237](https://github.com/qbic-pipelines/rnadeseq/pull/237) Changed geom_jitter to geom_point for volcano plot so that points are accurate
+- [#233](https://github.com/qbic-pipelines/rnadeseq/pull/233) Release 2.3 to master, part I
 - [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Shortened names of some output files
 
 ### Fixed
 
+- [#243](https://github.com/qbic-pipelines/rnadeseq/pull/243) Fix missing QBiC logo and css styling in report by adding logo/css params
+- [#242](https://github.com/qbic-pipelines/rnadeseq/pull/242) Fix path issue in report by adding report_file/references_file params
 - [#241](https://github.com/qbic-pipelines/rnadeseq/pull/241) Undo fix branch protection bug in order to get precommit test to run
 - [#240](https://github.com/qbic-pipelines/rnadeseq/pull/240) Fix branch protection bug --> third attempt
 - [#239](https://github.com/qbic-pipelines/rnadeseq/pull/239) Fix branch protection bug --> second attempt
@@ -32,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Fixed too many devices error from tryCatch around normalized heatmaps
 - [#221](https://github.com/qbic-pipelines/rnadeseq/pull/221) Fixed non-conformable arrays bug, fix wrong volcano colors when no DE genes
 
-## 2.2 Avenue of Poplars
+## 2.2 - Avenue of Poplars
 
 ### Added
 

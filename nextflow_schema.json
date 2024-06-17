@@ -193,6 +193,16 @@
                     "type": "string",
                     "default": "${projectDir}/assets/references.bibtex",
                     "description": "Reference bibtex file for the report, should not be changed."
+                },
+                "css": {
+                    "type": "string",
+                    "default": "${projectDir}/assets/corp-styles.css",
+                    "description": "Stylesheet css file for the report, should not be changed."
+                },
+                "logo": {
+                    "type": "string",
+                    "default": "${projectDir}/assets/logo.png",
+                    "description": "QBiC logo png file for the report, should not be changed."
                 }
             }
         },
