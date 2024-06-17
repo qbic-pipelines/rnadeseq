@@ -21,6 +21,8 @@ process REPORT {
     path custom_background
     path report_file
     path references_file
+    path css
+    path logo
 
     output:
     path "*.zip"
@@ -89,6 +91,7 @@ process REPORT {
         $software_versions_opt \
         --proj_summary $proj_summary \
         --revision $workflow.manifest.version \
+        --logo $logo \
         $citest_opt
 
     # Remove allgenes dir as the contained files do not contain only DE genes

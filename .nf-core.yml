@@ -23,6 +23,8 @@ lint:
         - params.custom_config_base
         - params.report_file
         - params.references_file
+        - params.css
+        - params.logo
 
   multiqc_config:
     - report_comment # otherwise throws error: multiqc_config: 'assets/multiqc_config.yml' does not contain a matching 'report_comment'.
