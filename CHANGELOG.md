@@ -15,7 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#243](https://github.com/qbic-pipelines/rnadeseq/pull/243) Release 2.3 to master, part II (found a bug before actual release)
 - [#237](https://github.com/qbic-pipelines/rnadeseq/pull/237) Changed geom_jitter to geom_point for volcano plot so that points are accurate
+- [#233](https://github.com/qbic-pipelines/rnadeseq/pull/233) Release 2.3 to master, part I
 - [#225](https://github.com/qbic-pipelines/rnadeseq/pull/225) Shortened names of some output files
 
 ### Fixed
