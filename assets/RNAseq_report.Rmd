@@ -2375,7 +2375,7 @@ if (mv_status) {
         gost_text <- "A GMT file corresponding to the current gprofiler database version was downloaded to allow for reproducing the gost query; it is saved [here](./pathway_analysis/metadata). Note that the downloaded GMT contains entries from various datasources, not just the selected ones. Also, some datasources might be missing from the files due to licensing reasons."
     }
 } else {
-    gost_text <- paste0("Failed to fetch the GMT file of the current gprofiler database with this URL: ", gmt_url, ". For reproducibility reasons, try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'.")
+    gost_text <- paste0("The GMT file of the current gprofiler database could not be downloaded with this URL: ", gmt_url, ". For reproducibility reasons, try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'.")
 }
 
 # The following details block creates a collapsible explaining the output folders/files
@@ -2404,7 +2404,7 @@ gost_text,
 "\n
 ## Enriched pathways
 The plot below summarizes the pathways that were found significantly enriched in DE genes for each contrast (padj value <= ", pval_text, ").
-Only contrasts for which an enriched pathway was found are shown. Both KEGG pathways and REACTOME (REAC) pathways are considered.
+Only contrasts for which an enriched pathway was found are shown.
 Hover over the dots to reveal the pathway names. The table below provides more detail on all enriched pathways."))
 ```
 
