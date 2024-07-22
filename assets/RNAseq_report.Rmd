@@ -1969,13 +1969,15 @@ if (isProvided(params$datasources)) {
 min_DEG_pathway <- as.integer(params$min_DEG_pathway)
 
 # If background list is to be used, load custom background list
-# if provided, else use notAllZero
+# if provided, else use notAllZero -->then save to output
 if (isProvided(params$set_background)) {
     if (isProvided(params$custom_background)) {
         custom_background <- readLines(params$custom_background)
     } else {
         custom_background <- rownames(counts(cds))[notAllZero]
     }
+    dir.create("pathway_analysis/metadata")
+    write.table(custom_background, "pathway_analysis/metadata/custom_background.txt", quote=F, row.names = F, col.names = F)
 }
 
 # Contrast files
@@ -2367,6 +2369,12 @@ if (isProvided(params$path_genelist)){
 ```
 
 ```{r pathway_analysis, echo=FALSE, results='asis', eval=params$pathway_analysis}
+
+if (isProvided(params$set_background)) {
+    background_list_text <- "The background gene list used for pathway analysis is saved [here](./pathway_analysis/metadata/custom_background.txt)"
+} else {
+    background_list_text <- ""
+}
 
 if (mv_status) {
     if (isProvided(params$custom_gmt)) {
