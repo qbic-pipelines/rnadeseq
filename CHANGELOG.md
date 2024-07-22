@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- [#246](https://github.com/qbic-pipelines/rnadeseq/pull/246) Changed pipeline version to dev
 
 ## 2.3 - Flowering Orchards
 
