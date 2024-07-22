@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#249](https://github.com/qbic-pipelines/rnadeseq/pull/249) Release 2.4
+- [#248](https://github.com/qbic-pipelines/rnadeseq/pull/248) Version bumps for release 2.4
 - [#247](https://github.com/qbic-pipelines/rnadeseq/pull/247) Changed the report text that shows when the gprofiler GMT file could not be downloaded
 
 ### Removed
