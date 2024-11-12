@@ -593,6 +593,7 @@ if (params$input_type %in% c("featurecounts", "smrnaseq")) {
         cds <- DESeqDataSet(se, design = as.formula(eval(parse(text=as.character(design[[1]])))))
         # get raw counts 
         count_table_names <- merge(x=gene_names, y=assay(cds), by.x = "Ensembl_ID", by.y="row.names")
+        count_table_names <- count_table_names[order(count_table_names$Ensembl_ID),]
         write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append =          FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
 # Load salmon count files
@@ -629,6 +630,7 @@ if (params$input_type %in% c("featurecounts", "smrnaseq")) {
         cds <- DESeqDataSetFromTximport(txi=txi.salmon, colData =coldata, design = eval(parse(text=as.character(design[[1]]))))
         # get raw counts 
         count_table_names <- merge(x=gene_names, y=assay(cds), by.x = "Ensembl_ID", by.y="row.names")
+        count_table_names <- count_table_names[order(count_table_names$Ensembl_ID),]
         write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append =          FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
     }
 } else {
