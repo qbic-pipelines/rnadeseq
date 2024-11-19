@@ -1526,19 +1526,21 @@ if (isProvided(params$path_contrast_list)) {
         contrast_names <- append(contrast_names, contname)
     }
 }
-
 if (isProvided(params$path_contrast_pairs)) {
-    contrasts <- read.table(path_contrast_pairs, sep="\t", header = T, colClasses = "character")
+    contrasts <- read.table(params$path_contrast_pairs, sep="\t", header = T, colClasses = "character")
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_pairs.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
     # Contrast calculation for contrast pairs
     for (i in c(1:nrow(contrasts))) {
         cont <- as.character(contrasts[i,])
-        contname <- cont[0]
-        if (!(cont[2] %in% coefficients & cont[3] %in% coefficients)){
-            stop(paste("Provided contrast name is invalid, it needs to be contained in", coefficients))
+        contname <- cont[1]
+        if (!(cont[2] %in% coefficients)){
+            stop(paste0("Provided contrast name ", cont[2], " is invalid, it needs to be contained in ", paste(coefficients, collapse=", ")))
         }
-        results_DEseq_contrast <- results(cds, contrast=list(cont[1],cont[2]))
+        if (!(cont[3] %in% coefficients)){
+            stop(paste0("Provided contrast name ", cont[3], " is invalid, it needs to be contained in ", paste(coefficients, collapse=", ")))
+        }
+        results_DEseq_contrast <- results(cds, contrast=list(cont[2],cont[3]))
         results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
         print("Analyzing contrast:")
         print(contname)
