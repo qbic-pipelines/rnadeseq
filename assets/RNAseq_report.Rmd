@@ -2058,7 +2058,7 @@ if (!isProvided(params$datasources)) {
 # Set default params
 # ------------------
 pathway_pval_threshold <- ifelse(params$pathway_pval_threshold == -1, params$adj_pval_threshold, params$pathway_pval_threshold)
-pathway_pval_text <- as.character(pathway_pval_threshold)
+pathway_pval_text <- format(pathway_pval_threshold, scientific=F)
 
 # Set theme for graphs
 theme_set(theme_classic())
