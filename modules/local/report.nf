@@ -44,6 +44,7 @@ process REPORT {
     def datasources_opt = params.datasources ? "--datasources $params.datasources" : ''
     def heatmaps_cluster_rows_opt = params.heatmaps_cluster_rows ? "--heatmaps_cluster_rows TRUE" : ''
     def heatmaps_cluster_cols_opt = params.heatmaps_cluster_cols ? "--heatmaps_cluster_cols TRUE" : ''
+    def pathway_adj_pval_threshold_opt = params.pathway_adj_pval_threshold == -1 ? "--pathway_adj_pval_threshold $params.adj_pval_threshold" : "--pathway_adj_pval_threshold $params.pathway_adj_pval_threshold"
 
 
     def quote_opt = params.quote != 'NO_FILE5' ? "--path_quote $params.quote" : ''
@@ -87,6 +88,7 @@ process REPORT {
         $datasources_opt \
         $heatmaps_cluster_rows_opt \
         $heatmaps_cluster_cols_opt \
+        $pathway_adj_pval_threshold_opt \
         $quote_opt \
         $software_versions_opt \
         --proj_summary $proj_summary \
