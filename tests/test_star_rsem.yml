@@ -13,6 +13,8 @@
     #      md5sum: ea4b16a379f09fa44c7c541ccab64ce6
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
       md5sum: f1825ed59878115a279db7151b0ed0a1
+    - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
+      md5sum: f0e6bb8eab1e6e08008a5a06934ef6f3
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.pdf
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.png
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.svg
