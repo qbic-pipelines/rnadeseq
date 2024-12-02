@@ -3,6 +3,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## dev
+
+### Added
+
+- [#251](https://github.com/qbic-pipelines/rnadeseq/pull/251) Get raw gene count tables from either Salmon and RSEM analysis paths
+
+
 ## 2.4 - A Pair of Shoes
 
 ### Added
