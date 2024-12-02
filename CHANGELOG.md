@@ -6,14 +6,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## dev
 
 ### Added
-
-- [#251](https://github.com/qbic-pipelines/rnadeseq/pull/251) Get raw gene count tables from either Salmon and RSEM analysis paths
+- [#251](https://github.com/qbic-pipelines/rnadeseq/pull/251) Get raw gene count tables from either Salmon and RSEM analysis
+- [#250](https://github.com/qbic-pipelines/rnadeseq/pull/250) Added clearer error message for incorrect contrast_pairs
 
 ### Changed
 
+### Fixed
+
+- [#252](https://github.com/qbic-pipelines/rnadeseq/pull/252) Fixed github CI bug by updating actions/upload-artifact
+- [#250](https://github.com/qbic-pipelines/rnadeseq/pull/250) Fixed incorrect reading and indexing of contrast_pairs
+
+## 2.4 - A Pair of Shoes
+
+### Added
+
+- [#253](https://github.com/qbic-pipelines/rnadeseq/pull/253) Added separate param for adjusted p-value threshold for gprofiler
+- [#245](https://github.com/qbic-pipelines/rnadeseq/pull/245) Added background gene list to pathway analysis output
+
+### Changed
+
+- [#249](https://github.com/qbic-pipelines/rnadeseq/pull/249) Release 2.4
+- [#248](https://github.com/qbic-pipelines/rnadeseq/pull/248) Version bumps for release 2.4
+- [#247](https://github.com/qbic-pipelines/rnadeseq/pull/247) Changed the report text that shows when the gprofiler GMT file could not be downloaded
+
 ### Removed
 
-
+- [#247](https://github.com/qbic-pipelines/rnadeseq/pull/247) Removed hard-coded comment about usage of gprofiler databases KEGG and REAC in the report
+  
 ## 2.3 - Flowering Orchards
 
 ### Added
