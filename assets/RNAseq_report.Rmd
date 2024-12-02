@@ -46,7 +46,7 @@ params:
     datasources: ''
     heatmaps_cluster_rows: ''
     heatmaps_cluster_cols: ''
-    pathway_pval_threshold: ''
+    pathway_adj_pval_threshold: ''
 
     #Additional args for the report
     path_proj_summary: ''
@@ -2057,8 +2057,8 @@ if (!isProvided(params$datasources)) {
 # ------------------
 # Set default params
 # ------------------
-pathway_pval_threshold <- ifelse(params$pathway_pval_threshold == -1, params$adj_pval_threshold, params$pathway_pval_threshold)
-pathway_pval_text <- format(pathway_pval_threshold, scientific=F)
+pathway_adj_pval_threshold <- ifelse(params$pathway_adj_pval_threshold == -1, params$adj_pval_threshold, params$pathway_adj_pval_threshold)
+pathway_pval_text <- format(pathway_adj_pval_threshold, scientific=F)
 
 # Set theme for graphs
 theme_set(theme_classic())
@@ -2097,7 +2097,7 @@ for (file in contrast_files){
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
-            user_threshold=pathway_pval_threshold,
+            user_threshold=pathway_adj_pval_threshold,
             custom_bg=custom_background,
             domain_scope="custom_annotated"
         )
@@ -2113,7 +2113,7 @@ for (file in contrast_files){
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
-            user_threshold=pathway_pval_threshold,
+            user_threshold=pathway_adj_pval_threshold,
             domain_scope="annotated"
         )
         pathway_gostres_nobg <- gostres_nobg$result
@@ -2127,7 +2127,7 @@ for (file in contrast_files){
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
-            user_threshold=pathway_pval_threshold,
+            user_threshold=pathway_adj_pval_threshold,
             domain_scope="annotated"
         )
     }
@@ -2450,7 +2450,7 @@ if (length(q_list) > 0) {
                     significant=T,
                     correction_method="fdr",
                     sources=datasources,
-                    user_threshold=pathway_pval_threshold,
+                    user_threshold=pathway_adj_pval_threshold,
                     custom_bg=custom_background,
                     domain_scope="custom_annotated"
         )
@@ -2460,7 +2460,7 @@ if (length(q_list) > 0) {
                     significant=T,
                     correction_method="fdr",
                     sources=datasources,
-                    user_threshold=pathway_pval_threshold,
+                    user_threshold=pathway_adj_pval_threshold,
                     domain_scope="annotated"
         )
     }
@@ -2473,7 +2473,7 @@ if (length(q_list) > 0) {
 
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)
-        pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -pathway_pval_threshold
+        pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -pathway_adj_pval_threshold
 
         # limit gostplot y maximum dynamically for all subplots
         for (counter in c(1:length(contrast_files))) {

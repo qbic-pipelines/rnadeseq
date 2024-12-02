@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [#253](https://github.com/qbic-pipelines/rnadeseq/pull/253) Added separate param for adjusted p-value threshold for gprofiler
 - [#245](https://github.com/qbic-pipelines/rnadeseq/pull/245) Added background gene list to pathway analysis output
 
 ### Changed

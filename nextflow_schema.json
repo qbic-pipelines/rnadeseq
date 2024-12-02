@@ -157,10 +157,10 @@
                     "default": false,
                     "description": "Whether to activate column clustering when generating heatmaps of gene expression in enriched pathways."
                 },
-                "pathway_pval_threshold": {
+                "pathway_adj_pval_threshold": {
                     "type": "number",
                     "default": -1,
-                    "description": "p value (float) to use as threshold for pathway analysis. If omitted, will use the value of the parameter adj_pval_threshold (default 0.05)."
+                    "description": "Adjusted p value (float) to use as threshold for pathway analysis. If omitted, will use the value of the parameter adj_pval_threshold (default 0.05)."
                 }
             }
         },
