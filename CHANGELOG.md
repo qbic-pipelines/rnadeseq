@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## dev
 
 ### Added
+
 - [#251](https://github.com/qbic-pipelines/rnadeseq/pull/251) Get raw gene count tables from either Salmon and RSEM analysis
 - [#250](https://github.com/qbic-pipelines/rnadeseq/pull/250) Added clearer error message for incorrect contrast_pairs
 

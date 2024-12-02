@@ -46,6 +46,7 @@ params:
     datasources: ''
     heatmaps_cluster_rows: ''
     heatmaps_cluster_cols: ''
+    pathway_adj_pval_threshold: ''
 
     #Additional args for the report
     path_proj_summary: ''
@@ -1534,19 +1535,21 @@ if (isProvided(params$path_contrast_list)) {
         contrast_names <- append(contrast_names, contname)
     }
 }
-
 if (isProvided(params$path_contrast_pairs)) {
-    contrasts <- read.table(path_contrast_pairs, sep="\t", header = T, colClasses = "character")
+    contrasts <- read.table(params$path_contrast_pairs, sep="\t", header = T, colClasses = "character")
     write.table(contrasts, file="differential_gene_expression/metadata/contrast_pairs.tsv", sep="\t", quote=F, col.names = T, row.names = F)
 
     # Contrast calculation for contrast pairs
     for (i in c(1:nrow(contrasts))) {
         cont <- as.character(contrasts[i,])
-        contname <- cont[0]
-        if (!(cont[2] %in% coefficients & cont[3] %in% coefficients)){
-            stop(paste("Provided contrast name is invalid, it needs to be contained in", coefficients))
+        contname <- cont[1]
+        if (!(cont[2] %in% coefficients)){
+            stop(paste0("Provided contrast name ", cont[2], " is invalid, it needs to be contained in ", paste(coefficients, collapse=", ")))
         }
-        results_DEseq_contrast <- results(cds, contrast=list(cont[1],cont[2]))
+        if (!(cont[3] %in% coefficients)){
+            stop(paste0("Provided contrast name ", cont[3], " is invalid, it needs to be contained in ", paste(coefficients, collapse=", ")))
+        }
+        results_DEseq_contrast <- results(cds, contrast=list(cont[2],cont[3]))
         results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
         print("Analyzing contrast:")
         print(contname)
@@ -2064,6 +2067,8 @@ if (!isProvided(params$datasources)) {
 # ------------------
 # Set default params
 # ------------------
+pathway_adj_pval_threshold <- ifelse(params$pathway_adj_pval_threshold == -1, params$adj_pval_threshold, params$pathway_adj_pval_threshold)
+pathway_pval_text <- format(pathway_adj_pval_threshold, scientific=F)
 
 # Set theme for graphs
 theme_set(theme_classic())
@@ -2102,7 +2107,7 @@ for (file in contrast_files){
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
-            user_threshold=params$adj_pval_threshold,
+            user_threshold=pathway_adj_pval_threshold,
             custom_bg=custom_background,
             domain_scope="custom_annotated"
         )
@@ -2118,7 +2123,7 @@ for (file in contrast_files){
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
-            user_threshold=params$adj_pval_threshold,
+            user_threshold=pathway_adj_pval_threshold,
             domain_scope="annotated"
         )
         pathway_gostres_nobg <- gostres_nobg$result
@@ -2132,7 +2137,7 @@ for (file in contrast_files){
             correction_method="fdr",
             sources=datasources,
             evcodes=TRUE,
-            user_threshold=params$adj_pval_threshold,
+            user_threshold=pathway_adj_pval_threshold,
             domain_scope="annotated"
         )
     }
@@ -2419,7 +2424,7 @@ gost_text,
 
 "\n
 ## Enriched pathways
-The plot below summarizes the pathways that were found significantly enriched in DE genes for each contrast (padj value <= ", pval_text, ").
+The plot below summarizes the pathways that were found significantly enriched in DE genes for each contrast (padj value <= ", pathway_pval_text, ").
 Only contrasts for which an enriched pathway was found are shown.
 Hover over the dots to reveal the pathway names. The table below provides more detail on all enriched pathways."))
 ```
@@ -2455,7 +2460,7 @@ if (length(q_list) > 0) {
                     significant=T,
                     correction_method="fdr",
                     sources=datasources,
-                    user_threshold=params$adj_pval_threshold,
+                    user_threshold=pathway_adj_pval_threshold,
                     custom_bg=custom_background,
                     domain_scope="custom_annotated"
         )
@@ -2465,7 +2470,7 @@ if (length(q_list) > 0) {
                     significant=T,
                     correction_method="fdr",
                     sources=datasources,
-                    user_threshold=params$adj_pval_threshold,
+                    user_threshold=pathway_adj_pval_threshold,
                     domain_scope="annotated"
         )
     }
@@ -2478,7 +2483,7 @@ if (length(q_list) > 0) {
 
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)
-        pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$adj_pval_threshold
+        pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -pathway_adj_pval_threshold
 
         # limit gostplot y maximum dynamically for all subplots
         for (counter in c(1:length(contrast_files))) {
@@ -2699,7 +2704,7 @@ For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2,
 " `, `AnnotationDbi v", version_annotation,
 "` and `", name_species, " v", version_annotation,
 "` were used. ", database_string, ".\n",
-"Pathways were classified as enriched for those genes with an adjusted p-value <= ", pval_text, "."
+"Pathways were classified as enriched for those genes with an adjusted p-value <= ", pathway_pval_text, "."
 ))
 ```
 
