@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [#251](https://github.com/qbic-pipelines/rnadeseq/pull/251) Get raw gene count tables from either Salmon and RSEM analysis
 - [#250](https://github.com/qbic-pipelines/rnadeseq/pull/250) Added clearer error message for incorrect contrast_pairs
 
 ### Changed
@@ -32,7 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - [#247](https://github.com/qbic-pipelines/rnadeseq/pull/247) Removed hard-coded comment about usage of gprofiler databases KEGG and REAC in the report
-
 ## 2.3 - Flowering Orchards
 
 ### Added

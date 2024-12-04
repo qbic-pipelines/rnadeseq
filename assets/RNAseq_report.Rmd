@@ -592,6 +592,10 @@ if (params$input_type %in% c("featurecounts", "smrnaseq")) {
 
         #dds from SummarizedExperiment <se>, then run DESeq
         cds <- DESeqDataSet(se, design = as.formula(eval(parse(text=as.character(design[[1]])))))
+        # get raw counts
+        count_table_names <- merge(x=gene_names, y=assay(cds), by.x = "Ensembl_ID", by.y="row.names")
+        count_table_names <- count_table_names[order(count_table_names$Ensembl_ID),]
+        write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append =          FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
 
 # Load salmon count files
     } else if (params$input_type == "salmon") {
@@ -625,6 +629,10 @@ if (params$input_type %in% c("featurecounts", "smrnaseq")) {
         coldata$combfactor <- metadata$combfactor
         rownames(coldata) <- qbicCodes
         cds <- DESeqDataSetFromTximport(txi=txi.salmon, colData =coldata, design = eval(parse(text=as.character(design[[1]]))))
+        # get raw counts
+        count_table_names <- merge(x=gene_names, y=assay(cds), by.x = "Ensembl_ID", by.y="row.names")
+        count_table_names <- count_table_names[order(count_table_names$Ensembl_ID),]
+        write.table(count_table_names, paste("differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv",sep=""), append =          FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F, qmethod = c("escape", "double"))
     }
 } else {
     stop(paste0("Invalid input type: ", params$input_type, "! Input type must be one of: featurecounts, rsem, salmon, smrnaseq!"))
