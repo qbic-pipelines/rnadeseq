@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - [#247](https://github.com/qbic-pipelines/rnadeseq/pull/247) Removed hard-coded comment about usage of gprofiler databases KEGG and REAC in the report
+
 ## 2.3 - Flowering Orchards
 
 ### Added
