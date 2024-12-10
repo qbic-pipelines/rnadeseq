@@ -2227,9 +2227,32 @@ for (file in contrast_files){
                 scale_fill_continuous(high = "#132B43", low = "#56B1F7") +
                 ggtitle("Enriched pathways") +
                 xlab("") + ylab("Gene fraction (DE genes / Pathway size)")
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
-            ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
+
+            # If the plots are huge ggsave will throw an error even if limitsize=T, so I'm leaving limitsize=F and instead using trycatch
+            tryCatch(
+                {
+                    ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
+                },
+                error=function(e) {
+                    print(paste0("Could not save pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.pdf because of the following error:\n", e))
+                }
+            )
+            tryCatch(
+                {
+                    ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
+                },
+                error=function(e) {
+                    print(paste0("Could not save pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.png because of the following error:\n", e))
+                }
+            )
+            tryCatch(
+                {
+                    ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
+                },
+                error=function(e) {
+                    print(paste0("Could not save pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.svg because of the following error:\n", e))
+                }
+            )
 
             # Plotting heatmaps and KEGG pathways for all pathways
             print("Plotting heatmaps...")
@@ -2412,7 +2435,7 @@ Inside the pathway analysis results folder, a subfolder for each contrast used f
 - `*_gost_pathway_venn_diagram.pdf/png`
     - Venn diagrams showing the numbers of enriched pathways when using a background gene list vs when not using a bg list.
 - `enrichment_plots/*_pathway_enrichment_plot.{pdf/png/svg}`
-    - Barplots showing the proportion of differentially expressed genes in the pathway for a certain pathway database.
+    - Barplots showing the proportion of differentially expressed genes in the pathway for a certain pathway database (might be missing if too many pathways were enriched for fitting into a plot).
 - `gost_pathway_gostplot.{pdf/png/svg}`
     - Manhattan plots displaying all enriched pathways.
 - `KEGG_pathways/`
