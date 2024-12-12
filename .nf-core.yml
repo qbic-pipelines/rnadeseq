@@ -1,0 +1,96 @@
+bump_version: null
+lint:
+  files_exist:
+  - .github/ISSUE_TEMPLATE/bug_report.yml
+  - .github/ISSUE_TEMPLATE/feature_request.yml
+  - .github/PULL_REQUEST_TEMPLATE.md
+  - .github/CONTRIBUTING.md
+  - .github/.dockstore.yml
+  - .github/workflows/branch.yml
+  - .github/workflows/ci.yml
+  - .github/workflows/linting_comment.yml
+  - .github/workflows/linting.yml
+  - assets/multiqc_config.yml
+  - nextflow_schema.json
+  - .github/ISSUE_TEMPLATE/bug_report.yml
+  - .github/ISSUE_TEMPLATE/feature_request.yml
+  - .github/PULL_REQUEST_TEMPLATE.md
+  - .github/CONTRIBUTING.md
+  - .github/.dockstore.yml
+  - .github/workflows/branch.yml
+  - .github/workflows/ci.yml
+  - .github/workflows/linting_comment.yml
+  - .github/workflows/linting.yml
+  - assets/multiqc_config.yml
+  - nextflow_schema.json
+  - CODE_OF_CONDUCT.md
+  - assets/nf-core-rnadeseq_logo_light.png
+  - docs/images/nf-core-rnadeseq_logo_light.png
+  - docs/images/nf-core-rnadeseq_logo_dark.png
+  - .github/ISSUE_TEMPLATE/config.yml
+  - .github/workflows/awstest.yml
+  - .github/workflows/awsfulltest.yml
+  files_unchanged:
+  - .github/ISSUE_TEMPLATE/bug_report.yml
+  - .github/ISSUE_TEMPLATE/config.yml
+  - .github/ISSUE_TEMPLATE/feature_request.yml
+  - .github/PULL_REQUEST_TEMPLATE.md
+  - .github/workflows/branch.yml
+  - .github/workflows/linting_comment.yml
+  - .github/workflows/linting.yml
+  - .github/CONTRIBUTING.md
+  - .github/.dockstore.yml
+  - .github/CONTRIBUTING.md
+  - assets/sendmail_template.txt
+  - .prettierignore
+  - .prettierignore
+  - .github/ISSUE_TEMPLATE/bug_report.yml
+  - .github/ISSUE_TEMPLATE/config.yml
+  - .github/ISSUE_TEMPLATE/feature_request.yml
+  - .github/PULL_REQUEST_TEMPLATE.md
+  - .github/workflows/branch.yml
+  - .github/workflows/linting_comment.yml
+  - .github/workflows/linting.yml
+  - .github/CONTRIBUTING.md
+  - .github/.dockstore.yml
+  - .github/CONTRIBUTING.md
+  - assets/sendmail_template.txt
+  - .prettierignore
+  - .prettierignore
+  - CODE_OF_CONDUCT.md
+  - assets/nf-core-rnadeseq_logo_light.png
+  - docs/images/nf-core-rnadeseq_logo_light.png
+  - docs/images/nf-core-rnadeseq_logo_dark.png
+  - .github/ISSUE_TEMPLATE/bug_report.yml
+  multiqc_config: false
+  nextflow_config: false
+  readme:
+  - nextflow_badge
+  - nextflow_badge
+  - nextflow_badge
+  schema_description: false
+  schema_lint: false
+  schema_params: false
+nf_core_version: 3.0.2
+org_path: null
+repository_type: pipeline
+template:
+  author: Gisela Gabernet, Silvia Morini, Oskar Wacker, QBiC
+  description: Differential gene expression analysis and pathway analysis of RNAseq
+    data
+  force: true
+  is_nfcore: false
+  name: rnadeseq
+  org: qbic-pipelines
+  outdir: .
+  skip_features:
+  - github
+  - ci
+  - github_badges
+  - multiqc
+  - fastqc
+  - nf_schema
+  - adaptivecard
+  - slackreport
+  version: 1.0.0dev
+update: null
