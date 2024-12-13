@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## dev
+## 2.5 - The Potato Eaters
 
 ### Added
 
@@ -14,8 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#260](https://github.com/qbic-pipelines/rnadeseq/pull/260) Release 2.5
+- [#259](https://github.com/qbic-pipelines/rnadeseq/pull/259) Bump versions for release 2.5
+
 ### Fixed
 
+- [#258](https://github.com/qbic-pipelines/rnadeseq/pull/258) Fixed some comments for release (removed excess checks for pathway_adj_pval_threshold, added default explanation of that param to Execute_report.R, fixed some whitespace)
 - [#252](https://github.com/qbic-pipelines/rnadeseq/pull/252) Fixed github CI bug by updating actions/upload-artifact
 - [#250](https://github.com/qbic-pipelines/rnadeseq/pull/250) Fixed incorrect reading and indexing of contrast_pairs
 
