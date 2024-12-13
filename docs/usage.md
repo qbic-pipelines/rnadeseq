@@ -34,6 +34,9 @@
   - [`--vst_genes_number`](#--vst_genes_number)
   - [`--round_DE`](#--round_DE)
   - [`--run_pathway_analysis`](#--run_pathway_analysis)
+  - [`--pathway_adj_pval_threshold`](#--pathway_adj_pval_threshold)
+  - [`--heatmaps_cluster_rows`](#--heatmaps_cluster_rows)
+  - [`--heatmaps_cluster_cols`](#--heatmaps_cluster_cols)
   - [`--input_type`](#--input_type)
   - [`--multiqc`](#--multiqc)
   - [`--project_summary`](#--project_summary)
@@ -48,6 +51,7 @@
   - [`--custom_gmt`](#--custom_gmt)
   - [`--set_background`](#--set_background)
   - [`--custom_background`](#--custom_background)
+  - [`--datasources`](#--datasources)
   - [`--igenomes_base`](#--igenomes_base)
   - [`--igenomes_ignore`](#--igenomes_ignore)
 - [Job resources](#job-resources)
@@ -373,6 +377,18 @@ Integer indicating to how many decimals to round the DE results (default: -1, in
 
 Set this flag to run pathway analysis, otherwise, this step will be skipped.
 
+### `--pathway_adj_pval_threshold`
+
+Use this param to specifically set the adjusted p value threshold for pathway enrichment analysis (will otherwise use the same adjusted p value threshold as for the DE analysis, as set with the param `--adj_pval_threshold`).
+
+### `--heatmaps_cluster_rows`
+
+Use this flag to set whether the heatmaps of gene expression in enriched pathways should by clustered row-wise (default true).
+
+### `--heatmaps_cluster_cols`
+
+Use this flag to set whether the heatmaps of gene expression in enriched pathways should by clustered column-wise (default false).
+
 ### `--input_type`
 
 This tells the pipeline which type of input dataset is provided. Must be one of 'featurecounts', 'rsem', 'salmon', 'smrnaseq', default: featurecounts.
@@ -449,6 +465,10 @@ Whether to restrict pathway analysis to a background gene list (default: true, w
 ### `--custom_background`
 
 Path to custom background TXT file with one gene ID per line to use as background genes, not necessary if `--run_pathway_analysis = false` or `--set_background = false`.
+
+### `--datasources`
+
+Which datasources to use for pathway analysis, comma-separated string like 'KEGG,REAC'. See param 'sources' on https://rdrr.io/cran/gprofiler2/man/gost.html for a list of available sources. If not set, will use all sources. If set while a --custom_gmt is provided, will filter the GMT for these datasources (will not filter for the GO subtypes like GO:BP, just for GO).
 
 ## Job resources
 

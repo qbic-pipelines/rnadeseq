@@ -3,10 +3,31 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.5 - The Potato Eaters
+
+### Added
+
+- [#256](https://github.com/qbic-pipelines/rnadeseq/pull/256) Add trycatch to pathway enrichment plots so they are skipped when too large instead of throwing an error
+- [#255](https://github.com/qbic-pipelines/rnadeseq/pull/255) Add usage docu for datasources, heatmaps_cluster_rows/cols and pathway_adj_pval_threshold params
+- [#251](https://github.com/qbic-pipelines/rnadeseq/pull/251) Get raw gene count tables from either Salmon and RSEM analysis
+- [#250](https://github.com/qbic-pipelines/rnadeseq/pull/250) Added clearer error message for incorrect contrast_pairs
+
+### Changed
+
+- [#260](https://github.com/qbic-pipelines/rnadeseq/pull/260) Release 2.5
+- [#259](https://github.com/qbic-pipelines/rnadeseq/pull/259) Bump versions for release 2.5
+
+### Fixed
+
+- [#258](https://github.com/qbic-pipelines/rnadeseq/pull/258) Fixed some comments for release (removed excess checks for pathway_adj_pval_threshold, added default explanation of that param to Execute_report.R, fixed some whitespace)
+- [#252](https://github.com/qbic-pipelines/rnadeseq/pull/252) Fixed github CI bug by updating actions/upload-artifact
+- [#250](https://github.com/qbic-pipelines/rnadeseq/pull/250) Fixed incorrect reading and indexing of contrast_pairs
+
 ## 2.4 - A Pair of Shoes
 
 ### Added
 
+- [#253](https://github.com/qbic-pipelines/rnadeseq/pull/253) Added separate param for adjusted p-value threshold for gprofiler
 - [#245](https://github.com/qbic-pipelines/rnadeseq/pull/245) Added background gene list to pathway analysis output
 
 ### Changed

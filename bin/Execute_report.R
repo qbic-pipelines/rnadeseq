@@ -37,6 +37,7 @@ option_list = list(
     make_option("--datasources", type="character", default=NULL, help="Which datasources to use for pathway analysis.", metavar="character"),
     make_option("--heatmaps_cluster_rows", action="store_true", default=FALSE, help="Whether to activate row clustering when generating heatmaps of gene expression in enriched pathways."),
     make_option("--heatmaps_cluster_cols", action="store_true", default=FALSE, help="Whether to activate column clustering when generating heatmaps of gene expression in enriched pathways."),
+    make_option("--pathway_adj_pval_threshold", type="double", default=-1, help="Which adjusted p value threshold to use for pathway analysis. Will by default use the same value as the value of --adj_pval_threshold (default 0.05)."),
 
     make_option(c("-s", "--proj_summary"), type="character", default=NULL, help="Project summary file", metavar="character"),
     make_option(c("--path_quote"), type="character", default=NULL, help="Path to the quote PDF", metavar="character"),
@@ -89,6 +90,7 @@ rmarkdown::render(opt$report, output_file = opt$output, knit_root_dir = wd, outp
                                 datasources = opt$datasources,
                                 heatmaps_cluster_rows = opt$heatmaps_cluster_rows,
                                 heatmaps_cluster_cols = opt$heatmaps_cluster_cols,
+                                pathway_adj_pval_threshold = opt$pathway_adj_pval_threshold,
 
                                 path_proj_summary = opt$proj_summary,
                                 path_quote = opt$path_quote,
