@@ -265,6 +265,7 @@ dir.create("differential_gene_expression/plots")
 dir.create("differential_gene_expression/plots/boxplots_example_genes")
 dir.create("differential_gene_expression/plots/boxplots_requested_genes")
 dir.create("differential_gene_expression/plots/further_diagnostics_plots")
+dir.create("differential_gene_expression/plots/volcano_plots/")
 dir.create("differential_gene_expression/gene_counts_tables")
 dir.create("differential_gene_expression/DE_genes_tables")
 dir.create("differential_gene_expression/allgenes")
@@ -1717,14 +1718,18 @@ The table for download can be found [here](./differential_gene_expression/final_
 
 Additional tables for all individual contrasts are provided [here](./differential_gene_expression/DE_genes_tables).
 
-## Volcano plots of DE genes
+## Volcano plots of DE genes {.tabset .tabset-pills}
 
 Volcano plots display the DE genes in Log2 Fold Change values (x axis)
 against their adjusted p-value (y axis) in a form of a -log10. Only DE genes are colored red.
-Genes were considered DE with a padj <= `r pval_text` (horizontal drawn through line) and in addition a Log2FC >= `r logFC_text` or <= -`r logFC_text` (vertical grey lines). Values above the horizontal dashed line were capped.
-Here, volcano plots for all considered contrasts are shown. Hover over the dots to show the gene names.
+Features were considered as differentially expressed when they exhibit a padj <= `r pval_text` (horizontal drawn through line)
+and a Log2FC >= `r logFC_text` or <= -`r logFC_text` (vertical grey lines).
+Here, volcano plots for all considered contrasts are shown. If a list of requested genes was provided as input,
+the plot will show the label of these features of interest.
+If no list of genes was provided, the plot annotates a subset of the most significant DE features with their names.
+The original plots can be downloaded [here](./differential_gene_expression/plots/volcano_plots/).
 
-```{r volcano_plot, out.width="100%", out.height="100%"}
+```{r volcano_plot, out.width="100%", out.height="100%", eval=FALSE}
 
 # Set plot theme
 theme_set(theme_bw(base_family = "ArialMT") +
@@ -1748,7 +1753,7 @@ for (file in allgenes_files){
 DE_all <- ldply(table_list, rbind)
 DE_all$logpval <- -log10(DE_all$padj)
 DE_all$truelogpval <- DE_all$logpval # Save true value for hovertext
-DE_all$logpval[DE_all$logpval > 16] <- 17
+# DE_all$logpval[DE_all$logpval > 16] <- 17
 DE_all <- na.omit(DE_all)
 DE_all <- DE_all %>% mutate(color = ifelse(abs(DE_all$log2FoldChange) >= params$logFC_threshold & DE_all$logpval >= -log10(params$adj_pval_threshold), "red", "black")) # Create column which assigns each entry a plot color so that coloring is consistent even when no DE genes are found
 log2FoldChange_min <- min(DE_all$log2FoldChange)
@@ -1760,13 +1765,13 @@ log2FoldChange_quotient <- length(seq(log2FoldChange_min, log2FoldChange_max, 10
 pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name,
                                                                     "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2),
                                                                     "<br>", "-Log10padj: ", formatC(truelogpval, digits=2)))) +
-        geom_point(alpha=0.5, width = 0.2, aes(color=ifelse(DE_all$color == "red", "Differentially expressed genes", "Non-differentially expressed genes"))) +
+        geom_point(alpha=0.5, width = 0.2, aes(color=ifelse(DE_all$color == "red", "Differentially expressed features", "Non-differentially expressed features"))) +
         geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
         geom_hline(yintercept = -log10(params$adj_pval_threshold), size = 0.2, color = "grey") +
         geom_vline(xintercept = -params$logFC_threshold, size = 0.2, color = "grey") +
         geom_vline(xintercept = params$logFC_threshold, size = 0.2, color = "grey") +
         scale_color_manual(name = "", values=c("red", "black")) +
-        scale_y_continuous(limits = c(1, 18)) +
+        scale_y_continuous(limits = c(1, max(DE_all$logpval))) +
         facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
         ylab("-log 10 padj") + xlab("Log2 Fold Change") +
         theme(panel.spacing = unit(ifelse(length(allgenes_files)>2, 0.1, 0.6), "lines")) +
@@ -1779,6 +1784,192 @@ pg[['x']][['layout']][['annotations']][[1]][['y']] <- -0.05
 #add export button to plot
 config(pg, modeBarButtonsToAdd = list(svg_exp)) %>% layout(margin = list(l=80, b = ifelse(length(allgenes_files)>2, 150, 100)), width=700, height = 500*length(allgenes_files))
 ```
+
+
+```{r enhanced_volcano, echo=FALSE, message=FALSE, warning=FALSE}
+
+library(EnhancedVolcano)
+library(ggplot2)
+
+theme_set(theme_bw(base_family = "ArialMT") +
+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), text = element_text(family="ArialMT")))
+
+
+thousandFormat <- function(x){
+  formatC(x, format='f', big.mark=',', digits=0)
+  }
+
+
+min_max_normalization <- function(x) {
+    return ((x - min(x)) / (max(x) - min(x)))
+}
+
+
+allgenes_files <- list.files(path=paste0(wd, "/differential_gene_expression/allgenes/"))
+volcano_list <-  c() #vector("list", length = length(allgenes_files))
+contrast_list <- c() #vector("list", length = length(allgenes_files))
+
+
+for (file in allgenes_files){
+
+    # Reading DE genes list
+    fname <- tools::file_path_sans_ext(basename(file))
+    DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/allgenes/", file), sep="\t", header = T)
+    DE_genes$contrast <- rep(fname, nrow(DE_genes))
+    contrast_len <- sapply(strsplit(fname, '_'), length)
+    # Rename Contrast for plot
+    # DE_contrast_condition_conditionName_conditionA_vs_conditionB --> conditionA vs conditionB
+    contrast_list <- c(contrast_list, sapply(strsplit(fname, '_'), function(x) paste(x[5:contrast_len], collapse=' ')))
+
+
+    # label: gene_name
+    # x: log2FoldChange
+    # y: -log10(padj)
+    # convert zeros to small value (as in EnhancedVolcano)
+
+    DE_genes[which(DE_genes[['padj']] == 0), 'padj'] <- min(
+    DE_genes[which(DE_genes[['padj']] != 0), 'padj'], na.rm = TRUE) * 10^-1
+
+    # Imputing missing values with 1 so they do not appear as significant
+    # DE_genes$padj[is.na(DE_genes$padj)] <- 1
+    # Replace 0 by very small number, as -log10(0) = Inf
+    # DE_genes[which(DE_genes[['pvalue']] == 0), 'pvalue'] <- 1e-6
+    # DE_genes[which(DE_genes[['padj']] == 0), 'padj'] <- 1e-6
+
+    # Get Number of DE features
+    numDE <- DE_genes %>%
+        filter(padj <= params$adj_pval_threshold, abs(log2FoldChange) >= params$logFC_threshold) %>%
+        nrow()
+
+    # Plot old volcano version static and save
+    DE_genes$logpval <- -log10(DE_genes$padj)
+    # Save true value for hovertext
+    DE_genes$truelogpval <- DE_genes$logpval
+    # Scale high -log10(padj) to smaller range
+    # DE_genes$logpval[DE_genes$logpval > 60] <- min_max_normalization(DE_genes$logpval > 60)
+    DE_genes <- DE_genes %>% mutate(color = ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold) &
+                        (DE_genes$logpval >= -log10(params$adj_pval_threshold)),
+                        "red", "black"))
+    log2FoldChange_min <- min(DE_genes$log2FoldChange)
+    log2FoldChange_max <- max(DE_genes$log2FoldChange)
+    log2FoldChange_quotient <- length(seq(log2FoldChange_min, log2FoldChange_max, 10))
+
+    pg <- ggplot(DE_genes, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name,
+                                                                        "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2),
+                                                                        "<br>", "-Log10padj: ", truelogpval))) +
+            geom_point(alpha=0.5, aes(colour=ifelse(color == "red", "DE features",
+                                                                    "Non_DE features")),
+                                                                    na.rm=TRUE) +
+            geom_hline(yintercept = -log10(params$adj_pval_threshold), linewidth = 0.2, color = "grey") +
+            geom_vline(xintercept = -1, linewidth = 0.2, color = "grey") +
+            geom_vline(xintercept = 1, linewidth = 0.2, color = "grey") +
+            scale_color_manual(name = "", values=c("red", "black")) +
+            scale_y_continuous(limits = c(-1, max(-log10(DE_genes[['padj']]), na.rm=TRUE) + 5)) +
+            ylab("-log 10 padj") + xlab("Log2 Fold Change") +
+            theme(panel.spacing = unit(ifelse(length(allgenes_files)>2, 0.1, 0.6), "lines")) +
+            scale_x_continuous(breaks = seq(-200, 200, ifelse(log2FoldChange_quotient<3, 1, 5))) +
+            ggtitle(paste("DE results", DE_genes$contrast[1]),
+                subtitle=paste0("total=", thousandFormat(nrow(DE_genes)), ", DE_features=", thousandFormat(numDE)))
+
+
+    # Save static plot
+    ggsave(filename = file.path(wd, "/differential_gene_expression", "plots", "volcano_plots", paste0(fname, ".png")),
+    plot = pg,
+    width = 8,
+    height = 5)
+
+    # Define smaller plotly size
+    ppg <- partial_bundle(ggplotly(pg, tooltip = "text")) %>% layout(autosize = F, width = 600, height = 400)
+
+    # Export interactive plot
+    saveWidget(ppg, file = file.path(wd, "/differential_gene_expression", "plots", "volcano_plots", paste0(fname, ".html")))
+
+
+    if (isProvided(params$path_genelist)) {
+        requested_genes <- read.table(params$path_genelist, col.names = "gene_name")
+        requested_genes <- sapply(as.vector(requested_genes$gene_name), toupper)
+        DE_genes$GENE_NAME <- sapply(DE_genes$gene_name, toupper)
+        genes_to_label <- requested_genes[requested_genes %in% DE_genes$GENE_NAME]
+
+        # Enhanced volcano plot
+        p <- EnhancedVolcano(DE_genes,
+                    lab = DE_genes$GENE_NAME,
+                    x = 'log2FoldChange',
+                    y = 'padj',
+                    selectLab = as.list(genes_to_label),
+                    pCutoff = 5e-2,
+                    legendLabels = c("NS", paste0("Log2FC >|", params$logFC_threshold, "|"),
+                                    paste0("p_adj<", params$adj_pval_threshold),
+                                    paste0("DE:", "p_adj<", params$adj_pval_threshold, " & Log2FC >|", params$logFC_threshold, "|")),
+                    title = paste('Differential expression'),
+                    subtitle = DE_genes$contrast,
+                    caption = bquote(
+                        "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)), " features")) *
+                        ", DE features=" ~ .(paste0(thousandFormat(numDE)))
+                        )
+                    )
+
+        p <- p + theme(plot.caption = element_text(hjust = 1))
+        ggsave(filename = file.path(wd, "differential_gene_expression", "plots", "volcano_plots", paste0(fname, "_enhanced.png")),
+            plot = p,
+            width = 9,
+            height = 8)
+
+        # Save enhanced plots into list
+        volcano_list[[length(volcano_list) + 1]] <- p
+
+
+    } else if (!isProvided(params$path_genelist))  {
+        # Enhanced volcano plot
+        p <- EnhancedVolcano(DE_genes,
+                    lab = DE_genes$gene_name,
+                    x = 'log2FoldChange',
+                    y = 'padj',
+                    pCutoff = 5e-2,
+                    legendLabels = c("NS", paste0("Log2FC >|", params$logFC_threshold, "|"),
+                                    paste0("p_adj<", params$adj_pval_threshold),
+                                    paste0("DE:", "p_adj<", params$adj_pval_threshold, " & Log2FC >|", params$logFC_threshold, "|")),
+                    title = paste('Differential expression'),
+                    subtitle = DE_genes$contrast,
+                    caption = bquote(
+                        "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)), " features")) *
+                        ", DE features=" ~ .(paste0(thousandFormat(numDE)))
+                        )
+                    )
+
+        p <- p + theme(plot.caption = element_text(hjust = 1))
+        ggsave(filename = file.path(wd, "differential_gene_expression", "plots", "volcano_plots", paste0(fname, "_enhanced.png")),
+            plot = p,
+            width = 9,
+            height = 8)
+
+        # Save enhanced plots into list
+        volcano_list[[length(volcano_list) + 1]] <- p
+
+        }
+
+
+
+    }
+
+```
+
+
+
+
+```{r show_enhanced_volcano, results = 'asis', fig.height=7, fig.width=7, message=FALSE, warning=FALSE}
+
+# Show the volcano plots in tabs
+for (i in 1:length(volcano_list)){
+  cat("### Contrast: ", contrast_list[[i]], "\n")
+  cat("\n")
+  print(volcano_list[[i]])
+  cat("\n\n")
+}
+
+```
+
+
 
 ```{r box_plots_noBatch, echo=F, message=F}
 # Decide which object to use for boxplots without batch correction
