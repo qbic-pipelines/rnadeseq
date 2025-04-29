@@ -41,6 +41,7 @@ This directory contains the zipped results. When unzipping them, the following s
   - `boxplots_example_genes/`: boxplots of the normalized gene counts for each of the sample groups for example genes.
   - `boxplots_requested_genes/`: boxplots of the normalized gene counts for each of the sample groups for the list of requested genes.
   - `further_diagnostics_plots/`: plots for diagnostics of the differential gene analysis procedure.
+  - `volcano_plots/`: volcano plots with differentially expressed features. Output comprises static (`.png`) and interactive plots (`.html`).
 
 ## Pathway analysis
 
