@@ -1821,20 +1821,15 @@ for (file in allgenes_files){
     # DE_contrast_condition_conditionName_conditionA_vs_conditionB --> conditionA vs conditionB
     contrast_list <- c(contrast_list, sapply(strsplit(fname, '_'), function(x) paste(x[5:contrast_len], collapse=' ')))
 
-
     # label: gene_name
     # x: log2FoldChange
     # y: -log10(padj)
-    # convert zeros to small value (as in EnhancedVolcano)
 
+    DE_genes <- na.omit(DE_genes)
+
+    # convert zeros to small value (as in EnhancedVolcano)
     DE_genes[which(DE_genes[['padj']] == 0), 'padj'] <- min(
     DE_genes[which(DE_genes[['padj']] != 0), 'padj'], na.rm = TRUE) * 10^-1
-
-    # Imputing missing values with 1 so they do not appear as significant
-    # DE_genes$padj[is.na(DE_genes$padj)] <- 1
-    # Replace 0 by very small number, as -log10(0) = Inf
-    # DE_genes[which(DE_genes[['pvalue']] == 0), 'pvalue'] <- 1e-6
-    # DE_genes[which(DE_genes[['padj']] == 0), 'padj'] <- 1e-6
 
     # Get Number of DE features
     numDE <- DE_genes %>%
