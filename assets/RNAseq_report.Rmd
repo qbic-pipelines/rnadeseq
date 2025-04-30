@@ -1753,7 +1753,7 @@ for (file in allgenes_files){
 DE_all <- ldply(table_list, rbind)
 DE_all$logpval <- -log10(DE_all$padj)
 DE_all$truelogpval <- DE_all$logpval # Save true value for hovertext
-DE_all$logpval[DE_all$logpval > 16] <- 17 # Set high values to max value of 17
+DE_all$logpval[DE_all$logpval > 16] <- 17
 DE_all <- na.omit(DE_all)
 DE_all <- DE_all %>% mutate(color = ifelse(abs(DE_all$log2FoldChange) >= params$logFC_threshold & DE_all$logpval >= -log10(params$adj_pval_threshold), "red", "black")) # Create column which assigns each entry a plot color so that coloring is consistent even when no DE genes are found
 log2FoldChange_min <- min(DE_all$log2FoldChange)
@@ -1765,13 +1765,13 @@ log2FoldChange_quotient <- length(seq(log2FoldChange_min, log2FoldChange_max, 10
 pg <- ggplot(DE_all, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name,
                                                                     "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2),
                                                                     "<br>", "-Log10padj: ", formatC(truelogpval, digits=2)))) +
-        geom_point(alpha=0.5, width = 0.2, aes(color=ifelse(DE_all$color == "red", "Differentially expressed features", "Non-differentially expressed features"))) +
+        geom_point(alpha=0.5, width = 0.2, aes(color=ifelse(DE_all$color == "red", "Differentially expressed genes", "Non-differentially expressed genes"))) +
         geom_hline(yintercept = 16, linetype= "dashed", size = 0.2, color = "grey") +
         geom_hline(yintercept = -log10(params$adj_pval_threshold), size = 0.2, color = "grey") +
         geom_vline(xintercept = -params$logFC_threshold, size = 0.2, color = "grey") +
         geom_vline(xintercept = params$logFC_threshold, size = 0.2, color = "grey") +
         scale_color_manual(name = "", values=c("red", "black")) +
-        scale_y_continuous(limits = c(1, max(DE_all$logpval))) +
+        scale_y_continuous(limits = c(1, 18)) +
         facet_wrap(~contrast, ncol=1, scales = "free_x", shrink = FALSE) +
         ylab("-log 10 padj") + xlab("Log2 Fold Change") +
         theme(panel.spacing = unit(ifelse(length(allgenes_files)>2, 0.1, 0.6), "lines")) +
@@ -1799,15 +1799,9 @@ thousandFormat <- function(x){
   formatC(x, format='f', big.mark=',', digits=0)
   }
 
-
-min_max_normalization <- function(x) {
-    return ((x - min(x)) / (max(x) - min(x)))
-}
-
-
 allgenes_files <- list.files(path=paste0(wd, "/differential_gene_expression/allgenes/"))
-volcano_list <-  c() #vector("list", length = length(allgenes_files))
-contrast_list <- c() #vector("list", length = length(allgenes_files))
+volcano_list <-  c()
+contrast_list <- c()
 
 
 for (file in allgenes_files){
@@ -1840,8 +1834,6 @@ for (file in allgenes_files){
     DE_genes$logpval <- -log10(DE_genes$padj)
     # Save true value for hovertext
     DE_genes$truelogpval <- DE_genes$logpval
-    # Scale high -log10(padj) to smaller range
-    # DE_genes$logpval[DE_genes$logpval > 60] <- min_max_normalization(DE_genes$logpval > 60)
     DE_genes <- DE_genes %>% mutate(color = ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold) &
                         (DE_genes$logpval >= -log10(params$adj_pval_threshold)),
                         "red", "black"))
@@ -1951,7 +1943,7 @@ for (file in allgenes_files){
 ```
 
 
-<!-- Put contrasts in tabs in Report -->
+<!-- Display volcano plots in report in tabs -->
 
 ```{r show_enhanced_volcano, results = 'asis', fig.height=7, fig.width=7, message=FALSE, warning=FALSE}
 

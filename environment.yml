@@ -1,7 +1,7 @@
 # You can use this file to create a conda environment for this pipeline:
 #   conda env create -f environment.yml
 # use this to find packages: https://anaconda.org/
-name: qbic-pipelines-rnadeseq-2.5-dev
+name: qbic-pipelines-rnadeseq-dev
 channels:
   - bioconda
   - conda-forge
@@ -10,7 +10,7 @@ channels:
 dependencies:
   - bioconda::bioconductor-annotationdbi=1.62.2
   - bioconda::bioconductor-deseq2=1.40.2
-  - bioconda::bioconductor-enhancedvolcano
+  - bioconda::bioconductor-enhancedvolcano=1.20.0
   - bioconda::bioconductor-genefilter=1.82.1
   - bioconda::bioconductor-genomeinfodbdata=1.2.10
   - bioconda::bioconductor-impute=1.74.1
