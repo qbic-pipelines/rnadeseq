@@ -126,4 +126,3 @@
     - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_MCF7_vs_GM12878.html
     - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_MCF7_vs_GM12878.png
     - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_MCF7_vs_GM12878_enhanced.png
-
