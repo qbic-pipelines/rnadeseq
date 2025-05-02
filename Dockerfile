@@ -10,7 +10,7 @@ RUN mamba env create --file /environment.yml -p /opt/conda/envs/qbic-pipelines-r
 RUN apt-get update -qq && \
     apt-get install -y zip procps ghostscript
 # Add conda installation dir to PATH
-ENV PATH /opt/conda/envs/qbic-pipelines-rnadeseq-dev/bin:$PATH
+ENV PATH=/opt/conda/envs/qbic-pipelines-rnadeseq-dev/bin:$PATH
 # Dump the details of the installed packates to a file for posterity
 RUN mamba env export --name qbic-pipelines-rnadeseq-dev > qbic-pipelines-rnadeseq-dev.yml
 # Instruct R processes to use these empty files instead of clashing with a local config
