@@ -3,6 +3,18 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.6 - dev
+
+### Added
+
+- [#267](https://github.com/qbic-pipelines/rnadeseq/pull/261) Add EnhancedVolcano plots and export to output results
+
+### Changed
+
+- [#267](https://github.com/qbic-pipelines/rnadeseq/pull/261) Export static and interactive plotly volcano plots
+
+### Fixed
+
 ## 2.5 - The Potato Eaters
 
 ### Added
