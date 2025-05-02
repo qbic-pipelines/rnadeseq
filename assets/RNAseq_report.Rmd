@@ -1796,8 +1796,8 @@ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), te
 
 
 thousandFormat <- function(x){
-  formatC(x, format='f', big.mark=',', digits=0)
-  }
+    formatC(x, format='f', big.mark=',', digits=0)
+}
 
 allgenes_files <- list.files(path=paste0(wd, "/differential_gene_expression/allgenes/"))
 volcano_list <-  c()
@@ -1822,8 +1822,7 @@ for (file in allgenes_files){
     DE_genes <- na.omit(DE_genes)
 
     # convert zeros to small value (as in EnhancedVolcano)
-    DE_genes[which(DE_genes[['padj']] == 0), 'padj'] <- min(
-    DE_genes[which(DE_genes[['padj']] != 0), 'padj'], na.rm = TRUE) * 10^-1
+    DE_genes[which(DE_genes[['padj']] == 0), 'padj'] <- min(DE_genes[which(DE_genes[['padj']] != 0), 'padj'], na.rm = TRUE) * 10^-1
 
     # Get Number of DE features
     numDE <- DE_genes %>%
@@ -1841,12 +1840,15 @@ for (file in allgenes_files){
     log2FoldChange_max <- max(DE_genes$log2FoldChange)
     log2FoldChange_quotient <- length(seq(log2FoldChange_min, log2FoldChange_max, 10))
 
-    pg <- ggplot(DE_genes, aes(x=log2FoldChange, y=logpval, text=paste("Gene: ", gene_name,
-                                                                        "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2),
-                                                                        "<br>", "-Log10padj: ", formatC(truelogpval, digits=2, format='f')))) +
-            geom_point(alpha=0.5, aes(colour=ifelse(color == "red", "DE features",
-                                                                    "Non_DE features")),
-                                                                    na.rm=TRUE) +
+    pg <- ggplot(
+            DE_genes,
+            aes(
+                x=log2FoldChange,
+                y=logpval,
+                text=paste("Gene: ", gene_name,
+                            "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2),
+                            "<br>", "-Log10padj: ", formatC(truelogpval, digits=2, format='f')))) +
+            geom_point(alpha=0.5, aes(colour=ifelse(color == "red", "DE features", "Non_DE features")), na.rm=TRUE) +
             geom_hline(yintercept = -log10(params$adj_pval_threshold), linewidth = 0.2, color = "grey") +
             geom_vline(xintercept = -1, linewidth = 0.2, color = "grey") +
             geom_vline(xintercept = 1, linewidth = 0.2, color = "grey") +
@@ -1855,15 +1857,17 @@ for (file in allgenes_files){
             ylab("-log 10 padj") + xlab("Log2 Fold Change") +
             theme(panel.spacing = unit(ifelse(length(allgenes_files)>2, 0.1, 0.6), "lines")) +
             scale_x_continuous(breaks = seq(-200, 200, ifelse(log2FoldChange_quotient<3, 1, 5))) +
-            ggtitle(paste("DE results", DE_genes$contrast[1]),
+            ggtitle(
+                paste("DE results", DE_genes$contrast[1]),
                 subtitle=paste0("total=", thousandFormat(nrow(DE_genes)), ", DE_features=", thousandFormat(numDE)))
 
 
     # Save static plot
-    ggsave(filename = file.path(wd, "/differential_gene_expression", "plots", "volcano_plots", paste0(fname, ".png")),
-    plot = pg,
-    width = 8,
-    height = 5)
+    ggsave(
+        filename = file.path(wd, "/differential_gene_expression", "plots", "volcano_plots", paste0(fname, ".png")),
+        plot = pg,
+        width = 8,
+        height = 5)
 
     # Define smaller plotly size
     ppg <- partial_bundle(ggplotly(pg, tooltip = "text")) %>% layout(autosize = F, width = 600, height = 400)
@@ -1898,7 +1902,8 @@ for (file in allgenes_files){
                     )
 
         p <- p + theme(plot.caption = element_text(hjust = 1))
-        ggsave(filename = file.path(wd, "differential_gene_expression", "plots", "volcano_plots", paste0(fname, "_enhanced.png")),
+        ggsave(
+            filename = file.path(wd, "differential_gene_expression", "plots", "volcano_plots", paste0(fname, "_enhanced.png")),
             plot = p,
             width = 9,
             height = 8)
@@ -1928,7 +1933,8 @@ for (file in allgenes_files){
                     )
 
         p <- p + theme(plot.caption = element_text(hjust = 1))
-        ggsave(filename = file.path(wd, "differential_gene_expression", "plots", "volcano_plots", paste0(fname, "_enhanced.png")),
+        ggsave(
+            filename = file.path(wd, "differential_gene_expression", "plots", "volcano_plots", paste0(fname, "_enhanced.png")),
             plot = p,
             width = 9,
             height = 8)
@@ -1949,10 +1955,10 @@ for (file in allgenes_files){
 
 # Show the volcano plots in tabs
 for (i in 1:length(volcano_list)){
-  cat("### Contrast: ", contrast_list[[i]], "\n")
-  cat("\n")
-  print(volcano_list[[i]])
-  cat("\n\n")
+    cat("### Contrast: ", contrast_list[[i]], "\n")
+    cat("\n")
+    print(volcano_list[[i]])
+    cat("\n\n")
 }
 
 ```

@@ -61,3 +61,9 @@
     - path: results_test/differential_gene_expression/plots/PCA_plot.png
     - path: results_test/differential_gene_expression/plots/PCA_plot.svg
     - path: results_test/RNAseq_report.html
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_genotype_WT_vs_KO.html
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_genotype_WT_vs_KO.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_genotype_WT_vs_KO_enhanced.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_treatment_Treated_vs_Control.html
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_treatment_Treated_vs_Control.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_treatment_Treated_vs_Control_enhanced.png

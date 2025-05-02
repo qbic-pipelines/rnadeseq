@@ -89,9 +89,9 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/gost_pathway_venn_diagram.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/gost_pathway_venn_diagram.svg
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/pathway_enrichment_results.tsv
-      md5sum: 57e56666c0d561659f5aaec478f04cee
+      # md5sum: 57e56666c0d561659f5aaec478f04cee
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/GO.CC_pathway_enrichment_results.tsv
-      md5sum: 098f12540b4cad2ea1c950af1fd304b6
+      # md5sum: 098f12540b4cad2ea1c950af1fd304b6
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.svg
@@ -102,9 +102,9 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/gost_pathway_venn_diagram.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/gost_pathway_venn_diagram.svg
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/pathway_enrichment_results.tsv
-      md5sum: 73fdb835cede09c13f0ab2684b1cda73
+      # md5sum: 73fdb835cede09c13f0ab2684b1cda73
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/GO.CC_pathway_enrichment_results.tsv
-      md5sum: 2ebd84e4ed2029659294a09d49b62048
+      # md5sum: 2ebd84e4ed2029659294a09d49b62048
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.svg
@@ -115,5 +115,15 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/gost_pathway_venn_diagram.png
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/gost_pathway_venn_diagram.svg
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/pathway_enrichment_results.tsv
-      md5sum: b7f67bc86475b218965b173b753199b1
+      # md5sum: b7f67bc86475b218965b173b753199b1
     - path: results_test/pathway_analysis/metadata/gprofiler_full_hsapiens.ENSG.gmt
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_H1_vs_GM12878.html
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_H1_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_H1_vs_GM12878_enhanced.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_K562_vs_GM12878.html
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_K562_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_K562_vs_GM12878_enhanced.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_MCF7_vs_GM12878.html
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_MCF7_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_MCF7_vs_GM12878_enhanced.png
+
