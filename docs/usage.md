@@ -276,11 +276,11 @@ Linear model function to calculate the contrasts (TXT). Variable names should be
 
 ## Contrasts
 
-There are three different parameters that can be used to define contrasts, which are explained in the following sections. One or multiple contrast input files can be provided, if multiple are provided, the contrasts in the multiple files will be added to the report.
+Contrasts represent 2 or more conditions to be compared. One should compare the **Experiment** versus **Control** for correct differential expression analysis (and not the other way round). There are three different parameters that can be used to define contrasts, which are explained in the following sections. One or multiple contrast input files can be provided, if multiple are provided, the contrasts in the multiple files will be added to the report.
 
 ### Default
 
-By default, DESeq2 will calculate some pairwise contrasts given the linear model file. If you do not provide any contrast files, the differential gene expression analysis will be performed with the default contrasts as calculated by DESeq2. Try this option first, if you are unsure about your contrasts.
+By default, DESeq2 will calculate pairwise contrasts given a linear model file. If you do not provide any contrast files, the differential gene expression analysis will be performed with the default contrasts as calculated by DESeq2. Try this option first, if you are unsure about your contrasts.
 
 ### `--relevel`
 
@@ -338,7 +338,10 @@ Adjusted p-value (float) to consider a gene as differentially expressed. The def
 
 ### `--genelist`
 
-List of genes (one per line) of which to plot heatmaps for normalized counts across all samples. The gene list should contain gene [HUGO](https://www.genenames.org/) symbols (no Ensemble IDs).
+List of genes of interest (one per line) for which additional plots are generated.
+Heatmaps and boxplots use normalized counts across all samples.
+If a genelist is provided, the volcano plots show only the labels of these requested genes.
+The gene list should contain gene [HUGO](https://www.genenames.org/) symbols (no Ensemble IDs).
 
 ### `--batch_effect`
 

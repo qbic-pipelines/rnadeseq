@@ -87,3 +87,9 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_control_vs_clone1/pathway_enrichment_results.tsv
       md5sum: e7a051d8623043a3849eae8900b99f71
     - path: results_test/RNAseq_report.html
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_treatment_clone9_vs_clone1.html
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_treatment_clone9_vs_clone1.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_treatment_clone9_vs_clone1_enhanced.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_treatment_control_vs_clone1.html
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_treatment_control_vs_clone1.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_treatment_control_vs_clone1_enhanced.png

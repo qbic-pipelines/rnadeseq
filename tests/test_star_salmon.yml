@@ -76,3 +76,12 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/pathway_enrichment_results.tsv
       md5sum: 68b329da9893e34099c7d8ad5cb9c940
     - path: results_test/RNAseq_report.html
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_H1_vs_GM12878.html
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_H1_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_H1_vs_GM12878_enhanced.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_K562_vs_GM12878.html
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_K562_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_K562_vs_GM12878_enhanced.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_MCF7_vs_GM12878.html
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_MCF7_vs_GM12878.png
+    - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_MCF7_vs_GM12878_enhanced.png
