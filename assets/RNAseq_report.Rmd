@@ -1867,7 +1867,7 @@ for (file in allgenes_files){
             geom_hline(yintercept = -log10(params$adj_pval_threshold), linewidth = 0.2, color = "grey") +
             geom_vline(xintercept = -1, linewidth = 0.2, color = "grey") +
             geom_vline(xintercept = 1, linewidth = 0.2, color = "grey") +
-            scale_color_manual(name = "", values=c("red", "black")) +
+            scale_color_manual(name = "", values = c("red", "blue", "black", "green")) +
             scale_y_continuous(limits = c(-1, max(-log10(DE_genes[['padj']]), na.rm=TRUE) + 5)) +
             ylab("-log 10 padj") + xlab("Log2 Fold Change") +
             theme(panel.spacing = unit(ifelse(length(allgenes_files)>2, 0.1, 0.6), "lines")) +
