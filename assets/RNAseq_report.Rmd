@@ -1833,9 +1833,15 @@ for (file in allgenes_files){
     DE_genes$logpval <- -log10(DE_genes$padj)
     # Save true value for hovertext
     DE_genes$truelogpval <- DE_genes$logpval
-    DE_genes <- DE_genes %>% mutate(color = ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold) &
-                        (DE_genes$logpval >= -log10(params$adj_pval_threshold)),
-                        "red", "black"))
+    DE_genes <- DE_genes %>%
+            mutate(color = ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold & DE_genes$logpval >= -log10(params$adj_pval_threshold)), "red",
+            ifelse((abs(DE_genes$log2FoldChange) < params$logFC_threshold & DE_genes$logpval >= -log10(params$adj_pval_threshold)), "green",
+                ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold & DE_genes$logpval <= -log10(params$adj_pval_threshold)), "blue",
+                    ifelse((abs(DE_genes$log2FoldChange) < params$logFC_threshold & DE_genes$logpval < -log10(params$adj_pval_threshold)), "black", "purple")
+                        )
+                    )
+                )
+            )
     log2FoldChange_min <- min(DE_genes$log2FoldChange)
     log2FoldChange_max <- max(DE_genes$log2FoldChange)
     log2FoldChange_quotient <- length(seq(log2FoldChange_min, log2FoldChange_max, 10))
@@ -1848,7 +1854,16 @@ for (file in allgenes_files){
                 text=paste("Gene: ", gene_name,
                             "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2),
                             "<br>", "-Log10padj: ", formatC(truelogpval, digits=2, format='f')))) +
-            geom_point(alpha=0.5, aes(colour=ifelse(color == "red", "DE features", "Non_DE features")), na.rm=TRUE) +
+            geom_point(
+            alpha = 0.5, aes(colour = ifelse(color == "red", "DE features",
+                ifelse(color == "green", paste("padj<", params$adj_pval_threshold),
+                ifelse(color == "blue", paste("log2FC>", params$logFC_threshold),
+                    ifelse(color == "black", "Non-DE features", "")
+                )
+                )
+            )),
+            na.rm = TRUE
+            ) +
             geom_hline(yintercept = -log10(params$adj_pval_threshold), linewidth = 0.2, color = "grey") +
             geom_vline(xintercept = -1, linewidth = 0.2, color = "grey") +
             geom_vline(xintercept = 1, linewidth = 0.2, color = "grey") +
