@@ -7,11 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- [#267](https://github.com/qbic-pipelines/rnadeseq/pull/261) Add EnhancedVolcano plots and export to output results
+- [#267](https://github.com/qbic-pipelines/rnadeseq/pull/267) Add EnhancedVolcano plots and export to output results
 
 ### Changed
 
-- [#267](https://github.com/qbic-pipelines/rnadeseq/pull/261) Export static and interactive plotly volcano plots
+- [#267](https://github.com/qbic-pipelines/rnadeseq/pull/267) Export static and interactive plotly volcano plots
+- [#268](https://github.com/qbic-pipelines/rnadeseq/pull/268) Apply EnhancedVolcano color code to plotly volcano plots
 
 ### Fixed
 
