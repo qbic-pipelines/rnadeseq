@@ -1835,8 +1835,8 @@ for (file in allgenes_files){
     DE_genes$truelogpval <- DE_genes$logpval
     DE_genes <- DE_genes %>%
             mutate(color = ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold & DE_genes$logpval >= -log10(params$adj_pval_threshold)), "red",
-            ifelse((abs(DE_genes$log2FoldChange) < params$logFC_threshold & DE_genes$logpval >= -log10(params$adj_pval_threshold)), "green",
-                ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold & DE_genes$logpval <= -log10(params$adj_pval_threshold)), "blue",
+            ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold & DE_genes$logpval < -log10(params$adj_pval_threshold)), "green",
+                ifelse((abs(DE_genes$log2FoldChange) < params$logFC_threshold & DE_genes$logpval >= -log10(params$adj_pval_threshold)), "blue",
                     ifelse((abs(DE_genes$log2FoldChange) < params$logFC_threshold & DE_genes$logpval < -log10(params$adj_pval_threshold)), "black", "purple")
                         )
                     )
@@ -1867,7 +1867,7 @@ for (file in allgenes_files){
             geom_hline(yintercept = -log10(params$adj_pval_threshold), linewidth = 0.2, color = "grey") +
             geom_vline(xintercept = -1, linewidth = 0.2, color = "grey") +
             geom_vline(xintercept = 1, linewidth = 0.2, color = "grey") +
-            scale_color_manual(name = "", values = c("red", "blue", "black", "green")) +
+            scale_color_manual(name = "", values = c("red", "green", "black", "blue")) +
             scale_y_continuous(limits = c(-1, max(-log10(DE_genes[['padj']]), na.rm=TRUE) + 5)) +
             ylab("-log 10 padj") + xlab("Log2 Fold Change") +
             theme(panel.spacing = unit(ifelse(length(allgenes_files)>2, 0.1, 0.6), "lines")) +
