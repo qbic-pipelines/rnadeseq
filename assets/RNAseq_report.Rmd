@@ -1911,12 +1911,14 @@ for (file in allgenes_files){
                     y = 'padj',
                     selectLab = as.list(genes_to_label),
                     pCutoff = 5e-2,
+                    ylab = bquote("-" ~Log[10]~ 'p adj'),
                     legendLabSize = 10,
                     legendLabels = c("NS", paste0("Log2FC >|", params$logFC_threshold, "|"),
                                     paste0("p_adj<", params$adj_pval_threshold),
                                     paste0("DE:", "p_adj<", params$adj_pval_threshold, " & Log2FC >|", params$logFC_threshold, "|")),
                     title = paste('Comparison:', current_contrast_name),
-                    subtitle = paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE))
+                    subtitle = paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE)),
+                    caption = ''
                     # caption = bquote(
                     #     "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)))) *
                     #     ", DE=" ~ .(paste0(thousandFormat(numDE)))
@@ -1943,11 +1945,13 @@ for (file in allgenes_files){
                     y = 'padj',
                     pCutoff = 5e-2,
                     legendLabSize = 10,
+                    ylab = bquote("-" ~Log[10]~ 'p adj'),
                     legendLabels = c("NS", paste0("Log2FC >|", params$logFC_threshold, "|"),
                                     paste0("p_adj<", params$adj_pval_threshold),
                                     paste0("DE:", "p_adj<", params$adj_pval_threshold, " & Log2FC >|", params$logFC_threshold, "|")),
                     title = paste('Comparison:', current_contrast_name),
                     subtitle = paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE)),
+                    caption = ''
                     # caption = bquote(
                     #     "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)))) *
                     #     ", DE=" ~ .(paste0(thousandFormat(numDE)))
