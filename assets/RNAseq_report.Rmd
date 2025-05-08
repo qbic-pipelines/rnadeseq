@@ -1727,7 +1727,7 @@ and a Log2FC >= `r logFC_text` or <= -`r logFC_text` (vertical grey lines).
 Here, volcano plots for all considered contrasts are shown. If a list of requested genes was provided as input,
 the plot will show the label of these features of interest.
 If no list of genes was provided, the plot annotates a subset of the most significant DE features with their names.
-The original plots can be downloaded [here](./differential_gene_expression/plots/volcano_plots/).
+The original plots, as well as interactive plots can be downloaded [here](./differential_gene_expression/plots/volcano_plots/).
 
 ```{r volcano_plot, out.width="100%", out.height="100%", eval=FALSE}
 
@@ -1813,7 +1813,8 @@ for (file in allgenes_files){
     contrast_len <- sapply(strsplit(fname, '_'), length)
     # Rename Contrast for plot
     # DE_contrast_condition_conditionName_conditionA_vs_conditionB --> conditionA vs conditionB
-    contrast_list <- c(contrast_list, sapply(strsplit(fname, '_'), function(x) paste(x[5:contrast_len], collapse=' ')))
+    current_contrast_name <- sapply(strsplit(fname, '_'), function(x) paste(x[5:contrast_len], collapse=' '))
+    contrast_list <- c(contrast_list, current_contrast_name)
 
     # label: gene_name
     # x: log2FoldChange
@@ -1835,8 +1836,8 @@ for (file in allgenes_files){
     DE_genes$truelogpval <- DE_genes$logpval
     DE_genes <- DE_genes %>%
             mutate(color = ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold & DE_genes$logpval >= -log10(params$adj_pval_threshold)), "red",
-            ifelse((abs(DE_genes$log2FoldChange) < params$logFC_threshold & DE_genes$logpval >= -log10(params$adj_pval_threshold)), "green",
-                ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold & DE_genes$logpval <= -log10(params$adj_pval_threshold)), "blue",
+            ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold & DE_genes$logpval < -log10(params$adj_pval_threshold)), "green",
+                ifelse((abs(DE_genes$log2FoldChange) < params$logFC_threshold & DE_genes$logpval >= -log10(params$adj_pval_threshold)), "blue",
                     ifelse((abs(DE_genes$log2FoldChange) < params$logFC_threshold & DE_genes$logpval < -log10(params$adj_pval_threshold)), "black", "purple")
                         )
                     )
@@ -1855,10 +1856,10 @@ for (file in allgenes_files){
                             "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2),
                             "<br>", "-Log10padj: ", formatC(truelogpval, digits=2, format='f')))) +
             geom_point(
-            alpha = 0.5, aes(colour = ifelse(color == "red", "DE features",
-                ifelse(color == "green", paste("padj<", params$adj_pval_threshold),
-                ifelse(color == "blue", paste("log2FC>", params$logFC_threshold),
-                    ifelse(color == "black", "Non-DE features", "")
+            alpha = 0.5, aes(colour = ifelse(color == "red", paste0("DE:", "p_adj<", params$adj_pval_threshold, " & Log2FC >|", params$logFC_threshold, "|"),
+                ifelse(color == "blue", paste0("p_adj<", params$adj_pval_threshold),
+                ifelse(color == "green", paste0("log2FC>|", params$logFC_threshold, "|"),
+                    ifelse(color == "black", "NS", "")
                 )
                 )
             )),
@@ -1867,14 +1868,14 @@ for (file in allgenes_files){
             geom_hline(yintercept = -log10(params$adj_pval_threshold), linewidth = 0.2, color = "grey") +
             geom_vline(xintercept = -1, linewidth = 0.2, color = "grey") +
             geom_vline(xintercept = 1, linewidth = 0.2, color = "grey") +
-            scale_color_manual(name = "", values = c("red", "blue", "black", "green")) +
+            scale_color_manual(name = "", values = c("red", "green", "black", "blue")) +
             scale_y_continuous(limits = c(-1, max(-log10(DE_genes[['padj']]), na.rm=TRUE) + 5)) +
             ylab("-log 10 padj") + xlab("Log2 Fold Change") +
             theme(panel.spacing = unit(ifelse(length(allgenes_files)>2, 0.1, 0.6), "lines")) +
             scale_x_continuous(breaks = seq(-200, 200, ifelse(log2FoldChange_quotient<3, 1, 5))) +
             ggtitle(
-                paste("DE results", DE_genes$contrast[1]),
-                subtitle=paste0("total=", thousandFormat(nrow(DE_genes)), ", DE_features=", thousandFormat(numDE)))
+                paste('Comparison:', current_contrast_name),
+                subtitle=paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE)))
 
 
     # Save static plot
@@ -1883,6 +1884,12 @@ for (file in allgenes_files){
         plot = pg,
         width = 8,
         height = 5)
+
+    pg <- pg + ggtitle(
+                paste('<b>Comparison:', current_contrast_name, '</b>',
+                '<br><sup>',
+                paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE))
+                ,'</sup>'))
 
     # Define smaller plotly size
     ppg <- partial_bundle(ggplotly(pg, tooltip = "text")) %>% layout(autosize = F, width = 600, height = 400)
@@ -1904,16 +1911,14 @@ for (file in allgenes_files){
                     y = 'padj',
                     selectLab = as.list(genes_to_label),
                     pCutoff = 5e-2,
+                    ylab = bquote("-" ~Log[10]~ 'p adj'),
                     legendLabSize = 10,
                     legendLabels = c("NS", paste0("Log2FC >|", params$logFC_threshold, "|"),
                                     paste0("p_adj<", params$adj_pval_threshold),
                                     paste0("DE:", "p_adj<", params$adj_pval_threshold, " & Log2FC >|", params$logFC_threshold, "|")),
-                    title = paste('Differential expression'),
-                    subtitle = DE_genes$contrast,
-                    caption = bquote(
-                        "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)), " features")) *
-                        ", DE features=" ~ .(paste0(thousandFormat(numDE)))
-                        )
+                    title = paste('Comparison:', current_contrast_name),
+                    subtitle = paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE)),
+                    caption = ''
                     )
 
         p <- p + theme(plot.caption = element_text(hjust = 1))
@@ -1936,15 +1941,13 @@ for (file in allgenes_files){
                     y = 'padj',
                     pCutoff = 5e-2,
                     legendLabSize = 10,
+                    ylab = bquote("-" ~Log[10]~ 'p adj'),
                     legendLabels = c("NS", paste0("Log2FC >|", params$logFC_threshold, "|"),
                                     paste0("p_adj<", params$adj_pval_threshold),
                                     paste0("DE:", "p_adj<", params$adj_pval_threshold, " & Log2FC >|", params$logFC_threshold, "|")),
-                    title = paste('Differential expression'),
-                    subtitle = DE_genes$contrast,
-                    caption = bquote(
-                        "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)), " features")) *
-                        ", DE features=" ~ .(paste0(thousandFormat(numDE)))
-                        )
+                    title = paste('Comparison:', current_contrast_name),
+                    subtitle = paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE)),
+                    caption = ''
                     )
 
         p <- p + theme(plot.caption = element_text(hjust = 1))
@@ -2702,6 +2705,7 @@ if (length(q_list) > 0) {
     # Determine which max has to be set for the gostplot y axis: highest -log10(pval) (use min function as the smallest
     # p value produces the highest -log10) OR 17, as the gostplot caps at 16 (values>16 are set to 17)
     y_max <- min(ceiling(-log10(min(path_enrich$p_value, na.rm=T))), 18)
+
 
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)

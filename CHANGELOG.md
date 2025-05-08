@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- [#271](https://github.com/qbic-pipelines/rnadeseq/pull/271) Fix colors in plotly volcano plots
+
 ## 2.5 - The Potato Eaters
 
 ### Added
