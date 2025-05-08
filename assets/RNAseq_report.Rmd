@@ -1856,8 +1856,8 @@ for (file in allgenes_files){
                             "<br>", "-Log10padj: ", formatC(truelogpval, digits=2, format='f')))) +
             geom_point(
             alpha = 0.5, aes(colour = ifelse(color == "red", "DE features",
-                ifelse(color == "blue", paste("padj<", params$adj_pval_threshold),
-                ifelse(color == "green", paste("log2FC>", params$logFC_threshold),
+                ifelse(color == "blue", paste0("padj<=", params$adj_pval_threshold),
+                ifelse(color == "green", paste0("log2FC>|", params$logFC_threshold, "|"),
                     ifelse(color == "black", "Non-DE features", "")
                 )
                 )
