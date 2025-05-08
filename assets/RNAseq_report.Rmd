@@ -1727,7 +1727,7 @@ and a Log2FC >= `r logFC_text` or <= -`r logFC_text` (vertical grey lines).
 Here, volcano plots for all considered contrasts are shown. If a list of requested genes was provided as input,
 the plot will show the label of these features of interest.
 If no list of genes was provided, the plot annotates a subset of the most significant DE features with their names.
-The original plots can be downloaded [here](./differential_gene_expression/plots/volcano_plots/).
+The original plots, as well as interactive plots can be downloaded [here](./differential_gene_expression/plots/volcano_plots/).
 
 ```{r volcano_plot, out.width="100%", out.height="100%", eval=FALSE}
 
@@ -1885,6 +1885,12 @@ for (file in allgenes_files){
         width = 8,
         height = 5)
 
+    pg <- pg + ggtitle(
+                paste('<b>Comparison:', current_contrast_name, '</b>',
+                '<br><sup>',
+                paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE))
+                ,'</sup>'))
+
     # Define smaller plotly size
     ppg <- partial_bundle(ggplotly(pg, tooltip = "text")) %>% layout(autosize = F, width = 600, height = 400)
 
@@ -1910,11 +1916,11 @@ for (file in allgenes_files){
                                     paste0("p_adj<", params$adj_pval_threshold),
                                     paste0("DE:", "p_adj<", params$adj_pval_threshold, " & Log2FC >|", params$logFC_threshold, "|")),
                     title = paste('Comparison:', current_contrast_name),
-                    subtitle = "DE results",
-                    caption = bquote(
-                        "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)))) *
-                        ", DE=" ~ .(paste0(thousandFormat(numDE)))
-                        )
+                    subtitle = paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE))
+                    # caption = bquote(
+                    #     "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)))) *
+                    #     ", DE=" ~ .(paste0(thousandFormat(numDE)))
+                    #     )
                     )
 
         p <- p + theme(plot.caption = element_text(hjust = 1))
@@ -1941,11 +1947,11 @@ for (file in allgenes_files){
                                     paste0("p_adj<", params$adj_pval_threshold),
                                     paste0("DE:", "p_adj<", params$adj_pval_threshold, " & Log2FC >|", params$logFC_threshold, "|")),
                     title = paste('Comparison:', current_contrast_name),
-                    subtitle = "DE results",
-                    caption = bquote(
-                        "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)))) *
-                        ", DE=" ~ .(paste0(thousandFormat(numDE)))
-                        )
+                    subtitle = paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE)),
+                    # caption = bquote(
+                    #     "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)))) *
+                    #     ", DE=" ~ .(paste0(thousandFormat(numDE)))
+                    #     )
                     )
 
         p <- p + theme(plot.caption = element_text(hjust = 1))
