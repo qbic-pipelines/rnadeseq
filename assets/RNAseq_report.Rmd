@@ -1813,8 +1813,8 @@ for (file in allgenes_files){
     contrast_len <- sapply(strsplit(fname, '_'), length)
     # Rename Contrast for plot
     # DE_contrast_condition_conditionName_conditionA_vs_conditionB --> conditionA vs conditionB
-    contrast_list <- c(contrast_list, sapply(strsplit(fname, '_'), function(x) paste(x[5:contrast_len], collapse=' ')))
     current_contrast_name <- sapply(strsplit(fname, '_'), function(x) paste(x[5:contrast_len], collapse=' '))
+    contrast_list <- c(contrast_list, current_contrast_name)
 
     # label: gene_name
     # x: log2FoldChange
@@ -1919,10 +1919,6 @@ for (file in allgenes_files){
                     title = paste('Comparison:', current_contrast_name),
                     subtitle = paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE)),
                     caption = ''
-                    # caption = bquote(
-                    #     "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)))) *
-                    #     ", DE=" ~ .(paste0(thousandFormat(numDE)))
-                    #     )
                     )
 
         p <- p + theme(plot.caption = element_text(hjust = 1))
@@ -1952,10 +1948,6 @@ for (file in allgenes_files){
                     title = paste('Comparison:', current_contrast_name),
                     subtitle = paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE)),
                     caption = ''
-                    # caption = bquote(
-                    #     "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)))) *
-                    #     ", DE=" ~ .(paste0(thousandFormat(numDE)))
-                    #     )
                     )
 
         p <- p + theme(plot.caption = element_text(hjust = 1))
