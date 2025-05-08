@@ -1855,10 +1855,10 @@ for (file in allgenes_files){
                             "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2),
                             "<br>", "-Log10padj: ", formatC(truelogpval, digits=2, format='f')))) +
             geom_point(
-            alpha = 0.5, aes(colour = ifelse(color == "red", "DE features",
+            alpha = 0.5, aes(colour = ifelse(color == "red", "DE",
                 ifelse(color == "blue", paste0("padj<=", params$adj_pval_threshold),
                 ifelse(color == "green", paste0("log2FC>|", params$logFC_threshold, "|"),
-                    ifelse(color == "black", "Non-DE features", "")
+                    ifelse(color == "black", "Non-DE", "")
                 )
                 )
             )),
@@ -1874,7 +1874,7 @@ for (file in allgenes_files){
             scale_x_continuous(breaks = seq(-200, 200, ifelse(log2FoldChange_quotient<3, 1, 5))) +
             ggtitle(
                 paste("DE results", DE_genes$contrast[1]),
-                subtitle=paste0("total=", thousandFormat(nrow(DE_genes)), ", DE_features=", thousandFormat(numDE)))
+                subtitle=paste0("total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE)))
 
 
     # Save static plot
@@ -1911,8 +1911,8 @@ for (file in allgenes_files){
                     title = paste('Differential expression'),
                     subtitle = DE_genes$contrast,
                     caption = bquote(
-                        "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)), " features")) *
-                        ", DE features=" ~ .(paste0(thousandFormat(numDE)))
+                        "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)))) *
+                        ", DE=" ~ .(paste0(thousandFormat(numDE)))
                         )
                     )
 
@@ -1942,8 +1942,8 @@ for (file in allgenes_files){
                     title = paste('Differential expression'),
                     subtitle = DE_genes$contrast,
                     caption = bquote(
-                        "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)), " features")) *
-                        ", DE features=" ~ .(paste0(thousandFormat(numDE)))
+                        "total=" ~ .(paste0(thousandFormat(nrow(DE_genes)))) *
+                        ", DE=" ~ .(paste0(thousandFormat(numDE)))
                         )
                     )
 
