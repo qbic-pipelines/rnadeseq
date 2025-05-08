@@ -2709,7 +2709,7 @@ for (i in 1:length(q_names))  {
 
         if (nrow(path_enrich) > 0){
             cat('### Contrast: ', contrast_list[i], '\n')
-            cat("\n\n")
+            cat("\n")
             pg2 <- gostplot(gostres, capped=T, interactive=T) %>% 
             layout(title = q_names[i],
                     yaxis = list(range = list(-1, y_max)))
@@ -2717,7 +2717,6 @@ for (i in 1:length(q_names))  {
             pg2[['x']][['layout']][['annotations']][[2]][['text']] <- ''
             print(htmltools::tagList(pg2))
             cat("\n\n")
-            
             df_subset <- data.frame(Contrast = q_names[i], 
                 Pathway_name = path_enrich$term_name, 
                 Pathway_code = path_enrich$term_id,
@@ -2731,7 +2730,6 @@ for (i in 1:length(q_names))  {
             print( htmltools::tagList(path_enrich_table) )
             cat("\n\n")
             cat("\n")
-            
         } else {
             cat('### Contrast: ', contrast_list[i], '\n')
             cat("\n\n")
