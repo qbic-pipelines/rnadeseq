@@ -1856,8 +1856,8 @@ for (file in allgenes_files){
                             "<br>", "-Log10padj: ", formatC(truelogpval, digits=2, format='f')))) +
             geom_point(
             alpha = 0.5, aes(colour = ifelse(color == "red", "DE features",
-                ifelse(color == "green", paste("padj<", params$adj_pval_threshold),
-                ifelse(color == "blue", paste("log2FC>", params$logFC_threshold),
+                ifelse(color == "blue", paste("padj<", params$adj_pval_threshold),
+                ifelse(color == "green", paste("log2FC>", params$logFC_threshold),
                     ifelse(color == "black", "Non-DE features", "")
                 )
                 )
@@ -2702,6 +2702,7 @@ if (length(q_list) > 0) {
     # Determine which max has to be set for the gostplot y axis: highest -log10(pval) (use min function as the smallest
     # p value produces the highest -log10) OR 17, as the gostplot caps at 16 (values>16 are set to 17)
     y_max <- min(ceiling(-log10(min(path_enrich$p_value, na.rm=T))), 18)
+
 
     if (nrow(path_enrich) > 0){
         pg2 <- gostplot(gostres, capped=T, interactive=T)
