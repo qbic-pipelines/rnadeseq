@@ -2710,17 +2710,17 @@ for (i in 1:length(q_names))  {
         if (nrow(path_enrich) > 0){
             cat('### Contrast: ', contrast_list[i], '\n')
             cat("\n")
-            pg2 <- gostplot(gostres, capped=T, interactive=T) %>% 
+            pg2 <- gostplot(gostres, capped=T, interactive=T) %>%
             layout(title = q_names[i],
                     yaxis = list(range = list(-1, y_max)))
             pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$pathway_adj_pval_threshold
             pg2[['x']][['layout']][['annotations']][[2]][['text']] <- ''
             print(htmltools::tagList(pg2))
             cat("\n\n")
-            df_subset <- data.frame(Contrast = q_names[i], 
-                Pathway_name = path_enrich$term_name, 
+            df_subset <- data.frame(Contrast = q_names[i],
+                Pathway_name = path_enrich$term_name,
                 Pathway_code = path_enrich$term_id,
-                DE_genes = path_enrich$intersection_size, 
+                DE_genes = path_enrich$intersection_size,
                 Pathway_size = path_enrich$term_size,
                 Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3),
                 Padj = formatC(path_enrich$p_value, digits=3))
