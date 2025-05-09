@@ -2714,7 +2714,7 @@ for (i in 1:length(q_names))  {
             cat('### Contrast: ', contrast_list[i], '\n')
             cat("\n")
             pg2 <- gostplot(gostres, capped=T, interactive=T) %>%
-            layout(title = q_names[i],
+            layout(title = contrast_list[i],
                     yaxis = list(range = list(-1, y_max)))
             pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$pathway_adj_pval_threshold
             pg2[['x']][['layout']][['annotations']][[2]][['text']] <- ''
