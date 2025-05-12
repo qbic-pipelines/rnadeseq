@@ -2648,16 +2648,17 @@ Inside the pathway analysis results folder, a subfolder for each contrast used f
 gost_text,
 
 "\n
-## Enriched pathways
+## Enriched pathways {.tabset .tabset-pills}
 The plot below summarizes the pathways that were found significantly enriched in DE genes for each contrast (padj value <= ", pathway_pval_text, ").
 Only contrasts for which an enriched pathway was found are shown.
 Hover over the dots to reveal the pathway names. The table below provides more detail on all enriched pathways."))
 ```
 
-```{r gost, eval=params$pathway_analysis, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE}
+```{r gost, eval=params$pathway_analysis, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE, results='asis'}
 contrast_files <- list.files(path=paste0("differential_gene_expression/DE_genes_tables/"))
 q_list <- list()
 q_names <- c()
+contrast_list <- c()
 
 #Use non-allgenes files for PA to only show DE genes
 for (file in contrast_files){
@@ -2672,75 +2673,82 @@ for (file in contrast_files){
     q = as.character(DE_genes$Ensembl_ID)
     q_list <- append(q_list, list(q))
     q_names <- append(q_names, fname)
-
+    contrast_list <- c(contrast_list, sapply(strsplit(fname, '_'), function(x) paste(x[5:contrast_len], collapse=' ')))
 }
 names(q_list) <- q_names
-if (length(q_list) > 0) {
 
-    #gost query
+for (i in 1:length(q_names))  {
 
-    if (isProvided(params$set_background)) {
-        gostres <- gost(query=q_list,
-                    organism=gost_id,
-                    significant=T,
-                    correction_method="fdr",
-                    sources=datasources,
-                    user_threshold=params$pathway_adj_pval_threshold,
-                    custom_bg=custom_background,
-                    domain_scope="custom_annotated"
-        )
-    } else {
-        gostres <- gost(query=q_list,
-                    organism=gost_id,
-                    significant=T,
-                    correction_method="fdr",
-                    sources=datasources,
-                    user_threshold=params$pathway_adj_pval_threshold,
-                    domain_scope="annotated"
-        )
-    }
+    if (length(q_list) > 0) {
 
-    path_enrich <- as.data.frame(gostres$result)
+            #gost query
 
-    # Determine which max has to be set for the gostplot y axis: highest -log10(pval) (use min function as the smallest
-    # p value produces the highest -log10) OR 17, as the gostplot caps at 16 (values>16 are set to 17)
-    y_max <- min(ceiling(-log10(min(path_enrich$p_value, na.rm=T))), 18)
+            if (isProvided(params$set_background)) {
+                gostres <- gost(query=q_list[[i]],
+                            organism=gost_id,
+                            significant=T,
+                            correction_method="fdr",
+                            sources=datasources,
+                            user_threshold=params$pathway_adj_pval_threshold,
+                            custom_bg=custom_background,
+                            domain_scope="custom_annotated"
+                )
+            } else {
+                gostres <- gost(query=q_list[[i]],
+                            organism=gost_id,
+                            significant=T,
+                            correction_method="fdr",
+                            sources=datasources,
+                            user_threshold=params$pathway_adj_pval_threshold,
+                            domain_scope="annotated"
+                )
+            }
 
+            path_enrich <- as.data.frame(gostres$result)
 
-    if (nrow(path_enrich) > 0){
-        pg2 <- gostplot(gostres, capped=T, interactive=T)
-        pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$pathway_adj_pval_threshold
+            # Determine which max has to be set for the gostplot y axis: highest -log10(pval) (use min function as the smallest
+            # p value produces the highest -log10) OR 17, as the gostplot caps at 16 (values>16 are set to 17)
+            y_max <- min(ceiling(-log10(min(path_enrich$p_value, na.rm=T))) + 3, 18)
 
-        # limit gostplot y maximum dynamically for all subplots
-        for (counter in c(1:length(contrast_files))) {
-
-            expression <- parse(text=paste0("pg2 %>% layout(yaxis", ifelse(counter>1, counter, "")," = list(range = list(0, y_max)))"))
-            pg2 <- eval(expression)
-        }
-
-        #add export button to plot
-        config(pg2, modeBarButtonsToAdd = list(svg_exp)) %>% layout(width=500, height = 400*length(contrast_files))
-    } else {
-            cat("No enriched pathways were found.")
+        if (nrow(path_enrich) > 0){
+            cat('### Contrast: ', contrast_list[i], '\n')
+            cat("\n")
+            pg2 <- gostplot(gostres, capped=T, interactive=T) %>%
+            layout(title = contrast_list[i],
+                    yaxis = list(range = list(-1, y_max)))
+            pg2[['x']][['layout']][['annotations']][[1]][['x']] <- -params$pathway_adj_pval_threshold
+            pg2[['x']][['layout']][['annotations']][[2]][['text']] <- ''
+            print(htmltools::tagList(pg2))
+            cat("\n\n")
+            df_subset <- data.frame(Contrast = q_names[i],
+                Pathway_name = path_enrich$term_name,
+                Pathway_code = path_enrich$term_id,
+                DE_genes = path_enrich$intersection_size,
+                Pathway_size = path_enrich$term_size,
+                Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3),
+                Padj = formatC(path_enrich$p_value, digits=3))
+            colnames <- c("Contrast", "Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)",
+            "Fraction of DE genes in pathway", "Padj value (pathway enrichment)")
+            path_enrich_table <- DT::datatable(df_subset, options = list(scrollX  = "100%", scrollY = "400px", pageLength = -1, dom = 'ft'))
+            print( htmltools::tagList(path_enrich_table) )
+            cat("\n\n")
+            cat("\n")
+        } else {
+            cat('### Contrast: ', contrast_list[i], '\n')
+            cat("\n\n")
+            cat(paste("No enriched pathways were found in the selected pathway databases."))
             path_enrich=data.frame(list())
+            cat("\n\n")
+        }
+    } else {
+        cat("No DE genes were found, pathway analysis not possible.")
+        path_enrich=data.frame(list())
     }
-} else {
-    cat("No DE genes were found, pathway analysis not possible.")
-    path_enrich=data.frame(list())
+
 }
 ```
 
-```{r enriched_table, eval=params$pathway_analysis, echo=FALSE}
-if (nrow(path_enrich) > 0) {
-    df_subset <- data.frame(Contrast = path_enrich$query, Pathway_name = path_enrich$term_name, Pathway_code = path_enrich$term_id,
-    DE_genes = path_enrich$intersection_size, Pathway_size = path_enrich$term_size,
-    Fraction_DE = formatC(path_enrich$intersection_size / path_enrich$term_size, digits=3),
-    Padj = formatC(path_enrich$p_value, digits=3))
-    colnames <- c("Contrast", "Pathway name", "Pathway code", "DE genes in pathway (N)", "Total genes in pathway (N)",
-    "Fraction of DE genes in pathway", "Padj value (pathway enrichment)")
-    DT::datatable(df_subset, options = list(scrollX  = "100%", scrollY = "400px", pageLength = -1, dom = 'ft'))
-}
-```
+
 
 ```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=params$pathway_analysis}
 cat(paste0("## KEGG pathway maps
