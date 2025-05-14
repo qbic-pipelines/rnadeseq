@@ -616,8 +616,8 @@ Command executed:
         || mv multiqc_plots/ multiqc_data multiqc_report.html QC/
   fi
   Execute_report.R
-    --report 'RNAseq_report.Rmd'
-    --output 'RNAseq_report.html'
+    --report 'rnadeseq_report.Rmd'
+    --output 'rnadeseq_report.html'
     --input_type salmon
     --gene_counts star_salmon
     --metadata input.tsv

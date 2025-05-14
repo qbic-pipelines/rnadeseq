@@ -208,7 +208,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - [#115](https://github.com/qbic-pipelines/rnadeseq/pull/115) Template update
-- [#117](https://github.com/qbic-pipelines/rnadeseq/pull/117) Turned LabID optional for report output in RNAseq_report.Rmd
+- [#117](https://github.com/qbic-pipelines/rnadeseq/pull/117) Turned LabID optional for report output in rnadeseq_report.Rmd
 - Removed assets/report_options.yml
 - [#110](https://github.com/qbic-pipelines/rnadeseq/pull/110) Changed report to use rlog normalization by default, vst is used if --skip_rlog is enabled
 

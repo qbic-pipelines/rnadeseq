@@ -85,7 +85,7 @@
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/gost_pathway_venn_diagram.pdf
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/gost_pathway_venn_diagram.png
     - path: results_test/pathway_analysis/DE_contrast_condition_treatment_Treated_vs_Control/gost_pathway_venn_diagram.svg
-    - path: results_test/RNAseq_report.html
+    - path: results_test/rnadeseq_report.html
     - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_genotype_WT_vs_KO.html
     - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_genotype_WT_vs_KO.png
     - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_genotype_WT_vs_KO_enhanced.png
