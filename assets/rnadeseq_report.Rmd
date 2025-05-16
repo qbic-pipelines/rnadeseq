@@ -273,11 +273,52 @@ dir.create("differential_gene_expression/allgenes")
 dir.create("differential_gene_expression/final_gene_table")
 ```
 
+
+
+```{r software_versions, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, eval=isProvided(params$path_software_versions)}
+# Import the .csv or .yml file output by the rna-seq Nextflow pipeline
+software_versions_csv <- endsWith(params$path_software_versions, ".csv") || endsWith(params$path_software_versions, ".tsv")
+if (software_versions_csv) {
+    version_csv <- read.csv(file = params$path_software_versions, sep="\t", header = FALSE)
+    version <- setNames(as.list(version_csv$V2), version_csv$V1)
+} else {
+    version <- read_yaml(params$path_software_versions)
+}
+
+if (software_versions_csv) {
+    if (params$input_type == "featurecounts") {
+        quant_tool <- "featureCounts"
+        quant_version <- as.character(version["featureCounts"])
+        quant_cite <- "[@liao2014featurecounts]"
+        primary_pipeline <- "nf-core/rnaseq"
+    }
+} else {
+    if (params$input_type == "rsem") {
+        quant_tool <- "RSEM"
+        quant_version <- as.character(version["RSEM_CALCULATEEXPRESSION"][[1]]["rsem"])
+        quant_cite <- "[@li2011rsem]"
+        primary_pipeline <- "nf-core/rnaseq"
+    } else if (params$input_type == "salmon") {
+        quant_tool <- "Salmon"
+        quant_version <- as.character(version["SALMON_QUANT"][[1]]["salmon"])
+        quant_cite <- "[@patro2017salmon]"
+        primary_pipeline <- "nf-core/rnaseq"
+    } else if (params$input_type == "smrnaseq") {
+        quant_tool <- "SAMtools"
+        quant_version <- as.character(version["SAMTOOLS_IDXSTATS"][[1]]["samtools"])
+        quant_cite <- "[@li2009sequence; @li2011statistical]"
+        primary_pipeline <- "nf-core/smrnaseq"
+    }
+}
+```
+
+
+
 ```{r project_data, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 df <- read.csv(file = params$path_proj_summary, sep="\t", header = TRUE)
 
 # Import the .tsv file downloadable from https://portal.qbic.uni-tuebingen.de/portal/web/qbic/user-database -> Projects
-projectcode = as.character(df$Sub.Project)
+projectcode = ifelse(typeof(df$Sub.Project)=='logical', '', as.character(df$Sub.Project))
 
 # Set the title; if the title is too long, it would get covered by the logo, so it is split in 2 or 3 parts.
 title = as.character(df$Short.Title)
@@ -288,14 +329,14 @@ splitInParts <- function(string, size){
         strsplit(string, pat, perl=TRUE)
     }
 title_split=splitInParts(title, 65)
-PI = as.character(df$Principal.Investigator)
-PI_address = as.character(df$PI.Address)
-PI_email = as.character(df$PI.E.Mail)
-PI_institute = as.character(df$PI.Institute)
-PI_organization = as.character(df$PI.Organization)
-PM = as.character(df$Project.Manager)
-PM_email = as.character(df$Manager.E.Mail)
-description = as.character(df$Description)
+PI = ifelse(typeof(df$Principal.Investigator)=='logical', '', as.character(df$Principal.Investigator))
+PI_address = ifelse(typeof(df$PI.Address)=='logical', '', as.character(df$PI.Address))
+PI_email = ifelse(typeof(df$PI.E.Mail)=='logical', '', as.character(df$PI.E.Mail))
+PI_institute = ifelse(typeof(df$PI.Institute)=='logical', '', as.character(df$PI.Institute))
+PI_organization = ifelse(typeof(df$PI.Organization)=='logical', '', as.character(df$PI.Organization))
+PM = ifelse(typeof(df$Project.Manager)=='logical', '', as.character(df$Project.Manager))
+PM_email = ifelse(typeof(df$Manager.E.Mail)=='logical', '', as.character(df$Manager.E.Mail))
+description = ifelse(typeof(df$Description)=='logical', '', as.character(df$Description))
 ```
 
 ---
@@ -344,7 +385,7 @@ opts_chunk$set(bootstrap.show.code = FALSE, dev = 'png', echo=FALSE)
 
 `r PM_email`
 
-Auf der Morgenstelle 10, 72076 Tuebingen
+Otfried-Müller-Straße 37, 72076 Tuebingen
 
 ---
 
@@ -382,6 +423,10 @@ metadata$sampleName = paste(row.names(metadata),metadata$Secondary.Name,sep="_")
 row.names(metadata) = metadata$sampleName
 metadata_save <- metadata # save copy so that original metadata object can be changed
 
+```
+
+
+```{r processing, echo=FALSE, message=FALSE, warning=FALSE, results='asis'} 
 if (params$input_type == "smrnaseq") {
 
     # Prepare files from smrnaseq, start with hairpins
@@ -523,8 +568,8 @@ The samples description and grouping is summarized in the table below and can be
 found [here](./differential_gene_expression/metadata/metadata.tsv).
 \
 ")
-if ("RIN" %in% colnames(df_QA_neat)){df_QA_neat$RIN <- NULL}
-DT::datatable(df_QA_neat, options = list(scrollX  = "100%", scrollY = "400px", pageLength = -1, dom = 'ft'))
+# if ("RIN" %in% colnames(df_QA_neat)){df_QA_neat$RIN <- NULL}
+DT::datatable(metadata, options = list(scrollX  = "100%", scrollY = "400px", pageLength = -1, dom = 'ft'))
 ```
 
 <!-- DESeq2 start -->
@@ -883,6 +928,51 @@ for (i in resultsNames(cds)[-1]) {
 <!-- DESeq2 end -->
 
 
+# Workflow overview
+
+The image below displays the analysis workflow which is a two-step process. 
+In a first step, reads are aligned and assigned to genomic features using nf-core/pipelines.
+In a second step, the gene counts are analyzed for differential expression with the downstream secondary analysis pipeline rnadeseq.
+
+```{mermaid}
+
+```
+
+
+```{r primary_bioinformatics, echo=FALSE, message=FALSE, warning=FALSE, results = 'asis'}
+
+# Note: Display subsection (even if no multiqc archive is provided)
+
+if (params$input_type == "featurecounts" || params$input_type == "rsem" || params$input_type == "salmon") {
+cat(paste0("***
+
+\
+
+# Primary Bioinformatics {#primary-bioinformatics-rnaseq}
+
+
+The primary bioinformatics analysis was performed using the [nf-core/rnaseq](https://nf-co.re/rnaseq) pipeline, revision ", 
+as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])), ".
+Further details can be found under the section [RNASeq methods](#rnaseq-methods)."
+))
+} else if (params$input_type == "smrnaseq"){
+cat(paste0("***
+
+\
+
+# Primary Bioinformatics {#primary-bioinformatics-smrnaseq}
+
+
+The primary bioinformatics analysis was performed using the pipeline [nf-core/smrnaseq](https://nf-co.re/smrnaseq), revision ", 
+as.character(version["Workflow"][[1]]["nf-core/smrnaseq"]), ".
+Further details can be found under the section [smrnaseq methods](#smrnaseq-methods)."
+
+))
+}
+
+```
+
+
 <!-- multiQC start -->
 
 ```{r summary_stats, echo=FALSE, message=FALSE, warning=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/")), results = 'asis'}
@@ -931,21 +1021,44 @@ if (file.exists(paste0(wd,"/QC/multiqc_data/multiqc_general_stats.txt"))) {
     stop("Could not find a suitable multiqc table; please provide a correct multiqc.zip file or omit the parameter --multiqc altogether.")
 }
 
-cat(paste0("***
-# Read mapping and assignment
 
-In order to analyze the gene counts per sample, the sequencing reads need to be mapped to the reference genome, and assigned to genes or other genomic regions.
-Here, the read mapping and gene assignment statistics are summarized, among other read processing quality control parameters.
-The read sequencing quality was analyzed using `FASTQC`. More detailed information is available in the `MultiQC` report of all samples available [here](./QC/multiqc_report.html).
+
+cat(paste0("
+\
+
+***
+
+\
+
+## Read mapping and assignment
+
+In order to analyze the gene counts per sample, the sequencing reads were mapped to a reference genome, and assigned to genes or other genomic regions.
+The [MultiQC report](./QC/multiqc_report.html) summarizes the read mapping and gene assignment statistics, amongst other quality control metrics.
+The read sequencing quality was analyzed using [FASTQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/). Details about [software versions](./QC/multiqc_report.html#software_versions) of the primary bioinformatics analysis 
+can be found at the end of the [MultiQC report](./QC/multiqc_report.html).
+
+\
+
+***
+
+\
 
 ## Summary statistics
 
-The read mapping and gene assignment statistics, together with other quality control parameters are summarized here.
+The table below was extracted from the `MultiQC` report and summarizes statistics from the primary bioinformatics analysis.
+It displays the number of mapped reads, assigned genes and further quality control criteria.",
 
-The table below, extracted from the `MultiQC` report, shows a summary of the bioinformatics analysis quality control.",
 ifelse(mqc_version == 'old_mqc',
-"Note: Duplicate intercept (%) is the percentage of duplicate reads for the intercept of a linear model of duplicate reads vs read counts. High numbers of duplicates at low read counts can indicate low library complexity with technical duplication.",
-"")
+"
+\
+
+**Note**: The percentage of duplicate (%) reads with respect to read counts can indicate issues.
+High numbers of duplicates at low read counts can indicate low library complexity with technical duplication.
+\
+",
+"\
+<br>
+")
 ))
 
 is.num <- sapply(mqc_stats, is.numeric)
@@ -1086,13 +1199,12 @@ table_complete %>%
     scroll_box(width = "100%", height = "400px")
 
 cat(paste0("***
-Note: Duplicate intercept (%) is the percentage of duplicate reads for the intercept of a linear model of duplicate reads vs read counts. High numbers of duplicates at low read counts can indicate low library complexity with technical duplication.
 
 \
 
-## Mapping statistics {.tabset}
+## Mapping statistics {.tabset .tabset-pills}
 
-The read mapping statistics to the reference genome for each sample are shown below. Typical values for a good mapping lie at > 80 % uniquely mapped reads.
+The read mapping statistics to the reference genome for each sample are shown below. Typical values for a good mapping are above 80% uniquely mapped reads.
 
 ### Percentages {-}
 
@@ -1124,9 +1236,10 @@ cat(paste0("***
 </center>
 \
 ", ifelse(mqc_version == 'old_mqc', "
-## Read assignment statistics {.tabset}
+## Read assignment statistics {.tabset .tabset-pills}
 
-The statistics of read assignment to genes are shown below. Most reads should be assigned. Interpretation of the different assignment types:
+The plots below display how many reads could be assigned to genes in percentage and actual counts. 
+In gneral, most reads should be assigned. Assignment types:
 
 -   **Assigned:** The reads could properly be assigned to a gene or feature. \
 -   **Unassigned Ambiguity:** The reads could not be assigned to any gene because of its ambiguous character.
@@ -1139,9 +1252,12 @@ The statistics of read assignment to genes are shown below. Most reads should be
 
 <center>
 ", "
-## Read assignment statistics {.tabset}
+## Read assignment statistics {.tabset .tabset-pills}
 
-The statistics of read assignment to genes are shown below for pipeline runs on data produced by `rnaseq <= v1.4.2`. If a later version was used, these plots are not generated by rnaseq anymore. However, you can find `star/featurecounts/<sample>.featureCounts.txt.summary` or `star_salmon/featurecounts/<sample>.featureCounts.txt.summary` files in the rnaseq output folder which contain the necessary information for creating such plots.
+The statistics of read assignment to genes are shown below for pipeline runs on data produced by `rnaseq <= v1.4.2`. 
+If a later version was used, these plots are not generated by the nf-core/rnaseq anymore. 
+However, you can find `star/featurecounts/<sample>.featureCounts.txt.summary` or `star_salmon/featurecounts/<sample>.featureCounts.txt.summary` files 
+in the nf-core/rnaseq pipeline output folder which contain the necessary information for creating such plots.
 ")))
 ```
 
@@ -1168,9 +1284,9 @@ cat(paste0("***
 </center>
 \
 
-## Read feature distribution {.tabset}
+## Read feature distribution {.tabset .tabset-pills}
 
-The read distribution of mapped reads over different genomic features (CDS exon, 5'UTR exon, 3' UTR exon, Intron, Intergenic regions) is shown below.
+The plots below show the distribution of mapped reads and their assigment to genomic features (CDS exon, 5'UTR exon, 3' UTR exon, Intron, Intergenic regions).
 In RNAseq experiments, the majority of the reads should be assigned to CDS exons.
 
 ### Percentages {-}
@@ -1202,7 +1318,7 @@ cat(paste0("***
 </center>
 \
 
-## Read strandedness {.tabset}
+## Read strandedness {.tabset .tabset-pills}
 
 The following plots show the number/percentage of reads that match the strandedness of overlapping transcripts. It can be used to infer whether RNA-seq library preps are stranded (sense or antisense).
 
@@ -1223,20 +1339,24 @@ cat(paste0("***
 
 <!-- multiQC end -->
 
-# Gene expression data
+## Gene expression data
 
-## Raw and normalized count tables
+The primary bioinformatic pipeline `r primary_pipeline` was used to quantify the reads and assign them to genomic features.
+See further details in the [computational methods](#computational-methods).
 
-The raw count table and normalized count tables are available [here](./differential_gene_expression/gene_counts_tables).
-The differential expression analysis is performed using the raw gene count table.
-For PCA analysis and heatmap plotting, the `r norm_method_long_text` normalized gene counts were used.
+### Raw and normalized count tables
+
+The raw count table from the [primary bioinformatic pipeline](#primary-bioinformatics-rnaseq) `r primary_pipeline` and normalized count tables are available [here](./differential_gene_expression/gene_counts_tables).
+The [secondary bioinformatic analysis](#secondary-pipeline) of differential expression used the raw gene count table as input.
+For a PCA analysis and heatmap visualizations, the `r norm_method_long_text` normalized gene counts were used.
 `r norm_method_override_text`
 `r nsub_genes_text`
 
-## Principal component analysis (PCA)
+### Principal component analysis (PCA)
 
-A PCA plot of the `r norm_method_text` normalized gene expression visualizes the clustering of samples according to their gene expression.
-In this way, the overall effect of experimental conditions and sample grouping, and any batch effects are visualized.
+A PCA analysis was conducted to visualize the clustering of samples according to their gene expression.
+This visual representation helps to understand overall effects of experimental conditions, sample grouping and detect possible technical batch effects.
+The PCA plot was generated based on the `r norm_method_text` normalized gene expression.
 The original plot can be downloaded [here](./differential_gene_expression/plots/PCA_plot.pdf).
 
 \
@@ -1282,8 +1402,8 @@ if (run_rlog) {
 \
 
 ```{r batch_text, echo=F, message=F, warning=F, eval=params$batch_effect, results='asis'}
-cat("Batch effects were observed in the PCA, so batch effects were corrected.
-A PCA of the batch-effect corrected data is shown below and can be found [here](./differential_gene_expression/plots/PCA_batch_corrected_plot.pdf)")
+cat("As batch effects could be observed in the PCA, they were corrected for.
+A PCA of the batch-effect corrected data is shown below and can be found [here](./differential_gene_expression/plots/PCA_batch_corrected_plot.pdf).")
 ```
 
 ```{r PCA_ifBatch_plot, echo=F, message=F, warning=F, dpi=1200, fig.align='center', eval=params$batch_effect}
@@ -1335,13 +1455,13 @@ pca2 <- ggplotly(pca2, tooltip = "text", width=750, height=400)
 config(pca2, modeBarButtonsToAdd = list(svg_exp)) %>% layout()
 ```
 
-## Sample distance heatmap
+### Sample distance heatmap
 
-A sample distance heatmap was generated from the Euclidean distances of the normalized expression values for all samples.
-
-This visualizes how similar the samples are to each other according to gene expression.
+A sample distance heatmap was generated to reveal similarities and differences in gene expression across all samples.
 Two samples have more similar gene expression if their distance is closer to 0 (darker blue).
+The heatmap is based on Euclidean distances of the normalized expression values for all samples.
 The original plot can be downloaded [here](./differential_gene_expression/plots/Heatmaps_of_distances.pdf).
+
 
 ```{r heatmap_calculate, include=FALSE}
 ##################  SAMPLE DISTANCES HEATMAP ##################
@@ -1349,6 +1469,7 @@ The original plot can be downloaded [here](./differential_gene_expression/plots/
 sampleDists <- dist(t(assay(if (run_rlog) rld else vsd)))
 sampleDistClust <- hclust(sampleDists)  # Do clustering as input for heatmaps so that their column orders are the same
 sampleDistMatrix <- as.matrix(sampleDists)
+cat(print(sampleDistMatrix[1:5,1:5]))
 colors = colorRampPalette(rev(RColorBrewer::brewer.pal(9, "Blues")))(255)
 par(oma=c(3,3,3,3))
 write.table(sampleDistMatrix, file="differential_gene_expression/plots/Heatmaps_of_distances.tsv", sep="\t", quote=F)
@@ -1373,9 +1494,15 @@ dist_heatmap <- heatmaply(sampleDistMatrix, dendrogram = "both", col = colors, g
 dist_heatmap %>% layout(height=700, width=800) %>% config(modeBarButtonsToAdd = list(svg_exp))
 ```
 
-# Differential expression analysis
+# Secondary Bioinformatics {#secondary-pipeline}
 
-After unzipping the results ZIP file, the differential expression results can be found in the directory [differential_gene_expression/](./differential_gene_expression), containing the following subfolders:
+The seconday analysis of differential gene expression was performed using the [QBiC pipeline rnadeseq](https://github.com/qbic-pipelines/rnadeseq), 
+revision, `r as.character(params$revision)`.
+
+## Differential expression (DE) results
+
+The `report.zip` archive contains the results of the [differential_gene_expression](./differential_gene_expression).
+After extracting the ZIP archive the `report` contains the following subfolders:
 
 ```{r structure_strings, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -1387,30 +1514,33 @@ After unzipping the results ZIP file, the differential expression results can be
 ```
 
 <br><details>
-<summary>Expand/collapse</summary>
-- `metadata/`
+<summary>Expand/collapse<br></summary>
+- **rnadeseq_report.html**
+- **metadata/**
+    - `DESeq2_coefficients.tsv`: table with the coefficients of the linear model used for DE analysis.
     - `metadata.tsv`: metadata sheet used by the pipeline.
     - `contrasts.tsv`: contrasts used for DE analysis (if provided).
     - `linear_model.txt`: linear model used for DE analysis.
-    - `gene_list.txt`: provided list of interesting genes (if provided).
+    - `requested_gene_list.txt`: provided list of interesting genes (if provided).
     `r rsem_salmon_string`
-- `gene_counts_tables/`
+- **gene_counts_tables/**
     `r featurecounts_string`
     - `deseq2_library_scaled_gene_counts.tsv`: gene counts after size factor scaling.
     `r genecounts_string`
     - `sizeFactor_libraries.tsv`: size factors for each sample.
-- `DE_genes_tables/`: folder containing one tab-separated table for each of the contrasts in the analysis. Each table contains a list of all differentially expressed genes in the contrast, specifying the mean gene expression across all samples (baseMean), and the log2 fold change value and p-adjusted values (padj) for this contrast.
-- `final_gene_table/final_gene_list_DESeq2.tsv`: table containing a list of all genes considered in the analysis. Here a summary of the log2 Fold Change and p-adjusted values for all contrasts is displayed. Additionally, the column **filter** shows if this gene was differentially expressed (DE) in any of the contrasts, or not (not_DE). The column **contrast_vector** contains for each contrast considered in the analysis a 1 if the gene was differentially expressed for this contrast or a 0 if it was not.
-- `plots/`:
-    - `Heatmaps_of_distances.pdf/.png/.svg`: heatmap of the pairwise Euclidean distances among samples, when the `r norm_method_text` normalized gene counts are considered.
-    - `PCA_plot.pdf`: PCA of the `r norm_method_text` normalized gene counts.
+- **DE_genes_tables/**: folder containing one tab-separated table for each of the contrasts in the analysis. Each table contains a list of all differentially expressed genes in the contrast, specifying the mean gene expression across all samples (baseMean), and the log2 fold change value and p-adjusted values (padj) for this contrast.
+- **final_gene_table/final_gene_list_DESeq2.tsv**: table containing a list of all genes considered in the analysis. Here a summary of the log2 Fold Change and p-adjusted values for all contrasts is displayed. Additionally, the column **filter** shows if this gene was differentially expressed (DE) in any of the contrasts, or not (not_DE). The column **contrast_vector** contains for each contrast considered in the analysis a 1 if the gene was differentially expressed for this contrast or a 0 if it was not.
+- **plots/**:
+    - `Heatmaps_of_distances.{pdf,png,svg}`: heatmap of the pairwise Euclidean distances among samples, when the `r norm_method_text` normalized gene counts are considered.
+    - `PCA_*.{pdf, png, svg}`: PCA plots of the `r norm_method_text` normalized gene counts.
     - `boxplots_example_genes/`: boxplots of the normalized gene counts for each of the sample groups for example genes.
     - `boxplots_requested_genes/`: boxplots of the normalized gene counts for each of the sample groups for the list of requested genes.
     - `further_diagnostics_plots/`: plots for diagnostics of the differential gene analysis procedure.
+    - `volcano_plots`: volcano plots for each of the contrasts in the analysis.
 </details><br>
 
-To perform differential gene expression analysis, the gene expression data between two sample groups is compared.
-These comparisons are called _contrasts_. For this analysis, the following contrasts or comparisons were made:
+In differential gene expression analysis, the gene expression data of two or more sample groups is compared.
+These comparisons are called _contrasts_. For the current report, the following contrasts or comparisons were made:
 
 <!-- contrast calculation start -->
 ```{r contrast_calc, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
@@ -1507,9 +1637,10 @@ if (isProvided(params$path_contrast_list)) {
     for (i in c(1:nrow(contrasts))) {
         cont <- as.character(contrasts[i,])
         contname <- paste0(cont[1], "_", cont[2], "_vs_", cont[3])
+        current_contrast_name  <- paste0(strsplit(sapply(strsplit(cont[1], '_'), function(x) paste(x[2])), '_')[2], ": ", cont[2], "_vs_", cont[3])
         results_DEseq_contrast <- results(cds, contrast=cont)
         results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
-        print(contname)
+        print(current_contrast_name)
 
         # Add gene name in table
         DE_genes_contrast_genename <- results_DEseq_contrast
@@ -1594,6 +1725,9 @@ if (!isProvided(params$path_contrast_matrix) & !isProvided(params$path_contrast_
 
         results_DEseq_contrast <- results(cds, name=contname)
         results_DEseq_contrast <- as.data.frame(results_DEseq_contrast)
+        contrast_len <- sapply(strsplit(contname, "_"), length)
+        current_contrast_name  <- paste0(sapply(strsplit(contname, '_'), function(x) paste(x[3:contrast_len], collapse ="")))
+        print(current_contrast_name)
         print("Analyzing contrast:")
         print(contname)
 
@@ -1699,33 +1833,33 @@ logFC_text <- as.character(params$logFC_threshold)
 pval_text <- as.character(params$adj_pval_threshold)
 ```
 
-## List of differentially expressed genes
+### List of DE genes
 
-The analysis of the differential gene expression was performed using `DESeq2`.
+The [secondary bioinformatics pipeline](#secondary-pipeline) uses `DESeq2` to analyze the differential gene expression.
 Genes were considered differentially expressed (DE) when the adjusted p-value was equal to or lower than `r pval_text` (padj <= `r pval_text`).
 Genes were further considered differentially expressed (DE) if the log2 Fold Change in expression between the two considered groups was equal to or above the threshold of `r logFC_text` in absolute terms.
 The adjusted p-value is calculated in the `DESeq2` package with the Benjamini-Hochberg method. P-value adjustment
-helps reduce the number of false postives (not real differentially expressed genes).
+helps to reduce the number of false postives (not real differentially expressed genes).
 
-The linear model employed to model gene expression in DESeq2 was:
+The linear model used in DESeq2 determines how to model gene expression:
 ```{r print_model}
 cat(paste(readLines(params$path_design), collapse=" "))
 ```
 
-The differentially expressed genes are marked with "DE" in the outcome column if they were found
-differentially expressed for any of the contrasts considered.
+In the resulting tables, the genes are marked as "DE" if they were found to be
+differentially expressed (DE) for any of the compared conditions (contrasts).
 
 The table for download can be found [here](./differential_gene_expression/final_gene_table/final_DE_gene_list.tsv).
 
 Additional tables for all individual contrasts are provided [here](./differential_gene_expression/DE_genes_tables).
 
-## Volcano plots of DE genes {.tabset .tabset-pills}
+### Volcano plots of DE genes {.tabset .tabset-pills}
 
-Volcano plots display the DE genes in Log2 Fold Change values (x axis)
+Volcano plots display the DE genes in log2 fold change values (x axis)
 against their adjusted p-value (y axis) in a form of a -log10. Only DE genes are colored red.
-Features were considered as differentially expressed when they exhibit a padj <= `r pval_text` (horizontal drawn through line)
+Genes were considered as differentially expressed when they exhibit a padj <= `r pval_text` (horizontal drawn through line)
 and a Log2FC >= `r logFC_text` or <= -`r logFC_text` (vertical grey lines).
-Here, volcano plots for all considered contrasts are shown. If a list of requested genes was provided as input,
+Here, volcano plots for all compared conditions (contrasts) are shown. If a list of requested genes was provided as input,
 the plot will show the label of these features of interest.
 If no list of genes was provided, the plot annotates a subset of the most significant DE features with their names.
 The original plots, as well as interactive plots can be downloaded [here](./differential_gene_expression/plots/volcano_plots/).
@@ -1974,7 +2108,7 @@ for (file in allgenes_files){
 
 # Show the volcano plots in tabs
 for (i in 1:length(volcano_list)){
-    cat("### Contrast: ", contrast_list[[i]], "\n")
+    cat("#### Contrast: ", contrast_list[[i]], "\n")
     cat("\n")
     print(volcano_list[[i]])
     cat("\n\n")
@@ -2123,9 +2257,9 @@ if (isProvided(params$path_genelist)) {
 }
 ```
 
-## Boxplots of gene normalized counts
+### Boxplots of normalized counts
 
-Plots of the normalized counts were generated for some example genes. Count normalization was performed by
+Plots of the normalized gene counts were generated for some example genes. Count normalization was performed by
 sequencing depth and adding a pseudocount of 1/2 to allow for log scale plotting.
 The plots are available at [boxplots_example_genes](./differential_gene_expression/plots/boxplots_example_genes).
 
@@ -2139,7 +2273,7 @@ if (!inherits(df_gene, 'try-error')){
 ```
 
 ```{r genes_block, echo=FALSE, results='asis', eval=gene}
-cat("Plots for the [genes of interest](./differential_gene_expression/metadata/gene_list.txt) can be found [here](./differential_gene_expression/plots/boxplots_requested_genes/).
+cat("Plots for the [genes of interest](./differential_gene_expression/metadata/requested_gene_list.txt) can be found [here](./differential_gene_expression/plots/boxplots_requested_genes/).
 \
 ")
 ```
@@ -2160,7 +2294,7 @@ invisible(lapply(c(
 ), library, character.only=T))
 
 # Create output directory
-dir.create("pathway_analysis")
+dir.create("enrichment_analysis")
 
 #The following installs the necessary species library
 species_dir <- tempdir()
@@ -2191,8 +2325,8 @@ if (isProvided(params$set_background)) {
     } else {
         custom_background <- rownames(counts(cds))[notAllZero]
     }
-    dir.create("pathway_analysis/metadata")
-    write.table(custom_background, "pathway_analysis/metadata/custom_background.txt", quote=F, row.names = F, col.names = F)
+    dir.create("enrichment_analysis/metadata")
+    write.table(custom_background, "enrichment_analysis/metadata/custom_background.txt", quote=F, row.names = F, col.names = F)
 }
 
 # Contrast files
@@ -2256,10 +2390,10 @@ if (isProvided(params$custom_gmt)){
 # If GMT exist(s), create metadata folder and move GMT(s) there
 
 if (mv_status) {
-    dir.create("pathway_analysis/metadata")
-    system("mv *.gmt pathway_analysis/metadata")
+    dir.create("enrichment_analysis/metadata")
+    system("mv *.gmt enrichment_analysis/metadata")
     if (isProvided(params$custom_gmt)) {
-        system(paste("cp", params$custom_gmt, "pathway_analysis/metadata/"))
+        system(paste("cp", params$custom_gmt, "enrichment_analysis/metadata/"))
     }
 }
 
@@ -2277,25 +2411,25 @@ pathway_pval_text <- format(params$pathway_adj_pval_threshold, scientific=F)
 theme_set(theme_classic())
 
 # ----------------------
-# Start pathway analysis
+# Start enrichment analysis
 # ----------------------
 
-# For each contrast do pathway analysis
+# For each contrast do enrichment analysis
 
 for (file in contrast_files){
 
     # Read DE genes list
     fname <- tools::file_path_sans_ext(basename(file))
 
-    dir.create(paste("pathway_analysis", fname, sep="/"))
-    dir.create(paste("pathway_analysis", fname, "KEGG_pathways", sep="/"))
-    dir.create(paste("pathway_analysis", fname, "enrichment_plots", sep="/"))
+    dir.create(paste("enrichment_analysis", fname, sep="/"))
+    dir.create(paste("enrichment_analysis", fname, "KEGG_pathways", sep="/"))
+    dir.create(paste("enrichment_analysis", fname, "enrichment_plots", sep="/"))
     DE_genes <- read.csv(file = paste0(path_contrasts, file), sep="\t", header = T)
     DE_genes <- as.data.frame(DE_genes)
 
     # Skip pathway analysis for the contrast if not 2 or more DE genes were found
     if (nrow(DE_genes) < 2){
-        print(paste0("Not enough DE genes to allow for a pathway analysis for contrast: ", fname))
+        print(paste0("Not enough DE genes to allow for a enrichment analysis for contrast: ", fname))
         next
     }
 
@@ -2363,13 +2497,13 @@ for (file in contrast_files){
 
         # Generate non-interactive pathway dotplots in the folder
         pg <- gostplot(gostres, capped=T, interactive=F)
-        ggsave(pg, filename = paste0("pathway_analysis/", "/", fname, "/gost_pathway_gostplot.pdf"),
+        ggsave(pg, filename = paste0("enrichment_analysis/", "/", fname, "/gost_pathway_gostplot.pdf"),
             device="pdf",
             height=10, width=15, units="cm", limitsize=F)
-        ggsave(pg, filename = paste0("pathway_analysis/", "/", fname, "/gost_pathway_gostplot.png"),
+        ggsave(pg, filename = paste0("enrichment_analysis/", "/", fname, "/gost_pathway_gostplot.png"),
             device="png",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
-        ggsave(pg, filename = paste0("pathway_analysis/", "/", fname, "/gost_pathway_gostplot.svg"),
+        ggsave(pg, filename = paste0("enrichment_analysis/", "/", fname, "/gost_pathway_gostplot.svg"),
             device="svg",
             height=10, width=15, units="cm", dpi=300, limitsize=F)
 
@@ -2383,9 +2517,9 @@ for (file in contrast_files){
                 no_background=pathway_gostres_nobg$term_name
             )
             pv <- ggvenn::ggvenn(VennInput)
-            ggsave(paste0("pathway_analysis", "/", fname, "/gost_pathway_venn_diagram.pdf"),pv, device="pdf", width=10, height=15)
-            ggsave(paste0("pathway_analysis", "/", fname, "/gost_pathway_venn_diagram.png"),pv, device="png", width=10, height=15)
-            ggsave(paste0("pathway_analysis", "/", fname, "/gost_pathway_venn_diagram.svg"),pv, device="svg", width=10, height=15)
+            ggsave(paste0("enrichment_analysis", "/", fname, "/gost_pathway_venn_diagram.pdf"),pv, device="pdf", width=10, height=15)
+            ggsave(paste0("enrichment_analysis", "/", fname, "/gost_pathway_venn_diagram.png"),pv, device="png", width=10, height=15)
+            ggsave(paste0("enrichment_analysis", "/", fname, "/gost_pathway_venn_diagram.svg"),pv, device="svg", width=10, height=15)
         }
     }
 
@@ -2395,7 +2529,7 @@ for (file in contrast_files){
 
     # Save pathway enrichment table in tsv format
     write.table(pathway_gostres_table,
-                file = paste0("pathway_analysis", "/", fname, "/pathway_enrichment_results.tsv"),
+                file = paste0("enrichment_analysis", "/", fname, "/pathway_enrichment_results.tsv"),
                 sep="\t", quote = F, col.names = T, row.names = F)
 
     print("------------------------------------")
@@ -2418,7 +2552,7 @@ for (file in contrast_files){
             # Plotting results for df
             df_subset <- data.frame(Pathway_name = df$short_name, Pathway_code = df$term_id, DE_genes = df$intersection_size, Pathway_size = df$term_size, Fraction_DE = (df$intersection_size / df$term_size), Padj = df$p_value, DE_genes_names = df$intersection)
             write.table(df_subset,
-                        file = paste0("pathway_analysis", "/", fname, "/", make.names(db_source), "_pathway_enrichment_results.tsv"),
+                        file = paste0("enrichment_analysis", "/", fname, "/", make.names(db_source), "_pathway_enrichment_results.tsv"),
                         sep="\t", quote = F, col.names = T, row.names = F)
 
             # Enriched pathways horizontal barplots of padj values
@@ -2434,26 +2568,26 @@ for (file in contrast_files){
             # If the plots are huge ggsave will throw an error even if limitsize=T, so I'm leaving limitsize=F and instead using trycatch
             tryCatch(
                 {
-                    ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
+                    ggsave(p, filename = paste0("enrichment_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.pdf"), device = "pdf", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
                 },
                 error=function(e) {
-                    print(paste0("Could not save pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.pdf because of the following error:\n", e))
+                    print(paste0("Could not save enrichment_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.pdf because of the following error:\n", e))
                 }
             )
             tryCatch(
                 {
-                    ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
+                    ggsave(p, filename = paste0("enrichment_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.png"), device = "png", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
                 },
                 error=function(e) {
-                    print(paste0("Could not save pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.png because of the following error:\n", e))
+                    print(paste0("Could not save enrichment_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.png because of the following error:\n", e))
                 }
             )
             tryCatch(
                 {
-                    ggsave(p, filename = paste0("pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
+                    ggsave(p, filename = paste0("enrichment_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.svg"), device = "svg", height = 5+0.5*nrow(df_subset), units = "cm", limitsize=F)
                 },
                 error=function(e) {
-                    print(paste0("Could not save pathway_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.svg because of the following error:\n", e))
+                    print(paste0("Could not save enrichment_analysis", "/", fname, "/enrichment_plots/", make.names(db_source), "_pathway_enrichment_plot.svg because of the following error:\n", e))
                 }
             )
 
@@ -2472,10 +2606,10 @@ for (file in contrast_files){
 
                     # Skip the heatmaps for CI tests because especially png() works only very unreliably for the heatmaps for some reason
                     if (!isProvided(params$citest) & nrow(mat)>1){
-                        dir.create(paste("pathway_analysis", fname, "pathway_heatmaps", sep="/"))
+                        dir.create(paste("enrichment_analysis", fname, "heatmaps", sep="/"))
 
                         # Save matrix as table so that the values are accessible if heatmap plotting does not work properly
-                        write.table(mat, file=paste0("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".tsv"), sep="\t", quote=F, row.names=F)
+                        write.table(mat, file=paste0("enrichment_analysis", "/",fname, "/", "heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".tsv"), sep="\t", quote=F, row.names=F)
 
                         # Reformat matrix so that it can be used by pheatmap (throws error if String columns/IDs are in the table)
                         rownames(mat) <- paste0(mat$Ensembl_ID, "_", mat$gene_name)
@@ -2486,32 +2620,32 @@ for (file in contrast_files){
                         # Because the image devices sometimes don't work here, surround them with a tryCatch so that the code continues even if a certain heatmap is not saved
                         tryCatch(
                             {
-                                png(filename = paste0("pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".png"), width = ifelse(nrow(mat)<=20, 200, 125)+ncol(mat)*40, height = 50+nrow(mat)*50)
+                                png(filename = paste0("enrichment_analysis", "/",fname, "/", "heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".png"), width = ifelse(nrow(mat)<=20, 200, 125)+ncol(mat)*40, height = 50+nrow(mat)*50)
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values (z-scores) for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = params$heatmaps_cluster_cols, cluster_rows = params$heatmaps_cluster_rows)
                                 dev.off()
                             },
                             error=function(e) {
-                                print(paste0("Could not save pathway_analysis", "/",fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".png because of the following error:\n", e))
+                                print(paste0("Could not save enrichment_analysis", "/",fname, "/", "heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".png because of the following error:\n", e))
                             }
                         )
                         tryCatch(
                             {
-                                pdf(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".pdf"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
+                                pdf(paste0("enrichment_analysis", "/", fname, "/", "heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".pdf"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values (z-scores) for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = params$heatmaps_cluster_cols, cluster_rows = params$heatmaps_cluster_rows)
                                 dev.off()
                             },
                             error=function(e) {
-                                print(paste0("Could not save pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".pdf because of the following error:\n", e))
+                                print(paste0("Could not save enrichment_analysis", "/", fname, "/", "heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".pdf because of the following error:\n", e))
                             }
                         )
                         tryCatch(
                             {
-                                svg(paste0("pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".svg"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
+                                svg(paste0("enrichment_analysis", "/", fname, "/", "heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".svg"), width = ifelse(nrow(mat)<=20, 50, 10)+ncol(mat)*0.1, height = 5+nrow(mat)*0.005)
                                 pheatmap(mat = mat, annotation_col = metadata_save, main = paste("Heatmap of normalized expression values (z-scores) for genes in pathway ", pathway$short_name, "(",pathway$source,")",sep=" "), scale = "row", cluster_cols = params$heatmaps_cluster_cols, cluster_rows = params$heatmaps_cluster_rows)
                                 dev.off()
                             },
                             error=function(e) {
-                                print(paste0("Could not save pathway_analysis", "/", fname, "/", "pathway_heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".svg because of the following error:\n", e))
+                                print(paste0("Could not save enrichment_analysis", "/", fname, "/", "heatmaps", "/", "Heatmap_normalized_counts_", pathway$source, "_", make.names(pathway$term_id), ".svg because of the following error:\n", e))
                             }
                         )
                         graphics.off() # Close all still open devices from errors. Tried doing this in finally, but that doesn't work
@@ -2538,8 +2672,8 @@ for (file in contrast_files){
                                         pathway.id = pathway_kegg,
                                         species    = short_organism_name,
                                         out.suffix=paste(fname,sep="_"))
-                                mv_command <- paste0("mv *.png *.xml ","./","pathway_analysis", "/",fname, "/", "KEGG_pathways", "/")
-                                rm_command <- paste0("rm ","./","pathway_analysis", "/",fname, "/", "KEGG_pathways", "/", "*.xml")
+                                mv_command <- paste0("mv *.png *.xml ","./","enrichment_analysis", "/",fname, "/", "KEGG_pathways", "/")
+                                rm_command <- paste0("rm ","./","enrichment_analysis", "/",fname, "/", "KEGG_pathways", "/", "*.xml")
                                 system(mv_command)
                             }
                         }, error = function(e) {
@@ -2610,16 +2744,16 @@ if (isProvided(params$path_genelist)){
 ```{r pathway_analysis, echo=FALSE, results='asis', eval=params$pathway_analysis}
 
 if (isProvided(params$set_background)) {
-    background_list_text <- "The background gene list used for pathway analysis is saved [here](./pathway_analysis/metadata/custom_background.txt)"
+    background_list_text <- "The background gene list used for enrichment analysis is saved [here](./enrichment_analysis/metadata/custom_background.txt)"
 } else {
     background_list_text <- ""
 }
 
 if (mv_status) {
     if (isProvided(params$custom_gmt)) {
-        gost_text <- "A custom GMT file was provided for the gost query; it is saved [here](./pathway_analysis/metadata). In case this GMT file contained entries from datasources other than the selected ones, it was filtered and the resulting filtered GMT was used for querying. The filtered version is also saved to the metadata folder."
+        gost_text <- "A custom GMT file was provided for the gost query; it is saved [here](./enrichment_analysis/metadata). In case this GMT file contained entries from datasources other than the selected ones, it was filtered and the resulting filtered GMT was used for querying. The filtered version is also saved to the metadata folder."
     } else {
-        gost_text <- "A GMT file corresponding to the current gprofiler database version was downloaded to allow for reproducing the gost query; it is saved [here](./pathway_analysis/metadata). Note that the downloaded GMT contains entries from various datasources, not just the selected ones. Also, some datasources might be missing from the files due to licensing reasons."
+        gost_text <- "A GMT file corresponding to the current gprofiler database version was downloaded to allow for reproducing the gost query; it is saved [here](./enrichment_analysis/metadata). Note that the downloaded GMT contains entries from various datasources, not just the selected ones. Also, some datasources might be missing from the files due to licensing reasons."
     }
 } else {
     gost_text <- paste0("The GMT file of the current gprofiler database could not be downloaded with this URL: ", gmt_url, ". For reproducibility reasons, try to download the GMT file manually by visiting https://biit.cs.ut.ee/gprofiler/gost, then selecting the correct organism and finally, in datasources, clicking 'combined ENSG.gmt'.")
@@ -2628,31 +2762,31 @@ if (mv_status) {
 # The following details block creates a collapsible explaining the output folders/files
 cat(paste0("***
 
-# Pathway analysis
-The pathway analysis was performed with the `gProfiler2` tool.
+## Enrichment analysis
+The enrichment analysis was performed with the `gProfiler2` tool.
 
-After unzipping the results ZIP file, the pathway analysis results are stored in this folder: [pathway_analysis/](./pathway_analysis), and explained in this section.
-Inside the pathway analysis results folder, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
+After unzipping the results ZIP file, the enrichment analysis results are stored in this folder: [enrichment_analysis/](./enrichment_analysis), and explained in this section.
+Inside the enrichment analysis results folder, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
 <br><br><details>
 <summary>Expand/collapse</summary>
 - `*_gost_pathway_venn_diagram.pdf/png`
-    - Venn diagrams showing the numbers of enriched pathways when using a background gene list vs when not using a bg list.
+    - Venn diagrams showing the numbers of enriched terms when using a background gene list vs when not using a bg list.
 - `enrichment_plots/*_pathway_enrichment_plot.{pdf/png/svg}`
-    - Barplots showing the proportion of differentially expressed genes in the pathway for a certain pathway database (might be missing if too many pathways were enriched for fitting into a plot).
+    - Barplots showing the proportion of differentially expressed genes in the pathway for a certain pathway database (might be missing if too many terms were enriched for fitting into a plot).
 - `gost_pathway_gostplot.{pdf/png/svg}`
     - Manhattan plots displaying all enriched pathways.
 - `KEGG_pathways/`
     - Contains the KEGG pathways graphs with the log fold change of the differentially expressed genes.
-- `pathway_heatmaps`
-    - Contains heatmaps of the normalized gene counts for each of the differentially expressed pathways.
+- `enrichd_heatmaps`
+    - Contains heatmaps of the normalized DE gene counts for each enriched term.
 </details><br>",
 gost_text,
 
 "\n
-## Enriched pathways {.tabset .tabset-pills}
-The plot below summarizes the pathways that were found significantly enriched in DE genes for each contrast (padj value <= ", pathway_pval_text, ").
-Only contrasts for which an enriched pathway was found are shown.
-Hover over the dots to reveal the pathway names. The table below provides more detail on all enriched pathways."))
+### Enrichment analysis {.tabset .tabset-pills}
+The plot below summarizes the terms that were found significantly enriched in DE genes for each contrast (padj value <= ", pathway_pval_text, ").
+Only contrasts for which an enriched terms were found are shown.
+Hover over the dots to display the pathway names. The table below provides more detail on all enriched terms."))
 ```
 
 ```{r gost, eval=params$pathway_analysis, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE, results='asis'}
@@ -2712,7 +2846,7 @@ for (i in 1:length(q_names))  {
             y_max <- min(ceiling(-log10(min(path_enrich$p_value, na.rm=T))) + 3, 18)
 
         if (nrow(path_enrich) > 0){
-            cat('### Contrast: ', contrast_list[i], '\n')
+            cat('#### Contrast: ', contrast_list[i], '\n')
             cat("\n")
             pg2 <- gostplot(gostres, capped=T, interactive=T) %>%
             layout(title = contrast_list[i],
@@ -2721,7 +2855,7 @@ for (i in 1:length(q_names))  {
             pg2[['x']][['layout']][['annotations']][[2]][['text']] <- ''
             print(htmltools::tagList(pg2))
             cat("\n\n")
-            df_subset <- data.frame(Contrast = q_names[i],
+            df_subset <- data.frame(Contrast = contrast_list[i],
                 Pathway_name = path_enrich$term_name,
                 Pathway_code = path_enrich$term_id,
                 DE_genes = path_enrich$intersection_size,
@@ -2735,14 +2869,14 @@ for (i in 1:length(q_names))  {
             cat("\n\n")
             cat("\n")
         } else {
-            cat('### Contrast: ', contrast_list[i], '\n')
+            cat('#### Contrast: ', contrast_list[i], '\n')
             cat("\n\n")
-            cat(paste("No enriched pathways were found in the selected pathway databases."))
+            cat(paste("No enriched terms were found in the selected databases."))
             path_enrich=data.frame(list())
             cat("\n\n")
         }
     } else {
-        cat("No DE genes were found, pathway analysis not possible.")
+        cat("No DE genes were found, enrichment analysis not possible.")
         path_enrich=data.frame(list())
     }
 
@@ -2752,23 +2886,37 @@ for (i in 1:length(q_names))  {
 
 
 ```{r conditional_KEGG_contrasts, echo=FALSE, results='asis', eval=params$pathway_analysis}
-cat(paste0("## KEGG pathway maps
+cat(paste0("### KEGG pathway maps
 For KEGG pathways, a KEGG pathway map was also generated that can be found in the subfolder named `KEGG_pathways`, for each contrast folder.
 \
 "))
 ```
 
 ```{r conditional_pathway_maps, echo=FALSE, results='asis', eval=params$pathway_analysis}
-cat(paste0("## Pathway heatmaps
-For all considered contrasts, a heatmap of all DE genes that were found in each of the pathways is produced.
-You can find these heatmaps inside the [pathway_analysis](./pathway_analysis) folder, inside the subfolder corresponding to each of the contrasts,
-and the subfolder: `pathway_heatmaps`.
+cat(paste0("### Enrichment terms heatmaps
+For all considered contrasts, a heatmap of all DE genes that were found in each of the enriched terms is produced.
+You can find these heatmaps inside the [enrichment_analysis](./enrichment_analysis/heatmaps/) folder, inside the subfolder corresponding to each of the contrasts,
+and the subfolder: `heatmaps`.
 \
 "))
 ```
-<!-- PA end -->
+<!-- ET end -->
 
-# Summary and outlook
+
+---
+
+
+# Summary
+
+
+We analysed the differential expression of genes in the provided data and compared the following conditions:
+
+Primary bioinformatics analysis was performed using the `r primary_pipeline` pipeline and gene counts were obtained with the quantification method `r quant_tool`.
+
+
+
+
+
 
 ```{r quote, echo=FALSE, results='asis'}
 
@@ -2788,7 +2936,18 @@ quant_tool <- params$input_type
 Further support for this project will be restricted to the results presented in this report.
 For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.
 
-```{r software_versions, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, eval=isProvided(params$path_software_versions)}
+
+---
+
+# Computational methods {#computational-methods}
+
+```{r no_software_versions, echo=FALSE, results='asis', eval=!isProvided(params$path_software_versions)}
+cat("No software versions file was provided for primary analysis.")
+```
+
+
+
+```{r software_versions_duplicate_chunk, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, eval=isProvided(params$path_software_versions)}
 # Import the .csv or .yml file output by the rna-seq Nextflow pipeline
 software_versions_csv <- endsWith(params$path_software_versions, ".csv") || endsWith(params$path_software_versions, ".tsv")
 if (software_versions_csv) {
@@ -2823,32 +2982,34 @@ if (software_versions_csv) {
 
 <!-- TODO all software_versions right (+gprofiler2, reference genome) and nicer description of computational methods -->
 
-# Computational methods
 
-```{r no_software_versions, echo=FALSE, results='asis', eval=!isProvided(params$path_software_versions)}
-cat("No software versions file was provided for primary analysis.")
-```
+
 
 ```{r software_versions_RNASeq, echo=FALSE, results='asis', eval=isProvided(params$path_software_versions)}
 
-# In the following part, I use newlines (in code) where possible whenever the paste0 function switches from a string to a variable call to better distinguish between the two so it is clearer in which lines quotes are needed and in which not --> Cannot always use newlines as this sometimes translates into the report.html
+# In the following part, I use newlines (in code) where possible whenever the paste0 function switches from a string to a variable call to 
+# better distinguish between the two so it is clearer in which lines quotes are needed and in which not 
+# --> Cannot always use newlines as this sometimes translates into the report.html
 
-if (params$input_type == "featurecounts"){
+if (params$input_type == "featurecounts" || params$input_type == "salmon" || params$input_type == "rsem"){
 cat(paste0(
-"## RNAseq data analysis
+"## Primary Bioinformatics 
 
-The Nextflow-based nf-core pipeline `rnaseq ", as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])),
-"` [^1] was used for the RNAseq Bioinfomatics analysis. `FASTQC ",
-as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
-"` [^3] [@andrews2010fastqc] was used to determine quality of the FASTQ files.
-Subsequently, adapter trimming was conducted with `Trim Galore ",
+### RNASeq analysis {#rnaseq-methods}
+
+The Nextflow-based [nf-core/rnaseq](https://nf-co.re/rnaseq) pipeline, revision ", as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"], 
+version["Workflow"][[1]]["nf-core/rnaseq"])),
+", was used for the [primary bioinformatic analysis](#primary-bioinformatics-rnaseq). 
+[FASTQC ", as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
+"](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) [@andrews2010fastqc] was used to determine the quality of the FASTQ files.
+Subsequently, adapter trimming was conducted with [Trim Galore ",
 as.character(ifelse(software_versions_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"])),
-"` [^4] [@krueger2012trim]. `STAR v",
-as.character(ifelse(software_versions_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
-"` [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
-The RNA-seq data quality control was performed with `RSeQC ",
+"](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/) [@krueger2012trim]. 
+The [STAR v", as.character(ifelse(software_versions_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
+"](https://github.com/alexdobin/STAR) [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
+The RNA-seq data quality control was performed with [RSeQC ",
 as.character(ifelse(software_versions_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"])),
-"` [@wang2012rseqc] and read quantification of the features (e.g. genes) with `",
+"](https://rseqc.sourceforge.net/) [@wang2012rseqc] and read quantification of the features (e.g. genes) with `",
 quant_tool,
 " ",
 quant_version,
@@ -2858,50 +3019,61 @@ quant_cite,
 ))
 } else if (params$input_type == "smrnaseq"){
 cat(paste0(
-"## smRNA-seq data analysis
+"## Primary Bioinformatics
 
-The Nextflow-based nf-core pipeline `smrnaseq ", as.character(version["Workflow"][[1]]["nf-core/smrnaseq"]),
-"` [^6] was used for the smRNA-seq Bioinfomatics analysis. `FASTQC ",
-as.character(version["FASTQC"][[1]]["fastqc"]),
-"` [^3] [@andrews2010fastqc] was used to determine the quality of the miRNA samples. ",
-ifelse("TRIMGALORE" %in% names(version), paste0("Subsequently, adapter trimming was conducted with `Trim Galore ",
+### smRNA-seq data analysis {#smrnaseq-methods}
+
+The Nextflow-based [nf-core/smrnaseq](https://nf-co.re/smrnaseq/) pipeline, revision ", as.character(version["Workflow"][[1]]["nf-core/smrnaseq"]), 
+" was used for the [primary bioinformatic analysis](#primary-bioinformatics-smrnaseq). 
+[FASTQC ", as.character(version["FASTQC"][[1]]["fastqc"]),
+"](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) [@andrews2010fastqc] was used to determine the quality of the miRNA samples. ",
+ifelse("TRIMGALORE" %in% names(version), paste0("Subsequently, adapter trimming was conducted with [Trim Galore ",
 as.character(version["TRIMGALORE"][[1]]["trimgalore"]),
-"` [^4] [@krueger2012trim]."),
-    ifelse("FASTP" %in% names(version), paste0("Subsequently, adapter trimming was conducted with `fastP ",
+"](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/) [@krueger2012trim]."),
+    ifelse("FASTP" %in% names(version), paste0("Subsequently, adapter trimming was conducted with [fastP ",
     as.character(version["FASTP"][[1]]["fastp"]),
-    "` [^7] [@chen2018fastp; @chen2023ultrafast]."),
+    "](https://github.com/OpenGene/fastp) [@chen2018fastp; @chen2023ultrafast]."),
         "")),
-" `Bowtie v", as.character(version["BOWTIE_MAP_HAIRPIN"][[1]]["bowtie"]), "` [@langmead2009ultrafast] aligner was used to map the reads that passed the quality control to the reference database.
-The smRNA-seq data quality control was performed with `miRTrace ",
+" [Bowtie v", as.character(version["BOWTIE_MAP_HAIRPIN"][[1]]["bowtie"]), "](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml) [@langmead2009ultrafast] 
+aligner was used to map the reads that passed the quality control to the reference database.
+The smRNA-seq data quality control was performed with [miRTrace ",
 as.character(version["MIRTRACE_RUN"][[1]]["mirtrace"]),
-"` [^8] [@kang2018mirtrace] and read quantification of the features (e.g. genes) with `",
+"](https://github.com/friedlanderlab/mirtrace) [@kang2018mirtrace] and read quantification of the features (e.g. genes) with `",
 quant_tool,
 " ",
 quant_version,
 "` ",
 quant_cite,
 ".",
-"\nThe output from `SAMtools`, more specifically the  `<QBiC-Code>_mature_hairpin.sorted.idxstats` and `<QBiC-Code>_mature.sorted.idxstats` files, were then used to create a counts matrix. This was done by combining all of these files into a single table, using only the rownames and the third column (second column after the rownames) of each file which contains the counts. The last row of each file (which always has an asterisk `*` as rowname) was excluded. The resulting counts matrix was used as input for the `rnadeseq` pipeline."
+"\nThe output from [SAMtools](https://www.htslib.org/): `<QBiC-Code>_mature_hairpin.sorted.idxstats` and `<QBiC-Code>_mature.sorted.idxstats` files,  
+were then used to create a count matrix. This was done by combining all of these files into a single table, using only the rownames and the third 
+column (second column after the rownames) of each file which contains the counts. 
+The last row of each file (which always has an asterisk `*` as rowname) was excluded. 
+The resulting count matrix was used as input for the [rnadeseq pipeline](https://github.com/qbic-pipelines/rnadeseq)."
 ))
 }
 ```
 
 ```{r MQC_cite, echo=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))&software_versions_csv&isProvided(params$path_software_versions)}
-cat(paste0("\nAn aggregation of the quality control for the RNAseq analysis was performed with `MultiQC ", as.character(version["MultiQC"]), "` [^2] [@ewels2016multiqc]."))
+cat(paste0("\nAn aggregation of the quality control for the RNAseq analysis was performed with [MultiQC ", as.character(version["MultiQC"]), 
+"](https://seqera.io/multiqc/)[@ewels2016multiqc]."))
 ```
 
 ```{r software_versions_DE, echo=FALSE, results='asis'}
 cat(paste0(
-"## Differential gene expression analysis
+"## Secondary Bioinformatics
 
-The differential expression analysis was performed by the use of the `rnadeseq ",
-as.character(params$revision),
-"` pipeline [^5], which was written using the nf-core template [@ewels2020nf]. For differential expression analysis, the read quantification data resulting from `",
-quant_tool, "` were processed with the R package `DESeq2 v",
+### Differential gene expression analysis
+
+The secondary analysis of differential gene expression was performed by the using the [rnadeseq pipeline](https://github.com/qbic-pipelines/rnadeseq), revision ", 
+as.character(params$revision),"
+ , which was written using the nf-core template [@ewels2020nf]. The read quantification data resulting from `",
+quant_tool, "` was processed with the R package [DESeq2 v",
 packageVersion("DESeq2"),
-"` [@love2014differential]. The thresholds for differentially expressed genes were set to ",
-pval_text, " for the adjusted p-value and ",
-logFC_text, " for the log2 Fold Change."
+"](https://bioconductor.org/packages/release/bioc/html/DESeq2.html) [@love2014differential]. 
+Genes are considered differentially expressed if they show an adjusted p-value<=",
+pval_text, " and a log2 Fold Change>=",
+logFC_text, "."
 ))
 
 ```{r conditional_pathway, echo=FALSE, results='asis', eval=isProvided(params$pathway_analysis)}
@@ -2929,43 +3101,38 @@ if (isProvided(params$custom_gmt)){
         database_string <- paste0(database_string, ", `", db, ": ", database_version_info$sources[[db]]$version, "`")
     }
 } else {
-    database_string <- paste("All datasources available in g:Profiler were considered (check https://biit.cs.ut.ee/gprofiler/gost and https://biit.cs.ut.ee/gprofiler/page/docs for more info).")
+    database_string <- paste("All datasources available in g:Profiler were considered (check https://biit.cs.ut.ee/gprofiler/gost and
+    https://biit.cs.ut.ee/gprofiler/page/docs for more info).")
 }
 
 cat(paste0(
-"\n## Pathway enrichment analysis
+"\n### Enrichment analysis
 
-For pathway analysis, the R packages `gprofiler2 v", version_gprofiler2,
-" `, `AnnotationDbi v", version_annotation,
+For the enrichment analysis, the R packages [gprofiler2 v", version_gprofiler2,
+" ](https://biit.cs.ut.ee/gprofiler/page/r), `AnnotationDbi v", version_annotation,
 "` and `", name_species, " v", version_annotation,
 "` were used. ", database_string, ".\n",
-"Pathways were classified as enriched for those genes with an adjusted p-value <= ", pathway_pval_text, "."
+"Enriched terms were classified as enriched for genes with an adjusted p-value <= ", pathway_pval_text, "."
 ))
 ```
 
-Graphs were produced in RStudio with ``r R.version.string`` mainly using the R package `ggplot2 v`r packageVersion("ggplot2")`` . Final reports were produced using the R package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` and `DT v`r packageVersion("DT")`` R packages.
+All images in this report were generated in RStudio with ``r R.version.string`` mainly using the R package `ggplot2 v`r packageVersion("ggplot2")``. 
+Final reports were produced using the R package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` 
+and `DT v`r packageVersion("DT")`` R packages.
 
 ## Package version overview
 
-The following lists all packages used for analysis, together with their versions.
+The versions of the software used for the analysis are saved in the [differential_gene_expression](./differential_gene_expression/rnadeseq_software_versions.yml) folder.
+The following section lists all packages used for analysis, together with their versions.
+
+```{r rnadeseq_versions_output, echo=FALSE, message=FALSE, warning=F}
+sessioninfo::session_info() %>%  write_yaml(paste0(wd, "/differential_gene_expression/rnadeseq_software_versions.yml"))
+```
+
 
 ```{r versions}
-sessioninfo::session_info()%>%
+sessioninfo::session_info() %>%
     details::details(summary = 'Session info/used packages')
 ```
 
 ---
-
----
-
-# Bibliography
-
-[^1]: https://github.com/nf-core/rnaseq
-[^2]: http://multiqc.info/
-[^3]: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/
-[^4]: https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/
-[^5]: https://github.com/qbic-pipelines/rnadeseq
-
-[^6]: https://github.com/nf-core/smrnaseq
-[^7]: https://github.com/OpenGene/fastp
-[^8]: https://github.com/friedlanderlab/mirtrace
