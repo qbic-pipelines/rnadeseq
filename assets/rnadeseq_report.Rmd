@@ -524,17 +524,13 @@ no_RIN = FALSE
 RIN=FALSE
 if(file.exists(QAfile)){
     df_QA <- read.table(QAfile, header=TRUE, sep="\t", check.names = FALSE)
-    conditions <- grepl(colnames(df_QA),pattern = "Condition")
-    df_QA_cond <- as.data.frame(df_QA[ ,conditions])
-    colnames(df_QA_cond) <- colnames(df_QA)[conditions]
-    df_QA_neat <- df_QA[,c("QBiC Code", "Secondary Name")]
+    df_QA$sampleName = paste(df_QA$`QBiC Code`, df_QA$`Secondary Name`, sep="_")
+    df_QA_neat <- df_QA
 
     #add "Sample Type" only if present in metadata.tsv
     if ("Sample Type" %in% colnames(df_QA)) {
-            df_QA_neat[,c("Sample Type")] <- df_QA[,c("Sample Type")]
+            df_QA[,c("Sample Type")] <- df_QA[,c("Sample Type")]
     }
-    df_QA_neat <- merge(df_QA_neat, df_QA_cond, by="row.names")
-    df_QA_neat$Row.names <- NULL
     if ("RIN" %in% colnames(df_QA)) {
         if (any(is.na(df_QA$RIN))) {
             no_RIN <- TRUE
@@ -569,7 +565,7 @@ found [here](./differential_gene_expression/metadata/metadata.tsv).
 \
 ")
 # if ("RIN" %in% colnames(df_QA_neat)){df_QA_neat$RIN <- NULL}
-DT::datatable(metadata, options = list(scrollX  = "100%", scrollY = "400px", pageLength = -1, dom = 'ft'))
+DT::datatable(df_QA, options = list(scrollX  = "100%", scrollY = "400px", pageLength = -1, dom = 'ft'))
 ```
 
 <!-- DESeq2 start -->
@@ -580,7 +576,7 @@ DT::datatable(metadata, options = list(scrollX  = "100%", scrollY = "400px", pag
 ################## RUN DESEQ2 ######################################
 # Run DESeq function
 if (params$input_type %in% c("featurecounts", "smrnaseq")) {
-    cds <- DESeqDataSetFromMatrix( countData =count.table, colData =metadata, design = eval(parse(text=as.character(design[[1]]))))
+    cds <- DESeqDataSetFromMatrix( countData = count.table, colData = metadata, design = eval(parse(text=as.character(design[[1]]))))
 } else if (params$input_type %in% c("rsem", "salmon")) {
 
     ## Create a dataframe which consists of both the gene id and the transcript name
@@ -624,7 +620,7 @@ if (params$input_type %in% c("featurecounts", "smrnaseq")) {
         condition_names <- grep("condition|batch", condition_names, value=T)
         sampleconditions <- data.frame(metadata[,condition_names])
         colnames(sampleconditions) <- condition_names
-        coldata <- data.frame(files = files, names= qbicCodes, sampleconditions)
+        coldata <- data.frame(files = files, names=qbicCodes, sampleconditions)
         coldata$combfactor <- metadata$combfactor
         rownames(coldata) <- NULL
 
@@ -639,6 +635,7 @@ if (params$input_type %in% c("featurecounts", "smrnaseq")) {
 
         #dds from SummarizedExperiment <se>, then run DESeq
         cds <- DESeqDataSet(se, design = as.formula(eval(parse(text=as.character(design[[1]])))))
+        row.names(cds@colData) <- paste0(row.names(cds@colData), '_', metadata$Secondary.Name)
         # get raw counts
         count_table_names <- merge(x=gene_names, y=assay(cds), by.x = "Ensembl_ID", by.y="row.names")
         count_table_names <- count_table_names[order(count_table_names$Ensembl_ID),]
@@ -675,7 +672,8 @@ if (params$input_type %in% c("featurecounts", "smrnaseq")) {
         coldata <- data.frame(files = files, names= qbicCodes, sampleconditions)
         coldata$combfactor <- metadata$combfactor
         rownames(coldata) <- qbicCodes
-        cds <- DESeqDataSetFromTximport(txi=txi.salmon, colData =coldata, design = eval(parse(text=as.character(design[[1]]))))
+        cds <- DESeqDataSetFromTximport(txi=txi.salmon, colData = coldata, design = eval(parse(text=as.character(design[[1]]))))
+        row.names(cds@colData) <- paste0(row.names(cds@colData), '_', metadata$Secondary.Name)
         # get raw counts
         count_table_names <- merge(x=gene_names, y=assay(cds), by.x = "Ensembl_ID", by.y="row.names")
         count_table_names <- count_table_names[order(count_table_names$Ensembl_ID),]
@@ -930,13 +928,56 @@ for (i in resultsNames(cds)[-1]) {
 
 # Workflow overview
 
-The image below displays the analysis workflow which is a two-step process. 
-In a first step, reads are aligned and assigned to genomic features using nf-core/pipelines.
-In a second step, the gene counts are analyzed for differential expression with the downstream secondary analysis pipeline rnadeseq.
+The image below displays the two-step analysis workflow from your input data to differential gene expression analysis. 
+In the first step, reads were aligned and assigned to genomic features using nf-core/pipelines.
+In the second step, the gene counts were analyzed for differential expression with the downstream secondary analysis pipeline rnadeseq.
+The workflow highlightes the pipelines and methods that were used in colors.
 
-```{mermaid}
+```{r mermaid, echo=F, message=F, warning=F}
+library(DiagrammeR)
 
+# Colors
+color_nfcore_rnaseq <- if (params$input_type != 'smrnaseq') "#24B064" else "#f0f0f0"
+color_nfcore <- if (params$input_type == 'smrnaseq') "#24B064" else "#f0f0f0"
+
+color_featurecounts <- if (params$input_type == 'featurecounts') "#f8c383" else "#f0f0f0"
+color_salmon <- if (params$input_type == 'salmon') "#f8c383" else "#f0f0f0"
+color_rsem <- if (params$input_type == 'rsem') "#f8c383" else "#f0f0f0"
+color_mirtop <- if (params$input_type == 'smrnaseq') "#f8c383" else "#f0f0f0"
+
+# Generate DOT string with conditional color
+dot_code <- sprintf('
+digraph flowchart {
+  graph [layout = dot, rankdir = LR]
+
+  node [shape = box, style = filled, fontname = Helvetica, fontcolor = black]
+
+  A [label = "Primary Bioinformatics\\nnf-core/rnaseq", fillcolor = "%s"]
+  B [label = "Primary Bioinformatics\\nnf-core/smrnaseq", fillcolor = "%s"]
+  C [label = "Quantification", shape = diamond, fillcolor = "#f0f0f0", fontcolor = "#333333" width = 1.5, height = 1.5 ]
+  D [label = "featureCounts", fillcolor =  "%s", fontcolor = "#333333"]
+  E [label = "STAR-Salmon", fillcolor =  "%s", fontcolor = "#333333"]
+  F [label = "RSEM", fillcolor =  "%s", fontcolor = "#333333"]
+  G [label = "miRTop", fillcolor =  "%s", fontcolor = "#333333"]
+  H [label = "Secondary Bioinformatics\\nqbic-pipelines/rnadeseq", fillcolor = "#2b64b9", fontcolor=white]
+
+  A -> C
+  B -> C
+  C -> D
+  C -> E
+  C -> F
+  C -> G
+  D -> H
+  E -> H
+  F -> H
+  G -> H
+}
+', color_nfcore_rnaseq, color_nfcore, color_featurecounts, color_salmon, color_rsem, color_mirtop)
+
+# Render
+grViz(dot_code)
 ```
+
 
 
 ```{r primary_bioinformatics, echo=FALSE, message=FALSE, warning=FALSE, results = 'asis'}
@@ -1822,11 +1863,21 @@ write.table(DE_genes_final_table, "differential_gene_expression/final_gene_table
 ```
 <!-- contrast calculation end -->
 
-```{r print_contrasts, echo=FALSE, results='asis'}
+```{r print_contrasts, eval=F}
 for (i in 1:length(contrast_names)){
-    cat(paste("* ", contrast_names[i], "\n"))
+    contrast_len <- sapply(strsplit(contrast_names[i], '_'), length)
+    current_condition <- sapply(strsplit(contrast_names[i], '_'), function(x) paste(x[2], collapse=' '))
+    current_contrast_name <- sapply(strsplit(contrast_names[i], '_'), function(x) paste(x[(contrast_len-2):contrast_len], collapse=' '))
+    cat(paste("* Comparison: ", current_condition, ":", current_contrast_name, "\n"))
 }
 ```
+
+
+```{r, print_contrasts, eval=T, results='asis', warning=FALSE, message=FALSE}
+```
+
+
+The first contrast listed should be the experimental condition to test for and the contrast listed at the end should be used as the baseline (control) expression. 
 
 ```{r load_config, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 logFC_text <- as.character(params$logFC_threshold)
@@ -1841,12 +1892,32 @@ Genes were further considered differentially expressed (DE) if the log2 Fold Cha
 The adjusted p-value is calculated in the `DESeq2` package with the Benjamini-Hochberg method. P-value adjustment
 helps to reduce the number of false postives (not real differentially expressed genes).
 
-The linear model used in DESeq2 determines how to model gene expression:
-```{r print_model}
-cat(paste(readLines(params$path_design), collapse=" "))
+The following linear model (design) was used in DESeq2 to model gene expression:
+```{r print_model, results='asis'}
+
+lines <- (readLines(params$path_design))
+cat(paste0("`", gsub('condition_', '', lines), "`"), sep = "\n")
+
 ```
 
-In the resulting tables, the genes are marked as "DE" if they were found to be
+
+Uncollapse the table below to show the meaning of different design strategies with example conditions:
+
+<details>
+<summary>Design strategies</summary>
+
+| Design                           | Interpretation                                                                   |
+| -------------------------------- | -------------------------------------------------------------------------------- |
+| `~ treatment`                    | Model effect of treatment only                                                   |
+| `~ treatment + genotype`         | Model additive effects of treatment and genotype (assumes independence of both ) |
+| `~ batch + treatment`            | Control for batch effects when testing treatment                                 |
+| `~ genotype * treatment`         | Include interaction — test if treatment effects differ between genotypes         |
+| `~ batch + genotype * treatment` | Full model, adjusting for batch and testing interaction effects                  |
+
+</details><br>
+
+
+In the resulting DE tables, the genes are marked as "DE" if they were found to be
 differentially expressed (DE) for any of the compared conditions (contrasts).
 
 The table for download can be found [here](./differential_gene_expression/final_gene_table/final_DE_gene_list.tsv).
@@ -1863,6 +1934,7 @@ Here, volcano plots for all compared conditions (contrasts) are shown. If a list
 the plot will show the label of these features of interest.
 If no list of genes was provided, the plot annotates a subset of the most significant DE features with their names.
 The original plots, as well as interactive plots can be downloaded [here](./differential_gene_expression/plots/volcano_plots/).
+
 
 ```{r volcano_plot, out.width="100%", out.height="100%", eval=FALSE}
 
@@ -1969,62 +2041,68 @@ for (file in allgenes_files){
     DE_genes$logpval <- -log10(DE_genes$padj)
     # Save true value for hovertext
     DE_genes$truelogpval <- DE_genes$logpval
-    DE_genes <- DE_genes %>%
-            mutate(color = ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold & DE_genes$logpval >= -log10(params$adj_pval_threshold)), "red",
-            ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold & DE_genes$logpval < -log10(params$adj_pval_threshold)), "green",
-                ifelse((abs(DE_genes$log2FoldChange) < params$logFC_threshold & DE_genes$logpval >= -log10(params$adj_pval_threshold)), "blue",
-                    ifelse((abs(DE_genes$log2FoldChange) < params$logFC_threshold & DE_genes$logpval < -log10(params$adj_pval_threshold)), "black", "purple")
-                        )
-                    )
-                )
-            )
     log2FoldChange_min <- min(DE_genes$log2FoldChange)
     log2FoldChange_max <- max(DE_genes$log2FoldChange)
     log2FoldChange_quotient <- length(seq(log2FoldChange_min, log2FoldChange_max, 10))
 
-    pg <- ggplot(
-            DE_genes,
-            aes(
-                x=log2FoldChange,
+    label_DE <- paste0("DE:", "p_adj<", params$adj_pval_threshold, " & Log2FC >|", params$logFC_threshold, "|")
+    label_NS <- "NS"
+    label_logFC <-  paste0("log2FC>|", params$logFC_threshold, "|")
+    label_padj <- paste0("p_adj< ", params$adj_pval_threshold)
+
+    DE_genes <- DE_genes %>%
+            mutate(color_code = ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold & DE_genes$logpval >= -log10(params$adj_pval_threshold)), label_DE,
+            ifelse((abs(DE_genes$log2FoldChange) >= params$logFC_threshold & DE_genes$logpval < -log10(params$adj_pval_threshold)), label_logFC,
+                ifelse((abs(DE_genes$log2FoldChange) < params$logFC_threshold & DE_genes$logpval >= -log10(params$adj_pval_threshold)), label_padj,
+                    ifelse((abs(DE_genes$log2FoldChange) < params$logFC_threshold & DE_genes$logpval < -log10(params$adj_pval_threshold)), label_NS, "purple")
+                        )
+                    )
+                )
+            )
+
+    DE_genes$color_code <- as.factor(DE_genes$color_code)
+    color_map <- c(
+        setNames("#d03a33", label_DE),
+        setNames("#458a34", label_logFC),
+        setNames("#444444", label_NS), 
+        setNames("#465adb", label_padj)
+    )
+
+    pg <- ggplot(DE_genes,
+            aes(x=log2FoldChange,
                 y=logpval,
+                colour=color_code,
                 text=paste("Gene: ", gene_name,
                             "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2),
-                            "<br>", "-Log10padj: ", formatC(truelogpval, digits=2, format='f')))) +
-            geom_point(
-            alpha = 0.5, aes(colour = ifelse(color == "red", paste0("DE:", "p_adj<", params$adj_pval_threshold, " & Log2FC >|", params$logFC_threshold, "|"),
-                ifelse(color == "blue", paste0("p_adj<", params$adj_pval_threshold),
-                ifelse(color == "green", paste0("log2FC>|", params$logFC_threshold, "|"),
-                    ifelse(color == "black", "NS", "")
-                )
-                )
-            )),
-            na.rm = TRUE
-            ) +
+                            "<br>padj: ", formatC(padj, digits = 2),
+                            "<br>", "-Log10padj: ", formatC(truelogpval, digits=2, format='f'))
+                            )) +
+            geom_point(alpha = 0.5,
+                        na.rm = TRUE) +
             geom_hline(yintercept = -log10(params$adj_pval_threshold), linewidth = 0.2, color = "grey") +
             geom_vline(xintercept = -1, linewidth = 0.2, color = "grey") +
             geom_vline(xintercept = 1, linewidth = 0.2, color = "grey") +
-            scale_color_manual(name = "", values = c("red", "green", "black", "blue")) +
+            scale_color_manual(name = "", values=color_map) +
             scale_y_continuous(limits = c(-1, max(-log10(DE_genes[['padj']]), na.rm=TRUE) + 5)) +
             ylab("-log 10 padj") + xlab("Log2 Fold Change") +
             theme(panel.spacing = unit(ifelse(length(allgenes_files)>2, 0.1, 0.6), "lines")) +
             scale_x_continuous(breaks = seq(-200, 200, ifelse(log2FoldChange_quotient<3, 1, 5))) +
-            ggtitle(
-                paste('Comparison:', current_contrast_name),
-                subtitle=paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE)))
+            ggtitle(paste('Comparison:', current_contrast_name),
+                    subtitle=paste0("DE results; total=", 
+                        thousandFormat(nrow(DE_genes)), ", DE=", 
+                        thousandFormat(numDE)))
 
 
     # Save static plot
-    ggsave(
-        filename = file.path(wd, "/differential_gene_expression", "plots", "volcano_plots", paste0(fname, ".png")),
-        plot = pg,
-        width = 8,
-        height = 5)
+    ggsave(filename = file.path(wd, "/differential_gene_expression", "plots", "volcano_plots", paste0(fname, ".png")),
+            plot = pg,
+            width = 8,
+            height = 5)
 
-    pg <- pg + ggtitle(
-                paste('<b>Comparison:', current_contrast_name, '</b>',
-                '<br><sup>',
-                paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE))
-                ,'</sup>'))
+    pg <- pg + ggtitle(paste('<b>Comparison:', current_contrast_name, '</b>',
+                        '<br><sup>',
+                        paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE)),
+                        '</sup>'))
 
     # Define smaller plotly size
     ppg <- partial_bundle(ggplotly(pg, tooltip = "text")) %>% layout(autosize = F, width = 600, height = 400)
@@ -2102,6 +2180,8 @@ for (file in allgenes_files){
 ```
 
 
+
+
 <!-- Display volcano plots in report in tabs -->
 
 ```{r show_enhanced_volcano, results = 'asis', fig.height=7, fig.width=7, message=FALSE, warning=FALSE}
@@ -2110,6 +2190,10 @@ for (file in allgenes_files){
 for (i in 1:length(volcano_list)){
     cat("#### Contrast: ", contrast_list[[i]], "\n")
     cat("\n")
+    baseline_contrast <- sapply(strsplit(contrast_list[i], ' '), function(x) paste(x[3], collapse=' '))
+    experiment_contrast <- sapply(strsplit(contrast_list[i], ' '), function(x) paste(x[1], collapse=' '))
+    cat(paste('A positive log2FC indicates an upregulation of a gene in', experiment_contrast, 'compared to', baseline_contrast, '.'))
+    cat("\n\n")
     print(volcano_list[[i]])
     cat("\n\n")
 }
@@ -2692,10 +2776,7 @@ for (file in contrast_files){
 if (isProvided(params$path_genelist)){
 
     genelist_path = params$path_genelist
-    genelist_heatmaps_dir <- "differential_gene_expression/plots/heatmap_gene_list"
-    dir.create(genelist_heatmaps_dir)
 
-    print("Plotting heatmaps...")
     conditions <- grepl("Condition", colnames(metadata))
     condition <- metadata[,conditions]
     metadata_save <- as.data.frame(condition)
@@ -2718,6 +2799,10 @@ if (isProvided(params$path_genelist)){
     mat <- norm_counts[which(norm_counts$Ensembl_ID %in% gene_list), ]
 
     if (nrow(mat)>1){
+        # Create dir only if it is populated with plots
+        genelist_heatmaps_dir <- "differential_gene_expression/plots/heatmap_gene_list"
+        dir.create(genelist_heatmaps_dir)
+        print("Plotting heatmaps...")
 
         # Reformat matrix so that it can be used by pheatmap (throws error if String columns/IDs are in the table)
         rownames(mat) <- paste0(mat$Ensembl_ID, "_", mat$gene_name)
@@ -2768,7 +2853,7 @@ The enrichment analysis was performed with the `gProfiler2` tool.
 After unzipping the results ZIP file, the enrichment analysis results are stored in this folder: [enrichment_analysis/](./enrichment_analysis), and explained in this section.
 Inside the enrichment analysis results folder, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
 <br><br><details>
-<summary>Expand/collapse</summary>
+<summary>Click to show details</summary>
 - `*_gost_pathway_venn_diagram.pdf/png`
     - Venn diagrams showing the numbers of enriched terms when using a background gene list vs when not using a bg list.
 - `enrichment_plots/*_pathway_enrichment_plot.{pdf/png/svg}`
@@ -2848,6 +2933,8 @@ for (i in 1:length(q_names))  {
         if (nrow(path_enrich) > 0){
             cat('#### Contrast: ', contrast_list[i], '\n')
             cat("\n")
+            cat("Hover over the datapoints to display additional information.") 
+            cat("\n\n")
             pg2 <- gostplot(gostres, capped=T, interactive=T) %>%
             layout(title = contrast_list[i],
                     yaxis = list(range = list(-1, y_max)))
@@ -2871,12 +2958,12 @@ for (i in 1:length(q_names))  {
         } else {
             cat('#### Contrast: ', contrast_list[i], '\n')
             cat("\n\n")
-            cat(paste("No enriched terms were found in the selected databases."))
+            cat(paste("> **⚠️ Warning:** No enriched terms were found in the selected databases."))
             path_enrich=data.frame(list())
             cat("\n\n")
         }
     } else {
-        cat("No DE genes were found, enrichment analysis not possible.")
+        cat("> **⚠️ Warning:** No DE genes were found, enrichment analysis not possible.")
         path_enrich=data.frame(list())
     }
 
@@ -2895,7 +2982,7 @@ For KEGG pathways, a KEGG pathway map was also generated that can be found in th
 ```{r conditional_pathway_maps, echo=FALSE, results='asis', eval=params$pathway_analysis}
 cat(paste0("### Enrichment terms heatmaps
 For all considered contrasts, a heatmap of all DE genes that were found in each of the enriched terms is produced.
-You can find these heatmaps inside the [enrichment_analysis](./enrichment_analysis/heatmaps/) folder, inside the subfolder corresponding to each of the contrasts,
+You can find these heatmaps inside the [enrichment_analysis](./enrichment_analysis/) folder, inside the subfolder corresponding to each of the contrasts,
 and the subfolder: `heatmaps`.
 \
 "))
@@ -2908,12 +2995,30 @@ and the subfolder: `heatmaps`.
 
 # Summary
 
-
-We analysed the differential expression of genes in the provided data and compared the following conditions:
-
 Primary bioinformatics analysis was performed using the `r primary_pipeline` pipeline and gene counts were obtained with the quantification method `r quant_tool`.
 
+We analysed the differential expression of genes in the provided data with the rnadeseq pipeline.
 
+Genes were considered differentially expressed (DE) if their adjusted p-value was equal to or lower than `r pval_text` (padj <= `r pval_text`) 
+and if their log2FC was greater than `r logFC_text`. We compared the following conditions:
+
+```{r summary, warning=FALSE, message=FALSE, results='asis'}
+for (file in allgenes_files) {
+  # Reading DE genes list
+  fname <- tools::file_path_sans_ext(basename(file))
+  DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/allgenes/", file), sep="\t", header = T)
+  DE_genes$contrast <- rep(fname, nrow(DE_genes))
+  num_all <- DE_genes %>% nrow()
+  numDE <- DE_genes %>%
+    filter(padj <= params$adj_pval_threshold, abs(log2FoldChange) >= params$logFC_threshold) %>%
+    nrow()
+  
+  contrast_len <- sapply(strsplit(fname, "_"), length)
+  current_condition <- sapply(strsplit(contrast_names[i], '_'), function(x) paste(x[2], collapse=' '))
+  current_contrast_name <- sapply(strsplit(fname, '_'), function(x) paste(x[(contrast_len-2):contrast_len], collapse=' '))
+  cat(paste("* Comparison:", current_condition, ":", current_contrast_name, "has", numDE, "DE genes out of", num_all, "tested genes.\n"))    
+}
+```
 
 
 
@@ -3126,7 +3231,7 @@ The versions of the software used for the analysis are saved in the [differentia
 The following section lists all packages used for analysis, together with their versions.
 
 ```{r rnadeseq_versions_output, echo=FALSE, message=FALSE, warning=F}
-sessioninfo::session_info() %>%  write_yaml(paste0(wd, "/differential_gene_expression/rnadeseq_software_versions.yml"))
+sessioninfo::session_info() %>%  write_yaml("rnadeseq_software_versions.yml")
 ```
 
 

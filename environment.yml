@@ -46,3 +46,4 @@ dependencies:
   - conda-forge::r-svglite=2.1.1
   - conda-forge::r-tidyverse=2.0.0
   - conda-forge::r-yaml=2.3.7
+  - conda-forge::r-diagrammer=1.0.11

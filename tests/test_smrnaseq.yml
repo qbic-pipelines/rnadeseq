@@ -72,19 +72,19 @@
     - path: results_test/differential_gene_expression/plots/PCA_plot_with_labels.pdf
     - path: results_test/differential_gene_expression/plots/PCA_plot_with_labels.png
     - path: results_test/differential_gene_expression/plots/PCA_plot_with_labels.svg
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/enrichment_plots/KEGG_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/enrichment_plots/KEGG_pathway_enrichment_plot.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/enrichment_plots/KEGG_pathway_enrichment_plot.svg
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/KEGG_pathway_enrichment_results.tsv
+    - path: results_test/enrichment_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/enrichment_plots/KEGG_pathway_enrichment_plot.pdf
+    - path: results_test/enrichment_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/enrichment_plots/KEGG_pathway_enrichment_plot.png
+    - path: results_test/enrichment_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/enrichment_plots/KEGG_pathway_enrichment_plot.svg
+    - path: results_test/enrichment_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/KEGG_pathway_enrichment_results.tsv
       md5sum: 326f3495ca42dbc527484cef3ee0e58d
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/pathway_enrichment_results.tsv
+    - path: results_test/enrichment_analysis/DE_contrast_condition_treatment_clone9_vs_clone1/pathway_enrichment_results.tsv
       md5sum: d63d4d96de3c49cc38c91cb863a7da06
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_control_vs_clone1/enrichment_plots/KEGG_pathway_enrichment_plot.pdf
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_control_vs_clone1/enrichment_plots/KEGG_pathway_enrichment_plot.png
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_control_vs_clone1/enrichment_plots/KEGG_pathway_enrichment_plot.svg
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_control_vs_clone1/KEGG_pathway_enrichment_results.tsv
+    - path: results_test/enrichment_analysis/DE_contrast_condition_treatment_control_vs_clone1/enrichment_plots/KEGG_pathway_enrichment_plot.pdf
+    - path: results_test/enrichment_analysis/DE_contrast_condition_treatment_control_vs_clone1/enrichment_plots/KEGG_pathway_enrichment_plot.png
+    - path: results_test/enrichment_analysis/DE_contrast_condition_treatment_control_vs_clone1/enrichment_plots/KEGG_pathway_enrichment_plot.svg
+    - path: results_test/enrichment_analysis/DE_contrast_condition_treatment_control_vs_clone1/KEGG_pathway_enrichment_results.tsv
       md5sum: 64b3a3716b779900e99f56688c4b27e8
-    - path: results_test/pathway_analysis/DE_contrast_condition_treatment_control_vs_clone1/pathway_enrichment_results.tsv
+    - path: results_test/enrichment_analysis/DE_contrast_condition_treatment_control_vs_clone1/pathway_enrichment_results.tsv
       md5sum: e7a051d8623043a3849eae8900b99f71
     - path: results_test/rnadeseq_report.html
     - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_treatment_clone9_vs_clone1.html

@@ -96,7 +96,7 @@ process REPORT {
         ${citest_opt}
 
     # Remove allgenes dir as the contained files do not contain only DE genes
-    # rm -r differential_gene_expression/allgenes
+    rm -r differential_gene_expression/allgenes
     # If citest, copy results before zipping as unzip does not work properly in the container
     if [ "${params.citest}" == true ]; then
         mkdir ../../../results_test
@@ -106,9 +106,9 @@ process REPORT {
         fi
     fi
     if [ "${pathway_opt}" == "--pathway_analysis" ]; then
-        zip -r report.zip rnadeseq_report.html differential_gene_expression/ QC/ enrichment_analysis/
+        zip -r report.zip rnadeseq_report.html differential_gene_expression/ QC/ enrichment_analysis/ rnadeseq_software_versions.yml
     else
-        zip -r report.zip rnadeseq_report.html differential_gene_expression/ QC/
+        zip -r report.zip rnadeseq_report.html differential_gene_expression/ QC/ rnadeseq_software_versions.yml
     fi
     """
 }
