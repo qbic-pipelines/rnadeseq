@@ -35,7 +35,7 @@ process REPORT {
     def genelist_opt = genelist.name != 'NO_FILE' ? "--genelist ${genelist}" : ''
     def relevel_opt = relevel.name != 'NO_FILE2' ? "--relevel ${relevel}" : ''
     def batch_effect_opt = params.batch_effect ? "--batch_effect TRUE" : ''
-    
+
     def pathway_opt = params.run_pathway_analysis ? "--pathway_analysis" : ''
     def custom_gmt_opt = custom_gmt.name != 'NO_FILE3' ? "--custom_gmt ${custom_gmt}" : ''
     def set_background_opt = params.set_background ? "--set_background TRUE" : "--set_background FALSE"
@@ -101,7 +101,7 @@ process REPORT {
     if [ "${params.citest}" == true ]; then
         mkdir ../../../results_test
         cp -r rnadeseq_report.html differential_gene_expression/ ../../../results_test
-        if [ "${pathway_opt}" == "--enrichment_analysis" ]; then
+        if [ "${pathway_opt}" == "--pathway_analysis" ]; then
             cp -r enrichment_analysis/ ../../../results_test
         fi
     fi
