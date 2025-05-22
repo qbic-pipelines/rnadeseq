@@ -937,8 +937,8 @@ for (i in resultsNames(cds)[-1]) {
 # Workflow overview
 
 The image below displays the two-step analysis workflow from your input data to differential gene expression analysis.
-In the first step, reads were aligned and assigned to genomic features using nf-core/pipelines.
-In the second step, the gene counts were analyzed for differential expression with the downstream secondary analysis pipeline rnadeseq.
+In the first step, reads were aligned and assigned to genomic features using nf-core pipelines.
+In the second step, the gene counts were analyzed for differential expression with the secondary analysis pipeline rnadeseq.
 The workflow highlightes the pipelines and methods that were used in colors.
 
 ```{r mermaid, echo=F, message=F, warning=F}
@@ -962,7 +962,7 @@ digraph flowchart {
 
     A [label = "Primary Bioinformatics\\nnf-core/rnaseq", fillcolor = "%s"]
     B [label = "Primary Bioinformatics\\nnf-core/smrnaseq", fillcolor = "%s"]
-    C [label = "Quantification", shape = diamond, fillcolor = "#f0f0f0", fontcolor = "#333333" width = 1.5, height = 1.5 ]
+    C [label = "Quantification", shape = diamond, fillcolor = "#f8c383", fontcolor = "#333333" width = 1.5, height = 1.5 ]
     D [label = "featureCounts", fillcolor =  "%s", fontcolor = "#333333"]
     E [label = "STAR-Salmon", fillcolor =  "%s", fontcolor = "#333333"]
     F [label = "RSEM", fillcolor =  "%s", fontcolor = "#333333"]
@@ -1000,7 +1000,7 @@ cat(paste0("***
 # Primary Bioinformatics {#primary-bioinformatics-rnaseq}
 
 
-The primary bioinformatics analysis was performed using the [nf-core/rnaseq](https://nf-co.re/rnaseq) pipeline, revision ",
+The primary bioinformatics analysis was performed using the [nf-core/rnaseq](https://nf-co.re/rnaseq) pipeline, version ",
 as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])), ".
 Further details can be found under the section [RNASeq methods](#rnaseq-methods)."
 ))
@@ -1012,7 +1012,7 @@ cat(paste0("***
 # Primary Bioinformatics {#primary-bioinformatics-smrnaseq}
 
 
-The primary bioinformatics analysis was performed using the pipeline [nf-core/smrnaseq](https://nf-co.re/smrnaseq), revision ",
+The primary bioinformatics analysis was performed using the pipeline [nf-core/smrnaseq](https://nf-co.re/smrnaseq), version ",
 as.character(version["Workflow"][[1]]["nf-core/smrnaseq"]), ".
 Further details can be found under the section [smrnaseq methods](#smrnaseq-methods)."
 
@@ -1545,7 +1545,7 @@ dist_heatmap %>% layout(height=700, width=800) %>% config(modeBarButtonsToAdd = 
 # Secondary Bioinformatics {#secondary-pipeline}
 
 The seconday analysis of differential gene expression was performed using the [QBiC pipeline rnadeseq](https://github.com/qbic-pipelines/rnadeseq),
-revision, `r as.character(params$revision)`.
+version `r as.character(params$revision)`.
 
 ## Differential expression (DE) results
 
@@ -1940,7 +1940,7 @@ and a Log2FC >= `r logFC_text` or <= -`r logFC_text` (vertical grey lines).
 Here, volcano plots for all compared conditions (contrasts) are shown. If a list of requested genes was provided as input,
 the plot will show the label of these features of interest.
 If no list of genes was provided, the plot annotates a subset of the most significant DE features with their names.
-The original plots, as well as interactive plots can be downloaded [here](./differential_gene_expression/plots/volcano_plots/).
+The original plots, as well as interactive plots can be found [here](./differential_gene_expression/plots/volcano_plots/).
 
 
 ```{r volcano_plot, out.width="100%", out.height="100%", eval=FALSE}
@@ -3110,17 +3110,17 @@ cat(paste0(
 
 ### RNASeq analysis {#rnaseq-methods}
 
-The Nextflow-based [nf-core/rnaseq](https://nf-co.re/rnaseq) pipeline, revision ", as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"],
+The Nextflow-based [nf-core/rnaseq](https://nf-co.re/rnaseq) pipeline, version ", as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"],
 version["Workflow"][[1]]["nf-core/rnaseq"])),
 ", was used for the [primary bioinformatic analysis](#primary-bioinformatics-rnaseq).
-[FASTQC ", as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
+[FASTQC v", as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
 "](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) [@andrews2010fastqc] was used to determine the quality of the FASTQ files.
-Subsequently, adapter trimming was conducted with [Trim Galore ",
+Subsequently, adapter trimming was conducted with [Trim Galore v",
 as.character(ifelse(software_versions_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"])),
 "](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/) [@krueger2012trim].
 The [STAR v", as.character(ifelse(software_versions_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
 "](https://github.com/alexdobin/STAR) [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
-The RNA-seq data quality control was performed with [RSeQC ",
+The RNA-seq data quality control was performed with [RSeQC v",
 as.character(ifelse(software_versions_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"])),
 "](https://rseqc.sourceforge.net/) [@wang2012rseqc] and read quantification of the features (e.g. genes) with `",
 quant_tool,
@@ -3136,20 +3136,20 @@ cat(paste0(
 
 ### smRNA-seq data analysis {#smrnaseq-methods}
 
-The Nextflow-based [nf-core/smrnaseq](https://nf-co.re/smrnaseq/) pipeline, revision ", as.character(version["Workflow"][[1]]["nf-core/smrnaseq"]),
+The Nextflow-based [nf-core/smrnaseq](https://nf-co.re/smrnaseq/) pipeline, version ", as.character(version["Workflow"][[1]]["nf-core/smrnaseq"]),
 " was used for the [primary bioinformatic analysis](#primary-bioinformatics-smrnaseq).
-[FASTQC ", as.character(version["FASTQC"][[1]]["fastqc"]),
+[FASTQC v", as.character(version["FASTQC"][[1]]["fastqc"]),
 "](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) [@andrews2010fastqc] was used to determine the quality of the miRNA samples. ",
-ifelse("TRIMGALORE" %in% names(version), paste0("Subsequently, adapter trimming was conducted with [Trim Galore ",
+ifelse("TRIMGALORE" %in% names(version), paste0("Subsequently, adapter trimming was conducted with [Trim Galore v",
 as.character(version["TRIMGALORE"][[1]]["trimgalore"]),
 "](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/) [@krueger2012trim]."),
-    ifelse("FASTP" %in% names(version), paste0("Subsequently, adapter trimming was conducted with [fastP ",
+    ifelse("FASTP" %in% names(version), paste0("Subsequently, adapter trimming was conducted with [fastP v",
     as.character(version["FASTP"][[1]]["fastp"]),
     "](https://github.com/OpenGene/fastp) [@chen2018fastp; @chen2023ultrafast]."),
         "")),
 " [Bowtie v", as.character(version["BOWTIE_MAP_HAIRPIN"][[1]]["bowtie"]), "](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml) [@langmead2009ultrafast]
 aligner was used to map the reads that passed the quality control to the reference database.
-The smRNA-seq data quality control was performed with [miRTrace ",
+The smRNA-seq data quality control was performed with [miRTrace v",
 as.character(version["MIRTRACE_RUN"][[1]]["mirtrace"]),
 "](https://github.com/friedlanderlab/mirtrace) [@kang2018mirtrace] and read quantification of the features (e.g. genes) with `",
 quant_tool,
@@ -3178,7 +3178,7 @@ cat(paste0(
 
 ### Differential gene expression analysis
 
-The secondary analysis of differential gene expression was performed by the using the [rnadeseq pipeline](https://github.com/qbic-pipelines/rnadeseq), revision ",
+The secondary analysis of differential gene expression was performed by the using the [rnadeseq pipeline](https://github.com/qbic-pipelines/rnadeseq), version ",
 as.character(params$revision),"
 , which was written using the nf-core template [@ewels2020nf]. The read quantification data resulting from `",
 quant_tool, "` was processed with the R package [DESeq2 v",
@@ -3229,7 +3229,7 @@ For the enrichment analysis, the R packages [gprofiler2 v", version_gprofiler2,
 ))
 ```
 
-All images in this report were generated in RStudio with ``r R.version.string`` mainly using the R package ggplot2 `v`r packageVersion("ggplot2")`` [@ggplot].
+All images in this report were generated in RStudio with ``r R.version.string`` mainly using the R package [ggplot2](https://ggplot2.tidyverse.org/) `v`r packageVersion("ggplot2")`` [@ggplot].
 Final reports were produced using the R package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")``
 and `DT v`r packageVersion("DT")`` R packages.
 
