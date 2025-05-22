@@ -3231,7 +3231,7 @@ For the enrichment analysis, the R packages [gprofiler2 v", version_gprofiler2,
 ))
 ```
 
-All images in this report were generated in RStudio with ``r R.version.string`` mainly using the R package (ggplot2)[@ggplot] `v`r packageVersion("ggplot2")``. 
+All images in this report were generated in RStudio with ``r R.version.string`` mainly using the R package ggplot2 `v`r packageVersion("ggplot2")`` [@ggplot]. 
 Final reports were produced using the R package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` 
 and `DT v`r packageVersion("DT")`` R packages.
 
