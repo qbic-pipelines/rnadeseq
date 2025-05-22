@@ -316,6 +316,8 @@ if (software_versions_csv) {
 
 ```{r project_data, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 df <- read.csv(file = params$path_proj_summary, sep="\t", header = TRUE)
+# strip off whitespace characters
+df <- as.data.frame(lapply(df, function(x) if (is.character(x)) trimws(x) else x))
 
 # Import the .tsv file downloadable from https://portal.qbic.uni-tuebingen.de/portal/web/qbic/user-database -> Projects
 projectcode = ifelse(typeof(df$Sub.Project)=='logical', '', as.character(df$Sub.Project))
@@ -389,11 +391,12 @@ Otfried-Müller-Straße 37, 72076 Tuebingen
 
 ---
 
----
 
 # Introduction and aims
 
 `r description`
+
+\
 
 # Sample metadata
 
@@ -401,7 +404,7 @@ Otfried-Müller-Straße 37, 72076 Tuebingen
 
 ```{r read_metadata, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 # Load metadata: sample preparations tsv file from qPortal
-metadata <- read.table(params$path_metadata, sep="\t", header=TRUE,na.strings =c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
+metadata <- read.table(params$path_metadata, sep="\t", header=TRUE, na.strings= c("","NaN"), quote=NULL, stringsAsFactors=F, dec=".", fill=TRUE, row.names=1)
 if (params$pathway_analysis) {
 
     #create copy of metadata for pathway_analysis
@@ -926,6 +929,12 @@ for (i in resultsNames(cds)[-1]) {
 <!-- DESeq2 end -->
 
 
+\
+
+---
+
+\
+
 # Workflow overview
 
 The image below displays the two-step analysis workflow from your input data to differential gene expression analysis. 
@@ -1280,7 +1289,7 @@ cat(paste0("***
 ## Read assignment statistics {.tabset .tabset-pills}
 
 The plots below display how many reads could be assigned to genes in percentage and actual counts. 
-In gneral, most reads should be assigned. Assignment types:
+In general, most reads should be assigned. Assignment types:
 
 -   **Assigned:** The reads could properly be assigned to a gene or feature. \
 -   **Unassigned Ambiguity:** The reads could not be assigned to any gene because of its ambiguous character.
@@ -2124,6 +2133,7 @@ for (file in allgenes_files){
                     y = 'padj',
                     selectLab = as.list(genes_to_label),
                     pCutoff = 5e-2,
+                    FCcutoff = params$logFC_threshold,
                     ylab = bquote("-" ~Log[10]~ 'p adj'),
                     legendLabSize = 10,
                     legendLabels = c("NS", paste0("Log2FC >|", params$logFC_threshold, "|"),
@@ -3221,7 +3231,7 @@ For the enrichment analysis, the R packages [gprofiler2 v", version_gprofiler2,
 ))
 ```
 
-All images in this report were generated in RStudio with ``r R.version.string`` mainly using the R package `ggplot2 v`r packageVersion("ggplot2")``. 
+All images in this report were generated in RStudio with ``r R.version.string`` mainly using the R package (ggplot2)[@ggplot] `v`r packageVersion("ggplot2")``. 
 Final reports were produced using the R package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")`` 
 and `DT v`r packageVersion("DT")`` R packages.
 
