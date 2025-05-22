@@ -956,29 +956,29 @@ color_mirtop <- if (params$input_type == 'smrnaseq') "#f8c383" else "#f0f0f0"
 # Generate DOT string with conditional color
 dot_code <- sprintf('
 digraph flowchart {
-  graph [layout = dot, rankdir = LR]
+    graph [layout = dot, rankdir = LR]
 
-  node [shape = box, style = filled, fontname = Helvetica, fontcolor = black]
+    node [shape = box, style = filled, fontname = Helvetica, fontcolor = black]
 
-  A [label = "Primary Bioinformatics\\nnf-core/rnaseq", fillcolor = "%s"]
-  B [label = "Primary Bioinformatics\\nnf-core/smrnaseq", fillcolor = "%s"]
-  C [label = "Quantification", shape = diamond, fillcolor = "#f0f0f0", fontcolor = "#333333" width = 1.5, height = 1.5 ]
-  D [label = "featureCounts", fillcolor =  "%s", fontcolor = "#333333"]
-  E [label = "STAR-Salmon", fillcolor =  "%s", fontcolor = "#333333"]
-  F [label = "RSEM", fillcolor =  "%s", fontcolor = "#333333"]
-  G [label = "miRTop", fillcolor =  "%s", fontcolor = "#333333"]
-  H [label = "Secondary Bioinformatics\\nqbic-pipelines/rnadeseq", fillcolor = "#2b64b9", fontcolor=white]
+    A [label = "Primary Bioinformatics\\nnf-core/rnaseq", fillcolor = "%s"]
+    B [label = "Primary Bioinformatics\\nnf-core/smrnaseq", fillcolor = "%s"]
+    C [label = "Quantification", shape = diamond, fillcolor = "#f0f0f0", fontcolor = "#333333" width = 1.5, height = 1.5 ]
+    D [label = "featureCounts", fillcolor =  "%s", fontcolor = "#333333"]
+    E [label = "STAR-Salmon", fillcolor =  "%s", fontcolor = "#333333"]
+    F [label = "RSEM", fillcolor =  "%s", fontcolor = "#333333"]
+    G [label = "miRTop", fillcolor =  "%s", fontcolor = "#333333"]
+    H [label = "Secondary Bioinformatics\\nqbic-pipelines/rnadeseq", fillcolor = "#2b64b9", fontcolor=white]
 
-  A -> C
-  B -> C
-  C -> D
-  C -> E
-  C -> F
-  C -> G
-  D -> H
-  E -> H
-  F -> H
-  G -> H
+    A -> C
+    B -> C
+    C -> D
+    C -> E
+    C -> F
+    C -> G
+    D -> H
+    E -> H
+    F -> H
+    G -> H
 }
 ', color_nfcore_rnaseq, color_nfcore, color_featurecounts, color_salmon, color_rsem, color_mirtop)
 
@@ -3012,19 +3012,19 @@ and if their log2FC was greater than `r logFC_text`. We compared the following c
 
 ```{r summary, warning=FALSE, message=FALSE, results='asis'}
 for (file in allgenes_files) {
-  # Reading DE genes list
-  fname <- tools::file_path_sans_ext(basename(file))
-  DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/allgenes/", file), sep="\t", header = T)
-  DE_genes$contrast <- rep(fname, nrow(DE_genes))
-  num_all <- DE_genes %>% nrow()
-  numDE <- DE_genes %>%
-    filter(padj <= params$adj_pval_threshold, abs(log2FoldChange) >= params$logFC_threshold) %>%
-    nrow()
+    # Reading DE genes list
+    fname <- tools::file_path_sans_ext(basename(file))
+    DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/allgenes/", file), sep="\t", header = T)
+    DE_genes$contrast <- rep(fname, nrow(DE_genes))
+    num_all <- DE_genes %>% nrow()
+    numDE <- DE_genes %>%
+        filter(padj <= params$adj_pval_threshold, abs(log2FoldChange) >= params$logFC_threshold) %>%
+        nrow()
 
-  contrast_len <- sapply(strsplit(fname, "_"), length)
-  current_condition <- sapply(strsplit(contrast_names[i], '_'), function(x) paste(x[2], collapse=' '))
-  current_contrast_name <- sapply(strsplit(fname, '_'), function(x) paste(x[(contrast_len-2):contrast_len], collapse=' '))
-  cat(paste("* Comparison:", current_condition, ":", current_contrast_name, "has", numDE, "DE genes out of", num_all, "tested genes.\n"))
+    contrast_len <- sapply(strsplit(fname, "_"), length)
+    current_condition <- sapply(strsplit(contrast_names[i], '_'), function(x) paste(x[2], collapse=' '))
+    current_contrast_name <- sapply(strsplit(fname, '_'), function(x) paste(x[(contrast_len-2):contrast_len], collapse=' '))
+    cat(paste("* Comparison:", current_condition, ":", current_contrast_name, "has", numDE, "DE genes out of", num_all, "tested genes.\n"))
 }
 ```
 
@@ -3180,7 +3180,7 @@ cat(paste0(
 
 The secondary analysis of differential gene expression was performed by the using the [rnadeseq pipeline](https://github.com/qbic-pipelines/rnadeseq), revision ",
 as.character(params$revision),"
- , which was written using the nf-core template [@ewels2020nf]. The read quantification data resulting from `",
+, which was written using the nf-core template [@ewels2020nf]. The read quantification data resulting from `",
 quant_tool, "` was processed with the R package [DESeq2 v",
 packageVersion("DESeq2"),
 "](https://bioconductor.org/packages/release/bioc/html/DESeq2.html) [@love2014differential].
