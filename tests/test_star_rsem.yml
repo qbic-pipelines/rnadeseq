@@ -6,15 +6,15 @@
     - path: results_test/differential_gene_expression/metadata/star_rsem_files.txt
       md5sum: ad72a01afb6a17864acac149c636df98
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_H1_vs_GM12878.tsv
-    #      md5sum: 216106ef902281c5d7c72715583e384c
+    #      md5sum: 72582b74dc7d30b0c559548eac11849d
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_K562_vs_GM12878.tsv
       md5sum: 7a4db95674a9c04aaafaef339edcfcc7
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_MCF7_vs_GM12878.tsv
-    #      md5sum: ea4b16a379f09fa44c7c541ccab64ce6
+    #      md5sum: 963cfa4fc1a49db7b08091236633b864
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
       md5sum: f1825ed59878115a279db7151b0ed0a1
     - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
-      md5sum: f0e6bb8eab1e6e08008a5a06934ef6f3
+      md5sum: 1b4cb5f3b9cdcf0a15ffad41fe81bfff
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.pdf
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.png
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/CXCL2_ENSG00000081041.svg
@@ -89,9 +89,9 @@
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/gost_pathway_venn_diagram.png
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/gost_pathway_venn_diagram.svg
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/pathway_enrichment_results.tsv
-      # md5sum: 57e56666c0d561659f5aaec478f04cee
+      # md5sum: 900dcf264bf583546d21ad4616e5c9f9
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/GO.CC_pathway_enrichment_results.tsv
-      # md5sum: 098f12540b4cad2ea1c950af1fd304b6
+      # md5sum: 0549e32ee4224b23c5312404e4222ef3
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.pdf
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.png
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.svg
@@ -102,9 +102,9 @@
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/gost_pathway_venn_diagram.png
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/gost_pathway_venn_diagram.svg
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/pathway_enrichment_results.tsv
-      # md5sum: 73fdb835cede09c13f0ab2684b1cda73
+      # md5sum: 95f61c6a871fef26e5f000960e5c49f2
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/GO.CC_pathway_enrichment_results.tsv
-      # md5sum: 2ebd84e4ed2029659294a09d49b62048
+      # md5sum: 410d933604ffee2e45bf3320d51f20e8
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.pdf
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.png
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/enrichment_plots/GO.CC_pathway_enrichment_plot.svg
@@ -115,7 +115,7 @@
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/gost_pathway_venn_diagram.png
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/gost_pathway_venn_diagram.svg
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_MCF7_vs_GM12878/pathway_enrichment_results.tsv
-      # md5sum: b7f67bc86475b218965b173b753199b1
+      # md5sum: d451b6248d0cb741349c460741428b44
     - path: results_test/enrichment_analysis/metadata/gprofiler_full_hsapiens.ENSG.gmt
     - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_H1_vs_GM12878.html
     - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_H1_vs_GM12878.png
