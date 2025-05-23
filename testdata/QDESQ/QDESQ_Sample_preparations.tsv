@@ -1,9 +1,9 @@
-QBiC Code	Secondary Name	Condition: cellline
-QDESQ081AU	Sample1	GM12878
-QDESQ082A4	Sample2	GM12878
-QDESQ083AC	Sample3	K562
-QDESQ084AK	Sample4	K562
-QDESQ085AS	Sample5	MCF7
-QDESQ086A2	Sample6	MCF7
-QDESQ087AA	Sample7	H1
-QDESQ088AI	Sample8	H1
+QBiC Code	Secondary Name	Condition: cellline	Test Column
+QDESQ081AU	Sample1	GM12878	value1
+QDESQ082A4	Sample2	GM12878	value2
+QDESQ083AC	Sample3	K562	value3
+QDESQ084AK	Sample4	K562	value3
+QDESQ085AS	Sample5	MCF7	value2
+QDESQ086A2	Sample6	MCF7	value1
+QDESQ087AA	Sample7	H1	value1
+QDESQ088AI	Sample8	H1	value4

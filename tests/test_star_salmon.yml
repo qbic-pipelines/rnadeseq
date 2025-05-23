@@ -17,7 +17,7 @@
     - path: results_test/differential_gene_expression/gene_counts_tables/rlog_transformed_gene_counts.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/sizeFactor_libraries.tsv
     - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
-      md5sum: 8ce16900c36615ae3d3b5e0bf0c856f0
+      md5sum: 4155b0ac52780f751d451b8db8bbbe8f
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/IL10_ENSG00000136634.pdf
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/IL10_ENSG00000136634.png
     - path: results_test/differential_gene_expression/plots/boxplots_requested_genes/IL10_ENSG00000136634.svg
@@ -71,11 +71,11 @@
     - path: results_test/differential_gene_expression/plots/PCA_plot.pdf
     - path: results_test/differential_gene_expression/plots/PCA_plot.png
     - path: results_test/differential_gene_expression/plots/PCA_plot.svg
-    - path: results_test/pathway_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/pathway_enrichment_results.tsv
+    - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/pathway_enrichment_results.tsv
       md5sum: 68b329da9893e34099c7d8ad5cb9c940
-    - path: results_test/pathway_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/pathway_enrichment_results.tsv
+    - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/pathway_enrichment_results.tsv
       md5sum: 68b329da9893e34099c7d8ad5cb9c940
-    - path: results_test/RNAseq_report.html
+    - path: results_test/rnadeseq_report.html
     - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_H1_vs_GM12878.html
     - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_H1_vs_GM12878.png
     - path: results_test/differential_gene_expression/plots/volcano_plots/DE_contrast_condition_cellline_H1_vs_GM12878_enhanced.png

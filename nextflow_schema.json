@@ -191,7 +191,7 @@
                 },
                 "report_file": {
                     "type": "string",
-                    "default": "${projectDir}/assets/RNAseq_report.Rmd",
+                    "default": "${projectDir}/assets/rnadeseq_report.Rmd",
                     "description": "Report Rmd file, should not be changed."
                 },
                 "references_file": {

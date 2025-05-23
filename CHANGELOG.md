@@ -8,17 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - [#267](https://github.com/qbic-pipelines/rnadeseq/pull/267) Add EnhancedVolcano plots and export to output results
+- [#274](https://github.com/qbic-pipelines/rnadeseq/pull/274) Added workflow section to report with mermaid graph
 
 ### Changed
 
 - [#267](https://github.com/qbic-pipelines/rnadeseq/pull/267) Export static and interactive plotly volcano plots
 - [#268](https://github.com/qbic-pipelines/rnadeseq/pull/268) Apply EnhancedVolcano color code to plotly volcano plots
 - [#269](https://github.com/qbic-pipelines/rnadeseq/pull/269) Put gprofiler manhattan plots in tabs
+- [#274](https://github.com/qbic-pipelines/rnadeseq/pull/274) Changed report headers, citations, links
 
 ### Fixed
 
 - [#271](https://github.com/qbic-pipelines/rnadeseq/pull/271) Fix colors in plotly volcano plots
 - [#273](https://github.com/qbic-pipelines/rnadeseq/pull/272) Fix duplicate row.names in pathway analysis and max dimensions error
+- [#274](https://github.com/qbic-pipelines/rnadeseq/pull/274) Fix colors volcano plotly, sample dist. heatmap sampleNames, header trim whitespaces
 
 ## 2.5 - The Potato Eaters
 
@@ -208,7 +211,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - [#115](https://github.com/qbic-pipelines/rnadeseq/pull/115) Template update
-- [#117](https://github.com/qbic-pipelines/rnadeseq/pull/117) Turned LabID optional for report output in RNAseq_report.Rmd
+- [#117](https://github.com/qbic-pipelines/rnadeseq/pull/117) Turned LabID optional for report output in rnadeseq_report.Rmd
 - Removed assets/report_options.yml
 - [#110](https://github.com/qbic-pipelines/rnadeseq/pull/110) Changed report to use rlog normalization by default, vst is used if --skip_rlog is enabled
 

@@ -5,7 +5,7 @@ library(optparse)
 
 option_list = list(
     make_option(c("-r", "--report"), type="character", default=NULL, help="Report template file", metavar="character"),
-    make_option(c("-o", "--output"), type="character", default="RNAseq_report.html", help="Output file name", metavar="character"),
+    make_option(c("-o", "--output"), type="character", default="rnadeseq_report.html", help="Output file name", metavar="character"),
 
     make_option(c("-y", "--input_type"), type="character", default="featurecounts", help="Which type of input data is provided; must be one of [featurecounts, rsem, salmon]", metavar="character"),
     make_option(c("-c", "--gene_counts"), type="character", default=NULL, help="Path to raw count table or directory", metavar="character"),

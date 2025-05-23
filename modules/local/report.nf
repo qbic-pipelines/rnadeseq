@@ -26,7 +26,6 @@ process REPORT {
 
     output:
     path "*.zip"
-    path "RNAseq_report.html", emit: rnaseq_report
 
     script:
 
@@ -60,7 +59,7 @@ process REPORT {
     fi
     Execute_report.R \
         --report '${report_file}' \
-        --output 'RNAseq_report.html' \
+        --output 'rnadeseq_report.html' \
         --input_type ${params.input_type} \
         --gene_counts ${gene_counts} \
         --metadata ${metadata} \
@@ -101,15 +100,15 @@ process REPORT {
     # If citest, copy results before zipping as unzip does not work properly in the container
     if [ "${params.citest}" == true ]; then
         mkdir ../../../results_test
-        cp -r RNAseq_report.html differential_gene_expression/ ../../../results_test
+        cp -r rnadeseq_report.html differential_gene_expression/ ../../../results_test
         if [ "${pathway_opt}" == "--pathway_analysis" ]; then
-            cp -r pathway_analysis/ ../../../results_test
+            cp -r enrichment_analysis/ ../../../results_test
         fi
     fi
     if [ "${pathway_opt}" == "--pathway_analysis" ]; then
-        zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/ pathway_analysis/
+        zip -r report.zip rnadeseq_report.html differential_gene_expression/ QC/ enrichment_analysis/ rnadeseq_software_versions.yml
     else
-        zip -r report.zip RNAseq_report.html differential_gene_expression/ QC/
+        zip -r report.zip rnadeseq_report.html differential_gene_expression/ QC/ rnadeseq_software_versions.yml
     fi
     """
 }
