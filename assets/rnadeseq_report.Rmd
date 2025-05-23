@@ -1884,7 +1884,7 @@ for (i in 1:length(contrast_names)){
 ```
 
 
-The first contrast listed should be the experimental condition to test for and the contrast listed at the end should be used as the baseline (control) expression.
+The expression profile of the first group (treatment) was compared to the second group (control).
 
 ```{r load_config, bootstrap.show.message=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 logFC_text <- as.character(params$logFC_threshold)
@@ -1897,7 +1897,7 @@ The [secondary bioinformatics pipeline](#secondary-pipeline) uses `DESeq2` to an
 Genes were considered differentially expressed (DE) when the adjusted p-value was equal to or lower than `r pval_text` (padj <= `r pval_text`).
 Genes were further considered differentially expressed (DE) if the log2 Fold Change in expression between the two considered groups was equal to or above the threshold of `r logFC_text` in absolute terms.
 The adjusted p-value is calculated in the `DESeq2` package with the Benjamini-Hochberg method. P-value adjustment
-helps to reduce the number of false postives (not real differentially expressed genes).
+controls the false discovery rate in multiple testing.
 
 The following linear model (design) was used in DESeq2 to model gene expression:
 ```{r print_model, results='asis'}
