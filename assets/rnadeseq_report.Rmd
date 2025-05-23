@@ -2967,7 +2967,7 @@ for (i in 1:length(q_names))  {
         } else {
             cat('#### Contrast: ', contrast_list[i], '\n')
             cat("\n\n")
-            cat(paste("> **⚠️ Warning:** No enriched terms were found in the selected databases."))
+            cat(paste("> **ℹ️ Warning:** No enriched terms were found in the selected databases."))
             path_enrich=data.frame(list())
             cat("\n\n")
         }
