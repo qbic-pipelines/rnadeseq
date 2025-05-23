@@ -378,7 +378,7 @@ Integer indicating to how many decimals to round the DE results (default: -1, in
 
 ### `--run_pathway_analysis`
 
-Set this flag to run pathway analysis, otherwise, this step will be skipped.
+Set this flag to run enrichment and pathway analysis, otherwise, this step will be skipped.
 
 ### `--pathway_adj_pval_threshold`
 

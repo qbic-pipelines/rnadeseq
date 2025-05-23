@@ -43,13 +43,13 @@ This directory contains the zipped results. When unzipping them, the following s
   - `further_diagnostics_plots/`: plots for diagnostics of the differential gene analysis procedure.
   - `volcano_plots/`: volcano plots with differentially expressed features. Output comprises static (`.png`) and interactive plots (`.html`). NA values are omitted in the plot (can occur for non-significant features when -log10(padj=1)). Zero p-values are repaced by the min p-value encountered for that feature. Interactive plots adhere to the default [EnhancedVolcano](https://bioconductor.org/packages/devel/bioc/vignettes/EnhancedVolcano/inst/doc/EnhancedVolcano.html) color scheme.
 
-## Pathway analysis
+## Enrichment analysis
 
-Pathway analysis with [gProfileR](https://biit.cs.ut.ee/gprofiler/gost) R package.
+Pathway and term enrichment analysis with [gProfileR](https://biit.cs.ut.ee/gprofiler/gost) R package.
 
-**Output directory: `results/pathway_analysis/`**
+**Output directory: `results/enrichment_analysis/`**
 
-If pathway analysis was run, this directory contains the zipped pathway analysis results (`gProfileR.zip`). When unzipping them, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
+If enrichment analysis was run, this directory contains the zipped enrichment analysis results (`gProfileR.zip`). When unzipping them, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
 
 - `*_gost_pathway_venn_diagram.pdf/png`
   - Venn diagrams showing the numbers of enriched pathways when using a background gene list vs when not using a bg list.
@@ -59,8 +59,8 @@ If pathway analysis was run, this directory contains the zipped pathway analysis
   - Manhattan plots displaying all enriched pathways.
 - `KEGG_pathways/`
   - Contains the KEGG pathways graphs with the log fold change of the differentially expressed genes.
-- `pathway_heatmaps`
-  - Contains heatmaps of the normalized gene counts for each of the differentially expressed pathways.
+- `heatmaps`
+  - Contains heatmaps of the normalized gene counts for each of the differentially expressed enriched terms.
 
 ## Report
 
