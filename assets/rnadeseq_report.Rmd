@@ -2033,6 +2033,7 @@ for (file in allgenes_files){
     # label: gene_name
     # x: log2FoldChange
     # y: -log10(padj)
+    num_all <- DE_genes %>% nrow()
 
     DE_genes <- na.omit(DE_genes)
 
@@ -2096,7 +2097,7 @@ for (file in allgenes_files){
             scale_x_continuous(breaks = seq(-200, 200, ifelse(log2FoldChange_quotient<3, 1, 5))) +
             ggtitle(paste('Comparison:', current_contrast_name),
                     subtitle=paste0("DE results; total=",
-                        thousandFormat(nrow(DE_genes)), ", DE=",
+                        thousandFormat(num_all), ", DE=",
                         thousandFormat(numDE)))
 
 
@@ -2108,7 +2109,7 @@ for (file in allgenes_files){
 
     pg <- pg + ggtitle(paste('<b>Comparison:', current_contrast_name, '</b>',
                         '<br><sup>',
-                        paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE)),
+                        paste0("DE results; total=", thousandFormat(num_all), ", DE=", thousandFormat(numDE)),
                         '</sup>'))
 
     # Define smaller plotly size
@@ -2138,7 +2139,7 @@ for (file in allgenes_files){
                                     paste0("p_adj<", params$adj_pval_threshold),
                                     paste0("DE:", "p_adj<", params$adj_pval_threshold, " & Log2FC >|", params$logFC_threshold, "|")),
                     title = paste('Comparison:', current_contrast_name),
-                    subtitle = paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE)),
+                    subtitle = paste0("DE results; total=", thousandFormat(num_all), ", DE=", thousandFormat(numDE)),
                     caption = ''
                     )
 
@@ -2167,7 +2168,7 @@ for (file in allgenes_files){
                                     paste0("p_adj<", params$adj_pval_threshold),
                                     paste0("DE:", "p_adj<", params$adj_pval_threshold, " & Log2FC >|", params$logFC_threshold, "|")),
                     title = paste('Comparison:', current_contrast_name),
-                    subtitle = paste0("DE results; total=", thousandFormat(nrow(DE_genes)), ", DE=", thousandFormat(numDE)),
+                    subtitle = paste0("DE results; total=", thousandFormat(num_all), ", DE=", thousandFormat(numDE)),
                     caption = ''
                     )
 
