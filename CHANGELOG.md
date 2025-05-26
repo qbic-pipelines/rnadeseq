@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#268](https://github.com/qbic-pipelines/rnadeseq/pull/268) Apply EnhancedVolcano color code to plotly volcano plots
 - [#269](https://github.com/qbic-pipelines/rnadeseq/pull/269) Put gprofiler manhattan plots in tabs
 - [#274](https://github.com/qbic-pipelines/rnadeseq/pull/274) Changed report headers, citations, links
-- [#275](https://github.com/qbic-pipelines/rnadeseq/pull/275) Adjusted text, fixed typos
+- [#275](https://github.com/qbic-pipelines/rnadeseq/pull/275) Adjusted text, fixed typos, `--path_quote` is deprecated
 
 ### Fixed
 
