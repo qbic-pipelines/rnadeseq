@@ -50,7 +50,6 @@ params:
 
     #Additional args for the report
     path_proj_summary: ''
-    path_quote: ''
     path_software_versions: ''
     revision: ''
     logo: ''
@@ -939,7 +938,7 @@ for (i in resultsNames(cds)[-1]) {
 The image below displays the two-step analysis workflow from your input data to differential gene expression analysis.
 In the first step, reads were aligned and assigned to genomic features using nf-core pipelines.
 In the second step, the gene counts were analyzed for differential expression with the secondary analysis pipeline rnadeseq.
-The workflow highlightes the pipelines and methods that were used in colors.
+The workflow highlights the pipelines and methods that were used in colors.
 
 ```{r mermaid, echo=F, message=F, warning=F}
 library(DiagrammeR)
@@ -1000,7 +999,7 @@ cat(paste0("***
 # Primary Bioinformatics {#primary-bioinformatics-rnaseq}
 
 
-The primary bioinformatics analysis was performed using the [nf-core/rnaseq](https://nf-co.re/rnaseq) pipeline, version ",
+The primary bioinformatic analysis was performed using the [nf-core/rnaseq](https://nf-co.re/rnaseq) pipeline, version ",
 as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"], version["Workflow"][[1]]["nf-core/rnaseq"])), ".
 Further details can be found under the section [RNASeq methods](#rnaseq-methods)."
 ))
@@ -1012,7 +1011,7 @@ cat(paste0("***
 # Primary Bioinformatics {#primary-bioinformatics-smrnaseq}
 
 
-The primary bioinformatics analysis was performed using the pipeline [nf-core/smrnaseq](https://nf-co.re/smrnaseq), version ",
+The primary bioinformatic analysis was performed using the pipeline [nf-core/smrnaseq](https://nf-co.re/smrnaseq), version ",
 as.character(version["Workflow"][[1]]["nf-core/smrnaseq"]), ".
 Further details can be found under the section [smrnaseq methods](#smrnaseq-methods)."
 
@@ -1083,7 +1082,7 @@ cat(paste0("
 
 In order to analyze the gene counts per sample, the sequencing reads were mapped to a reference genome, and assigned to genes or other genomic regions.
 The [MultiQC report](./QC/multiqc_report.html) summarizes the read mapping and gene assignment statistics, amongst other quality control metrics.
-The read sequencing quality was analyzed using [FASTQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/). Details about [software versions](./QC/multiqc_report.html#software_versions) of the primary bioinformatics analysis
+The read sequencing quality was analyzed using [FASTQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/). Details about [software versions](./QC/multiqc_report.html#software_versions) of the primary bioinformatic analysis
 can be found at the end of the [MultiQC report](./QC/multiqc_report.html).
 
 \
@@ -1094,7 +1093,7 @@ can be found at the end of the [MultiQC report](./QC/multiqc_report.html).
 
 ## Summary statistics
 
-The table below was extracted from the `MultiQC` report and summarizes statistics from the primary bioinformatics analysis.
+The table below was extracted from the `MultiQC` report and summarizes statistics from the primary bioinformatic analysis.
 It displays the number of mapped reads, assigned genes and further quality control criteria.",
 
 ifelse(mqc_version == 'old_mqc',
@@ -1369,7 +1368,7 @@ cat(paste0("***
 
 ## Read strandedness {.tabset .tabset-pills}
 
-The following plots show the number/percentage of reads that match the strandedness of overlapping transcripts. It can be used to infer whether RNA-seq library preps are stranded (sense or antisense).
+The following plot shows the number/percentage of reads that match the strandedness of overlapping transcripts. It can be used to infer whether RNA-seq library preps are stranded (sense or antisense).
 
 <center>
 "))
@@ -1561,26 +1560,25 @@ After extracting the ZIP archive the `report` contains the following subfolders:
     genecounts_string <- ifelse(run_rlog, '- `rlog_transformed_gene_counts.tsv`: normalized gene counts with the "regularized logarithm" approach. This normalization is used prior to PCA analysis and heatmap plotting of the gene counts.', '- `vst_transformed_gene_counts.tsv`: normalized gene counts with the "variance stabilizing" transformation.')
 ```
 
+Click to expand/uncollapse the details:
+
 <br><details>
-<summary>Expand/collapse<br></summary>
+<summary>**differential_gene_expression**<br></summary>
 - **rnadeseq_report.html**
-- **metadata/**
+- **metadata:**
     - `DESeq2_coefficients.tsv`: table with the coefficients of the linear model used for DE analysis.
     - `metadata.tsv`: metadata sheet used by the pipeline.
     - `contrasts.tsv`: contrasts used for DE analysis (if provided).
     - `linear_model.txt`: linear model used for DE analysis.
     - `requested_gene_list.txt`: provided list of interesting genes (if provided).
-    `r rsem_salmon_string`
-- **gene_counts_tables/**
-    `r featurecounts_string`
+- **gene_counts_tables:**
     - `deseq2_library_scaled_gene_counts.tsv`: gene counts after size factor scaling.
-    `r genecounts_string`
     - `sizeFactor_libraries.tsv`: size factors for each sample.
-- **DE_genes_tables/**: folder containing one tab-separated table for each of the contrasts in the analysis. Each table contains a list of all differentially expressed genes in the contrast, specifying the mean gene expression across all samples (baseMean), and the log2 fold change value and p-adjusted values (padj) for this contrast.
+- **DE_genes_tables:**: folder containing one tab-separated table for each of the contrasts in the analysis. Each table contains a list of all differentially expressed genes in the contrast, specifying the mean gene expression across all samples (baseMean), and the log2 fold change value and p-adjusted values (padj) for this contrast.
 - **final_gene_table/final_gene_list_DESeq2.tsv**: table containing a list of all genes considered in the analysis. Here a summary of the log2 Fold Change and p-adjusted values for all contrasts is displayed. Additionally, the column **filter** shows if this gene was differentially expressed (DE) in any of the contrasts, or not (not_DE). The column **contrast_vector** contains for each contrast considered in the analysis a 1 if the gene was differentially expressed for this contrast or a 0 if it was not.
-- **plots/**:
+- **plots:**:
     - `Heatmaps_of_distances.{pdf,png,svg}`: heatmap of the pairwise Euclidean distances among samples, when the `r norm_method_text` normalized gene counts are considered.
-    - `PCA_*.{pdf, png, svg}`: PCA plots of the `r norm_method_text` normalized gene counts.
+    - `PCA_*.{pdf,png,svg}`: PCA plots of the `r norm_method_text` normalized gene counts.
     - `boxplots_example_genes/`: boxplots of the normalized gene counts for each of the sample groups for example genes.
     - `boxplots_requested_genes/`: boxplots of the normalized gene counts for each of the sample groups for the list of requested genes.
     - `further_diagnostics_plots/`: plots for diagnostics of the differential gene analysis procedure.
@@ -1908,7 +1906,7 @@ cat(paste0("`", gsub('condition_', '', lines), "`"), sep = "\n")
 ```
 
 
-Uncollapse the table below to show the meaning of different design strategies with example conditions:
+Expand/uncollapse the table below to show the meaning of different design strategies with example conditions:
 
 <details>
 <summary>Design strategies</summary>
@@ -1919,12 +1917,12 @@ Uncollapse the table below to show the meaning of different design strategies wi
 | `~ treatment + genotype`         | Model additive effects of treatment and genotype (assumes independence of both ) |
 | `~ batch + treatment`            | Control for batch effects when testing treatment                                 |
 | `~ genotype * treatment`         | Include interaction — test if treatment effects differ between genotypes         |
-| `~ batch + genotype * treatment` | Full model, adjusting for batch and testing interaction effects                  |
+| `~ batch + genotype * treatment` | Adjusting for batch and testing interaction effects                  |
 
 </details><br>
 
 
-In the resulting DE tables, the genes are marked as "DE" if they were found to be
+In the resulting DE tables, the genes are marked as **DE** if they were found to be
 differentially expressed (DE) for any of the compared conditions (contrasts).
 
 The table for download can be found [here](./differential_gene_expression/final_gene_table/final_DE_gene_list.tsv).
@@ -2859,27 +2857,30 @@ cat(paste0("***
 ## Enrichment analysis
 The enrichment analysis was performed with the `gProfiler2` tool.
 
-After unzipping the results ZIP file, the enrichment analysis results are stored in this folder: [enrichment_analysis/](./enrichment_analysis), and explained in this section.
+After unzipping the results ZIP file, the enrichment analysis results are stored in this folder: [enrichment_analysis](./enrichment_analysis), and explained in this section.
 Inside the enrichment analysis results folder, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
-<br><br><details>
-<summary>Click to show details</summary>
-- `*_gost_pathway_venn_diagram.pdf/png`
-    - Venn diagrams showing the numbers of enriched terms when using a background gene list vs when not using a bg list.
-- `enrichment_plots/*_pathway_enrichment_plot.{pdf/png/svg}`
-    - Barplots showing the proportion of differentially expressed genes in the pathway for a certain pathway database (might be missing if too many terms were enriched for fitting into a plot).
-- `gost_pathway_gostplot.{pdf/png/svg}`
-    - Manhattan plots displaying all enriched pathways.
-- `KEGG_pathways/`
-    - Contains the KEGG pathways graphs with the log fold change of the differentially expressed genes.
-- `enrichd_heatmaps`
-    - Contains heatmaps of the normalized DE gene counts for each enriched term.
+<br>
+Click to expand/uncollapse the details:s<br>
+<details>
+<summary>**enrichment_analysis**</summary>
+- **metadata**:
+    - `custom_background.txt`: computed by the pipeline; contains the background gene list without expression values that were excluded from the enrichment analysis.
+    - `gprofiler_*.gmt`: Gene Matrix Transposed file format (GMT) used by the pipeline. Can be downloaded manually from [gprofiler](https://biit.cs.ut.ee/gprofiler/gost)  (Tab: Data sources) if the GMT file could not be downloaded automatically.
+- **DE_contrast_condition_**:
+    - `enrichment_plots/*_pathway_enrichment_plot.{pdf,png,svg}`: Barplots showing the proportion of differentially expressed genes in the pathway for a certain pathway database (might be missing if too many terms were enriched for fitting into a plot).
+    - `gost_pathway_gostplot.{pdf/png/svg}`: Manhattan plots displaying all enriched pathways.
+    - `*_gost_pathway_venn_diagram.{pdf,png}`: Venn diagrams showing the number of enriched terms when using a background gene list vs when not using a bg list.
+    - `heatmaps/*.{pdf,svg,tsv}`: Contains heatmaps of the normalized DE gene counts for each enriched term
+    - `KEGG_pathways/`: Contains the KEGG pathways graphs with the log fold change of the differentially expressed genes.
+    - `DATABASE_pathway_enrichment_results.tsv`: Table with the enriched pathways for the specific database, containing the pathway name, code, number of DE genes in the pathway, total number of genes in the pathway, fraction of DE genes in the pathway and adjusted p-value.
+    - `pathway_enrichment_results.tsv`: Table with the enriched pathways for all databases, containing the pathway name, code, number of DE genes in the pathway, total number of genes in the pathway, fraction of DE genes in the pathway and adjusted p-value.
 </details><br>",
 gost_text,
 
 "\n
 ### Enrichment analysis {.tabset .tabset-pills}
 The plot below summarizes the terms that were found significantly enriched in DE genes for each contrast (padj value <= ", pathway_pval_text, ").
-Only contrasts for which an enriched terms were found are shown.
+Only contrasts for which enriched terms were found are shown.
 Hover over the dots to display the pathway names. The table below provides more detail on all enriched terms."))
 ```
 
@@ -3004,7 +3005,7 @@ and the subfolder: `heatmaps`.
 
 # Summary
 
-Primary bioinformatics analysis was performed using the `r primary_pipeline` pipeline and gene counts were obtained with the quantification method `r quant_tool`.
+Primary bioinformatic analysis was performed using the `r primary_pipeline` pipeline and gene counts were obtained with the quantification method `r quant_tool`.
 
 We analysed the differential expression of genes in the provided data with the rnadeseq pipeline.
 
@@ -3032,13 +3033,15 @@ for (file in allgenes_files) {
 
 
 
-```{r quote, echo=FALSE, results='asis'}
+```{r quote, echo=FALSE, results='asis', include=F}
 
 # Only add hyperlink to quote file if it was provided in the params
 quote_string <- ifelse(
     isProvided(params$path_quote),
     paste0("The results for all work packages, as described in the [quote/offer](", params$path_quote, "), can be found in this report."),
     paste0("The results for all work packages (no quote/offer given to describe them) can be found in this report.")
+    paste0("Further support for this project will be restricted to the results presented in this report.
+    For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.")
 )
 cat(quote_string)
 
@@ -3046,9 +3049,6 @@ cat(quote_string)
 software_versions_csv <- F
 quant_tool <- params$input_type
 ```
-
-Further support for this project will be restricted to the results presented in this report.
-For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.
 
 
 ---
@@ -3073,21 +3073,25 @@ if (software_versions_csv) {
 
 if (software_versions_csv) {
     if (params$input_type == "featurecounts") {
-        quant_tool <- "featureCounts"
+        quant_tool <- "[featureCounts]"
+        quant_link <- "(https://subread.sourceforge.net/featureCounts.html)"
         quant_version <- as.character(version["featureCounts"])
         quant_cite <- "[@liao2014featurecounts]"
     }
 } else {
     if (params$input_type == "rsem") {
-        quant_tool <- "RSEM"
+        quant_tool <- "[RSEM]"
+        quant_link <- "(https://github.com/deweylab/RSEM)"
         quant_version <- as.character(version["RSEM_CALCULATEEXPRESSION"][[1]]["rsem"])
         quant_cite <- "[@li2011rsem]"
     } else if (params$input_type == "salmon") {
-        quant_tool <- "Salmon"
+        quant_tool <- "[Salmon]"
+        quant_link <- "(https://salmon.readthedocs.io/en/latest/salmon.html)"
         quant_version <- as.character(version["SALMON_QUANT"][[1]]["salmon"])
         quant_cite <- "[@patro2017salmon]"
     } else if (params$input_type == "smrnaseq") {
-        quant_tool <- "SAMtools"
+        quant_tool <- "[SAMtools]"
+        quant_link <- "(https://www.htslib.org/)"
         quant_version <- as.character(version["SAMTOOLS_IDXSTATS"][[1]]["samtools"])
         quant_cite <- "[@li2009sequence; @li2011statistical]"
     }
@@ -3114,20 +3118,21 @@ cat(paste0(
 The Nextflow-based [nf-core/rnaseq](https://nf-co.re/rnaseq) pipeline, version ", as.character(ifelse(software_versions_csv, version["nf-core/rnaseq"],
 version["Workflow"][[1]]["nf-core/rnaseq"])),
 ", was used for the [primary bioinformatic analysis](#primary-bioinformatics-rnaseq).
-[FASTQC v", as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
-"](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) [@andrews2010fastqc] was used to determine the quality of the FASTQ files.
-Subsequently, adapter trimming was conducted with [Trim Galore v",
+[FASTQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)", as.character(ifelse(software_versions_csv, version["FastQC"], version["FASTQC"][[1]]["fastqc"])),
+" [@andrews2010fastqc] was used to determine the quality of the FASTQ files.
+Subsequently, adapter trimming was conducted with [Trim Galore](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)",
 as.character(ifelse(software_versions_csv, version["Trim Galore!"], version["TRIMGALORE"][[1]]["trimgalore"])),
-"](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/) [@krueger2012trim].
-The [STAR v", as.character(ifelse(software_versions_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
-"](https://github.com/alexdobin/STAR) [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
-The RNA-seq data quality control was performed with [RSeQC v",
+" [@krueger2012trim].
+The [STAR](https://github.com/alexdobin/STAR)", as.character(ifelse(software_versions_csv, substring((version["STAR"]), 7, ), version["MAKE_TRANSCRIPTS_FASTA"][[1]]["star"])),
+" [@Dobin2013] aligner was used to map the reads that passed the quality control to the reference genome.
+The RNA-seq data quality control was performed with [RSeQC](https://rseqc.sourceforge.net/) ",
 as.character(ifelse(software_versions_csv, version["RSeQC"], version["RSEQC_BAMSTAT"][[1]]["rseqc"])),
-"](https://rseqc.sourceforge.net/) [@wang2012rseqc] and read quantification of the features (e.g. genes) with `",
+" [@wang2012rseqc] and read quantification of the features (e.g. genes) with ",
 quant_tool,
+quant_link,
 " ",
 quant_version,
-"` ",
+" ",
 quant_cite,
 "."
 ))
@@ -3139,24 +3144,25 @@ cat(paste0(
 
 The Nextflow-based [nf-core/smrnaseq](https://nf-co.re/smrnaseq/) pipeline, version ", as.character(version["Workflow"][[1]]["nf-core/smrnaseq"]),
 " was used for the [primary bioinformatic analysis](#primary-bioinformatics-smrnaseq).
-[FASTQC v", as.character(version["FASTQC"][[1]]["fastqc"]),
-"](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) [@andrews2010fastqc] was used to determine the quality of the miRNA samples. ",
-ifelse("TRIMGALORE" %in% names(version), paste0("Subsequently, adapter trimming was conducted with [Trim Galore v",
+[FASTQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)", as.character(version["FASTQC"][[1]]["fastqc"]),
+" [@andrews2010fastqc] was used to determine the quality of the miRNA samples. ",
+ifelse("TRIMGALORE" %in% names(version), paste0("Subsequently, adapter trimming was conducted with [Trim Galore](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)",
 as.character(version["TRIMGALORE"][[1]]["trimgalore"]),
-"](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/) [@krueger2012trim]."),
-    ifelse("FASTP" %in% names(version), paste0("Subsequently, adapter trimming was conducted with [fastP v",
+" [@krueger2012trim]."),
+    ifelse("FASTP" %in% names(version), paste0("Subsequently, adapter trimming was conducted with [fastP](https://github.com/OpenGene/fastp)",
     as.character(version["FASTP"][[1]]["fastp"]),
-    "](https://github.com/OpenGene/fastp) [@chen2018fastp; @chen2023ultrafast]."),
+    " [@chen2018fastp; @chen2023ultrafast]."),
         "")),
-" [Bowtie v", as.character(version["BOWTIE_MAP_HAIRPIN"][[1]]["bowtie"]), "](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml) [@langmead2009ultrafast]
+" [Bowtie](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml)", as.character(version["BOWTIE_MAP_HAIRPIN"][[1]]["bowtie"]), " [@langmead2009ultrafast]
 aligner was used to map the reads that passed the quality control to the reference database.
-The smRNA-seq data quality control was performed with [miRTrace v",
+The smRNA-seq data quality control was performed with [miRTrace](https://github.com/friedlanderlab/mirtrace)",
 as.character(version["MIRTRACE_RUN"][[1]]["mirtrace"]),
-"](https://github.com/friedlanderlab/mirtrace) [@kang2018mirtrace] and read quantification of the features (e.g. genes) with `",
+" [@kang2018mirtrace] and read quantification of the features (e.g. genes) with ",
 quant_tool,
+quant_link,
 " ",
 quant_version,
-"` ",
+" ",
 quant_cite,
 ".",
 "\nThe output from [SAMtools](https://www.htslib.org/): `<QBiC-Code>_mature_hairpin.sorted.idxstats` and `<QBiC-Code>_mature.sorted.idxstats` files,
@@ -3169,8 +3175,8 @@ The resulting count matrix was used as input for the [rnadeseq pipeline](https:/
 ```
 
 ```{r MQC_cite, echo=FALSE, results='asis', eval=dir.exists(paste0(wd,"/QC/multiqc_data/"))&software_versions_csv&isProvided(params$path_software_versions)}
-cat(paste0("\nAn aggregation of the quality control for the RNAseq analysis was performed with [MultiQC ", as.character(version["MultiQC"]),
-"](https://seqera.io/multiqc/)[@ewels2016multiqc]."))
+cat(paste0("\nAn aggregation of the quality control for the RNAseq analysis was performed with [MultiQC](https://seqera.io/multiqc/)", as.character(version["MultiQC"]),
+"[@ewels2016multiqc]."))
 ```
 
 ```{r software_versions_DE, echo=FALSE, results='asis'}
@@ -3182,9 +3188,9 @@ cat(paste0(
 The secondary analysis of differential gene expression was performed by the using the [rnadeseq pipeline](https://github.com/qbic-pipelines/rnadeseq), version ",
 as.character(params$revision),"
 , which was written using the nf-core template [@ewels2020nf]. The read quantification data resulting from `",
-quant_tool, "` was processed with the R package [DESeq2 v",
+quant_tool, "` was processed with the R package [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html) v",
 packageVersion("DESeq2"),
-"](https://bioconductor.org/packages/release/bioc/html/DESeq2.html) [@love2014differential].
+" [@love2014differential].
 Genes are considered differentially expressed if they show an adjusted p-value<=",
 pval_text, " and a log2 Fold Change>=",
 logFC_text, "."
@@ -3197,12 +3203,12 @@ name_species       = params$species_library
 version_species    = packageVersion(name_species)
 
 if (isProvided(params$custom_gmt)){
-    database_string <- paste0("Also, a gprofiler query with this custom GMT file was done: `", basename(params$custom_gmt), "`.")
+    database_string <- paste0("Also, a gprofiler query with this custom GMT file was done: ", basename(params$custom_gmt), ".")
 
     if (isProvided(params$datasources)) {
         database_string <- paste(database_string, "Entries of the following datasources were considered: ")
-        dbs <- paste(datasources, collapse="`, `")
-        database_string <- paste0(database_string, "`", dbs, "`.")
+        dbs <- paste(datasources, collapse=", ")
+        database_string <- paste0(database_string, "", dbs, ".")
     } else {
         database_string <- ""
     }
@@ -3210,9 +3216,9 @@ if (isProvided(params$custom_gmt)){
 } else if (isProvided(params$datasources)) {
     database_string = "Also, the following databases were queried: "
     database_version_info <- get_version_info(params$organism)
-    database_string <- paste0(database_string, "`gprofiler: ", database_version_info$gprofiler_version, "`")
+    database_string <- paste0(database_string, "gprofiler2: ", database_version_info$gprofiler_version)
     for (db in datasources) {
-        database_string <- paste0(database_string, ", `", db, ": ", database_version_info$sources[[db]]$version, "`")
+        database_string <- paste0(database_string, ", ", db, ": ", database_version_info$sources[[db]]$version)
     }
 } else {
     database_string <- paste("All datasources available in g:Profiler were considered (check https://biit.cs.ut.ee/gprofiler/gost and
@@ -3222,21 +3228,21 @@ if (isProvided(params$custom_gmt)){
 cat(paste0(
 "\n### Enrichment analysis
 
-For the enrichment analysis, the R packages [gprofiler2 v", version_gprofiler2,
-" ](https://biit.cs.ut.ee/gprofiler/page/r), `AnnotationDbi v", version_annotation,
-"` and `", name_species, " v", version_annotation,
-"` were used. ", database_string, ".\n",
+For the enrichment analysis, the R packages [gprofiler2](https://biit.cs.ut.ee/gprofiler/page/r) v", version_gprofiler2,
+", [AnnotationDbi](https://bioconductor.org/packages/release/bioc/html/AnnotationDbi.html) v", version_annotation,
+" and  the organism ", name_species, " v", version_annotation,
+" were used. ", database_string, ".\n",
 "Enriched terms were classified as enriched for genes with an adjusted p-value <= ", pathway_pval_text, "."
 ))
 ```
 
-All images in this report were generated in RStudio with ``r R.version.string`` mainly using the R package [ggplot2](https://ggplot2.tidyverse.org/) `v`r packageVersion("ggplot2")`` [@ggplot].
-Final reports were produced using the R package `rmarkdown v`r packageVersion("rmarkdown") ``, with the `knitr v`r packageVersion("knitr")``
-and `DT v`r packageVersion("DT")`` R packages.
+All images in this report were generated in RStudio with `r R.version.string` mainly using the R package [ggplot2](https://ggplot2.tidyverse.org/) `v`r packageVersion("ggplot2")`` [@ggplot].
+Final reports were produced using the R package [rmarkdown](https://rmarkdown.rstudio.com/) v`r packageVersion("rmarkdown")` , with the [knitr](https://cran.r-project.org/web/packages/knitr/index.html) v`r packageVersion("knitr")`
+and [DT](https://rstudio.github.io/DT/) v`r packageVersion("DT")` R packages.
 
 ## Package version overview
 
-The versions of the software used for the analysis are saved in the [differential_gene_expression](./differential_gene_expression/rnadeseq_software_versions.yml) folder.
+The versions of the software used for the analysis are saved in the [pipeline_info](./pipeline_info/) folder.
 The following section lists all packages used for analysis, together with their versions.
 
 ```{r rnadeseq_versions_output, echo=FALSE, message=FALSE, warning=F}

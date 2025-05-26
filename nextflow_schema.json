@@ -179,11 +179,6 @@
                     "default": "NO_FILE4",
                     "description": "multiqc.zip folder containing the multiQC plots and report."
                 },
-                "quote": {
-                    "type": "string",
-                    "default": "NO_FILE5",
-                    "description": "Quote file to link in the report."
-                },
                 "software_versions": {
                     "type": "string",
                     "default": "NO_FILE6",
