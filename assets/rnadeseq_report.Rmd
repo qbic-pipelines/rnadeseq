@@ -1909,7 +1909,7 @@ cat(paste0("`", gsub('condition_', '', lines), "`"), sep = "\n")
 Expand/uncollapse the table below to show the meaning of different design strategies with example conditions:
 
 <details>
-<summary>**Design strategie**</summary>
+<summary>**Design strategies**</summary>
 
 | Design                           | Interpretation                                                                   |
 | -------------------------------- | -------------------------------------------------------------------------------- |
@@ -2859,8 +2859,10 @@ The enrichment analysis was performed with the `gProfiler2` tool.
 
 After unzipping the results ZIP file, the enrichment analysis results are stored in this folder: [enrichment_analysis](./enrichment_analysis), and explained in this section.
 Inside the enrichment analysis results folder, a subfolder for each contrast used for the differential gene expression analysis is found. Inside each contrast folder, there is the following output:
+
+
 <br>
-Click to expand/uncollapse the detailss<br>
+Click to expand/uncollapse the details
 <details>
 <summary>**enrichment_analysis**</summary>
 - **metadata**:
@@ -2943,7 +2945,7 @@ for (i in 1:length(q_names))  {
         if (nrow(path_enrich) > 0){
             cat('#### Contrast: ', contrast_list[i], '\n')
             cat("\n")
-            cat("Hover over the datapoints to display additional information.")
+            cat("Please hover over the datapoints to display additional information.")
             cat("\n\n")
             pg2 <- gostplot(gostres, capped=T, interactive=T) %>%
             layout(title = contrast_list[i],
@@ -2968,7 +2970,7 @@ for (i in 1:length(q_names))  {
         } else {
             cat('#### Contrast: ', contrast_list[i], '\n')
             cat("\n\n")
-            cat(paste("> **ℹ️ Warning:** No enriched terms were found in the selected databases."))
+            cat(paste("> **ℹ️ Info:** No enriched terms were found in the selected databases."))
             path_enrich=data.frame(list())
             cat("\n\n")
         }
@@ -3007,7 +3009,7 @@ and the subfolder: `heatmaps`.
 
 Primary bioinformatic analysis was performed using the `r primary_pipeline` pipeline and gene counts were obtained with the quantification method `r quant_tool`.
 
-We analysed the differential expression of genes in the provided data with the rnadeseq pipeline.
+We analyzed the differential expression of genes in the provided data with the rnadeseq pipeline.
 
 Genes were considered differentially expressed (DE) if their adjusted p-value was equal to or lower than `r pval_text` (padj <= `r pval_text`)
 and if their log2FC was greater than `r logFC_text`. We compared the following conditions:
