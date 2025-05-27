@@ -1965,7 +1965,7 @@ Expand/uncollapse the table below to show the meaning of different design strate
 | `~ treatment + genotype`         | Model additive effects of treatment and genotype (assumes independence of both ) |
 | `~ batch + treatment`            | Control for batch effects when testing treatment                                 |
 | `~ genotype * treatment`         | Include interaction — test if treatment effects differ between genotypes         |
-| `~ batch + genotype * treatment` | Adjusting for batch and testing interaction effects                  |
+| `~ batch + genotype * treatment` | Adjusting for batch and testing interaction effects                              |
 
 </details><br>
 
