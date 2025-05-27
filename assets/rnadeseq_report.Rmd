@@ -1622,7 +1622,7 @@ Click to expand/uncollapse the details:
 - **gene_counts_tables:**
     - `deseq2_library_scaled_gene_counts.tsv`: gene counts after size factor scaling.
     - `sizeFactor_libraries.tsv`: size factors for each sample.
-- **DE_genes_tables:**: folder containing one tab-separated table for each of the contrasts in the analysis. Each table contains a list of all differentially expressed genes in the contrast, specifying the mean gene expression across all samples (baseMean), and the log2 fold change value and p-adjusted values (padj) for this contrast.
+- **DE_genes_tables:** folder containing one tab-separated table for each of the contrasts in the analysis. Each table contains a list of all differentially expressed genes in the contrast, specifying the mean gene expression across all samples (baseMean), and the log2 fold change value and p-adjusted values (padj) for this contrast.
 - **final_gene_table/final_gene_list_DESeq2.tsv**: table containing a list of all genes considered in the analysis. Here a summary of the log2 Fold Change and p-adjusted values for all contrasts is displayed. Additionally, the column **filter** shows if this gene was differentially expressed (DE) in any of the contrasts, or not (not_DE). The column **contrast_vector** contains for each contrast considered in the analysis a 1 if the gene was differentially expressed for this contrast or a 0 if it was not.
 - **plots:**
     - `Heatmaps_of_distances.{pdf,png,svg}`: heatmap of the pairwise Euclidean distances among samples, when the `r norm_method_text` normalized gene counts are considered.
