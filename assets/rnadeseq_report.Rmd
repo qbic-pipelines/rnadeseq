@@ -395,6 +395,12 @@ Otfried-Müller-Straße 37, 72076 Tuebingen
 
 `r description`
 
+
+\
+
+---
+
+
 \
 
 # Sample metadata
@@ -927,9 +933,6 @@ for (i in resultsNames(cds)[-1]) {
 <!-- DESeq2 end -->
 
 
-\
-
----
 
 \
 
@@ -1094,7 +1097,9 @@ can be found at the end of the [MultiQC report](./QC/multiqc_report.html).
 ## Summary statistics
 
 The table below was extracted from the `MultiQC` report and summarizes statistics from the primary bioinformatic analysis.
-It displays the number of mapped reads, assigned genes and further quality control criteria.",
+It displays the number of mapped reads, assigned genes and further quality control criteria.
+\
+",
 
 ifelse(mqc_version == 'old_mqc',
 "
@@ -1192,51 +1197,94 @@ if (mqc_version == 'new_mqc') {
 table_complete$Sample <- substr(table_complete$Sample, 1, 10)
 
 metadata <- read.table((paste0(wd, "/differential_gene_expression/metadata/metadata.tsv")), header=TRUE, sep="\t")
-metadata <- metadata[,c("QBiC.Code")]
+metadata <- metadata[,c("QBiC.Code", "Secondary.Name")]
+colnames(metadata) <- c("Sample", "SecondaryName")
 
-#the following makes metadata a df again (in R, when extracting only 1 column from a df, it becomes a list)
-metadata <- data.frame(matrix(unlist(metadata)))
-colnames(metadata) <- c("Sample")
+# Merge metadata with the table
 table_complete <- merge(metadata,table_complete,by="Sample")
 if (mqc_version == 'old_mqc') {
     colnames <- c("Sample", "Number of reads (M)", "Duplicates (%)", "GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
-    colnames(table_complete) <- c("Sample", "ReadNumber", "DuplicateReadsIntercept", "GCcontent", "TrimmedReads", "MappedReads", "AssignedReads")
+    colnames(table_complete) <- c("Sample",  "SecondaryName", "ReadNumber", "DuplicateReadsIntercept", "GCcontent", "TrimmedReads", "MappedReads", "AssignedReads")
 
     table_complete <- table_complete %>%
-        mutate(
-            Sample = Sample,
-            ReadNumber = color_bar("lightblue")(round((ReadNumber/1000000),2)),
+        transmute(
+            Sample = paste(Sample, SecondaryName, sep='_'),
+            ReadNumber = cell_spec(round((ReadNumber/1000000), 2),
+                                    background="lightblue",
+                                    align = "center",
+                                    extra_css = "display:block; width:100%;"),
             DuplicateReadsIntercept = ifelse(DuplicateReadsIntercept > 1,
-                                            cell_spec(DuplicateReadsIntercept, color="orange", bold=T),
-                                            cell_spec(DuplicateReadsIntercept, color="black")),
-            GCcontent = GCcontent,
-            TrimmedReads = TrimmedReads,
-            MappedReads =  ifelse(MappedReads > 80,
-                                color_bar("lightblue")(MappedReads),
-                                color_bar("orange")(MappedReads)),
+                                            cell_spec(DuplicateReadsIntercept,
+                                            color="orange",
+                                            bold=T),
+                                            cell_spec(DuplicateReadsIntercept,
+                                            color="black")),
+            GCcontent = round(GCcontent,2),
+            TrimmedReads = round(TrimmedReads,2),
+            MappedReads = ifelse(MappedReads > 80,
+                                cell_spec(MappedReads,
+                                          background="lightblue",
+                                          align = "center",
+                                          extra_css = "display:block; width:100%;"),
+                                cell_spec(MappedReads,
+                                          background="orange",
+                                          align = "center",
+                                          extra_css = "display:block; width:100%;")
+                            ),
             AssignedReads = ifelse(AssignedReads > 60,
-                                color_bar("lightblue")(AssignedReads),
-                                color_bar("orange")(AssignedReads))
+                                cell_spec(AssignedReads,
+                                          background="lightblue",
+                                          align = "center",
+                                          extra_css = "display:block; width:100%;"),
+                                cell_spec(AssignedReads,
+                                          background="orange",
+                                          align = "center",
+                                          extra_css = "display:block; width:100%;")
+                            )
         )
 } else {
     colnames <- c("Sample", "Number of reads (M)", "Duplicates (%)", "Untrimmed GC (%)", "Trimmed GC (%)", "Trimmed reads (%)", "Mapped reads (%)", "Assigned reads (%)")
 
+
     table_complete <- table_complete %>%
         transmute(
-            Sample = Sample,
-            ReadNumber = color_bar("lightblue")(round((raw_total_sequences/1000000),2)),
+            Sample = paste(Sample, SecondaryName, sep='_'),
+            ReadNumber = cell_spec(round((raw_total_sequences/1000000),2),
+                                   background="lightblue",
+                                   align = "center",
+                                   extra_css = "display:block; width:100%;"),
             DuplicateReadsIntercept = ifelse(reads_duplicated_percent > 1,
-                                            cell_spec(reads_duplicated_percent, color="orange", bold=T),
-                                            cell_spec(reads_duplicated_percent, color="black")),
-            GC_untrimmed = GC_untrimmed,
-            GC_trimmed = GC_trimmed,
-            TrimmedReads = percent_trimmed,
+                                            cell_spec(reads_duplicated_percent,
+                                                      color="orange",
+                                                      bold=T,
+                                                      align = "center",
+                                                      extra_css = "display:block; width:100%;"),
+                                            cell_spec(reads_duplicated_percent,
+                                                      color="black",
+                                                      align = "center",
+                                                      extra_css = "display:block; width:100%;")),
+            GC_untrimmed = round(GC_untrimmed,2),
+            GC_trimmed = round(GC_trimmed,2),
+            TrimmedReads = round(percent_trimmed,2),
             MappedReads =  ifelse(uniquely_mapped_percent > 80,
-                                color_bar("lightblue")(uniquely_mapped_percent),
-                                color_bar("orange")(uniquely_mapped_percent)),
-            AssignedReads = ifelse((total_assigned_tags/total_tags*100) > 60,
-                                color_bar("lightblue")((total_assigned_tags/total_tags)*100),
-                                color_bar("orange")((total_assigned_tags/total_tags)*100))
+                                cell_spec(uniquely_mapped_percent,
+                                          background="lightblue",
+                                          align = "center",
+                                          extra_css = "display:block; width:100%;"),
+                                cell_spec(uniquely_mapped_percent,
+                                          background="orange",
+                                          align = "center",
+                                          extra_css = "display:block; width:100%;")),
+
+            AssignedReads = ifelse( round(total_assigned_tags/total_tags*100,2) > 60,
+                                cell_spec( round(total_assigned_tags/total_tags*100,1),
+                                          background="lightblue",
+                                          align = "center",
+                                          extra_css = "display:block; width:100%;"),
+                                cell_spec( round(total_assigned_tags/total_tags*100,2),
+                                          background="orange",
+                                          align = "center",
+                                          extra_css = "display:block; width:100%;"))
         )
 }
 
@@ -3183,7 +3231,9 @@ cat(paste0("\nAn aggregation of the quality control for the RNAseq analysis was 
 
 ```{r software_versions_DE, echo=FALSE, results='asis'}
 cat(paste0(
-"## Secondary Bioinformatics
+"
+\
+## Secondary Bioinformatics
 
 ### Differential gene expression analysis
 
