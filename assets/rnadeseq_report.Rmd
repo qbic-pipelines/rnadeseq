@@ -2915,12 +2915,12 @@ Click to expand/uncollapse the details
 <summary>**enrichment_analysis**</summary>
 - **metadata**:
     - `custom_background.txt`: computed by the pipeline; contains the background gene list without expression values that were excluded from the enrichment analysis.
-    - `gprofiler_*.gmt`: Gene Matrix Transposed file format (GMT) used by the pipeline. Can be downloaded manually from [gprofiler](https://biit.cs.ut.ee/gprofiler/gost)  (Tab: Data sources) if the GMT file could not be downloaded automatically.
+    - `gprofiler_*.gmt`: Gene Matrix Transposed file format (GMT) used by the pipeline. Can be downloaded manually from [gprofiler](https://biit.cs.ut.ee/gprofiler/gost) (Tab: Data sources) if the GMT file could not be downloaded automatically.
 - **DE_contrast_condition_**:
     - `enrichment_plots/*_pathway_enrichment_plot.{pdf,png,svg}`: Barplots showing the proportion of differentially expressed genes in the pathway for a certain pathway database (might be missing if too many terms were enriched for fitting into a plot).
     - `gost_pathway_gostplot.{pdf/png/svg}`: Manhattan plots displaying all enriched pathways.
     - `*_gost_pathway_venn_diagram.{pdf,png}`: Venn diagrams showing the number of enriched terms when using a background gene list vs when not using a bg list.
-    - `heatmaps/*.{pdf,svg,tsv}`: Contains heatmaps of the normalized DE gene counts for each enriched term
+    - `heatmaps/*.{pdf,svg,tsv}`: Contains heatmaps of the normalized DE gene counts for each enriched term.
     - `KEGG_pathways/`: Contains the KEGG pathways graphs with the log fold change of the differentially expressed genes.
     - `DATABASE_pathway_enrichment_results.tsv`: Table with the enriched terms for the specific database, containing the term name, code, number and names of DE genes in the pathway, fraction of DE genes in the pathway and adjusted p-value.
     - `pathway_enrichment_results.tsv`: Table with the enriched pathways for all databases, containing the term name and ID and further information.
