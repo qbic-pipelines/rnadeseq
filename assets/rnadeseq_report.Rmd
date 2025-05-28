@@ -2931,7 +2931,7 @@ gost_text,
 ### Enrichment analysis {.tabset .tabset-pills}
 The plot below summarizes the terms that were found significantly enriched in DE genes for each contrast (padj value <= ", pathway_pval_text, ").
 Only contrasts for which enriched terms were found are shown.
-Please hover over the dots to display the pathway names. The table below provides more detail on all enriched terms."))
+Please hover over the dots to display the term names. The table below provides more detail on all enriched terms."))
 ```
 
 ```{r gost, eval=params$pathway_analysis, out.height = "100%", out.width = "100%", warning=FALSE, message=FALSE, results='asis'}
@@ -3237,9 +3237,9 @@ cat(paste0(
 
 ### Differential gene expression analysis
 
-The secondary analysis of differential gene expression was performed by the using the [rnadeseq pipeline](https://github.com/qbic-pipelines/rnadeseq), version ",
-as.character(params$revision),"
-, which was written using the nf-core template [@ewels2020nf]. The read quantification data resulting from ",
+The secondary analysis of differential gene expression was performed by using the [rnadeseq pipeline](https://github.com/qbic-pipelines/rnadeseq), version ",
+as.character(params$revision),
+", which was written using the nf-core template [@ewels2020nf]. The read quantification data resulting from ",
 quant_tool, quant_link, " was processed with the R package [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html) v",
 packageVersion("DESeq2"),
 " [@love2014differential].
