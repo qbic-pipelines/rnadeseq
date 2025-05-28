@@ -6,11 +6,11 @@
     - path: results_test/differential_gene_expression/metadata/star_rsem_files.txt
       md5sum: ad72a01afb6a17864acac149c636df98
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_H1_vs_GM12878.tsv
-    #      md5sum: 72582b74dc7d30b0c559548eac11849d
+      md5sum: 2933eb8a1da264aba7906e9f9396e2ac
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_K562_vs_GM12878.tsv
-      md5sum: 7a4db95674a9c04aaafaef339edcfcc7
+      md5sum: 2ecf465d136b1362e634eaf5f2c51611
     - path: results_test/differential_gene_expression/DE_genes_tables/DE_contrast_condition_cellline_MCF7_vs_GM12878.tsv
-    #      md5sum: 963cfa4fc1a49db7b08091236633b864
+      md5sum: 180fb9061ef40835e487f3139f7bf98b
     - path: results_test/differential_gene_expression/final_gene_table/final_DE_gene_list.tsv
       md5sum: f1825ed59878115a279db7151b0ed0a1
     - path: results_test/differential_gene_expression/gene_counts_tables/raw_gene_counts.tsv
