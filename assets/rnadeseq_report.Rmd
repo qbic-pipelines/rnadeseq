@@ -1698,7 +1698,7 @@ if (isProvided(params$path_contrast_matrix)){
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
-        DE_genes_contrast_genename <- if (isProvided(params$path_gtf)) { DE_genes_contrast_genename <- get_biotypes(gtf, DE_genes_contrast_genename) }
+        if (isProvided(params$path_gtf)) { DE_genes_contrast_genename <- get_biotypes(gtf, DE_genes_contrast_genename) }
 
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
@@ -1760,7 +1760,7 @@ if (isProvided(params$path_contrast_list)) {
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
-        DE_genes_contrast_genename <- if (isProvided(params$path_gtf)) { DE_genes_contrast_genename <- get_biotypes(gtf, DE_genes_contrast_genename) }
+        if (isProvided(params$path_gtf)) { DE_genes_contrast_genename <- get_biotypes(gtf, DE_genes_contrast_genename) }
 
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
@@ -1806,7 +1806,7 @@ if (isProvided(params$path_contrast_pairs)) {
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
-        DE_genes_contrast_genename <- if (isProvided(params$path_gtf)) { DE_genes_contrast_genename <- get_biotypes(gtf, DE_genes_contrast_genename) }
+        if (isProvided(params$path_gtf)) { DE_genes_contrast_genename <- get_biotypes(gtf, DE_genes_contrast_genename) }
 
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
@@ -1851,7 +1851,7 @@ if (!isProvided(params$path_contrast_matrix) & !isProvided(params$path_contrast_
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x ="Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
-        DE_genes_contrast_genename <- if (isProvided(params$path_gtf)) { DE_genes_contrast_genename <- get_biotypes(gtf, DE_genes_contrast_genename) }
+        if (isProvided(params$path_gtf)) { DE_genes_contrast_genename <- get_biotypes(gtf, DE_genes_contrast_genename) }
 
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
