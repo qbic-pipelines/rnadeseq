@@ -459,7 +459,7 @@ Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if `--run
 
 ### `--custom_gmt`
 
-Path to custom GMT file to use instead of querying against the live gprofiler database, not necessary if `--run_pathway_analysis = false`.
+Path to custom annotation data in [Gene Matrix Transposed file format (GMT)](https://biit.cs.ut.ee/gprofiler/page/docs#custom_gmt) file to use instead of querying against the live gprofiler database, not necessary if `--run_pathway_analysis = false`.
 
 ### `--set_background`
 

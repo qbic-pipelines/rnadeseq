@@ -8,14 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - [#267](https://github.com/qbic-pipelines/rnadeseq/pull/267) Add EnhancedVolcano plots and export to output results
-- [#274](https://github.com/qbic-pipelines/rnadeseq/pull/274) Added workflow section to report with mermaid graph
+- [#275](https://github.com/qbic-pipelines/rnadeseq/pull/275) Added workflow section to report with mermaid graph
 
 ### Changed
 
 - [#267](https://github.com/qbic-pipelines/rnadeseq/pull/267) Export static and interactive plotly volcano plots
 - [#268](https://github.com/qbic-pipelines/rnadeseq/pull/268) Apply EnhancedVolcano color code to plotly volcano plots
 - [#269](https://github.com/qbic-pipelines/rnadeseq/pull/269) Put gprofiler manhattan plots in tabs
-- [#274](https://github.com/qbic-pipelines/rnadeseq/pull/274) Changed report headers, citations, links
+- [#275](https://github.com/qbic-pipelines/rnadeseq/pull/275) Changed report headers, citations, links
+- [#276](https://github.com/qbic-pipelines/rnadeseq/pull/276) Adjusted text, fixed typos, `--path_quote` is deprecated
 
 ### Fixed
 
