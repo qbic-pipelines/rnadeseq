@@ -1962,7 +1962,7 @@ Expand/uncollapse the table below to show the meaning of different design strate
 | Design                           | Interpretation                                                                   |
 | -------------------------------- | -------------------------------------------------------------------------------- |
 | `~ treatment`                    | Model effect of treatment only                                                   |
-| `~ treatment + genotype`         | Model additive effects of treatment and genotype (assumes independence of both ) |
+| `~ genotype + treatment`         | Model additive effects of treatment and genotype (assumes independence of both ) |
 | `~ batch + treatment`            | Control for batch effects when testing treatment                                 |
 | `~ genotype * treatment`         | Include interaction — test if treatment effects differ between genotypes         |
 | `~ batch + genotype * treatment` | Adjusting for batch and testing interaction effects                              |
@@ -2914,7 +2914,7 @@ Click to expand/uncollapse the details
 <details>
 <summary>**enrichment_analysis**</summary>
 - **metadata**:
-    - `custom_background.txt`: computed by the pipeline; contains the background gene list without expression values that were excluded from the enrichment analysis.
+    - `custom_background.txt`: contains the list of genes to include for the enrichment analysis. If not provided as input, it will be computed by the pipeline and contains the genes that show expression values > 0 across all samples.
     - `gprofiler_*.gmt`: Gene Matrix Transposed file format (GMT) used by the pipeline. Can be downloaded manually from [gprofiler](https://biit.cs.ut.ee/gprofiler/gost) (Tab: Data sources) if the GMT file could not be downloaded automatically.
 - **DE_contrast_condition_**:
     - `enrichment_plots/*_pathway_enrichment_plot.{pdf,png,svg}`: Barplots showing the proportion of differentially expressed genes in the pathway for a certain pathway database (might be missing if too many terms were enriched for fitting into a plot).
@@ -3078,26 +3078,6 @@ for (file in allgenes_files) {
     current_contrast_name <- sapply(strsplit(fname, '_'), function(x) paste(x[(contrast_len-2):contrast_len], collapse=' '))
     cat(paste("* Comparison:", current_condition, ":", current_contrast_name, "has", numDE, "DE genes out of", num_all, "tested genes.\n"))
 }
-```
-
-
-
-
-```{r quote, echo=FALSE, results='asis', include=F, eval=F}
-
-# Only add hyperlink to quote file if it was provided in the params
-quote_string <- ifelse(
-    isProvided(params$path_quote),
-    paste0("The results for all work packages, as described in the [quote/offer](", params$path_quote, "), can be found in this report."),
-    paste0("The results for all work packages (no quote/offer given to describe them) can be found in this report."),
-    paste0("Further support for this project will be restricted to the results presented in this report."),
-    paste0("For further analysis (e.g. the re-analysis of the dataset) we will generate a new quote containing cost estimates.")
-)
-cat(quote_string)
-
-# Initiate vars in case no software_versions were provided
-software_versions_csv <- F
-quant_tool <- params$input_type
 ```
 
 
