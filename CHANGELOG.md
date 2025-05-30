@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [#267](https://github.com/qbic-pipelines/rnadeseq/pull/267) Add EnhancedVolcano plots and export to output results
 - [#275](https://github.com/qbic-pipelines/rnadeseq/pull/275) Added workflow section to report with mermaid graph
+- [#272](https://github.com/qbic-pipelines/rnadeseq/pull/272) Add gene biotypes from gtf to DE_tables and volcano plots
 
 ### Changed
 

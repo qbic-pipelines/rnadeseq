@@ -122,6 +122,23 @@ build_smrnaseq_df <- function(files) {
     }
     merged_mat
 }
+
+# Function to negate the %in% operator
+`%nin%` <- Negate(`%in%`)
+# Function to get biotypes from gtf file and add them to the DESeq2 results table
+get_biotypes <- function(gtf, df) {
+    if ("gene_id" %in% colnames(gtf) && "gene_biotype" %in% colnames(gtf)) {
+        gtf_map <- subset(gtf, select = c("gene_id", "gene_biotype"))
+        colnames(gtf_map)[which(names(gtf_map) == "gene_id")] <- "Ensembl_ID"
+        gtf_map_unique <- gtf_map[-which(duplicated(gtf_map)), ]
+        return(join(df, gtf_map_unique, by = "Ensembl_ID", type = "left"))
+    }
+    if ("gene_biotype" %nin% colnames(gtf)) {
+        print("No gene biotype available in gtf")
+        return(df)
+    }
+}
+
 ```
 
 ```{r param_validation, echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
@@ -1622,7 +1639,7 @@ Click to expand/uncollapse the details:
 - **gene_counts_tables:**
     - `deseq2_library_scaled_gene_counts.tsv`: gene counts after size factor scaling.
     - `sizeFactor_libraries.tsv`: size factors for each sample.
-- **DE_genes_tables:** folder containing one tab-separated table for each of the contrasts in the analysis. Each table contains a list of all differentially expressed genes in the contrast, specifying the mean gene expression across all samples (baseMean), and the log2 fold change value and p-adjusted values (padj) for this contrast.
+- **DE_genes_tables:** folder containing one tab-separated table for each of the contrasts in the analysis. Each table contains a list of all differentially expressed genes in the contrast, specifying the mean gene expression across all samples (baseMean), and the log2 fold change value and p-adjusted values (padj) for this contrast.  If a `gtf` file is provided, the tables will also contain a column with the gene biotypes of the differentially expressed genes.
 - **final_gene_table/final_gene_list_DESeq2.tsv**: table containing a list of all genes considered in the analysis. Here a summary of the log2 Fold Change and p-adjusted values for all contrasts is displayed. Additionally, the column **filter** shows if this gene was differentially expressed (DE) in any of the contrasts, or not (not_DE). The column **contrast_vector** contains for each contrast considered in the analysis a 1 if the gene was differentially expressed for this contrast or a 0 if it was not.
 - **plots:**
     - `Heatmaps_of_distances.{pdf,png,svg}`: heatmap of the pairwise Euclidean distances among samples, when the `r norm_method_text` normalized gene counts are considered.
@@ -1681,6 +1698,7 @@ if (isProvided(params$path_contrast_matrix)){
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+        DE_genes_contrast_genename <- if (isProvided(params$path_gtf)) { DE_genes_contrast_genename <- get_biotypes(gtf, DE_genes_contrast_genename) }
 
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
@@ -1742,6 +1760,7 @@ if (isProvided(params$path_contrast_list)) {
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+        DE_genes_contrast_genename <- if (isProvided(params$path_gtf)) { DE_genes_contrast_genename <- get_biotypes(gtf, DE_genes_contrast_genename) }
 
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
@@ -1787,6 +1806,7 @@ if (isProvided(params$path_contrast_pairs)) {
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x = "Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+        DE_genes_contrast_genename <- if (isProvided(params$path_gtf)) { DE_genes_contrast_genename <- get_biotypes(gtf, DE_genes_contrast_genename) }
 
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
@@ -1831,6 +1851,7 @@ if (!isProvided(params$path_contrast_matrix) & !isProvided(params$path_contrast_
         DE_genes_contrast_genename <- merge(x=DE_genes_contrast_genename, y=gene_names, by.x ="Ensembl_ID", by.y="Ensembl_ID", all.x=T)
         DE_genes_contrast_genename = DE_genes_contrast_genename[,c(dim(DE_genes_contrast_genename)[2],1:dim(DE_genes_contrast_genename)[2]-1)]
         DE_genes_contrast_genename = DE_genes_contrast_genename[order(DE_genes_contrast_genename[,"Ensembl_ID"]),]
+        DE_genes_contrast_genename <- if (isProvided(params$path_gtf)) { DE_genes_contrast_genename <- get_biotypes(gtf, DE_genes_contrast_genename) }
 
         # Save all DE genes (even if not significant) to separate files for the volcano plot
         write.table(DE_genes_contrast_genename, file=paste("differential_gene_expression/allgenes/DE_contrast_",contname,".tsv",sep=""), sep="\t", quote=F, col.names = T, row.names = F)
@@ -2129,7 +2150,8 @@ for (file in allgenes_files){
                 text=paste("Gene: ", gene_name,
                             "<br>", "Log2FC: ", formatC(log2FoldChange, digits=2),
                             "<br>padj: ", formatC(padj, digits = 2),
-                            "<br>", "-Log10padj: ", formatC(truelogpval, digits=2, format='f'))
+                            "<br>", "-Log10padj: ", formatC(truelogpval, digits=2, format='f'),
+                            ifelse("gene_biotype" %in% colnames(DE_genes), paste("<br>Biotype:", gene_biotype), ""))
                             )) +
             geom_point(alpha = 0.5,
                         na.rm = TRUE) +

@@ -448,7 +448,7 @@ Which genome to use for analysis, e.g. GRCh37; see `/conf/igenomes.config` for w
 
 ### `--gtf`
 
-GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts or smrnaseq.
+GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts or smrnaseq. If provided, the gene biotypes will be extracted from the `gtf` attributes if this field is available.
 
 ### `--organism`
 
