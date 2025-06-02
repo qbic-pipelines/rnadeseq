@@ -1932,6 +1932,8 @@ if (isProvided(params$round_DE) && params$round_DE>-1) {
     DE_genes_final_table <- (DE_genes_final_table  %>% mutate_if(is.numeric, round, digits=params$round_DE))
 }
 
+if (isProvided(params$path_gtf)) { DE_genes_final_table <- get_biotypes(gtf, DE_genes_final_table) }
+
 #write to file
 write.table(DE_genes_final_table, "differential_gene_expression/final_gene_table/final_DE_gene_list.tsv", append = FALSE, quote = FALSE, sep = "\t",eol = "\n", na = "NA", dec = ".", row.names = F,  col.names = T, qmethod = c("escape", "double"))
 ```
