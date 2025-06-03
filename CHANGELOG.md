@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#271](https://github.com/qbic-pipelines/rnadeseq/pull/271) Fix colors in plotly volcano plots
 - [#273](https://github.com/qbic-pipelines/rnadeseq/pull/272) Fix duplicate row.names in pathway analysis and max dimensions error
 - [#274](https://github.com/qbic-pipelines/rnadeseq/pull/274) Fix colors volcano plotly, sample dist. heatmap sampleNames, header trim whitespaces
-- [#277](https://github.com/qbic-pipelines/rnadeseq/pull/277) Fix summary contrast names
+- [#278](https://github.com/qbic-pipelines/rnadeseq/pull/277) Fix summary contrast names
 
 ## 2.5 - The Potato Eaters
 
