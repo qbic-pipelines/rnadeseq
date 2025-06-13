@@ -3074,7 +3074,7 @@ for (file in allgenes_files) {
         nrow()
 
     contrast_len <- sapply(strsplit(fname, "_"), length)
-    current_condition <- sapply(strsplit(contrast_names[i], '_'), function(x) paste(x[2], collapse=' '))
+    current_condition <- sapply(strsplit(fname, '_'), function(x) paste(x[4], collapse=' '))
     current_contrast_name <- sapply(strsplit(fname, '_'), function(x) paste(x[(contrast_len-2):contrast_len], collapse=' '))
     cat(paste("* Comparison:", current_condition, ":", current_contrast_name, "has", numDE, "DE genes out of", num_all, "tested genes.\n"))
 }
