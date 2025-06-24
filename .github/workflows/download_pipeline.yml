@@ -50,22 +50,10 @@ jobs:
           echo "REPO_LOWERCASE=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
           echo "REPOTITLE_LOWERCASE=$(basename ${GITHUB_REPOSITORY,,})" >> ${GITHUB_ENV}
           echo "REPO_BRANCH=${{ github.event.inputs.testbranch || 'dev' }}" >> ${GITHUB_ENV}
-          echo $REPO_LOWERCASE
-          echo $REPOTITLE_LOWERCASE
-          echo $REPO_BRANCH
-          echo $GITHUB_ENV
-
-      - name: Check Singularity
-        run: |
-          singularity --version
-          echo $TMPDIR
-          df -h
-          ls -la /tmp
 
       - name: Pull container
         run: |
-          singularity pull ghcr.io/qbic-pipelines/rnadeseq:2.6
-
+          singularity pull docker://ghcr.io/qbic-pipelines/rnadeseq:2.6
 
       - name: Download the pipeline
         env:
