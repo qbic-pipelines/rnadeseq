@@ -2158,8 +2158,8 @@ for (file in allgenes_files){
             geom_point(alpha = 0.5,
                         na.rm = TRUE) +
             geom_hline(yintercept = -log10(params$adj_pval_threshold), linewidth = 0.2, color = "grey") +
-            geom_vline(xintercept = -1, linewidth = 0.2, color = "grey") +
-            geom_vline(xintercept = 1, linewidth = 0.2, color = "grey") +
+            geom_vline(xintercept = -params$logFC_threshold, linewidth = 0.2, color = "grey") +
+            geom_vline(xintercept = params$logFC_threshold, linewidth = 0.2, color = "grey") +
             scale_color_manual(name = "", values=color_map) +
             scale_y_continuous(limits = c(-1, max(-log10(DE_genes[['padj']]), na.rm=TRUE) + 5)) +
             ylab("-log 10 padj") + xlab("Log2 Fold Change") +
@@ -2201,7 +2201,7 @@ for (file in allgenes_files){
                     x = 'log2FoldChange',
                     y = 'padj',
                     selectLab = as.list(genes_to_label),
-                    pCutoff = 5e-2,
+                    pCutoff = params$adj_pval_threshold,
                     FCcutoff = params$logFC_threshold,
                     ylab = bquote("-" ~Log[10]~ 'p adj'),
                     legendLabSize = 10,
@@ -2231,7 +2231,8 @@ for (file in allgenes_files){
                     lab = DE_genes$gene_name,
                     x = 'log2FoldChange',
                     y = 'padj',
-                    pCutoff = 5e-2,
+                    pCutoff = params$adj_pval_threshold,
+                    FCcutoff = params$logFC_threshold,
                     legendLabSize = 10,
                     ylab = bquote("-" ~Log[10]~ 'p adj'),
                     legendLabels = c("NS", paste0("Log2FC >|", params$logFC_threshold, "|"),
