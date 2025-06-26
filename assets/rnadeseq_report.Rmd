@@ -956,8 +956,8 @@ for (i in resultsNames(cds)[-1]) {
 # Workflow overview
 
 The image below displays the two-step analysis workflow from your input data to differential gene expression analysis.
-In the first step, reads were aligned and assigned to genomic features using nf-core pipelines.
-In the second step, the gene counts were analyzed for differential expression with the secondary analysis pipeline rnadeseq.
+In the first step, reads were aligned and assigned to genomic features (e.g. genes) using nf-core pipelines.
+In the next step, the gene counts were analyzed for differential expression with the secondary analysis pipeline rnadeseq.
 The workflow highlights the pipelines and methods that were used in colors.
 
 ```{r mermaid, echo=F, message=F, warning=F}
@@ -1640,7 +1640,7 @@ Click to expand/uncollapse the details:
     - `deseq2_library_scaled_gene_counts.tsv`: gene counts after size factor scaling.
     - `sizeFactor_libraries.tsv`: size factors for each sample.
 - **DE_genes_tables:** folder containing one tab-separated table for each of the contrasts in the analysis. Each table contains a list of all differentially expressed genes in the contrast, specifying the mean gene expression across all samples (baseMean), and the log2 fold change value and p-adjusted values (padj) for this contrast.  If a `gtf` file is provided, the tables will also contain a column with the gene biotypes of the differentially expressed genes.
-- **final_gene_table/final_gene_list_DESeq2.tsv**: table containing a list of all genes considered in the analysis. Here a summary of the log2 Fold Change and p-adjusted values for all contrasts is displayed. Additionally, the column **filter** shows if this gene was differentially expressed (DE) in any of the contrasts, or not (not_DE). The column **contrast_vector** contains for each contrast considered in the analysis a 1 if the gene was differentially expressed for this contrast or a 0 if it was not.
+- **final_gene_table/final_gene_list_DESeq2.tsv**: table containing a list of all genes considered in the analysis. Here a summary of the log2 Fold Change and p-adjusted values for all contrasts is displayed. Additionally, the column **filter** shows if this gene was differentially expressed (DE) in any of the contrasts, or not (not_DE). The column **contrast_vector** contains for each contrast considered in the analysis a 1 if the gene was differentially expressed for this contrast or a 0 if it was not. If a `gtf` file is provided, the tables will also contain a column with the gene biotypes of the differentially expressed genes.
 - **plots:**
     - `Heatmaps_of_distances.{pdf,png,svg}`: heatmap of the pairwise Euclidean distances among samples, when the `r norm_method_text` normalized gene counts are considered.
     - `PCA_*.{pdf,png,svg}`: PCA plots of the `r norm_method_text` normalized gene counts.
