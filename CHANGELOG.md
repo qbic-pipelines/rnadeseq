@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#275](https://github.com/qbic-pipelines/rnadeseq/pull/275) Changed report headers, citations, links
 - [#276](https://github.com/qbic-pipelines/rnadeseq/pull/276) Adjusted text, fixed typos, `--path_quote` is deprecated
 - [#277](https://github.com/qbic-pipelines/rnadeseq/pull/277) Version bump to 2.6
+- [#280](https://github.com/qbic-pipelines/rnadeseq/pull/280) Prettify long contrast names in volcano plot titles
 
 ### Fixed
 
