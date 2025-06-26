@@ -1,0 +1,3 @@
+factor	numerator	denominator
+condition_genotype	Gene.Knockout.Experiment.Version1	Wildtype.Experiment.Version1
+condition_treatment	Treated-with-something-version1	Control-group-negative-version1
