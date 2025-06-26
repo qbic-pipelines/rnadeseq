@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#275](https://github.com/qbic-pipelines/rnadeseq/pull/275) Changed report headers, citations, links
 - [#276](https://github.com/qbic-pipelines/rnadeseq/pull/276) Adjusted text, fixed typos, `--path_quote` is deprecated
 - [#277](https://github.com/qbic-pipelines/rnadeseq/pull/277) Version bump to 2.6
+- [#281](https://github.com/qbic-pipelines/rnadeseq/pull/281) Prettify long contrast names in volcano plot titles
 
 ### Fixed
 
@@ -26,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#273](https://github.com/qbic-pipelines/rnadeseq/pull/272) Fix duplicate row.names in pathway analysis and max dimensions error
 - [#274](https://github.com/qbic-pipelines/rnadeseq/pull/274) Fix colors volcano plotly, sample dist. heatmap sampleNames, header trim whitespaces
 - [#278](https://github.com/qbic-pipelines/rnadeseq/pull/278) Fix summary contrast names
-- [#279](https://github.com/qbic-pipelines/rnadeseq/pull/279) Fix thresholds and lines in volcano plots
+- [#280](https://github.com/qbic-pipelines/rnadeseq/pull/280) Fix thresholds and lines in volcano plots
 
 ## 2.5 - The Potato Eaters
 

@@ -2093,11 +2093,34 @@ for (file in allgenes_files){
     fname <- tools::file_path_sans_ext(basename(file))
     DE_genes <- read.csv(file = paste0(wd, "/differential_gene_expression/allgenes/", file), sep="\t", header = T)
     DE_genes$contrast <- rep(fname, nrow(DE_genes))
+
+    # Contrast names for tabs
     contrast_len <- sapply(strsplit(fname, '_'), length)
     # Rename Contrast for plot
     # DE_contrast_condition_conditionName_conditionA_vs_conditionB --> conditionA vs conditionB
     current_contrast_name <- sapply(strsplit(fname, '_'), function(x) paste(x[5:contrast_len], collapse=' '))
     contrast_list <- c(contrast_list, current_contrast_name)
+
+    # Prettify contrast in plot title
+    # Step 1: Split the filename by underscores
+    parts <- strsplit(fname, "_")[[1]]
+    n <- length(parts)
+
+    # Step 2: Take the last 4 components and join them with spaces
+    current_contrast_name <- paste(parts[(n - 2):n], collapse = " ")
+
+    # Step 3: Check length and optionally insert line break
+    if (nchar(current_contrast_name) > 30) {
+        # Try splitting after first space
+        split_pos <- regexpr(" ", current_contrast_name)[1]
+        if (split_pos > 0 && split_pos < nchar(current_contrast_name)) {
+        current_contrast_name <- paste0(
+            substr(current_contrast_name, 1, split_pos - 1),
+            "\n",
+            substr(current_contrast_name, split_pos + 1, nchar(current_contrast_name))
+        )
+        }
+    }
 
     # label: gene_name
     # x: log2FoldChange
@@ -2183,7 +2206,8 @@ for (file in allgenes_files){
                         '</sup>'))
 
     # Define smaller plotly size
-    ppg <- partial_bundle(ggplotly(pg, tooltip = "text")) %>% layout(autosize = F, width = 600, height = 400)
+    ppg <- partial_bundle(ggplotly(pg, tooltip = "text")) %>% layout(autosize = F, width = 700, height = 500, margin = list(t = 100))
+
 
     # Export interactive plot
     saveWidget(ppg, file = file.path(wd, "/differential_gene_expression", "plots", "volcano_plots", paste0(fname, ".html")))
@@ -2264,7 +2288,7 @@ for (file in allgenes_files){
 
 <!-- Display volcano plots in report in tabs -->
 
-```{r show_enhanced_volcano, results = 'asis', fig.height=7, fig.width=7, message=FALSE, warning=FALSE}
+```{r show_enhanced_volcano, results = 'asis', fig.height=7, fig.width=9, message=FALSE, warning=FALSE}
 
 # Show the volcano plots in tabs
 for (i in 1:length(volcano_list)){
