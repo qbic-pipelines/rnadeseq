@@ -12,7 +12,7 @@ RUN apt-get update -qq && \
 # Add conda installation dir to PATH
 ENV PATH=/opt/conda/envs/qbic-pipelines-rnadeseq-2.6/bin:$PATH
 # Dump the details of the installed packates to a file for posterity
-RUN mamba env export --name qbic-pipelines-rnadeseq-dev > qbic-pipelines-rnadeseq-2.6.yml
+RUN mamba env export --name qbic-pipelines-rnadeseq-2.6 > qbic-pipelines-rnadeseq-2.6.yml
 # Instruct R processes to use these empty files instead of clashing with a local config
 RUN touch .Rprofile
 RUN touch .Renviron
