@@ -28,8 +28,8 @@ jobs:
       - name: Push image to GHCR (dev)
         if: ${{ github.event_name == 'push' }}
         run: |
-          docker tag ghcr.io/qbic-pipelines/rnadeseq:latest ghcr.io/qbic-pipelines/rnadeseq:dev
-          docker push ghcr.io/qbic-pipelines/rnadeseq:dev
+          docker tag ghcr.io/qbic-pipelines/rnadeseq:latest ghcr.io/qbic-pipelines/rnadeseq:2.6
+          docker push ghcr.io/qbic-pipelines/rnadeseq:2.6
 
       - name: Push image to GHCR (release)
         if: ${{ github.event_name == 'release' }}
