@@ -72,7 +72,7 @@
     - path: results_test/differential_gene_expression/plots/PCA_plot.png
     - path: results_test/differential_gene_expression/plots/PCA_plot.svg
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_H1_vs_GM12878/pathway_enrichment_results.tsv
-      md5sum: 68b329da9893e34099c7d8ad5cb9c940
+      md5sum: 28c1af01c4e0f4fa6890857e0d27a48b
     - path: results_test/enrichment_analysis/DE_contrast_condition_cellline_K562_vs_GM12878/pathway_enrichment_results.tsv
       md5sum: 68b329da9893e34099c7d8ad5cb9c940
     - path: results_test/rnadeseq_report.html
