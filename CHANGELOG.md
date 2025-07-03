@@ -3,6 +3,34 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.6 - Tree Roots
+
+### Added
+
+- [#267](https://github.com/qbic-pipelines/rnadeseq/pull/267) Add EnhancedVolcano plots and export to output results
+- [#275](https://github.com/qbic-pipelines/rnadeseq/pull/275) Added workflow section to report with mermaid graph
+- [#272](https://github.com/qbic-pipelines/rnadeseq/pull/272) Add gene biotypes from gtf to DE_tables and volcano plots
+
+### Changed
+
+- [#267](https://github.com/qbic-pipelines/rnadeseq/pull/267) Export static and interactive plotly volcano plots
+- [#268](https://github.com/qbic-pipelines/rnadeseq/pull/268) Apply EnhancedVolcano color code to plotly volcano plots
+- [#269](https://github.com/qbic-pipelines/rnadeseq/pull/269) Put gprofiler manhattan plots in tabs
+- [#275](https://github.com/qbic-pipelines/rnadeseq/pull/275) Changed report headers, citations, links
+- [#276](https://github.com/qbic-pipelines/rnadeseq/pull/276) Adjusted text, fixed typos, `--path_quote` is deprecated
+- [#277](https://github.com/qbic-pipelines/rnadeseq/pull/277) Version bump to 2.6
+- [#281](https://github.com/qbic-pipelines/rnadeseq/pull/281) Prettify long contrast names in volcano plot titles
+- [#282](https://github.com/qbic-pipelines/rnadeseq/pull/282) Apply text suggestion changes from review [#279](https://github.com/qbic-pipelines/rnadeseq/pull/279)
+
+### Fixed
+
+- [#271](https://github.com/qbic-pipelines/rnadeseq/pull/271) Fix colors in plotly volcano plots
+- [#273](https://github.com/qbic-pipelines/rnadeseq/pull/272) Fix duplicate row.names in pathway analysis and max dimensions error
+- [#274](https://github.com/qbic-pipelines/rnadeseq/pull/274) Fix colors volcano plotly, sample dist. heatmap sampleNames, header trim whitespaces
+- [#278](https://github.com/qbic-pipelines/rnadeseq/pull/278) Fix summary contrast names
+- [#280](https://github.com/qbic-pipelines/rnadeseq/pull/280) Fix thresholds and lines in volcano plots
+- [#283](https://github.com/qbic-pipelines/rnadeseq/pull/283) Fix test config inputs
+
 ## 2.5 - The Potato Eaters
 
 ### Added
@@ -191,7 +219,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - [#115](https://github.com/qbic-pipelines/rnadeseq/pull/115) Template update
-- [#117](https://github.com/qbic-pipelines/rnadeseq/pull/117) Turned LabID optional for report output in RNAseq_report.Rmd
+- [#117](https://github.com/qbic-pipelines/rnadeseq/pull/117) Turned LabID optional for report output in rnadeseq_report.Rmd
 - Removed assets/report_options.yml
 - [#110](https://github.com/qbic-pipelines/rnadeseq/pull/110) Changed report to use rlog normalization by default, vst is used if --skip_rlog is enabled
 

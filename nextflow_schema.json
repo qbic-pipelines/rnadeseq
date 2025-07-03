@@ -179,11 +179,6 @@
                     "default": "NO_FILE4",
                     "description": "multiqc.zip folder containing the multiQC plots and report."
                 },
-                "quote": {
-                    "type": "string",
-                    "default": "NO_FILE5",
-                    "description": "Quote file to link in the report."
-                },
                 "software_versions": {
                     "type": "string",
                     "default": "NO_FILE6",
@@ -191,7 +186,7 @@
                 },
                 "report_file": {
                     "type": "string",
-                    "default": "${projectDir}/assets/RNAseq_report.Rmd",
+                    "default": "${projectDir}/assets/rnadeseq_report.Rmd",
                     "description": "Report Rmd file, should not be changed."
                 },
                 "references_file": {

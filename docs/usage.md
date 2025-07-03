@@ -276,11 +276,13 @@ Linear model function to calculate the contrasts (TXT). Variable names should be
 
 ## Contrasts
 
-There are three different parameters that can be used to define contrasts, which are explained in the following sections. One or multiple contrast input files can be provided, if multiple are provided, the contrasts in the multiple files will be added to the report.
+Contrasts represent 2 or more conditions to be compared. One should compare the **Experiment** versus **Control** for correct differential expression analysis (and not the other way round). There are three different parameters that can be used to define contrasts, which are explained in the following sections. One or multiple contrast input files can be provided, if multiple are provided, the contrasts in the multiple files will be added to the report.
+
+> **⚠️ Warning:** Do NOT use underscores within a condition name: `Group1_my_long_condition_name`. Use `Group1-my-long-condition-name` or `Group1.my.long.condition.name` instead.
 
 ### Default
 
-By default, DESeq2 will calculate some pairwise contrasts given the linear model file. If you do not provide any contrast files, the differential gene expression analysis will be performed with the default contrasts as calculated by DESeq2. Try this option first, if you are unsure about your contrasts.
+By default, DESeq2 will calculate pairwise contrasts given a linear model file. If you do not provide any contrast files, the differential gene expression analysis will be performed with the default contrasts as calculated by DESeq2. Try this option first, if you are unsure about your contrasts.
 
 ### `--relevel`
 
@@ -288,7 +290,7 @@ Sometimes condition factors have obvious levels. By default, the base level of a
 
 ```tsv
 factor  level
-condition_genotype  wild_type
+condition_genotype  wildtype
 condition_treatment control
 
 ```
@@ -313,6 +315,9 @@ Table in tsv format indicating which contrasts to consider. Each contrast is spe
 factor  numerator denominator
 condition_treatment treated control
 condition_genotype  KO  WT
+condition_type Group1-cancer-type-A Group2-cancer-type-B
+condition_group InhibitorA InhibitorB
+condition_age g1.10y-20y g2.20-30y
 
 ```
 
@@ -338,7 +343,10 @@ Adjusted p-value (float) to consider a gene as differentially expressed. The def
 
 ### `--genelist`
 
-List of genes (one per line) of which to plot heatmaps for normalized counts across all samples. The gene list should contain gene [HUGO](https://www.genenames.org/) symbols (no Ensemble IDs).
+List of genes of interest (one per line) for which additional plots are generated.
+Heatmaps and boxplots use normalized counts across all samples.
+If a genelist is provided, the volcano plots show only the labels of these requested genes.
+The gene list should contain gene [HUGO](https://www.genenames.org/) symbols (no Ensemble IDs).
 
 ### `--batch_effect`
 
@@ -375,7 +383,7 @@ Integer indicating to how many decimals to round the DE results (default: -1, in
 
 ### `--run_pathway_analysis`
 
-Set this flag to run pathway analysis, otherwise, this step will be skipped.
+Set this flag to run enrichment and pathway analysis, otherwise, this step will be skipped.
 
 ### `--pathway_adj_pval_threshold`
 
@@ -440,7 +448,7 @@ Which genome to use for analysis, e.g. GRCh37; see `/conf/igenomes.config` for w
 
 ### `--gtf`
 
-GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts or smrnaseq.
+GTF file to be used for DESeq if input is rsem or salmon, not necessary for featurecounts or smrnaseq. If provided, the gene biotypes will be extracted from the `gtf` attributes if this field is available.
 
 ### `--organism`
 
@@ -456,7 +464,7 @@ Which keytype to use for pathway analysis, e.g. ENSEMBL, not necessary if `--run
 
 ### `--custom_gmt`
 
-Path to custom GMT file to use instead of querying against the live gprofiler database, not necessary if `--run_pathway_analysis = false`.
+Path to custom annotation data in [Gene Matrix Transposed file format (GMT)](https://biit.cs.ut.ee/gprofiler/page/docs#custom_gmt) file to use instead of querying against the live gprofiler database, not necessary if `--run_pathway_analysis = false`.
 
 ### `--set_background`
 
@@ -594,22 +602,51 @@ Specify the path to a specific config file (this is a core Nextflow command). Se
 
 Whilst the default requirements set within the pipeline will hopefully work for most people and with most input data, you may find that you want to customise the compute resources that the pipeline requests. Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the steps in the pipeline, if the job exits with any of the error codes specified [here](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L18) it will automatically be resubmitted with higher requests (2 x original, then 3 x original). If it still fails after the third attempt then the pipeline execution is stopped.
 
-For example, if the nf-core/rnaseq pipeline is failing after multiple re-submissions of the `STAR_ALIGN` process due to an exit code of `137` this would indicate that there is an out of memory issue:
+For example, if the nf-core/rnaseq pipeline is failing after multiple re-submissions of the `REPORT` process due to an exit code of `137` this would indicate that there is an out of memory issue:
 
 ```console
-[62/149eb0] NOTE: Process `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137) -- Execution is retried (1)
-Error executing process > 'NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)'
+[62/149eb0] NOTE: Process `QBIC_RNADESEQ:RNADESEQ:REPORT (KO_WT)` terminated with an error exit status (137) -- Execution is retried (1)
+Error executing process > 'QBIC_RNADESEQ:RNADESEQ:REPORT (KO_WT)'
 
 Caused by:
-    Process `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137)
+    Process `QBIC_RNADESEQ:RNADESEQ:REPORT (KO_WT)` terminated with an error exit status (137)
 
 Command executed:
-    STAR \
-        --genomeDir star \
-        --readFilesIn WT_REP1_trimmed.fq.gz  \
-        --runThreadN 2 \
-        --outFileNamePrefix WT_REP1. \
-        <TRUNCATED>
+
+  if [ "NO_FILE4" != "NO_FILE4" ]; then
+      unzip NO_FILE4
+      mkdir QC
+      mv MultiQC/multiqc_plots/ MultiQC/multiqc_data/ MultiQC/multiqc_report.html QC/ \
+        || mv multiqc/*/multiqc_plots/ multiqc/*/multiqc_data/ multiqc/*/multiqc_report.html QC/ \
+        || mv multiqc_plots/ multiqc_data multiqc_report.html QC/
+  fi
+  Execute_report.R
+    --report 'rnadeseq_report.Rmd'
+    --output 'rnadeseq_report.html'
+    --input_type salmon
+    --gene_counts star_salmon
+    --metadata input.tsv
+    --model linear_model.txt
+    --gtf Homo_sapiens.GRCh38.113.gtf.gz
+    --contrast_list contrasts.tsv
+    --logFC_threshold 0
+    --adj_pval_threshold 0.05
+    --norm_method rlog
+    --nsub_genes 1000
+    --round_DE -1
+    --pathway_analysis
+    --set_background TRUE
+    --organism hsapiens
+    --species_library org.Hs.eg.db
+    --keytype ENSEMBL
+    --min_DEG_pathway 1
+    --datasources GO,KEGG,REAC
+    --heatmaps_cluster_rows TRUE
+    --software_versions /path/to/nf_core_rnaseq_software_mqc_versions.yml
+    --proj_summary summary.tsv
+    --revision 2.4
+    --logo logo.png
+
 
 Command exit status:
     137
@@ -618,24 +655,24 @@ Command output:
     (empty)
 
 Command error:
-    .command.sh: line 9:  30 Killed    STAR --genomeDir star --readFilesIn WT_REP1_trimmed.fq.gz --runThreadN 2 --outFileNamePrefix WT_REP1. <TRUNCATED>
+    .command.sh: line 9:  30 Killed    ...
 Work dir:
     /home/pipelinetest/work/9d/172ca5881234073e8d76f2a19c88fb
 
 Tip: you can replicate the issue by changing to the process work dir and entering the command `bash .command.run`
 ```
 
-To bypass this error you would need to find exactly which resources are set by the `STAR_ALIGN` process. The quickest way is to search for `process STAR_ALIGN` in the [nf-core/rnaseq Github repo](https://github.com/nf-core/rnaseq/search?q=process+STAR_ALIGN). We have standardised the structure of Nextflow DSL2 pipelines such that all module files will be present in the `modules/` directory and so based on the search results the file we want is `modules/nf-core/software/star/align/main.nf`. If you click on the link to that file you will notice that there is a `label` directive at the top of the module that is set to [`label process_high`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/modules/nf-core/software/star/align/main.nf#L9). The [Nextflow `label`](https://www.nextflow.io/docs/latest/process.html#label) directive allows us to organise workflow processes in separate groups which can be referenced in a configuration file to select and configure subset of processes having similar computing requirements. The default values for the `process_high` label are set in the pipeline's [`base.config`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L33-L37) which in this case is defined as 72GB. Providing you haven't set any other standard nf-core parameters to **cap** the [maximum resources](https://nf-co.re/usage/configuration#max-resources) used by the pipeline then we can try and bypass the `STAR_ALIGN` process failure by creating a custom config file that sets at least 72GB of memory, in this case increased to 100GB. The custom config below can then be provided to the pipeline via the [`-c`](#-c) parameter as highlighted in previous sections.
+To bypass this error you would need to find exactly which resources are set by the `REPORT` process. The quickest way is to search for `process REPORT` in the [qbic-pipelines/rndeaseq Github repo](https://github.com/qbic-pipelines/rnadeseq/search?q=process+REPORT). We have standardised the structure of Nextflow DSL2 pipelines such that all module files will be present in the `modules/` directory and so based on the search results the file we want is `modules/local/report.nf`. If you click on the link to that file you will notice that there is a `label` directive at the top of the module that is set to [`label process_high`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/modules/nf-core/software/star/align/main.nf#L9). The [Nextflow `label`](https://www.nextflow.io/docs/latest/process.html#label) directive allows us to organise workflow processes in separate groups which can be referenced in a configuration file to select and configure subset of processes having similar computing requirements. The default values for the `process_high` label are set in the pipeline's [`base.config`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L33-L37) which in this case is defined as 72GB. Providing you haven't set any other standard nf-core parameters to **cap** the [maximum resources](https://nf-co.re/usage/configuration#max-resources) used by the pipeline then we can try and bypass the `REPORT` process failure by creating a custom config file that sets at least 72GB of memory, in this case increased to 100GB. The custom config below can then be provided to the pipeline via the [`-c`](#-c) parameter as highlighted in previous sections.
 
 ```nextflow
 process {
-    withName: 'NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN' {
-        memory = 100.GB
+    withName: 'QBIC_RNADESEQ:RNADESEQ:REPORT' {
+        memory = 36.GB
     }
 }
 ```
 
-> **NB:** We specify the full process name i.e. `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN` in the config file because this takes priority over the short name (`STAR_ALIGN`) and allows existing configuration using the full process name to be correctly overridden.
+> **NB:** We specify the full process name i.e. `QBIC_RNADESEQ:RNADESEQ:REPORT` in the config file because this takes priority over the short name (`REPORT`) and allows existing configuration using the full process name to be correctly overridden.
 >
 > If you get a warning suggesting that the process selector isn't recognised check that the process name has been specified correctly.
 
