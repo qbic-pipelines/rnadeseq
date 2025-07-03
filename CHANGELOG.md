@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#274](https://github.com/qbic-pipelines/rnadeseq/pull/274) Fix colors volcano plotly, sample dist. heatmap sampleNames, header trim whitespaces
 - [#278](https://github.com/qbic-pipelines/rnadeseq/pull/278) Fix summary contrast names
 - [#280](https://github.com/qbic-pipelines/rnadeseq/pull/280) Fix thresholds and lines in volcano plots
+- [#283](https://github.com/qbic-pipelines/rnadeseq/pull/283) Fix test config inputs
 
 ## 2.5 - The Potato Eaters
 
